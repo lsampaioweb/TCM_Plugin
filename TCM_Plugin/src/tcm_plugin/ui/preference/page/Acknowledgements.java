@@ -1,0 +1,112 @@
+package tcm_plugin.ui.preference.page;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import org.eclipse.jface.preference.PreferencePage;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchPreferencePage;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+
+import tcm_plugin.l10n.Messages;
+import tcm_plugin.utils.UtilsPreferencePage;
+
+public class Acknowledgements extends PreferencePage implements IWorkbenchPreferencePage {
+
+  public Acknowledgements() {
+  }
+
+  public Acknowledgements(String title) {
+    super(title);
+  }
+
+  public Acknowledgements(String title, ImageDescriptor image) {
+    super(title, image);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void init(IWorkbench workbench) {
+    noDefaultAndApplyButton();
+    setDescription(Messages.Acknowledgements.DESCRIPTION);
+  }
+
+  @Override
+  protected Control createContents(Composite parent) {
+    Composite top = new Composite(parent, SWT.LEFT);
+
+    // Sets the layout for the top composite's children to populate.
+    top.setLayout(new GridLayout());
+
+    // Group authors and its children.
+    Group groupAuthors = new Group(top, SWT.NONE);
+    groupAuthors.setText(Messages.Acknowledgements.GROUP_AUTHORS_LABEL);
+    groupAuthors.setLayout(new GridLayout());
+    groupAuthors.setLayoutData(getGroupGridData());
+
+    Label labelAuthors1 = new Label(groupAuthors, SWT.NONE);
+    labelAuthors1.setText(Messages.Acknowledgements.AUTHOR_1);
+    labelAuthors1.setLayoutData(getLabelGridData());
+
+    // Group contributors and its children.
+    Group groupContributors = new Group(top, SWT.NONE);
+    groupContributors.setText(Messages.Acknowledgements.GROUP_CONTRIBUTORS_LABEL);
+    groupContributors.setLayout(new GridLayout(2, true));
+    groupContributors.setLayoutData(getGroupGridData());
+
+    Label labelContributors1 = new Label(groupContributors, SWT.NONE);
+    labelContributors1.setText(Messages.Acknowledgements.CONTRIBUTORS_1);
+    labelContributors1.setLayoutData(getLabelGridData());
+
+    Label labelContributors2 = new Label(groupContributors, SWT.NONE);
+    labelContributors2.setText(Messages.Acknowledgements.CONTRIBUTORS_2);
+    labelContributors2.setLayoutData(getLabelGridData());
+
+    // Link to the thecodemaster.net web site.
+    Link linkTCM = new Link(top, SWT.NONE);
+    linkTCM.setText(UtilsPreferencePage.getLinkHTML(Messages.Acknowledgements.THECODEMASTER_URL));
+    linkTCM.setLayoutData(getLabelGridData());
+    // Register listener for the selection event
+    linkTCM.addSelectionListener(onClickOpenURL(Messages.Acknowledgements.THECODEMASTER_URL));
+
+    return top;
+  }
+
+  private SelectionAdapter onClickOpenURL(final String URL) {
+    return new SelectionAdapter() {
+      @Override
+      public void widgetSelected(SelectionEvent e) {
+        try {
+          PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL(URL));
+        }
+        catch (PartInitException | MalformedURLException e1) {
+          // TODO
+          e1.printStackTrace();
+        }
+      }
+    };
+  }
+
+  private GridData getGroupGridData() {
+    return new GridData(GridData.FILL, GridData.CENTER, true, false);
+  }
+
+  private GridData getLabelGridData() {
+    return new GridData(GridData.CENTER, GridData.CENTER, true, false);
+  }
+
+}

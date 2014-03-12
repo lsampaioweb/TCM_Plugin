@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="tcm_plugin.ui.preference.page.Acknowledgements"
+            id="tcm_plugin.ui.preference.page.acknowledgements"
+            name="%preference.page.acknowledgements">
+      </page>
+      <page
+            category="tcm_plugin.ui.preference.page.acknowledgements"
+            class="tcm_plugin.ui.preference.page.Settings"
+            id="tcm_plugin.ui.preference.page.settings"
+            name="%preference.page.settings">
+      </page>
+      <page
+            category="tcm_plugin.ui.preference.page.acknowledgements"
+            class="tcm_plugin.ui.preference.page.SecurityVulnerabilities"
+            id="tcm_plugin.ui.preference.page.security_vulnerabilities"
+            name="%preference.page.security_vulnerabilities">
+      </page>
+   </extension>
+   <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="tcm_plugin.ui.preference.PreferenceInitializer">
+      </initializer>
+   </extension>
+
+</plugin>

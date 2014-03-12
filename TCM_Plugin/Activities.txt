@@ -1,0 +1,28 @@
+01 + Create the preferences page.
+01.1 + Create a tab for each Analyzer.
+01.2 + Add the verifiers to each tab.
+02 + Make the plug-in and its messages MultiLingual.
+
+03 + Make the plug-in start automatically with Eclipse.
+04 + Iterate over all projects and files from a workspace.
+
+05 + Track changes on java files.
+06 + Create a hidden file that will be used by our plug-in.
+	It is generating some exceptions, but it creates the file.
+
+07 - Create the pop-up menu when the user click on a project.
+07.1 Add or Remove the project to the list of watched projects.
+
+The work flow will be:
+01 - The user installs the plug-in.
+02 - The user chooses (add or remove) which projects will be monitored.
+03 - After that, every time the Eclipse is started, the plug-in will automatically run
+	and scan the chosen projects.
+	*** The documentation says that this is a very bad idea, because the user might have
+	dozens of installed plug-ins and that would make the IDE slow and use a lot of memory.
+	But how would I make the plug-in work ? Add a button "Run" ? 
+
+04 - Create the exception handling mechanism.
+
+Label Decorations has a style that I want. 
+http://help.eclipse.org/indigo/index.jsp?topic=%2Forg.eclipse.jdt.doc.isv%2Fguide%2Fjdt_api_manip.htm
