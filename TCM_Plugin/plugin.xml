@@ -7,6 +7,9 @@
             class="tcm_plugin.ui.preference.page.Acknowledgements"
             id="tcm_plugin.ui.preference.page.acknowledgements"
             name="%preference.page.acknowledgements">
+         <keywordReference
+               id="TCM_Plugin.ui.keywords">
+         </keywordReference>
       </page>
       <page
             category="tcm_plugin.ui.preference.page.acknowledgements"
@@ -26,6 +29,13 @@
       <initializer
             class="tcm_plugin.ui.preference.PreferenceInitializer">
       </initializer>
+   </extension>
+   <extension
+         point="org.eclipse.ui.keywords">
+      <keyword
+            id="TCM_Plugin.ui.keywords"
+            label="%preference.page.tcm_plugin.keyword">
+      </keyword>
    </extension>
 
 </plugin>

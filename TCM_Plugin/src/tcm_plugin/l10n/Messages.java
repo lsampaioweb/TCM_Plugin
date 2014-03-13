@@ -28,10 +28,11 @@ public abstract class Messages extends NLS {
 
   public static abstract class SecurityVulnerabilities {
     private static final String BUNDLE_NAME = "tcm_plugin.l10n.messages.securityvulnerabilities"; //$NON-NLS-1$
-    public static String        DESCRIPTION;
+    public static String        SECURITY_VULNERABILITIES_LABEL;
     public static String        SQL_INJECTION_LABEL;
     public static String        COOKIE_POISONING_LABEL;
     public static String        CROSS_SITE_SCRIPTING_LABEL;
+    public static String        MONITORED_PROJECTS_LABEL;
 
     static {
       // initialize resource bundle

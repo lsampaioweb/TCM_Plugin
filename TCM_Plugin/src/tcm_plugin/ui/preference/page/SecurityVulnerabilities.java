@@ -1,10 +1,8 @@
 package tcm_plugin.ui.preference.page;
 
+import java.util.List;
+
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -22,11 +20,14 @@ import org.eclipse.ui.IWorkbench;
 import tcm_plugin.Activator;
 import tcm_plugin.constants.Constants;
 import tcm_plugin.l10n.Messages;
+import tcm_plugin.utils.Utils;
 
 public class SecurityVulnerabilities extends TCMPreferencePage {
 
   private Table              projectsList;
   private BooleanFieldEditor ckbtnSQLInjection;
+  private BooleanFieldEditor ckbtnCookiePoisoning;
+  private BooleanFieldEditor ckbtnCrossSiteScripting;
 
   public SecurityVulnerabilities() {
   }
@@ -42,7 +43,6 @@ public class SecurityVulnerabilities extends TCMPreferencePage {
   @Override
   public void init(IWorkbench workbench) {
     setPreferenceStore(Activator.getDefault().getPreferenceStore());
-    setDescription(Messages.SecurityVulnerabilities.DESCRIPTION);
   }
 
   @Override
@@ -74,18 +74,21 @@ public class SecurityVulnerabilities extends TCMPreferencePage {
     // Group output option and its children.
     Group groupOutput = new Group(composite, SWT.NONE);
     groupOutput.setLayout(new GridLayout());
-    groupOutput.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false));
-    groupOutput.setText(Messages.Settings.OUTPUT_LABEL);
+    groupOutput.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
+    groupOutput.setText(Messages.SecurityVulnerabilities.SECURITY_VULNERABILITIES_LABEL);
 
-    // The output options where the warnings of security vulnerabilities will be displayed.
+    // The security vulnerabilities that will be detected in the source code.
     ckbtnSQLInjection =
       createBooleanField(Constants.SecurityVulnerabilities.FIELD_SQL_INJECTION, Messages.SecurityVulnerabilities.SQL_INJECTION_LABEL, groupOutput);
+    ckbtnCookiePoisoning =
+      createBooleanField(Constants.SecurityVulnerabilities.FIELD_COOKIE_POISONING, Messages.SecurityVulnerabilities.COOKIE_POISONING_LABEL, groupOutput);
+    ckbtnCrossSiteScripting =
+      createBooleanField(Constants.SecurityVulnerabilities.FIELD_CROSS_SITE_SCRIPTING, Messages.SecurityVulnerabilities.CROSS_SITE_SCRIPTING_LABEL, groupOutput);
   }
 
   private void createMonitoredProjectsSelection(Composite composite) {
     Label label = new Label(composite, SWT.NONE);
-    label.setText("Projects that are being monitored:");
-    label.setFont(composite.getFont());
+    label.setText(Messages.SecurityVulnerabilities.MONITORED_PROJECTS_LABEL);
     label.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
     projectsList = new Table(composite, SWT.BORDER | SWT.CHECK | SWT.H_SCROLL | SWT.V_SCROLL);
@@ -96,35 +99,20 @@ public class SecurityVulnerabilities extends TCMPreferencePage {
   }
 
   private void populateProjectsList() {
-    IProject[] projects = getListOfProjectsInWorkspace();
-    String JDT_NATURE = "org.eclipse.jdt.core.javanature";
+    List<IProject> projects = getListOfJavaProjectsInWorkspace();
+
+    IPreferenceStore store = getPreferenceStore();
+    List<String> monitoredPlugins =
+      Utils.getListFromString(store.getString(Constants.SecurityVulnerabilities.FIELD_MONITORED_PLUGINS), Constants.SecurityVulnerabilities.SEPARATOR);
 
     for (IProject project : projects) {
-      // check if we have a Java project
-      try {
-        if (project.isNatureEnabled(JDT_NATURE)) {
+      TableItem item = new TableItem(projectsList, SWT.NONE);
 
-          TableItem item = new TableItem(projectsList, SWT.NONE);
-
-          item.setText(project.getName());
-          item.setData(project.getName());
-          item.setChecked(true);
-        }
-      }
-      catch (CoreException e) {
-        // TODO
-        e.printStackTrace();
-      }
+      item.setText(project.getName());
+      item.setData(project.getName());
+      // If the current project is inside the list of monitored projects, then this project should be checked.
+      item.setChecked(monitoredPlugins.contains(project.getName()));
     }
-  }
-
-  private IProject[] getListOfProjectsInWorkspace() {
-    // Get the root of the workspace.
-    IWorkspace workspace = ResourcesPlugin.getWorkspace();
-    IWorkspaceRoot root = workspace.getRoot();
-
-    // Return the list of all projects in the current workspace.
-    return root.getProjects();
   }
 
   @Override
@@ -136,6 +124,16 @@ public class SecurityVulnerabilities extends TCMPreferencePage {
     store.setDefault(Constants.SecurityVulnerabilities.FIELD_CROSS_SITE_SCRIPTING, true);
 
     loadDefaultValue(ckbtnSQLInjection);
+    loadDefaultValue(ckbtnCookiePoisoning);
+    loadDefaultValue(ckbtnCrossSiteScripting);
+
+    if (null != projectsList) {
+      // It will iterate over all the projects in the workspace and check it, so the plug-in will scan the project.
+      TableItem items[] = projectsList.getItems();
+      for (TableItem item : items) {
+        item.setChecked(true);
+      }
+    }
 
     super.performDefaults();
   }
@@ -144,6 +142,19 @@ public class SecurityVulnerabilities extends TCMPreferencePage {
   public boolean performOk() {
     // Save (store) the content chosen by the developer back to the eclipse's preferences. 
     storeValue(ckbtnSQLInjection);
+    storeValue(ckbtnCookiePoisoning);
+    storeValue(ckbtnCrossSiteScripting);
+
+    StringBuffer monitoredPlugins = new StringBuffer();
+    TableItem items[] = projectsList.getItems();
+    for (TableItem item : items) {
+      if (item.getChecked()) {
+        monitoredPlugins.append((String) item.getData());
+        monitoredPlugins.append(Constants.SecurityVulnerabilities.SEPARATOR);
+      }
+    }
+    IPreferenceStore store = getPreferenceStore();
+    store.putValue(Constants.SecurityVulnerabilities.FIELD_MONITORED_PLUGINS, monitoredPlugins.toString());
 
     return super.performOk();
   }
