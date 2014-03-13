@@ -13,13 +13,13 @@ public abstract class Constants {
     public static final String FIELD_CROSS_SITE_SCRIPTING = Activator.PLUGIN_ID + ".CrossSiteScripting";
 
     public static final String JDT_NATURE                 = "org.eclipse.jdt.core.javanature";
-
     public static final String SEPARATOR                  = ";";
     public static final String FIELD_MONITORED_PLUGINS    = Activator.PLUGIN_ID + ".MonitoredPlugins";
   }
 
   public abstract class Settings {
     public static final String FIELD_RUN_MODE             = Activator.PLUGIN_ID + ".RunMode";
+
     public static final String FIELD_OUTPUT_PROBLEMS_VIEW = Activator.PLUGIN_ID + ".ProblemsView";
     public static final String FIELD_OUTPUT_TEXT_FILE     = Activator.PLUGIN_ID + ".TextFile";
     public static final String FIELD_OUTPUT_XML_FILE      = Activator.PLUGIN_ID + ".XmlFile";
