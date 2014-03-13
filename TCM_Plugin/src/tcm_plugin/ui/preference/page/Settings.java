@@ -2,7 +2,6 @@ package tcm_plugin.ui.preference.page;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
@@ -12,14 +11,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import tcm_plugin.Activator;
 import tcm_plugin.constants.Constants;
 import tcm_plugin.l10n.Messages;
-import tcm_plugin.utils.UtilsPreferencePage;
 
-public class Settings extends PreferencePage implements IWorkbenchPreferencePage {
+public class Settings extends TCMPreferencePage {
 
   private RadioGroupFieldEditor rbtnRunMode;
   private BooleanFieldEditor    ckbtnProblemView;
@@ -73,29 +70,11 @@ public class Settings extends PreferencePage implements IWorkbenchPreferencePage
     groupOutput.setText(Messages.Settings.OUTPUT_LABEL);
 
     // The output options where the warnings of security vulnerabilities will be displayed.
-    ckbtnProblemView =
-      UtilsPreferencePage.createBooleanField(Constants.Settings.FIELD_OUTPUT_PROBLEMS_VIEW, Messages.Settings.OUTPUT_PROBLEMS_VIEW_LABEL, groupOutput,
-        getPreferenceStore());
-    ckbtnTextFile =
-      UtilsPreferencePage.createBooleanField(Constants.Settings.FIELD_OUTPUT_TEXT_FILE, Messages.Settings.OUTPUT_TEXT_FILE_LABEL, groupOutput,
-        getPreferenceStore());
-    ckbtnXmlFile =
-      UtilsPreferencePage.createBooleanField(Constants.Settings.FIELD_OUTPUT_XML_FILE, Messages.Settings.OUTPUT_XML_FILE_LABEL, groupOutput,
-        getPreferenceStore());
+    ckbtnProblemView = createBooleanField(Constants.Settings.FIELD_OUTPUT_PROBLEMS_VIEW, Messages.Settings.OUTPUT_PROBLEMS_VIEW_LABEL, groupOutput);
+    ckbtnTextFile = createBooleanField(Constants.Settings.FIELD_OUTPUT_TEXT_FILE, Messages.Settings.OUTPUT_TEXT_FILE_LABEL, groupOutput);
+    ckbtnXmlFile = createBooleanField(Constants.Settings.FIELD_OUTPUT_XML_FILE, Messages.Settings.OUTPUT_XML_FILE_LABEL, groupOutput);
 
     return top;
-  }
-
-  @Override
-  public IPreferenceStore getPreferenceStore() {
-    IPreferenceStore store = super.getPreferenceStore();
-
-    if (null == store) {
-      setPreferenceStore(Activator.getDefault().getPreferenceStore());
-      store = super.getPreferenceStore();
-    }
-
-    return store;
   }
 
   @Override
@@ -109,11 +88,11 @@ public class Settings extends PreferencePage implements IWorkbenchPreferencePage
     store.setDefault(Constants.Settings.FIELD_OUTPUT_XML_FILE, false);
 
     // Set the default values into the fields.
-    UtilsPreferencePage.loadDefaultValue(rbtnRunMode);
+    loadDefaultValue(rbtnRunMode);
 
-    UtilsPreferencePage.loadDefaultValue(ckbtnProblemView);
-    UtilsPreferencePage.loadDefaultValue(ckbtnTextFile);
-    UtilsPreferencePage.loadDefaultValue(ckbtnXmlFile);
+    loadDefaultValue(ckbtnProblemView);
+    loadDefaultValue(ckbtnTextFile);
+    loadDefaultValue(ckbtnXmlFile);
 
     super.performDefaults();
   }
@@ -121,11 +100,11 @@ public class Settings extends PreferencePage implements IWorkbenchPreferencePage
   @Override
   public boolean performOk() {
     // Save (store) the content chosen by the developer back to the eclipse's preferences. 
-    UtilsPreferencePage.storeValue(rbtnRunMode);
+    storeValue(rbtnRunMode);
 
-    UtilsPreferencePage.storeValue(ckbtnProblemView);
-    UtilsPreferencePage.storeValue(ckbtnTextFile);
-    UtilsPreferencePage.storeValue(ckbtnXmlFile);
+    storeValue(ckbtnProblemView);
+    storeValue(ckbtnTextFile);
+    storeValue(ckbtnXmlFile);
 
     return super.performOk();
   }

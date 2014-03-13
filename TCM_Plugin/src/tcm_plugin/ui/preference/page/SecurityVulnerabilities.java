@@ -7,7 +7,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -19,14 +18,12 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPreferencePage;
 
 import tcm_plugin.Activator;
 import tcm_plugin.constants.Constants;
 import tcm_plugin.l10n.Messages;
-import tcm_plugin.utils.UtilsPreferencePage;
 
-public class SecurityVulnerabilities extends PreferencePage implements IWorkbenchPreferencePage {
+public class SecurityVulnerabilities extends TCMPreferencePage {
 
   private Table              projectsList;
   private BooleanFieldEditor ckbtnSQLInjection;
@@ -82,8 +79,7 @@ public class SecurityVulnerabilities extends PreferencePage implements IWorkbenc
 
     // The output options where the warnings of security vulnerabilities will be displayed.
     ckbtnSQLInjection =
-      UtilsPreferencePage.createBooleanField(Constants.SecurityVulnerabilities.FIELD_SQL_INJECTION, Messages.SecurityVulnerabilities.SQL_INJECTION_LABEL,
-        groupOutput, getPreferenceStore());
+      createBooleanField(Constants.SecurityVulnerabilities.FIELD_SQL_INJECTION, Messages.SecurityVulnerabilities.SQL_INJECTION_LABEL, groupOutput);
   }
 
   private void createMonitoredProjectsSelection(Composite composite) {
@@ -132,18 +128,6 @@ public class SecurityVulnerabilities extends PreferencePage implements IWorkbenc
   }
 
   @Override
-  public IPreferenceStore getPreferenceStore() {
-    IPreferenceStore store = super.getPreferenceStore();
-
-    if (null == store) {
-      setPreferenceStore(Activator.getDefault().getPreferenceStore());
-      store = super.getPreferenceStore();
-    }
-
-    return store;
-  }
-
-  @Override
   public void performDefaults() {
     IPreferenceStore store = getPreferenceStore();
 
@@ -151,7 +135,7 @@ public class SecurityVulnerabilities extends PreferencePage implements IWorkbenc
     store.setDefault(Constants.SecurityVulnerabilities.FIELD_COOKIE_POISONING, true);
     store.setDefault(Constants.SecurityVulnerabilities.FIELD_CROSS_SITE_SCRIPTING, true);
 
-    UtilsPreferencePage.loadDefaultValue(ckbtnSQLInjection);
+    loadDefaultValue(ckbtnSQLInjection);
 
     super.performDefaults();
   }
@@ -159,7 +143,7 @@ public class SecurityVulnerabilities extends PreferencePage implements IWorkbenc
   @Override
   public boolean performOk() {
     // Save (store) the content chosen by the developer back to the eclipse's preferences. 
-    UtilsPreferencePage.storeValue(ckbtnSQLInjection);
+    storeValue(ckbtnSQLInjection);
 
     return super.performOk();
   }

@@ -1,13 +1,7 @@
 package tcm_plugin.ui.preference.page;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
-import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -16,16 +10,13 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPreferencePage;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
 
 import tcm_plugin.l10n.Messages;
-import tcm_plugin.utils.UtilsPreferencePage;
 
-public class Acknowledgements extends PreferencePage implements IWorkbenchPreferencePage {
+public class Acknowledgements extends TCMPreferencePage {
 
   public Acknowledgements() {
+    super();
   }
 
   public Acknowledgements(String title) {
@@ -78,27 +69,12 @@ public class Acknowledgements extends PreferencePage implements IWorkbenchPrefer
 
     // Link to the thecodemaster.net web site.
     Link linkTCM = new Link(top, SWT.NONE);
-    linkTCM.setText(UtilsPreferencePage.getLinkHTML(Messages.Acknowledgements.THECODEMASTER_URL));
+    linkTCM.setText(getLinkHTML(Messages.Acknowledgements.THECODEMASTER_URL));
     linkTCM.setLayoutData(getLabelGridData());
     // Register listener for the selection event
     linkTCM.addSelectionListener(onClickOpenURL(Messages.Acknowledgements.THECODEMASTER_URL));
 
     return top;
-  }
-
-  private SelectionAdapter onClickOpenURL(final String URL) {
-    return new SelectionAdapter() {
-      @Override
-      public void widgetSelected(SelectionEvent e) {
-        try {
-          PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL(URL));
-        }
-        catch (PartInitException | MalformedURLException e1) {
-          // TODO
-          e1.printStackTrace();
-        }
-      }
-    };
   }
 
   private GridData getGroupGridData() {
