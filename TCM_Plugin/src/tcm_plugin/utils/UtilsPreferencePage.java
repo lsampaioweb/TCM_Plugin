@@ -8,7 +8,7 @@ import org.eclipse.swt.widgets.Composite;
 /**
  * @author Luciano Sampaio
  */
-public class UtilsPreferencePage {
+public abstract class UtilsPreferencePage {
 
   /**
    * Create a HTML link to be displayed in the preference page.

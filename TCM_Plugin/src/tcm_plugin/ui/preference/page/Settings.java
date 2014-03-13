@@ -87,14 +87,15 @@ public class Settings extends PreferencePage implements IWorkbenchPreferencePage
   }
 
   @Override
-  public boolean performOk() {
-    // Save (store) the content chosen by the developer back to the eclipse's preferences. 
-    UtilsPreferencePage.storeValue(rbtnRunMode);
-    UtilsPreferencePage.storeValue(ckbtnProblemView);
-    UtilsPreferencePage.storeValue(ckbtnTextFile);
-    UtilsPreferencePage.storeValue(ckbtnXmlFile);
+  public IPreferenceStore getPreferenceStore() {
+    IPreferenceStore store = super.getPreferenceStore();
 
-    return super.performOk();
+    if (null == store) {
+      setPreferenceStore(Activator.getDefault().getPreferenceStore());
+      store = super.getPreferenceStore();
+    }
+
+    return store;
   }
 
   @Override
@@ -109,6 +110,7 @@ public class Settings extends PreferencePage implements IWorkbenchPreferencePage
 
     // Set the default values into the fields.
     UtilsPreferencePage.loadDefaultValue(rbtnRunMode);
+
     UtilsPreferencePage.loadDefaultValue(ckbtnProblemView);
     UtilsPreferencePage.loadDefaultValue(ckbtnTextFile);
     UtilsPreferencePage.loadDefaultValue(ckbtnXmlFile);
@@ -116,4 +118,15 @@ public class Settings extends PreferencePage implements IWorkbenchPreferencePage
     super.performDefaults();
   }
 
+  @Override
+  public boolean performOk() {
+    // Save (store) the content chosen by the developer back to the eclipse's preferences. 
+    UtilsPreferencePage.storeValue(rbtnRunMode);
+
+    UtilsPreferencePage.storeValue(ckbtnProblemView);
+    UtilsPreferencePage.storeValue(ckbtnTextFile);
+    UtilsPreferencePage.storeValue(ckbtnXmlFile);
+
+    return super.performOk();
+  }
 }
