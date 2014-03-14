@@ -3,6 +3,8 @@ package tcm_plugin.constants;
 import tcm_plugin.Activator;
 
 /**
+ * This class contains constants used by the application.
+ * 
  * @author Luciano Sampaio
  */
 public abstract class Constants {

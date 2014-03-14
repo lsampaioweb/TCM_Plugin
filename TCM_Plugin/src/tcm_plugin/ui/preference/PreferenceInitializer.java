@@ -5,10 +5,12 @@ import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
 import tcm_plugin.ui.preference.page.SecurityVulnerabilities;
 import tcm_plugin.ui.preference.page.Settings;
 
+/**
+ * It initialize the fields of our preferences pages with its default values.
+ * 
+ * @author Luciano Sampaio
+ */
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
-
-  public PreferenceInitializer() {
-  }
 
   @Override
   public void initializeDefaultPreferences() {

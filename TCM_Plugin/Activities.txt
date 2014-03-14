@@ -11,8 +11,9 @@
 	It is generating some exceptions, but it creates the file.
 
 07 + Create the pop-up menu when the user click on a project.
-07.1 - Add or Remove the project to the list of monitored projects.
-07.2 - Open the settings preference page.
+07.1 + Open the settings preference page in the source code.
+07.2 - Add or Remove the project to the list of monitored projects.
+07.3 - Make the buttons add and remove only available if the project is or is not already being monitored.
 
 The work flow will be:
 01 - The user installs the plug-in.
