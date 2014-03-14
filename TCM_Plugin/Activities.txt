@@ -10,8 +10,9 @@
 06 + Create a hidden file that will be used by our plug-in.
 	It is generating some exceptions, but it creates the file.
 
-07 - Create the pop-up menu when the user click on a project.
-07.1 Add or Remove the project to the list of watched projects.
+07 + Create the pop-up menu when the user click on a project.
+07.1 - Add or Remove the project to the list of monitored projects.
+07.2 - Open the settings preference page.
 
 The work flow will be:
 01 - The user installs the plug-in.
@@ -23,6 +24,3 @@ The work flow will be:
 	But how would I make the plug-in work ? Add a button "Run" ? 
 
 04 - Create the exception handling mechanism.
-
-Label Decorations has a style that I want. 
-http://help.eclipse.org/indigo/index.jsp?topic=%2Forg.eclipse.jdt.doc.isv%2Fguide%2Fjdt_api_manip.htm

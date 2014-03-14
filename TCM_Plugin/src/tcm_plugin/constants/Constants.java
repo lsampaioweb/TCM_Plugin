@@ -18,6 +18,8 @@ public abstract class Constants {
   }
 
   public abstract class Settings {
+    public static final String PAGE_ID                    = "tcm_plugin.ui.preference.page.settings";
+
     public static final String FIELD_RUN_MODE             = Activator.PLUGIN_ID + ".RunMode";
 
     public static final String FIELD_OUTPUT_PROBLEMS_VIEW = Activator.PLUGIN_ID + ".ProblemsView";

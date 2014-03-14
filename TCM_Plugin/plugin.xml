@@ -2,13 +2,19 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
+         point="org.eclipse.core.runtime.preferences">
+      <initializer
+            class="tcm_plugin.ui.preference.PreferenceInitializer">
+      </initializer>
+   </extension>
+   <extension
          point="org.eclipse.ui.preferencePages">
       <page
             class="tcm_plugin.ui.preference.page.Acknowledgements"
             id="tcm_plugin.ui.preference.page.acknowledgements"
             name="%preference.page.acknowledgements">
          <keywordReference
-               id="TCM_Plugin.ui.keywords">
+               id="tcm_plugin.ui.keywords">
          </keywordReference>
       </page>
       <page
@@ -25,17 +31,58 @@
       </page>
    </extension>
    <extension
-         point="org.eclipse.core.runtime.preferences">
-      <initializer
-            class="tcm_plugin.ui.preference.PreferenceInitializer">
-      </initializer>
-   </extension>
-   <extension
          point="org.eclipse.ui.keywords">
       <keyword
-            id="TCM_Plugin.ui.keywords"
+            id="tcm_plugin.ui.keywords"
             label="%preference.page.tcm_plugin.keyword">
       </keyword>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.eclipse.ui.popup.any?before=additions">
+         <menu
+               id="tcm_plugin.ui.menu.root"
+               label="%menu.tcm_plugin">
+            <command
+                  commandId="tcm_plugin.command.enable_plugin"
+                  label="%menu.enable_plugin.label"
+                  style="push"
+                  tooltip="%menu.enable_plugin.tooltip">
+            </command>
+            <command
+                  commandId="tcm_plugin.command.disable_plugin"
+                  label="%menu.disable_plugin.label"
+                  style="push"
+                  tooltip="%menu.disable_plugin.tooltip">
+            </command>
+            <command
+                  commandId="tcm_plugin.command.open_settings"
+                  label="%menu.open_settings.label"
+                  style="push"
+                  tooltip="%menu.open_settings.tooltip">
+            </command>
+         </menu>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            defaultHandler="tcm_plugin.commands.EnableScanOnProject"
+            id="tcm_plugin.command.enable_plugin"
+            name="%menu.enable_plugin.label">
+      </command>
+      <command
+            defaultHandler="tcm_plugin.commands.DisableScanOnProject"
+            id="tcm_plugin.command.disable_plugin"
+            name="%menu.disable_plugin.label">
+      </command>
+      <command
+            defaultHandler="tcm_plugin.commands.OpenSettingsPreferencePage"
+            id="tcm_plugin.command.open_settings"
+            name="%menu.open_settings.label">
+      </command>
    </extension>
 
 </plugin>
