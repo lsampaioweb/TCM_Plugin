@@ -1,8 +1,11 @@
 package tcm_plugin.ui.preference.page;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
@@ -20,7 +23,6 @@ import org.eclipse.ui.IWorkbench;
 import tcm_plugin.Activator;
 import tcm_plugin.constants.Constants;
 import tcm_plugin.l10n.Messages;
-import tcm_plugin.utils.Utils;
 
 public class SecurityVulnerabilities extends TCMPreferencePage {
 
@@ -99,11 +101,11 @@ public class SecurityVulnerabilities extends TCMPreferencePage {
   }
 
   private void populateProjectsList() {
-    List<IProject> projects = getListOfJavaProjectsInWorkspace();
+    // The collection of projects which exist under this workspace.
+    Collection<IProject> projects = getListOfJavaProjectsInWorkspace();
 
-    IPreferenceStore store = getPreferenceStore();
-    List<String> monitoredPlugins =
-      Utils.getListFromString(store.getString(Constants.SecurityVulnerabilities.FIELD_MONITORED_PLUGINS), Constants.SecurityVulnerabilities.SEPARATOR);
+    // The collection of projects that are being monitored by our plug-in.
+    Collection<IProject> monitoredProjects = getListOfMonitoredProjects();
 
     for (IProject project : projects) {
       TableItem item = new TableItem(projectsList, SWT.NONE);
@@ -111,7 +113,7 @@ public class SecurityVulnerabilities extends TCMPreferencePage {
       item.setText(project.getName());
       item.setData(project.getName());
       // If the current project is inside the list of monitored projects, then this project should be checked.
-      item.setChecked(monitoredPlugins.contains(project.getName()));
+      item.setChecked(monitoredProjects.contains(project));
     }
   }
 
@@ -145,16 +147,20 @@ public class SecurityVulnerabilities extends TCMPreferencePage {
     storeValue(ckbtnCookiePoisoning);
     storeValue(ckbtnCrossSiteScripting);
 
-    StringBuffer monitoredPlugins = new StringBuffer();
+    // The list with the projects to be monitored.
+    Collection<IProject> listMonitoredProjects = new HashSet<IProject>();
+
+    // Iterate over the list of selected projects and if they are checked, add them to the list.
     TableItem items[] = projectsList.getItems();
+    IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
     for (TableItem item : items) {
       if (item.getChecked()) {
-        monitoredPlugins.append((String) item.getData());
-        monitoredPlugins.append(Constants.SecurityVulnerabilities.SEPARATOR);
+        listMonitoredProjects.add(root.getProject((String) item.getData()));
       }
     }
-    IPreferenceStore store = getPreferenceStore();
-    store.putValue(Constants.SecurityVulnerabilities.FIELD_MONITORED_PLUGINS, monitoredPlugins.toString());
+
+    // Save the list back to the preference store.
+    saveListOfMonitoredProjects(listMonitoredProjects);
 
     return super.performOk();
   }

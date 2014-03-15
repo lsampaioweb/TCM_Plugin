@@ -2,12 +2,9 @@ package tcm_plugin.ui.preference.page;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditor;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -21,7 +18,7 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 
 import tcm_plugin.Activator;
-import tcm_plugin.constants.Constants;
+import tcm_plugin.utils.Utils;
 
 /**
  * @author Luciano Sampaio
@@ -161,26 +158,24 @@ public abstract class TCMPreferencePage extends PreferencePage implements IWorkb
    * 
    * @return An list of projects.
    */
-  protected List<IProject> getListOfJavaProjectsInWorkspace() {
-    // Returns the collection of projects which exist under this root. The projects can be open or closed.
-    IProject[] allProjects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-    // This collection only has Java projects which are also accessible and opened.
-    List<IProject> javaProjects = new ArrayList<IProject>(allProjects.length);
+  protected Collection<IProject> getListOfJavaProjectsInWorkspace() {
+    return Utils.getListOfJavaProjectsInWorkspace();
+  }
 
-    for (IProject project : allProjects) {
-      try {
-        if ((project.isAccessible()) && (project.isOpen()) && (project.isNatureEnabled(Constants.SecurityVulnerabilities.JDT_NATURE))) {
-          javaProjects.add(project);
-        }
-      }
-      catch (CoreException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-    }
+  /**
+   * Returns a collection containing the projects that are being monitored by our plug-in.
+   * 
+   * @return A collection of projects' names.
+   */
+  protected Collection<IProject> getListOfMonitoredProjects() {
+    return Utils.getListOfMonitoredProjects();
+  }
 
-    // Return the list of all projects in the current workspace.
-    return javaProjects;
+  /**
+   * @param monitoredProjects
+   */
+  protected void saveListOfMonitoredProjects(Collection<IProject> monitoredProjects) {
+    Utils.saveListOfMonitoredProjects(monitoredProjects);
   }
 
 }

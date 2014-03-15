@@ -9,14 +9,15 @@ import tcm_plugin.Activator;
  */
 public abstract class Constants {
 
+  public static final String JDT_NATURE = "org.eclipse.jdt.core.javanature";
+  public static final String SEPARATOR  = ";";
+
   public abstract class SecurityVulnerabilities {
     public static final String FIELD_SQL_INJECTION        = Activator.PLUGIN_ID + ".SQLInjection";
     public static final String FIELD_COOKIE_POISONING     = Activator.PLUGIN_ID + ".CookiePoisoning";
     public static final String FIELD_CROSS_SITE_SCRIPTING = Activator.PLUGIN_ID + ".CrossSiteScripting";
 
-    public static final String JDT_NATURE                 = "org.eclipse.jdt.core.javanature";
-    public static final String SEPARATOR                  = ";";
-    public static final String FIELD_MONITORED_PLUGINS    = Activator.PLUGIN_ID + ".MonitoredPlugins";
+    public static final String FIELD_MONITORED_PROJECTS   = Activator.PLUGIN_ID + ".MonitoredProjects";
   }
 
   public abstract class Settings {
