@@ -28,7 +28,7 @@ public abstract class Utils {
     // Returns the collection of projects which exist under this root. The projects can be open or closed.
     IProject[] allProjects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
     // This collection only has Java projects which are also accessible and opened.
-    Collection<IProject> javaProjects = new HashSet<IProject>(allProjects.length);
+    Collection<IProject> javaProjects = Utils.newCollection(allProjects.length);
 
     for (IProject project : allProjects) {
       try {
@@ -54,7 +54,7 @@ public abstract class Utils {
    * @return A collection of strings;
    */
   public static Collection<String> getListFromString(String content, String separator) {
-    Collection<String> collection = new HashSet<String>();
+    Collection<String> collection = newCollection();
 
     if ((null != content) && (content.length() > 0)) {
       collection = Arrays.asList(content.split(separator));
@@ -78,7 +78,7 @@ public abstract class Utils {
     Collection<String> projectsNames = getListFromString(storedMonitoredProjects, Constants.SEPARATOR);
 
     // The list with the projects that are being monitored by our plug-in.
-    Collection<IProject> listMonitoredProjects = new HashSet<IProject>();
+    Collection<IProject> listMonitoredProjects = newCollection();
 
     IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
     for (String projectName : projectsNames) {
@@ -100,5 +100,24 @@ public abstract class Utils {
     }
 
     store.putValue(Constants.SecurityVulnerabilities.FIELD_MONITORED_PROJECTS, projectsToSave.toString());
+  }
+
+  /**
+   * Return a Collection of type T.
+   * 
+   * @return Collection<T>
+   */
+  public static <T> Collection<T> newCollection() {
+    return new HashSet<T>();
+  }
+
+  /**
+   * Return a Collection of type T.
+   * 
+   * @param initialCapacity the initial capacity of the Collection.
+   * @return Collection<T>
+   */
+  public static <T> Collection<T> newCollection(int initialCapacity) {
+    return new HashSet<T>(initialCapacity);
   }
 }

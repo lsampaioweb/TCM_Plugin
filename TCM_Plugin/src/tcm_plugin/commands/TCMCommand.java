@@ -1,7 +1,6 @@
 package tcm_plugin.commands;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 
 import org.eclipse.core.commands.AbstractHandler;
@@ -30,7 +29,7 @@ public abstract class TCMCommand extends AbstractHandler {
    * @return A list(unique elements) of selected projects by the developer.
    */
   protected Collection<IProject> getSelectedProjects(ExecutionEvent event) {
-    Collection<IProject> projects = new HashSet<IProject>();
+    Collection<IProject> projects = Utils.newCollection();
 
     IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
     ISelection selection = window.getActivePage().getSelection();

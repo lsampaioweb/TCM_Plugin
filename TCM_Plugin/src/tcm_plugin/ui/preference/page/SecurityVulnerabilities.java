@@ -1,7 +1,6 @@
 package tcm_plugin.ui.preference.page;
 
 import java.util.Collection;
-import java.util.HashSet;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -23,6 +22,7 @@ import org.eclipse.ui.IWorkbench;
 import tcm_plugin.Activator;
 import tcm_plugin.constants.Constants;
 import tcm_plugin.l10n.Messages;
+import tcm_plugin.utils.Utils;
 
 public class SecurityVulnerabilities extends TCMPreferencePage {
 
@@ -148,7 +148,7 @@ public class SecurityVulnerabilities extends TCMPreferencePage {
     storeValue(ckbtnCrossSiteScripting);
 
     // The list with the projects to be monitored.
-    Collection<IProject> listMonitoredProjects = new HashSet<IProject>();
+    Collection<IProject> listMonitoredProjects = Utils.newCollection();
 
     // Iterate over the list of selected projects and if they are checked, add them to the list.
     TableItem items[] = projectsList.getItems();

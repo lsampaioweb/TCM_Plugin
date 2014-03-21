@@ -21,7 +21,7 @@ public class OpenSettingsPreferencePage extends TCMCommand {
     // Return the active workbench window.
     final IWorkbenchWindow activeWorkbenchWindow = HandlerUtil.getActiveWorkbenchWindowChecked(event);
 
-    // Creates a workbench preference dialog and selects the our settings preference page.
+    // Creates a workbench preference dialog and selects our settings preference page.
     final PreferenceDialog dialog = PreferencesUtil.createPreferenceDialogOn(activeWorkbenchWindow.getShell(), Constants.Settings.PAGE_ID, null, null);
     dialog.open();
 
