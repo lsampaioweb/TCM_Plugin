@@ -1,4 +1,6 @@
-package tcm_plugin.ui.preference.page;
+package net.thecodemaster.sap.ui.preference.page;
+
+import net.thecodemaster.sap.l10n.Messages;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
@@ -10,8 +12,6 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.IWorkbench;
-
-import tcm_plugin.l10n.Messages;
 
 public class Acknowledgements extends TCMPreferencePage {
 

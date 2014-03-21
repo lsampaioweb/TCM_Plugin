@@ -1,4 +1,6 @@
-package tcm_plugin.commands;
+package net.thecodemaster.sap.commands;
+
+import net.thecodemaster.sap.constants.Constants;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -6,8 +8,6 @@ import org.eclipse.jface.preference.PreferenceDialog;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.dialogs.PreferencesUtil;
 import org.eclipse.ui.handlers.HandlerUtil;
-
-import tcm_plugin.constants.Constants;
 
 /**
  * Creates a workbench preference dialog and selects the our settings preference page.

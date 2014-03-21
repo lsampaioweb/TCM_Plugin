@@ -1,9 +1,9 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %Bundle-Name
-Bundle-SymbolicName: TCM_Plugin;singleton:=true
+Bundle-SymbolicName: TheCodeMasterSecurityAnalyzerPlugin;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-Activator: tcm_plugin.Activator
+Bundle-Activator: net.thecodemaster.sap.Activator
 Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,

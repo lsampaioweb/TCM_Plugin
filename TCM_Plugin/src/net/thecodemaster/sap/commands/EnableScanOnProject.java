@@ -1,4 +1,4 @@
-package tcm_plugin.commands;
+package net.thecodemaster.sap.commands;
 
 import java.util.Collection;
 

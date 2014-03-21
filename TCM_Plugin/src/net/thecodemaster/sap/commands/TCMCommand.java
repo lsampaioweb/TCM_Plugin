@@ -1,7 +1,9 @@
-package tcm_plugin.commands;
+package net.thecodemaster.sap.commands;
 
 import java.util.Collection;
 import java.util.Iterator;
+
+import net.thecodemaster.sap.utils.Utils;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -12,8 +14,6 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
-
-import tcm_plugin.utils.Utils;
 
 /**
  * If the current selected project is not being monitored, add it to the list.

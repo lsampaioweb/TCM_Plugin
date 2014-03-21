@@ -1,17 +1,17 @@
-package tcm_plugin.utils;
+package net.thecodemaster.sap.utils;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+
+import net.thecodemaster.sap.Activator;
+import net.thecodemaster.sap.constants.Constants;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.preference.IPreferenceStore;
-
-import tcm_plugin.Activator;
-import tcm_plugin.constants.Constants;
 
 /**
  * @author Luciano Sampaio

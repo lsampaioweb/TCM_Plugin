@@ -1,6 +1,6 @@
-package tcm_plugin.constants;
+package net.thecodemaster.sap.constants;
 
-import tcm_plugin.Activator;
+import net.thecodemaster.sap.Activator;
 
 /**
  * This class contains constants used by the application.
@@ -21,7 +21,7 @@ public abstract class Constants {
   }
 
   public abstract class Settings {
-    public static final String PAGE_ID                    = "tcm_plugin.ui.preference.page.settings";
+    public static final String PAGE_ID                    = "net.thecodemaster.sap.ui.preference.page.settings";
 
     public static final String FIELD_RUN_MODE             = Activator.PLUGIN_ID + ".RunMode";
 

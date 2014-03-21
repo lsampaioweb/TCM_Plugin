@@ -1,6 +1,11 @@
-package tcm_plugin.ui.preference.page;
+package net.thecodemaster.sap.ui.preference.page;
 
 import java.util.Collection;
+
+import net.thecodemaster.sap.Activator;
+import net.thecodemaster.sap.constants.Constants;
+import net.thecodemaster.sap.l10n.Messages;
+import net.thecodemaster.sap.utils.Utils;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -18,11 +23,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IWorkbench;
-
-import tcm_plugin.Activator;
-import tcm_plugin.constants.Constants;
-import tcm_plugin.l10n.Messages;
-import tcm_plugin.utils.Utils;
 
 public class SecurityVulnerabilities extends TCMPreferencePage {
 

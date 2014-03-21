@@ -1,9 +1,9 @@
-package tcm_plugin.ui.preference;
+package net.thecodemaster.sap.ui.preference;
+
+import net.thecodemaster.sap.ui.preference.page.SecurityVulnerabilities;
+import net.thecodemaster.sap.ui.preference.page.Settings;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
-
-import tcm_plugin.ui.preference.page.SecurityVulnerabilities;
-import tcm_plugin.ui.preference.page.Settings;
 
 /**
  * It initialize the fields of our preferences pages with its default values.

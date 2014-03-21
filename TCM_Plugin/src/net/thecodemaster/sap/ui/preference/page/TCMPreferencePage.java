@@ -1,8 +1,11 @@
-package tcm_plugin.ui.preference.page;
+package net.thecodemaster.sap.ui.preference.page;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
+
+import net.thecodemaster.sap.Activator;
+import net.thecodemaster.sap.utils.Utils;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.preference.BooleanFieldEditor;
@@ -16,9 +19,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-
-import tcm_plugin.Activator;
-import tcm_plugin.utils.Utils;
 
 /**
  * @author Luciano Sampaio
