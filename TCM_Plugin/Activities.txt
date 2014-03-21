@@ -2,7 +2,7 @@
 
 02 + Make the plug-in and its messages MultiLingual.
 
-03 - Make the plug-in start automatically with Eclipse.
+03 + Make the plug-in start automatically with Eclipse.
 
 04 - Create the exception handling mechanism.
 
