@@ -158,8 +158,8 @@ public abstract class TCMPreferencePage extends PreferencePage implements IWorkb
    * 
    * @return An list of projects.
    */
-  protected Collection<IProject> getListOfJavaProjectsInWorkspace() {
-    return Utils.getListOfJavaProjectsInWorkspace();
+  protected Collection<IProject> getListOfProjectsInWorkspace() {
+    return Utils.getListOfProjectsInWorkspace();
   }
 
   /**

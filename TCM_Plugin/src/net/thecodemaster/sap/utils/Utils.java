@@ -32,7 +32,7 @@ public abstract class Utils {
    * 
    * @return An list of projects.
    */
-  public static Collection<IProject> getListOfJavaProjectsInWorkspace() {
+  public static Collection<IProject> getListOfProjectsInWorkspace() {
     // Returns the collection of projects which exist under this root. The projects can be open or closed.
     IProject[] allProjects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
     // This collection only has Java projects which are also accessible and opened.
@@ -136,10 +136,20 @@ public abstract class Utils {
    * @return A list(unique elements) of selected projects by the developer.
    */
   public static Collection<IProject> getSelectedProjects(ExecutionEvent event) {
-    Collection<IProject> projects = newCollection();
-
     IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
     ISelection selection = window.getActivePage().getSelection();
+
+    return getSelectedProjects(selection);
+  }
+
+  /**
+   * Get the list(unique elements) of selected projects by the developer. Even if he/she selected a file.
+   * 
+   * @param selection The objection that contains the current selection.
+   * @return A list(unique elements) of selected projects by the developer.
+   */
+  public static Collection<IProject> getSelectedProjects(ISelection selection) {
+    Collection<IProject> projects = newCollection();
 
     if (selection instanceof IStructuredSelection) {
       for (Iterator<?> iter = ((IStructuredSelection) selection).iterator(); iter.hasNext();) {

@@ -78,13 +78,9 @@
                      checkEnabled="false">
                   <with
                         variable="selection">
-                     <iterate
-                           ifEmpty="false"
-                           operator="or">
-                        <test
-                              property="net.thecodemaster.sap.ui.propertytester.isEnabled">
-                        </test>
-                     </iterate>
+                     <test
+                           property="net.thecodemaster.sap.ui.propertytester.isEnabled">
+                     </test>
                   </with>
                </visibleWhen>
             </command>
@@ -97,13 +93,9 @@
                      checkEnabled="false">
                   <with
                         variable="selection">
-                     <iterate
-                           ifEmpty="false"
-                           operator="or">
-                        <test
-                              property="net.thecodemaster.sap.ui.propertytester.isDisabled">
-                        </test>
-                     </iterate>
+                     <test
+                           property="net.thecodemaster.sap.ui.propertytester.isDisabled">
+                     </test>
                   </with>
                </visibleWhen>
             </command>
@@ -141,7 +133,7 @@
             id="net.thecodemaster.sap.ui.propertytester.EnableDisableMenu"
             namespace="net.thecodemaster.sap.ui.propertytester"
             properties="isEnabled, isDisabled"
-            type="java.lang.Object">
+            type="org.eclipse.jface.viewers.ISelection">
       </propertyTester>
    </extension>
 

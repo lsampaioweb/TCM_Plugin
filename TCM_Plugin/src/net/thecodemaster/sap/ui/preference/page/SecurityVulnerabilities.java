@@ -102,7 +102,7 @@ public class SecurityVulnerabilities extends TCMPreferencePage {
 
   private void populateProjectsList() {
     // The collection of projects which exist under this workspace.
-    Collection<IProject> projects = getListOfJavaProjectsInWorkspace();
+    Collection<IProject> projects = getListOfProjectsInWorkspace();
 
     // The collection of projects that are being monitored by our plug-in.
     Collection<IProject> monitoredProjects = getListOfMonitoredProjects();
