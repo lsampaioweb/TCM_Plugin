@@ -3,15 +3,23 @@ package net.thecodemaster.sap.utils;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 
 import net.thecodemaster.sap.Activator;
 import net.thecodemaster.sap.constants.Constants;
 
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
  * @author Luciano Sampaio
@@ -119,5 +127,57 @@ public abstract class Utils {
    */
   public static <T> Collection<T> newCollection(int initialCapacity) {
     return new HashSet<T>(initialCapacity);
+  }
+
+  /**
+   * Get the list(unique elements) of selected projects by the developer. Even if he/she selected a file.
+   * 
+   * @param event The data object to pass to the command (and its handler) as it executes.
+   * @return A list(unique elements) of selected projects by the developer.
+   */
+  public static Collection<IProject> getSelectedProjects(ExecutionEvent event) {
+    Collection<IProject> projects = newCollection();
+
+    IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
+    ISelection selection = window.getActivePage().getSelection();
+
+    if (selection instanceof IStructuredSelection) {
+      for (Iterator<?> iter = ((IStructuredSelection) selection).iterator(); iter.hasNext();) {
+        // Translate the selected object into a project.
+        IProject element = extractProjectFromResource(iter.next());
+
+        if (null != element) {
+          projects.add(element);
+        }
+      }
+    }
+
+    return projects;
+  }
+
+  /**
+   * Extract the project where this resource is under.
+   * 
+   * @param element the element that will be used to extract the project.
+   * @return The project where this resource is under.
+   */
+  public static IProject extractProjectFromResource(Object element) {
+    if (!(element instanceof IResource)) {
+      if (!(element instanceof IAdaptable)) {
+        return null;
+      }
+      element = ((IAdaptable) element).getAdapter(IResource.class);
+      if (!(element instanceof IResource)) {
+        return null;
+      }
+    }
+    if (!(element instanceof IProject)) {
+      element = ((IResource) element).getProject();
+      if (!(element instanceof IProject)) {
+        return null;
+      }
+    }
+
+    return (IProject) element;
   }
 }

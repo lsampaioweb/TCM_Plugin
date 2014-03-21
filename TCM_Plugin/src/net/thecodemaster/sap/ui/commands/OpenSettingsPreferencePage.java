@@ -1,4 +1,4 @@
-package net.thecodemaster.sap.commands;
+package net.thecodemaster.sap.ui.commands;
 
 import net.thecodemaster.sap.constants.Constants;
 

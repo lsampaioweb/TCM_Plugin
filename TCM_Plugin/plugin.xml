@@ -51,20 +51,64 @@
          <menu
                id="net.thecodemaster.sap.ui.menu.root"
                label="%menu.tcmsap">
+            <visibleWhen
+                  checkEnabled="false">
+               <with
+                     variable="selection">
+                  <iterate
+                        ifEmpty="false"
+                        operator="or">
+                     <or>
+                        <instanceof
+                              value="org.eclipse.core.resources.IResource">
+                        </instanceof>
+                        <instanceof
+                              value="org.eclipse.jdt.core.IJavaElement">
+                        </instanceof>
+                     </or>
+                  </iterate>
+               </with>
+            </visibleWhen>
             <command
-                  commandId="net.thecodemaster.sap.command.enable_plugin"
+                  commandId="net.thecodemaster.sap.ui.command.enable_plugin"
                   label="%menu.enable_plugin.label"
                   style="push"
                   tooltip="%menu.enable_plugin.tooltip">
+               <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="selection">
+                     <iterate
+                           ifEmpty="false"
+                           operator="or">
+                        <test
+                              property="net.thecodemaster.sap.ui.propertytester.isEnabled">
+                        </test>
+                     </iterate>
+                  </with>
+               </visibleWhen>
             </command>
             <command
-                  commandId="net.thecodemaster.sap.command.disable_plugin"
+                  commandId="net.thecodemaster.sap.ui.command.disable_plugin"
                   label="%menu.disable_plugin.label"
                   style="push"
                   tooltip="%menu.disable_plugin.tooltip">
+               <visibleWhen
+                     checkEnabled="false">
+                  <with
+                        variable="selection">
+                     <iterate
+                           ifEmpty="false"
+                           operator="or">
+                        <test
+                              property="net.thecodemaster.sap.ui.propertytester.isDisabled">
+                        </test>
+                     </iterate>
+                  </with>
+               </visibleWhen>
             </command>
             <command
-                  commandId="net.thecodemaster.sap.command.open_settings"
+                  commandId="net.thecodemaster.sap.ui.command.open_settings"
                   label="%menu.open_settings.label"
                   style="push"
                   tooltip="%menu.open_settings.tooltip">
@@ -75,20 +119,30 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="net.thecodemaster.sap.commands.EnableScanOnProject"
-            id="net.thecodemaster.sap.command.enable_plugin"
+            defaultHandler="net.thecodemaster.sap.ui.commands.EnableScanOnProject"
+            id="net.thecodemaster.sap.ui.command.enable_plugin"
             name="%menu.enable_plugin.label">
       </command>
       <command
-            defaultHandler="net.thecodemaster.sap.commands.DisableScanOnProject"
-            id="net.thecodemaster.sap.command.disable_plugin"
+            defaultHandler="net.thecodemaster.sap.ui.commands.DisableScanOnProject"
+            id="net.thecodemaster.sap.ui.command.disable_plugin"
             name="%menu.disable_plugin.label">
       </command>
       <command
-            defaultHandler="net.thecodemaster.sap.commands.OpenSettingsPreferencePage"
-            id="net.thecodemaster.sap.command.open_settings"
+            defaultHandler="net.thecodemaster.sap.ui.commands.OpenSettingsPreferencePage"
+            id="net.thecodemaster.sap.ui.command.open_settings"
             name="%menu.open_settings.label">
       </command>
+   </extension>
+   <extension
+         point="org.eclipse.core.expressions.propertyTesters">
+      <propertyTester
+            class="net.thecodemaster.sap.ui.propertytester.EnableDisableMenu"
+            id="net.thecodemaster.sap.ui.propertytester.EnableDisableMenu"
+            namespace="net.thecodemaster.sap.ui.propertytester"
+            properties="isEnabled, isDisabled"
+            type="java.lang.Object">
+      </propertyTester>
    </extension>
 
 </plugin>

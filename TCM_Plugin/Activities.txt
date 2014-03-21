@@ -2,15 +2,15 @@
 
 02 + Make the plug-in and its messages MultiLingual.
 
-03 + Make the plug-in start automatically with Eclipse.
+03 + Create the pop-up menu when the user click on a project.
+03.1 + Open the settings preference page from the pop-up menu.
+03.2 + Add or Remove the project to the list of monitored projects.
+03.3 + Make the buttons add and remove only available if the project is or is not already being monitored.
 
-04 - Create the exception handling mechanism.
+04 + Make the plug-in start automatically with Eclipse.
 
-05 - Track changes on java files.
-	
-06 + Create the pop-up menu when the user click on a project.
-06.1 + Open the settings preference page from the pop-up menu.
-06.2 + Add or Remove the project to the list of monitored projects.
-06.3 - Make the buttons add and remove only available if the project is or is not already being monitored.
+05 - Create the exception handling mechanism.
+
+06 - Track changes on java files.
 
 07 - Create a hidden file that will be used by our plug-in.
