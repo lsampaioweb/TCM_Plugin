@@ -6,11 +6,8 @@ public class PluginStartUp implements IStartup {
 
   @Override
   public void earlyStartup() {
-    System.out.println("earlyStartup");
-
-    //    MyJavaElementChangeReporter listener = new MyJavaElementChangeReporter();
-    //    JavaCore.addElementChangedListener(listener, ElementChangedEvent.POST_RECONCILE);
-    //    JavaCore.removeElementChangedListener(listener);
+    // On Eclipse start up, the plug-in will start listening changes on resources under the monitored projects.
+    Activator.getDefault().startResourceChangeListener();
   }
 
 }

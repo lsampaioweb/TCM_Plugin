@@ -5,7 +5,7 @@ import java.net.URL;
 import java.util.Collection;
 
 import net.thecodemaster.sap.Activator;
-import net.thecodemaster.sap.utils.PluginLog;
+import net.thecodemaster.sap.utils.PluginLogger;
 import net.thecodemaster.sap.utils.Utils;
 
 import org.eclipse.core.resources.IProject;
@@ -146,7 +146,7 @@ public abstract class AbstracPreferencePage extends PreferencePage implements IW
           PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL(URL));
         }
         catch (PartInitException | MalformedURLException e1) {
-          PluginLog.logError(e1);
+          PluginLogger.logError(e1);
         }
       }
     };

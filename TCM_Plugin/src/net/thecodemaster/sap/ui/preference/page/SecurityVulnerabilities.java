@@ -5,7 +5,7 @@ import java.util.Collection;
 import net.thecodemaster.sap.Activator;
 import net.thecodemaster.sap.constants.Constants;
 import net.thecodemaster.sap.ui.l10n.Messages;
-import net.thecodemaster.sap.utils.Utils;
+import net.thecodemaster.sap.utils.Creator;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -65,7 +65,8 @@ public class SecurityVulnerabilities extends AbstracPreferencePage {
     layout.marginHeight = 0;
     composite.setLayout(layout);
 
-    GridData data = new GridData(GridData.FILL_BOTH | GridData.VERTICAL_ALIGN_FILL | GridData.HORIZONTAL_ALIGN_FILL);
+    GridData data =
+      new GridData(GridData.FILL_BOTH | GridData.VERTICAL_ALIGN_FILL | GridData.HORIZONTAL_ALIGN_FILL);
     composite.setLayoutData(data);
     composite.setFont(parent.getFont());
 
@@ -81,11 +82,14 @@ public class SecurityVulnerabilities extends AbstracPreferencePage {
 
     // The security vulnerabilities that will be detected in the source code.
     ckbtnSQLInjection =
-      createBooleanField(Constants.SecurityVulnerabilities.FIELD_SQL_INJECTION, Messages.SecurityVulnerabilities.SQL_INJECTION_LABEL, groupOutput);
+      createBooleanField(Constants.SecurityVulnerabilities.FIELD_SQL_INJECTION,
+        Messages.SecurityVulnerabilities.SQL_INJECTION_LABEL, groupOutput);
     ckbtnCookiePoisoning =
-      createBooleanField(Constants.SecurityVulnerabilities.FIELD_COOKIE_POISONING, Messages.SecurityVulnerabilities.COOKIE_POISONING_LABEL, groupOutput);
+      createBooleanField(Constants.SecurityVulnerabilities.FIELD_COOKIE_POISONING,
+        Messages.SecurityVulnerabilities.COOKIE_POISONING_LABEL, groupOutput);
     ckbtnCrossSiteScripting =
-      createBooleanField(Constants.SecurityVulnerabilities.FIELD_CROSS_SITE_SCRIPTING, Messages.SecurityVulnerabilities.CROSS_SITE_SCRIPTING_LABEL, groupOutput);
+      createBooleanField(Constants.SecurityVulnerabilities.FIELD_CROSS_SITE_SCRIPTING,
+        Messages.SecurityVulnerabilities.CROSS_SITE_SCRIPTING_LABEL, groupOutput);
   }
 
   private void createMonitoredProjectsSelection(Composite composite) {
@@ -130,7 +134,8 @@ public class SecurityVulnerabilities extends AbstracPreferencePage {
     loadDefaultValue(ckbtnCrossSiteScripting);
 
     if (null != projectsList) {
-      // It will iterate over all the projects in the workspace and check it, so the plug-in will scan the project.
+      // It will iterate over all the projects in the workspace and check it, so the plug-in will scan the
+      // project.
       TableItem items[] = projectsList.getItems();
       for (TableItem item : items) {
         item.setChecked(true);
@@ -142,13 +147,13 @@ public class SecurityVulnerabilities extends AbstracPreferencePage {
 
   @Override
   public boolean performOk() {
-    // Save (store) the content chosen by the developer back to the eclipse's preferences. 
+    // Save (store) the content chosen by the developer back to the eclipse's preferences.
     storeValue(ckbtnSQLInjection);
     storeValue(ckbtnCookiePoisoning);
     storeValue(ckbtnCrossSiteScripting);
 
     // The list with the projects to be monitored.
-    Collection<IProject> listMonitoredProjects = Utils.newCollection();
+    Collection<IProject> listMonitoredProjects = Creator.newCollection();
 
     // Iterate over the list of selected projects and if they are checked, add them to the list.
     TableItem items[] = projectsList.getItems();

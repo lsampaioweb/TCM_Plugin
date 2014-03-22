@@ -8,7 +8,7 @@ import org.eclipse.core.runtime.Status;
 /**
  * @author Luciano Sampaio
  */
-public class PluginLog {
+public class PluginLogger {
   public static void logInfo(String message) {
     log(IStatus.INFO, IStatus.OK, message, null);
   }
