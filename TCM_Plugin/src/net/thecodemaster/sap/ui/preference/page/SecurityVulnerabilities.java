@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import net.thecodemaster.sap.Activator;
 import net.thecodemaster.sap.constants.Constants;
-import net.thecodemaster.sap.l10n.Messages;
+import net.thecodemaster.sap.ui.l10n.Messages;
 import net.thecodemaster.sap.utils.Utils;
 
 import org.eclipse.core.resources.IProject;

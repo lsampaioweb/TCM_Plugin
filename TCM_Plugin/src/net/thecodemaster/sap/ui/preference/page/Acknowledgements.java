@@ -1,6 +1,6 @@
 package net.thecodemaster.sap.ui.preference.page;
 
-import net.thecodemaster.sap.l10n.Messages;
+import net.thecodemaster.sap.ui.l10n.Messages;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;

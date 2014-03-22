@@ -2,7 +2,7 @@ package net.thecodemaster.sap.ui.preference.page;
 
 import net.thecodemaster.sap.Activator;
 import net.thecodemaster.sap.constants.Constants;
-import net.thecodemaster.sap.l10n.Messages;
+import net.thecodemaster.sap.ui.l10n.Messages;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.IPreferenceStore;

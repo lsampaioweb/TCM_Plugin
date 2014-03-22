@@ -11,6 +11,7 @@ public abstract class Constants {
 
   public static final String JDT_NATURE = "org.eclipse.jdt.core.javanature";
   public static final String SEPARATOR  = ";";
+  public static final String PACKAGE_UI = "net.thecodemaster.sap.ui";
 
   public abstract class SecurityVulnerabilities {
     public static final String FIELD_SQL_INJECTION        = Activator.PLUGIN_ID + ".SQLInjection";
@@ -21,7 +22,7 @@ public abstract class Constants {
   }
 
   public abstract class Settings {
-    public static final String PAGE_ID                    = "net.thecodemaster.sap.ui.preference.page.settings";
+    public static final String PAGE_ID                    = PACKAGE_UI + ".preference.page.settings";
 
     public static final String FIELD_RUN_MODE             = Activator.PLUGIN_ID + ".RunMode";
 

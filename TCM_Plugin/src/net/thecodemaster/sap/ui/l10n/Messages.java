@@ -1,4 +1,6 @@
-package net.thecodemaster.sap.l10n;
+package net.thecodemaster.sap.ui.l10n;
+
+import net.thecodemaster.sap.constants.Constants;
 
 import org.eclipse.osgi.util.NLS;
 
@@ -8,7 +10,7 @@ import org.eclipse.osgi.util.NLS;
 public abstract class Messages extends NLS {
 
   public static abstract class Acknowledgements {
-    private static final String BUNDLE_NAME = "net.thecodemaster.sap.l10n.messages.acknowledgements"; //$NON-NLS-1$
+    private static final String BUNDLE_NAME = Constants.PACKAGE_UI + ".l10n.messages.acknowledgements"; //$NON-NLS-1$
     public static String        DESCRIPTION;
 
     public static String        GROUP_AUTHORS_LABEL;
@@ -27,7 +29,7 @@ public abstract class Messages extends NLS {
   }
 
   public static abstract class SecurityVulnerabilities {
-    private static final String BUNDLE_NAME = "net.thecodemaster.sap.l10n.messages.securityvulnerabilities"; //$NON-NLS-1$
+    private static final String BUNDLE_NAME = Constants.PACKAGE_UI + ".l10n.messages.securityvulnerabilities"; //$NON-NLS-1$
     public static String        SECURITY_VULNERABILITIES_LABEL;
     public static String        SQL_INJECTION_LABEL;
     public static String        COOKIE_POISONING_LABEL;
@@ -41,7 +43,7 @@ public abstract class Messages extends NLS {
   }
 
   public static abstract class Settings {
-    private static final String BUNDLE_NAME = "net.thecodemaster.sap.l10n.messages.settings"; //$NON-NLS-1$
+    private static final String BUNDLE_NAME = Constants.PACKAGE_UI + ".l10n.messages.settings"; //$NON-NLS-1$
     public static String        DESCRIPTION;
     public static String        RUN_MODE_LABEL;
 
