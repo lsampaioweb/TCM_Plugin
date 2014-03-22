@@ -24,12 +24,12 @@ import org.eclipse.ui.PlatformUI;
 /**
  * @author Luciano Sampaio
  */
-public abstract class TCMPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
+public abstract class AbstracPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
   /**
    * Creates a new preference page with an empty title and no image.
    */
-  public TCMPreferencePage() {
+  public AbstracPreferencePage() {
     super();
   }
 
@@ -38,7 +38,7 @@ public abstract class TCMPreferencePage extends PreferencePage implements IWorkb
    * 
    * @param title the title of this preference page
    */
-  public TCMPreferencePage(String title) {
+  public AbstracPreferencePage(String title) {
     super(title);
   }
 
@@ -48,7 +48,7 @@ public abstract class TCMPreferencePage extends PreferencePage implements IWorkb
    * @param title the title of this preference page
    * @param image the image for this preference page, or null if none
    */
-  public TCMPreferencePage(String title, ImageDescriptor image) {
+  public AbstracPreferencePage(String title, ImageDescriptor image) {
     super(title, image);
   }
 

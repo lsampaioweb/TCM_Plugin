@@ -11,7 +11,7 @@ import org.eclipse.core.resources.IProject;
  * 
  * @author Luciano Sampaio
  */
-public class DisableScanOnProject extends TCMCommand {
+public class DisableScanOnProject extends AbstracCommand {
 
   @Override
   public Object execute(ExecutionEvent event) throws ExecutionException {

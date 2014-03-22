@@ -14,7 +14,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
  * 
  * @author Luciano Sampaio
  */
-public class OpenSettingsPreferencePage extends TCMCommand {
+public class OpenSettingsPreferencePage extends AbstracCommand {
 
   @Override
   public final Object execute(final ExecutionEvent event) throws ExecutionException {

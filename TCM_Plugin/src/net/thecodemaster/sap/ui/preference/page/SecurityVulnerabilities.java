@@ -24,7 +24,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.ui.IWorkbench;
 
-public class SecurityVulnerabilities extends TCMPreferencePage {
+public class SecurityVulnerabilities extends AbstracPreferencePage {
 
   private Table              projectsList;
   private BooleanFieldEditor ckbtnSQLInjection;

@@ -13,7 +13,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.IWorkbench;
 
-public class Acknowledgements extends TCMPreferencePage {
+public class Acknowledgements extends AbstracPreferencePage {
 
   public Acknowledgements() {
     super();

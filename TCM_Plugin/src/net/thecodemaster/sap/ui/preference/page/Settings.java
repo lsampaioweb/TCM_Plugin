@@ -16,7 +16,7 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.IWorkbench;
 
-public class Settings extends TCMPreferencePage {
+public class Settings extends AbstracPreferencePage {
 
   private RadioGroupFieldEditor rbtnRunMode;
   private BooleanFieldEditor    ckbtnProblemView;
