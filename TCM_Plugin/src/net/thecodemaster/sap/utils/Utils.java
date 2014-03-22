@@ -45,8 +45,7 @@ public abstract class Utils {
         }
       }
       catch (CoreException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        PluginLog.logError(e);
       }
     }
 

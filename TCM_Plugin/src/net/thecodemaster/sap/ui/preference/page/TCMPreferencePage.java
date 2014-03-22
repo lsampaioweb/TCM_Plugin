@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.Collection;
 
 import net.thecodemaster.sap.Activator;
+import net.thecodemaster.sap.utils.PluginLog;
 import net.thecodemaster.sap.utils.Utils;
 
 import org.eclipse.core.resources.IProject;
@@ -145,8 +146,7 @@ public abstract class TCMPreferencePage extends PreferencePage implements IWorkb
           PlatformUI.getWorkbench().getBrowserSupport().getExternalBrowser().openURL(new URL(URL));
         }
         catch (PartInitException | MalformedURLException e1) {
-          // TODO
-          e1.printStackTrace();
+          PluginLog.logError(e1);
         }
       }
     };
