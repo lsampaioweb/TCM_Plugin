@@ -31,14 +31,21 @@ public abstract class AbstracCommand extends AbstractHandler {
    * @return A collection of projects' names.
    */
   protected Collection<IProject> getListOfMonitoredProjects() {
-    return Utils.getListOfMonitoredProjects();
+    return Utils.getMonitoredProjects();
   }
 
   /**
-   * @param monitoredProjects
+   * @param projects
    */
-  protected void saveListOfMonitoredProjects(Collection<IProject> monitoredProjects) {
-    Utils.saveListOfMonitoredProjects(monitoredProjects);
+  protected void addProjectsToListOfMonitoredProjects(Collection<IProject> projects) {
+    Utils.addProjectsToListOfMonitoredProjects(projects);
+  }
+
+  /**
+   * @param projects
+   */
+  protected void removeProjectsFromListOfMonitoredProjects(Collection<IProject> projects) {
+    Utils.removeProjectsFromListOfMonitoredProjects(projects);
   }
 
 }

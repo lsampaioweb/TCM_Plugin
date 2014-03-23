@@ -8,7 +8,7 @@
 05 + Create the exception handling mechanism.
 
 06 + Track changes on java files.
-06.1 - On perform detection on projects selected by the developer.
+06.1 + Perform detection only in projects selected by the developer.
 06.2 - Run the detection on a different thread.
 
 07 - Create a hidden file that will be used by our plug-in.

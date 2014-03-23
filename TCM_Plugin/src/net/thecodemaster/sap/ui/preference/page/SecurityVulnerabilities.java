@@ -153,19 +153,19 @@ public class SecurityVulnerabilities extends AbstracPreferencePage {
     storeValue(ckbtnCrossSiteScripting);
 
     // The list with the projects to be monitored.
-    Collection<IProject> listMonitoredProjects = Creator.newCollection();
+    Collection<IProject> selectedProjects = Creator.newCollection();
 
     // Iterate over the list of selected projects and if they are checked, add them to the list.
     TableItem items[] = projectsList.getItems();
     IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
     for (TableItem item : items) {
       if (item.getChecked()) {
-        listMonitoredProjects.add(root.getProject((String) item.getData()));
+        selectedProjects.add(root.getProject((String) item.getData()));
       }
     }
 
     // Save the list back to the preference store.
-    saveListOfMonitoredProjects(listMonitoredProjects);
+    setProjectsToListOfMonitoredProjects(selectedProjects);
 
     return super.performOk();
   }

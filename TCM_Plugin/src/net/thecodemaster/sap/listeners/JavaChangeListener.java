@@ -27,7 +27,7 @@ public class JavaChangeListener implements IElementChangedListener {
       IProject resourceProject = (IProject) delta.getElement().getJavaProject().getAdapter(IProject.class);
 
       // The collection of projects that are being monitored by our plug-in.
-      Collection<IProject> monitoredProjects = Utils.getListOfMonitoredProjects();
+      Collection<IProject> monitoredProjects = Utils.getMonitoredProjects();
 
       // Checks if the project is in the monitored list.
       if (monitoredProjects.contains(resourceProject)) {

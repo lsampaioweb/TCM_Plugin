@@ -136,7 +136,8 @@ public abstract class AbstracPreferencePage extends PreferencePage implements IW
    * Opens a URL on this Web browser instance.
    * 
    * @param URL the URL to open.
-   * @return This adapter class provides default implementations for the methods described by the SelectionListener interface.
+   * @return This adapter class provides default implementations for the methods described by the
+   *         SelectionListener interface.
    */
   protected SelectionAdapter onClickOpenURL(final String URL) {
     return new SelectionAdapter() {
@@ -159,7 +160,7 @@ public abstract class AbstracPreferencePage extends PreferencePage implements IW
    * @return An list of projects.
    */
   protected Collection<IProject> getListOfProjectsInWorkspace() {
-    return Utils.getListOfProjectsInWorkspace();
+    return Utils.getProjectsInWorkspace();
   }
 
   /**
@@ -168,14 +169,14 @@ public abstract class AbstracPreferencePage extends PreferencePage implements IW
    * @return A collection of projects' names.
    */
   protected Collection<IProject> getListOfMonitoredProjects() {
-    return Utils.getListOfMonitoredProjects();
+    return Utils.getMonitoredProjects();
   }
 
   /**
-   * @param monitoredProjects
+   * @param projects
    */
-  protected void saveListOfMonitoredProjects(Collection<IProject> monitoredProjects) {
-    Utils.saveListOfMonitoredProjects(monitoredProjects);
+  protected void setProjectsToListOfMonitoredProjects(Collection<IProject> projects) {
+    Utils.setProjectsToListOfMonitoredProjects(projects);
   }
 
 }

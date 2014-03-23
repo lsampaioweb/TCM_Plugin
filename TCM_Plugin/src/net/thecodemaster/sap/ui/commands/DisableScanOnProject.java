@@ -20,16 +20,8 @@ public class DisableScanOnProject extends AbstracCommand {
 
     // If the collection is empty there is nothing to do.
     if (!selectedProjects.isEmpty()) {
-      // The collection of projects that are being monitored by our plug-in.
-      Collection<IProject> monitoredProjects = getListOfMonitoredProjects();
-
-      // Removes the selected projects from the list of monitored projects.
-      for (IProject project : selectedProjects) {
-        monitoredProjects.remove(project);
-      }
-
       // Save the list back to the preference store.
-      saveListOfMonitoredProjects(monitoredProjects);
+      removeProjectsFromListOfMonitoredProjects(selectedProjects);
     }
 
     return null;

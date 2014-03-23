@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 import net.thecodemaster.sap.Activator;
 import net.thecodemaster.sap.constants.Constants;
+import net.thecodemaster.sap.natures.NatureHandler;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.resources.IProject;
@@ -14,7 +15,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
@@ -28,7 +28,7 @@ public abstract class Utils {
    * 
    * @return An list of projects.
    */
-  public static Collection<IProject> getListOfProjectsInWorkspace() {
+  public static Collection<IProject> getProjectsInWorkspace() {
     // Returns the collection of projects which exist under this root. The projects can be open or closed.
     IProject[] allProjects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
     // This collection only has Java projects which are also accessible and opened.
@@ -54,7 +54,7 @@ public abstract class Utils {
    * 
    * @return A collection of projects' names.
    */
-  public static Collection<IProject> getListOfMonitoredProjects() {
+  public static Collection<IProject> getMonitoredProjects() {
     IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 
     // Get the list of monitored projects split by the SEPARATOR constant.
@@ -76,17 +76,82 @@ public abstract class Utils {
   }
 
   /**
-   * @param monitoredProjects
+   * @param projects
    */
-  public static void saveListOfMonitoredProjects(Collection<IProject> monitoredProjects) {
+  public static void setProjectsToListOfMonitoredProjects(Collection<IProject> projects) {
+    // The collection of projects that are being monitored by our plug-in.
+    Collection<IProject> monitoredProjects = getMonitoredProjects();
+
     IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 
     StringBuilder projectsToSave = new StringBuilder();
-    for (IProject project : monitoredProjects) {
+    for (IProject project : projects) {
       projectsToSave.append(project.getName()).append(Constants.SEPARATOR);
     }
 
     store.putValue(Constants.SecurityVulnerabilities.FIELD_MONITORED_PROJECTS, projectsToSave.toString());
+
+    // Add the nature to the each project.
+    addNature(monitoredProjects, projects);
+  }
+
+  private static void addNature(Collection<IProject> oldProjects, Collection<IProject> newProjects) {
+    // Create a difference from the old and the new list.
+    Collection<IProject> projectsToRemove = Creator.newCollection();
+    projectsToRemove.addAll(oldProjects);
+    projectsToRemove.removeAll(newProjects);
+
+    Collection<IProject> projectsToAdd = Creator.newCollection();
+    projectsToAdd.addAll(newProjects);
+    projectsToAdd.removeAll(oldProjects);
+
+    try {
+      NatureHandler handler = new NatureHandler();
+      handler.add(projectsToAdd);
+      handler.remove(projectsToRemove);
+    }
+    catch (CoreException e) {
+      PluginLogger.logError(e);
+    }
+  }
+
+  /**
+   * @param projects
+   */
+  public static void addProjectsToListOfMonitoredProjects(Collection<IProject> projects) {
+    // If the collection is empty there is nothing to do.
+    if ((null != projects) && (!projects.isEmpty())) {
+      // The collection of projects that are being monitored by our plug-in.
+      Collection<IProject> monitoredProjects = getMonitoredProjects();
+
+      // Adds the selected projects to the list of monitored projects.
+      // Because it is a HashSet collection, it will not allow repeated elements.
+      for (IProject project : projects) {
+        monitoredProjects.add(project);
+      }
+
+      // Save the list back to the preference store.
+      setProjectsToListOfMonitoredProjects(monitoredProjects);
+    }
+  }
+
+  /**
+   * @param projects
+   */
+  public static void removeProjectsFromListOfMonitoredProjects(Collection<IProject> projects) {
+    // If the collection is empty there is nothing to do.
+    if ((null != projects) && (!projects.isEmpty())) {
+      // The collection of projects that are being monitored by our plug-in.
+      Collection<IProject> monitoredProjects = getMonitoredProjects();
+
+      // Removes the selected projects from the list of monitored projects.
+      for (IProject project : projects) {
+        monitoredProjects.remove(project);
+      }
+
+      // Save the list back to the preference store.
+      setProjectsToListOfMonitoredProjects(monitoredProjects);
+    }
   }
 
   /**
@@ -96,8 +161,9 @@ public abstract class Utils {
    * @return A list(unique elements) of selected projects by the developer.
    */
   public static Collection<IProject> getSelectedProjects(ExecutionEvent event) {
-    IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
-    ISelection selection = window.getActivePage().getSelection();
+    ISelection selection = HandlerUtil.getCurrentSelection(event);
+    // IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
+    // ISelection selection = window.getActivePage().getSelection();
 
     return getSelectedProjects(selection);
   }

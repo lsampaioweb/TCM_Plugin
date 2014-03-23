@@ -20,7 +20,7 @@ public class EnableDisableMenu extends PropertyTester {
     Collection<IProject> selectedProjects = Utils.getSelectedProjects((ISelection) receiver);
 
     // The collection of projects that are being monitored by our plug-in.
-    Collection<IProject> monitoredProjects = Utils.getListOfMonitoredProjects();
+    Collection<IProject> monitoredProjects = Utils.getMonitoredProjects();
 
     if (EnumVisibilityMenu.IS_ENABLED.toString().equals(property)) {
       // If ALL selected projects are already being monitored, the enable button should not be displayed.

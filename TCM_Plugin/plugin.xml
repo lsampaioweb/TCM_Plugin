@@ -2,12 +2,6 @@
 <?eclipse version="3.4"?>
 <plugin>
    <extension
-         point="org.eclipse.ui.startup">
-      <startup
-            class="net.thecodemaster.sap.PluginStartUp">
-      </startup>
-   </extension>
-   <extension
          point="org.eclipse.core.runtime.preferences">
       <initializer
             class="net.thecodemaster.sap.ui.preference.PreferenceInitializer">
@@ -135,6 +129,26 @@
             properties="isEnabled, isDisabled"
             type="org.eclipse.jface.viewers.ISelection">
       </propertyTester>
+   </extension>
+   <extension
+         id="Builder"
+         name="TCMSA Builder"
+         point="org.eclipse.core.resources.builders">
+      <builder>
+         <run
+               class="net.thecodemaster.sap.builders.Builder">
+         </run>
+      </builder>
+   </extension>
+   <extension
+         id="Nature"
+         name="TCMSA Nature"
+         point="org.eclipse.core.resources.natures">
+      <runtime>
+         <run
+               class="net.thecodemaster.sap.natures.Nature">
+         </run>
+      </runtime>
    </extension>
 
 </plugin>
