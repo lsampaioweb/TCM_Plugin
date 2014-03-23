@@ -16,12 +16,13 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 
 /**
  * @author Luciano Sampaio
  */
-public abstract class Utils {
+public abstract class UtilProjects {
 
   /**
    * Returns the collection of projects which exist under this root. <br/>
@@ -163,9 +164,8 @@ public abstract class Utils {
    * @return A list(unique elements) of selected projects by the developer.
    */
   public static Collection<IProject> getSelectedProjects(ExecutionEvent event) {
-    ISelection selection = HandlerUtil.getCurrentSelection(event);
-    // IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
-    // ISelection selection = window.getActivePage().getSelection();
+    IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
+    ISelection selection = window.getActivePage().getSelection();
 
     return getSelectedProjects(selection);
   }
@@ -191,6 +191,18 @@ public abstract class Utils {
     }
 
     return projects;
+  }
+
+  /**
+   * Get the resource types that will be perform the early security vulnerability detection.
+   * 
+   * @return A list of resource types.
+   */
+  public static Collection<String> getResourceTypesToPerformDetection() {
+    Collection<String> resourceTypes =
+      Convert.fromStringToList(Constants.RESOURCE_TYPE_TO_PERFORM_DETECTION, Constants.SEPARATOR);
+
+    return resourceTypes;
   }
 
 }

@@ -2,7 +2,7 @@ package net.thecodemaster.sap.ui.commands;
 
 import java.util.Collection;
 
-import net.thecodemaster.sap.utils.Utils;
+import net.thecodemaster.sap.utils.UtilProjects;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -22,7 +22,7 @@ public abstract class AbstracCommand extends AbstractHandler {
    * @return A list(unique elements) of selected projects by the developer.
    */
   protected Collection<IProject> getSelectedProjects(ExecutionEvent event) {
-    return Utils.getSelectedProjects(event);
+    return UtilProjects.getSelectedProjects(event);
   }
 
   /**
@@ -31,21 +31,21 @@ public abstract class AbstracCommand extends AbstractHandler {
    * @return A collection of projects' names.
    */
   protected Collection<IProject> getListOfMonitoredProjects() {
-    return Utils.getMonitoredProjects();
+    return UtilProjects.getMonitoredProjects();
   }
 
   /**
    * @param projects
    */
   protected void addProjectsToListOfMonitoredProjects(Collection<IProject> projects) {
-    Utils.addProjectsToListOfMonitoredProjects(projects);
+    UtilProjects.addProjectsToListOfMonitoredProjects(projects);
   }
 
   /**
    * @param projects
    */
   protected void removeProjectsFromListOfMonitoredProjects(Collection<IProject> projects) {
-    Utils.removeProjectsFromListOfMonitoredProjects(projects);
+    UtilProjects.removeProjectsFromListOfMonitoredProjects(projects);
   }
 
 }

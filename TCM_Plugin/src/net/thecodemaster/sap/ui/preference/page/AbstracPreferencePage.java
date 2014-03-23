@@ -6,7 +6,7 @@ import java.util.Collection;
 
 import net.thecodemaster.sap.Activator;
 import net.thecodemaster.sap.logger.PluginLogger;
-import net.thecodemaster.sap.utils.Utils;
+import net.thecodemaster.sap.utils.UtilProjects;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.preference.BooleanFieldEditor;
@@ -160,7 +160,7 @@ public abstract class AbstracPreferencePage extends PreferencePage implements IW
    * @return An list of projects.
    */
   protected Collection<IProject> getListOfProjectsInWorkspace() {
-    return Utils.getProjectsInWorkspace();
+    return UtilProjects.getProjectsInWorkspace();
   }
 
   /**
@@ -169,14 +169,14 @@ public abstract class AbstracPreferencePage extends PreferencePage implements IW
    * @return A collection of projects' names.
    */
   protected Collection<IProject> getListOfMonitoredProjects() {
-    return Utils.getMonitoredProjects();
+    return UtilProjects.getMonitoredProjects();
   }
 
   /**
    * @param projects
    */
   protected void setProjectsToListOfMonitoredProjects(Collection<IProject> projects) {
-    Utils.setProjectsToListOfMonitoredProjects(projects);
+    UtilProjects.setProjectsToListOfMonitoredProjects(projects);
   }
 
 }

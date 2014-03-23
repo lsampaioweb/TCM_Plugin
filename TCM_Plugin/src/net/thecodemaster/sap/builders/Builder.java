@@ -4,7 +4,6 @@ import java.util.Map;
 
 import net.thecodemaster.sap.constants.Constants;
 import net.thecodemaster.sap.logger.PluginLogger;
-import net.thecodemaster.sap.visitors.DeltaVisitor;
 import net.thecodemaster.sap.visitors.ResourceVisitor;
 
 import org.eclipse.core.resources.IProject;
@@ -28,7 +27,7 @@ public class Builder extends IncrementalProjectBuilder {
         fullBuild(monitor);
       }
       else if (kind == CLEAN_BUILD) {
-        // TODO
+        clean(monitor);
       }
       else {
         IResourceDelta delta = getDelta(getProject());
@@ -70,6 +69,6 @@ public class Builder extends IncrementalProjectBuilder {
    * @throws CoreException
    */
   protected void incrementalBuild(IResourceDelta delta, IProgressMonitor monitor) throws CoreException {
-    delta.accept(new DeltaVisitor(monitor));
+    delta.accept(new ResourceVisitor(monitor));
   }
 }

@@ -9,13 +9,15 @@ import net.thecodemaster.sap.Activator;
  */
 public abstract class Constants {
 
-  public static final String JDT_NATURE  = "org.eclipse.jdt.core.javanature";
-  public static final String NATURE_ID   = Activator.PLUGIN_ID + ".Nature";
-  public static final String BUILDER_ID  = Activator.PLUGIN_ID + ".Builder";
-  public static final String MARKER_TYPE = "net.thecodemaster.sap.security.vulnerabilities";
+  public static final String JDT_NATURE                         = "org.eclipse.jdt.core.javanature";
+  public static final String NATURE_ID                          = Activator.PLUGIN_ID + ".Nature";
+  public static final String BUILDER_ID                         = Activator.PLUGIN_ID + ".Builder";
+  public static final String MARKER_TYPE                        =
+                                                                  "net.thecodemaster.sap.security.vulnerabilities";
 
-  public static final String SEPARATOR   = ";";
-  public static final String PACKAGE_UI  = "net.thecodemaster.sap.ui";
+  public static final String RESOURCE_TYPE_TO_PERFORM_DETECTION = "java;jsp";
+  public static final String SEPARATOR                          = ";";
+  public static final String PACKAGE_UI                         = "net.thecodemaster.sap.ui";
 
   public abstract class SecurityVulnerabilities {
     public static final String FIELD_SQL_INJECTION        = Activator.PLUGIN_ID + ".SQLInjection";
