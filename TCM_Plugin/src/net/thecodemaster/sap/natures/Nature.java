@@ -1,6 +1,7 @@
 package net.thecodemaster.sap.natures;
 
 import net.thecodemaster.sap.constants.Constants;
+import net.thecodemaster.sap.logger.PluginLogger;
 
 import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IProject;
@@ -34,6 +35,7 @@ public class Nature implements IProjectNature {
     newCommands[newCommands.length - 1] = command;
     desc.setBuildSpec(newCommands);
     getProject().setDescription(desc, null);
+    PluginLogger.logInfo("Builder: " + Constants.BUILDER_ID + " added to project: " + getProject().getName());
   }
 
   /**
@@ -51,6 +53,8 @@ public class Nature implements IProjectNature {
         System.arraycopy(commands, i + 1, newCommands, i, commands.length - i - 1);
         description.setBuildSpec(newCommands);
         getProject().setDescription(description, null);
+        PluginLogger.logInfo("Builder: " + Constants.BUILDER_ID + " removed from project: "
+          + getProject().getName());
         return;
       }
     }

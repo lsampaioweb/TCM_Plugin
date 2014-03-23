@@ -9,6 +9,8 @@
 
 06 + Track changes on java files.
 06.1 + Perform detection only in projects selected by the developer.
+06.1 ** I am having problems because the BUILDER is only being invokes when the user saves the file and not automatically.
 06.2 - Run the detection on a different thread.
+06.3 - Inform the user what files are being processed.
 
 07 - Create a hidden file that will be used by our plug-in.

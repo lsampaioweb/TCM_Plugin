@@ -5,6 +5,7 @@ import java.util.Iterator;
 
 import net.thecodemaster.sap.Activator;
 import net.thecodemaster.sap.constants.Constants;
+import net.thecodemaster.sap.logger.PluginLogger;
 import net.thecodemaster.sap.natures.NatureHandler;
 
 import org.eclipse.core.commands.ExecutionEvent;
@@ -91,19 +92,20 @@ public abstract class Utils {
 
     store.putValue(Constants.SecurityVulnerabilities.FIELD_MONITORED_PROJECTS, projectsToSave.toString());
 
-    // Add the nature to the each project.
-    addNature(monitoredProjects, projects);
+    // Add or remove the nature to the each project.
+    updateNatureOnProjects(monitoredProjects, projects);
   }
 
-  private static void addNature(Collection<IProject> oldProjects, Collection<IProject> newProjects) {
+  private static void updateNatureOnProjects(Collection<IProject> oldProjects,
+    Collection<IProject> newProjects) {
     // Create a difference from the old and the new list.
-    Collection<IProject> projectsToRemove = Creator.newCollection();
-    projectsToRemove.addAll(oldProjects);
-    projectsToRemove.removeAll(newProjects);
-
     Collection<IProject> projectsToAdd = Creator.newCollection();
     projectsToAdd.addAll(newProjects);
     projectsToAdd.removeAll(oldProjects);
+
+    Collection<IProject> projectsToRemove = Creator.newCollection();
+    projectsToRemove.addAll(oldProjects);
+    projectsToRemove.removeAll(newProjects);
 
     try {
       NatureHandler handler = new NatureHandler();

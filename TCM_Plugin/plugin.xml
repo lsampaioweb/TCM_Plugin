@@ -73,6 +73,7 @@
                   <with
                         variable="selection">
                      <test
+                           forcePluginActivation="true"
                            property="net.thecodemaster.sap.ui.propertytester.isEnabled">
                      </test>
                   </with>
@@ -88,6 +89,7 @@
                   <with
                         variable="selection">
                      <test
+                           forcePluginActivation="true"
                            property="net.thecodemaster.sap.ui.propertytester.isDisabled">
                      </test>
                   </with>
@@ -134,7 +136,8 @@
          id="Builder"
          name="TCMSA Builder"
          point="org.eclipse.core.resources.builders">
-      <builder>
+      <builder
+            hasNature="true">
          <run
                class="net.thecodemaster.sap.builders.Builder">
          </run>
@@ -149,6 +152,9 @@
                class="net.thecodemaster.sap.natures.Nature">
          </run>
       </runtime>
+      <builder
+            id="TheCodeMasterSecurityAnalyzerPlugin.Builder">
+      </builder>
    </extension>
 
 </plugin>
