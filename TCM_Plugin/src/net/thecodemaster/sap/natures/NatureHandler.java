@@ -3,7 +3,6 @@ package net.thecodemaster.sap.natures;
 import java.util.Collection;
 
 import net.thecodemaster.sap.constants.Constants;
-import net.thecodemaster.sap.logger.PluginLogger;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
@@ -49,7 +48,6 @@ public class NatureHandler {
     newNatures[natures.length] = Constants.NATURE_ID;
     description.setNatureIds(newNatures);
     project.setDescription(description, null);
-    PluginLogger.logInfo("Nature: " + Constants.NATURE_ID + " added to project: " + project.getName());
   }
 
   /**
@@ -82,8 +80,6 @@ public class NatureHandler {
         System.arraycopy(natures, i + 1, newNatures, i, natures.length - i - 1);
         description.setNatureIds(newNatures);
         project.setDescription(description, null);
-        PluginLogger
-          .logInfo("Nature: " + Constants.NATURE_ID + " removed from project: " + project.getName());
         return;
       }
     }

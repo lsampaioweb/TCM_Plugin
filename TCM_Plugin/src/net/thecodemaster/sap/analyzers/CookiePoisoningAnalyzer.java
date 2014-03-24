@@ -6,19 +6,20 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 /**
  * @author Luciano Sampaio
  */
-public class SQLInjectionAnalyzer extends Analyzer {
+public class CookiePoisoningAnalyzer extends Analyzer {
 
   @Override
   public boolean visit(MethodDeclaration node) {
-    System.out.println("SQLInjectionAnalyzer - " + node.getName());
+    System.out.println("CookiePoisoningAnalyzer - " + node.getName());
 
     return super.visit(node);
   }
 
   @Override
   public boolean visit(MethodInvocation node) {
-    System.out.println("SQLInjectionAnalyzer - " + node.getName());
+    System.out.println("CookiePoisoningAnalyzer - " + node.getName());
 
     return true;
   }
+
 }

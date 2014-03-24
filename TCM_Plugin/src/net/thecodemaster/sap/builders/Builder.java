@@ -2,9 +2,10 @@ package net.thecodemaster.sap.builders;
 
 import java.util.Map;
 
+import net.thecodemaster.sap.Activator;
+import net.thecodemaster.sap.analyzers.ManagerAnalyzer;
 import net.thecodemaster.sap.constants.Constants;
 import net.thecodemaster.sap.logger.PluginLogger;
-import net.thecodemaster.sap.visitors.ResourceVisitor;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -22,7 +23,6 @@ public class Builder extends IncrementalProjectBuilder {
   protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor)
     throws CoreException {
     try {
-      PluginLogger.logInfo("Builder: Build");
       if (kind == FULL_BUILD) {
         fullBuild(monitor);
       }
@@ -60,7 +60,7 @@ public class Builder extends IncrementalProjectBuilder {
    * @throws CoreException
    */
   protected void fullBuild(final IProgressMonitor monitor) throws CoreException {
-    getProject().accept(new ResourceVisitor(monitor));
+    getProject().accept(getManagerAnalyzer(monitor));
   }
 
   /**
@@ -69,6 +69,18 @@ public class Builder extends IncrementalProjectBuilder {
    * @throws CoreException
    */
   protected void incrementalBuild(IResourceDelta delta, IProgressMonitor monitor) throws CoreException {
-    delta.accept(new ResourceVisitor(monitor));
+    delta.accept(getManagerAnalyzer(monitor));
   }
+
+  /**
+   * @param monitor
+   * @return An instance of the manager analyzer.
+   */
+  private ManagerAnalyzer getManagerAnalyzer(IProgressMonitor monitor) {
+    ManagerAnalyzer managerAnalyzer = Activator.getManagerAnalyzer();
+    managerAnalyzer.addMonitor(monitor);
+
+    return managerAnalyzer;
+  }
+
 }

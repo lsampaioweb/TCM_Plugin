@@ -95,6 +95,9 @@ public abstract class UtilProjects {
 
     // Add or remove the nature to the each project.
     updateNatureOnProjects(monitoredProjects, projects);
+
+    // Reset the list of analyzers from the Manager.
+    Activator.resetManagerAnalyzer();
   }
 
   private static void updateNatureOnProjects(Collection<IProject> oldProjects,
