@@ -14,7 +14,7 @@ import org.eclipse.core.runtime.CoreException;
 public class NatureHandler {
 
   /**
-   * Add the plug-in nature all the projects in the list.
+   * Add the plug-in nature to all the projects in the list.
    * 
    * @param projects Collection of projects to have the nature added.
    * @throws CoreException
