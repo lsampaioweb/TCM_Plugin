@@ -12,13 +12,12 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 /**
  * @author Luciano Sampaio
  */
-public abstract class Analyzer extends ASTVisitor {
+public abstract class Analyzer {
 
   protected Collection<Verifier>      verifiers;
   protected static Collection<String> resourceTypes;

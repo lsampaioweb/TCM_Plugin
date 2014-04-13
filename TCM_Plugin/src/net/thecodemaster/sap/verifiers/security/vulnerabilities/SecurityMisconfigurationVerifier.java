@@ -15,6 +15,13 @@ public class SecurityMisconfigurationVerifier extends Verifier {
     reporter.getProgressMonitor().setTaskName("SecurityMisconfigurationVerifier - " + node.getName());
     System.out.println("SecurityMisconfigurationVerifier - MethodDeclaration " + node.getName());
 
+    try {
+      Thread.sleep(3000);
+    }
+    catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
     return super.visit(node);
   }
 

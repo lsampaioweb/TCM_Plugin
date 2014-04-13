@@ -18,7 +18,8 @@
 
 08 - Create a hidden file that will be used by our plug-in.
 
-      Job job = new Job("Early Vulnerability Detection - Job") {
+     if (null == job) {
+      job = new Job("Early Vulnerability Detection - Job") {
         @Override
         protected IStatus run(IProgressMonitor monitor) {
           try {
@@ -37,4 +38,6 @@
           return Status.OK_STATUS;
         }
       };
-      job.schedule();
+      job.setUser(true);
+    }
+    job.schedule();
