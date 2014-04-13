@@ -77,7 +77,7 @@ public class Builder extends IncrementalProjectBuilder {
    */
   private Manager getManager(IProgressMonitor monitor) {
     Manager manager = Manager.getInstance();
-    manager.setMonitor(monitor);
+    manager.setProgressMonitor(monitor);
 
     return manager;
   }

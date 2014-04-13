@@ -1,5 +1,6 @@
 package net.thecodemaster.sap.analyzers;
 
+import net.thecodemaster.sap.reporter.Reporter;
 import net.thecodemaster.sap.utils.Creator;
 
 import org.eclipse.core.resources.IResource;
@@ -18,7 +19,7 @@ public class CodeAnomaliesAnalyzer extends Analyzer {
    * {@inheritDoc}
    */
   @Override
-  public boolean run(IResource resource) throws CoreException {
+  public boolean run(IResource resource, Reporter reporter) throws CoreException {
     return false;
   }
 

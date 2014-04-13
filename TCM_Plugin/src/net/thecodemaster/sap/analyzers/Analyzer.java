@@ -2,6 +2,7 @@ package net.thecodemaster.sap.analyzers;
 
 import java.util.Collection;
 
+import net.thecodemaster.sap.reporter.Reporter;
 import net.thecodemaster.sap.utils.UtilProjects;
 import net.thecodemaster.sap.verifiers.Verifier;
 
@@ -62,6 +63,6 @@ public abstract class Analyzer extends ASTVisitor {
     return (CompilationUnit) parser.createAST(null); // Parse.
   }
 
-  public abstract boolean run(IResource resource) throws CoreException;
+  public abstract boolean run(IResource resource, Reporter reporter) throws CoreException;
 
 }

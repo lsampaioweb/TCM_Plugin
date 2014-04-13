@@ -15,8 +15,8 @@ public abstract class Constants {
   public static final String MARKER_TYPE                        =
                                                                   "net.thecodemaster.sap.security.vulnerabilities";
 
-  public static final String RESOURCE_TYPE_TO_PERFORM_DETECTION = "java;jsp";
   public static final String SEPARATOR                          = ";";
+  public static final String RESOURCE_TYPE_TO_PERFORM_DETECTION = "java" + SEPARATOR + "jsp";
   public static final String PACKAGE_UI                         = "net.thecodemaster.sap.ui";
 
   public abstract class SecurityVulnerabilities {

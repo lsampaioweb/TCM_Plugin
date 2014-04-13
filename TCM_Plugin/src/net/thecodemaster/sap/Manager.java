@@ -29,9 +29,12 @@ public class Manager implements IResourceVisitor, IResourceDeltaVisitor {
   private static volatile Manager instance = null;
   private Collection<Analyzer>    analyzers;
   private Reporter                reporter;
-  private IProgressMonitor        monitor;
 
   private Manager() {
+  }
+
+  public static void resetManager() {
+    instance = null;
   }
 
   public static Manager getInstance() {
@@ -42,15 +45,15 @@ public class Manager implements IResourceVisitor, IResourceDeltaVisitor {
 
           IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 
-          addAnalyzers(store);
-          addOutputs(store);
+          instance.addAnalyzers(store);
+          instance.addOutputs(store);
         }
       }
     }
     return instance;
   }
 
-  private static void addAnalyzers(IPreferenceStore store) {
+  private void addAnalyzers(IPreferenceStore store) {
     // Get the options checked by the developer.
     boolean cookiePoisoning = store.getBoolean(Constants.SecurityVulnerabilities.FIELD_COOKIE_POISONING);
     boolean crossSiteScripting =
@@ -72,19 +75,19 @@ public class Manager implements IResourceVisitor, IResourceDeltaVisitor {
     }
   }
 
-  private static void addOutputs(IPreferenceStore store) {
+  private void addOutputs(IPreferenceStore store) {
+    boolean problemView = store.getBoolean(Constants.Settings.FIELD_OUTPUT_PROBLEMS_VIEW);
+    boolean textFile = store.getBoolean(Constants.Settings.FIELD_OUTPUT_TEXT_FILE);
+    boolean xmlFile = store.getBoolean(Constants.Settings.FIELD_OUTPUT_XML_FILE);
 
-  }
-
-  public static void resetManager() {
-    instance = null;
+    reporter = new Reporter(problemView, textFile, xmlFile);
   }
 
   /**
-   * @param monitor
+   * @param progressMonitor
    */
-  public void setMonitor(IProgressMonitor monitor) {
-    this.monitor = monitor;
+  public void setProgressMonitor(IProgressMonitor progressMonitor) {
+    reporter.setProgressMonitor(progressMonitor);
   }
 
   /**
@@ -104,7 +107,7 @@ public class Manager implements IResourceVisitor, IResourceDeltaVisitor {
   @Override
   public boolean visit(IResource resource) throws CoreException {
     for (Analyzer analyzer : analyzers) {
-      analyzer.run(resource);
+      analyzer.run(resource, reporter);
     }
 
     // Return true to continue visiting children.
