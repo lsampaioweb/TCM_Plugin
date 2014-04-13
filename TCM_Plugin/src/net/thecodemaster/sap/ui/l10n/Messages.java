@@ -13,14 +13,14 @@ public abstract class Messages extends NLS {
     private static final String BUNDLE_NAME = Constants.PACKAGE_UI + ".l10n.messages.acknowledgements"; //$NON-NLS-1$
     public static String        DESCRIPTION;
 
-    public static String        GROUP_AUTHORS_LABEL;
+    public static String        LABEL_GROUP_AUTHORS;
     public static String        AUTHOR_1;
 
-    public static String        GROUP_CONTRIBUTORS_LABEL;
+    public static String        LABEL_GROUP_CONTRIBUTORS;
     public static String        CONTRIBUTORS_1;
     public static String        CONTRIBUTORS_2;
 
-    public static String        THECODEMASTER_URL;
+    public static String        URL_THECODEMASTER;
 
     static {
       // initialize resource bundle
@@ -30,11 +30,12 @@ public abstract class Messages extends NLS {
 
   public static abstract class SecurityVulnerabilities {
     private static final String BUNDLE_NAME = Constants.PACKAGE_UI + ".l10n.messages.securityvulnerabilities"; //$NON-NLS-1$
-    public static String        SECURITY_VULNERABILITIES_LABEL;
-    public static String        SQL_INJECTION_LABEL;
-    public static String        COOKIE_POISONING_LABEL;
-    public static String        CROSS_SITE_SCRIPTING_LABEL;
-    public static String        MONITORED_PROJECTS_LABEL;
+    public static String        LABEL_SECURITY_VULNERABILITIES;
+    public static String        LABEL_SQL_INJECTION;
+    public static String        LABEL_COOKIE_POISONING;
+    public static String        LABEL_CROSS_SITE_SCRIPTING;
+    public static String        LABEL_SECURITY_MISCONFIGURATION;
+    public static String        LABEL_MONITORED_PROJECTS;
 
     static {
       // initialize resource bundle
@@ -45,21 +46,21 @@ public abstract class Messages extends NLS {
   public static abstract class Settings {
     private static final String BUNDLE_NAME = Constants.PACKAGE_UI + ".l10n.messages.settings"; //$NON-NLS-1$
     public static String        DESCRIPTION;
-    public static String        RUN_MODE_LABEL;
+    public static String        LABEL_RUN_MODE;
 
     // Run mode text
-    public static String        RUN_AUTOMATICALLY_LABEL;
-    public static String        RUN_AUTOMATICALLY_VALUE;
-    public static String        RUN_ON_SAVE_LABEL;
-    public static String        RUN_ON_SAVE_VALUE;
-    public static String        RUN_MANUALLY_LABEL;
-    public static String        RUN_MANUALLY_VALUE;
+    public static String        LABEL_RUN_AUTOMATICALLY;
+    public static String        VALUE_RUN_AUTOMATICALLY;
+    public static String        LABEL_RUN_ON_SAVE;
+    public static String        VALUE_RUN_ON_SAVE;
+    public static String        LABEL_RUN_MANUALLY;
+    public static String        VALUE_RUN_MANUALLY;
 
     // Output text
-    public static String        OUTPUT_LABEL;
-    public static String        OUTPUT_PROBLEMS_VIEW_LABEL;
-    public static String        OUTPUT_TEXT_FILE_LABEL;
-    public static String        OUTPUT_XML_FILE_LABEL;
+    public static String        LABEL_OUTPUT;
+    public static String        LABEL_OUTPUT_PROBLEMS_VIEW;
+    public static String        LABEL_OUTPUT_TEXT_FILE;
+    public static String        LABEL_OUTPUT_XML_FILE;
 
     static {
       // initialize resource bundle

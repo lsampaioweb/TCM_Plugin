@@ -45,7 +45,7 @@ public class Acknowledgements extends AbstracPreferencePage {
 
     // Group authors and its children.
     Group groupAuthors = new Group(top, SWT.NONE);
-    groupAuthors.setText(Messages.Acknowledgements.GROUP_AUTHORS_LABEL);
+    groupAuthors.setText(Messages.Acknowledgements.LABEL_GROUP_AUTHORS);
     groupAuthors.setLayout(new GridLayout());
     groupAuthors.setLayoutData(getGroupGridData());
 
@@ -55,7 +55,7 @@ public class Acknowledgements extends AbstracPreferencePage {
 
     // Group contributors and its children.
     Group groupContributors = new Group(top, SWT.NONE);
-    groupContributors.setText(Messages.Acknowledgements.GROUP_CONTRIBUTORS_LABEL);
+    groupContributors.setText(Messages.Acknowledgements.LABEL_GROUP_CONTRIBUTORS);
     groupContributors.setLayout(new GridLayout(2, true));
     groupContributors.setLayoutData(getGroupGridData());
 
@@ -69,10 +69,10 @@ public class Acknowledgements extends AbstracPreferencePage {
 
     // Link to the thecodemaster.net web site.
     Link linkTCM = new Link(top, SWT.NONE);
-    linkTCM.setText(getLinkHTML(Messages.Acknowledgements.THECODEMASTER_URL));
+    linkTCM.setText(getLinkHTML(Messages.Acknowledgements.URL_THECODEMASTER));
     linkTCM.setLayoutData(getLabelGridData());
     // Register listener for the selection event
-    linkTCM.addSelectionListener(onClickOpenURL(Messages.Acknowledgements.THECODEMASTER_URL));
+    linkTCM.addSelectionListener(onClickOpenURL(Messages.Acknowledgements.URL_THECODEMASTER));
 
     return top;
   }

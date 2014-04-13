@@ -2,8 +2,7 @@ package net.thecodemaster.sap.builders;
 
 import java.util.Map;
 
-import net.thecodemaster.sap.Activator;
-import net.thecodemaster.sap.analyzers.ManagerAnalyzer;
+import net.thecodemaster.sap.Manager;
 import net.thecodemaster.sap.constants.Constants;
 import net.thecodemaster.sap.logger.PluginLogger;
 
@@ -60,7 +59,7 @@ public class Builder extends IncrementalProjectBuilder {
    * @throws CoreException
    */
   protected void fullBuild(final IProgressMonitor monitor) throws CoreException {
-    getProject().accept(getManagerAnalyzer(monitor));
+    getProject().accept(getManager(monitor));
   }
 
   /**
@@ -69,18 +68,18 @@ public class Builder extends IncrementalProjectBuilder {
    * @throws CoreException
    */
   protected void incrementalBuild(IResourceDelta delta, IProgressMonitor monitor) throws CoreException {
-    delta.accept(getManagerAnalyzer(monitor));
+    delta.accept(getManager(monitor));
   }
 
   /**
    * @param monitor
    * @return An instance of the manager analyzer.
    */
-  private ManagerAnalyzer getManagerAnalyzer(IProgressMonitor monitor) {
-    ManagerAnalyzer managerAnalyzer = Activator.getManagerAnalyzer();
-    managerAnalyzer.addMonitor(monitor);
+  private Manager getManager(IProgressMonitor monitor) {
+    Manager manager = Manager.getInstance();
+    manager.setMonitor(monitor);
 
-    return managerAnalyzer;
+    return manager;
   }
 
 }

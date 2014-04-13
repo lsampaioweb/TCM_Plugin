@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import net.thecodemaster.sap.Activator;
+import net.thecodemaster.sap.Manager;
 import net.thecodemaster.sap.constants.Constants;
 import net.thecodemaster.sap.logger.PluginLogger;
 import net.thecodemaster.sap.natures.NatureHandler;
@@ -97,7 +98,7 @@ public abstract class UtilProjects {
     updateNatureOnProjects(monitoredProjects, projects);
 
     // Reset the list of analyzers from the Manager.
-    Activator.resetManagerAnalyzer();
+    Manager.resetManager();
   }
 
   private static void updateNatureOnProjects(Collection<IProject> oldProjects,

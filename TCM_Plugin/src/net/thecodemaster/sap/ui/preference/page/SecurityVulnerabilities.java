@@ -30,6 +30,7 @@ public class SecurityVulnerabilities extends AbstracPreferencePage {
   private BooleanFieldEditor ckbtnSQLInjection;
   private BooleanFieldEditor ckbtnCookiePoisoning;
   private BooleanFieldEditor ckbtnCrossSiteScripting;
+  private BooleanFieldEditor ckbtnSecurityMisconfiguration;
 
   public SecurityVulnerabilities() {
   }
@@ -75,26 +76,29 @@ public class SecurityVulnerabilities extends AbstracPreferencePage {
 
   private void createSecurityVulnerabilityOptions(Composite composite) {
     // Group output option and its children.
-    Group groupOutput = new Group(composite, SWT.NONE);
-    groupOutput.setLayout(new GridLayout());
-    groupOutput.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
-    groupOutput.setText(Messages.SecurityVulnerabilities.SECURITY_VULNERABILITIES_LABEL);
+    Group groupSecurityVulnerabilities = new Group(composite, SWT.NONE);
+    groupSecurityVulnerabilities.setLayout(new GridLayout());
+    groupSecurityVulnerabilities.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
+    groupSecurityVulnerabilities.setText(Messages.SecurityVulnerabilities.LABEL_SECURITY_VULNERABILITIES);
 
     // The security vulnerabilities that will be detected in the source code.
     ckbtnSQLInjection =
       createBooleanField(Constants.SecurityVulnerabilities.FIELD_SQL_INJECTION,
-        Messages.SecurityVulnerabilities.SQL_INJECTION_LABEL, groupOutput);
+        Messages.SecurityVulnerabilities.LABEL_SQL_INJECTION, groupSecurityVulnerabilities);
     ckbtnCookiePoisoning =
       createBooleanField(Constants.SecurityVulnerabilities.FIELD_COOKIE_POISONING,
-        Messages.SecurityVulnerabilities.COOKIE_POISONING_LABEL, groupOutput);
+        Messages.SecurityVulnerabilities.LABEL_COOKIE_POISONING, groupSecurityVulnerabilities);
     ckbtnCrossSiteScripting =
       createBooleanField(Constants.SecurityVulnerabilities.FIELD_CROSS_SITE_SCRIPTING,
-        Messages.SecurityVulnerabilities.CROSS_SITE_SCRIPTING_LABEL, groupOutput);
+        Messages.SecurityVulnerabilities.LABEL_CROSS_SITE_SCRIPTING, groupSecurityVulnerabilities);
+    ckbtnSecurityMisconfiguration =
+      createBooleanField(Constants.SecurityVulnerabilities.FIELD_SECURITY_MISCONFIGURATION,
+        Messages.SecurityVulnerabilities.LABEL_SECURITY_MISCONFIGURATION, groupSecurityVulnerabilities);
   }
 
   private void createMonitoredProjectsSelection(Composite composite) {
     Label label = new Label(composite, SWT.NONE);
-    label.setText(Messages.SecurityVulnerabilities.MONITORED_PROJECTS_LABEL);
+    label.setText(Messages.SecurityVulnerabilities.LABEL_MONITORED_PROJECTS);
     label.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
     projectsList = new Table(composite, SWT.BORDER | SWT.CHECK | SWT.H_SCROLL | SWT.V_SCROLL);
@@ -128,10 +132,12 @@ public class SecurityVulnerabilities extends AbstracPreferencePage {
     store.setDefault(Constants.SecurityVulnerabilities.FIELD_SQL_INJECTION, true);
     store.setDefault(Constants.SecurityVulnerabilities.FIELD_COOKIE_POISONING, true);
     store.setDefault(Constants.SecurityVulnerabilities.FIELD_CROSS_SITE_SCRIPTING, true);
+    store.setDefault(Constants.SecurityVulnerabilities.FIELD_SECURITY_MISCONFIGURATION, true);
 
     loadDefaultValue(ckbtnSQLInjection);
     loadDefaultValue(ckbtnCookiePoisoning);
     loadDefaultValue(ckbtnCrossSiteScripting);
+    loadDefaultValue(ckbtnSecurityMisconfiguration);
 
     if (null != projectsList) {
       // It will iterate over all the projects in the workspace and check it, so the plug-in will scan the
@@ -151,6 +157,7 @@ public class SecurityVulnerabilities extends AbstracPreferencePage {
     storeValue(ckbtnSQLInjection);
     storeValue(ckbtnCookiePoisoning);
     storeValue(ckbtnCrossSiteScripting);
+    storeValue(ckbtnSecurityMisconfiguration);
 
     // The list with the projects to be monitored.
     Collection<IProject> selectedProjects = Creator.newCollection();
