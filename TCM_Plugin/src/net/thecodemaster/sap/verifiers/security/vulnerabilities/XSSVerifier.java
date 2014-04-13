@@ -12,14 +12,14 @@ public class XSSVerifier extends Verifier {
 
   @Override
   public boolean visit(MethodDeclaration node) {
-    System.out.println("SecurityVulnerabilityAnalyzer - MethodDeclaration " + node.getName());
+    System.out.println("XSSVerifier - MethodDeclaration " + node.getName());
 
     return super.visit(node);
   }
 
   @Override
   public boolean visit(MethodInvocation node) {
-    System.out.println("SecurityVulnerabilityAnalyzer - MethodDeclaration " + node.getName());
+    System.out.println("XSSVerifier - MethodInvocation " + node.getName());
 
     return true;
   }

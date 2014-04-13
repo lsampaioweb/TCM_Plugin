@@ -20,9 +20,14 @@ public class Reporter {
   public Reporter(boolean problemView, boolean textFile, boolean xmlFile) {
   }
 
-  /**
-   * @param progressMonitor
-   */
+  public List<Problem> getProblems() {
+    return problems;
+  }
+
+  public IProgressMonitor getProgressMonitor() {
+    return progressMonitor;
+  }
+
   public void setProgressMonitor(IProgressMonitor progressMonitor) {
     this.progressMonitor = progressMonitor;
   }

@@ -12,14 +12,15 @@ public class SecurityMisconfigurationVerifier extends Verifier {
 
   @Override
   public boolean visit(MethodDeclaration node) {
-    System.out.println("SecurityMisconfigurationVerifier - " + node.getName());
+    reporter.getProgressMonitor().setTaskName("SecurityMisconfigurationVerifier - " + node.getName());
+    System.out.println("SecurityMisconfigurationVerifier - MethodDeclaration " + node.getName());
 
     return super.visit(node);
   }
 
   @Override
   public boolean visit(MethodInvocation node) {
-    System.out.println("SecurityMisconfigurationVerifier - " + node.getName());
+    System.out.println("SecurityMisconfigurationVerifier - MethodInvocation " + node.getName());
 
     return true;
   }

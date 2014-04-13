@@ -12,8 +12,7 @@ public abstract class Constants {
   public static final String JDT_NATURE                         = "org.eclipse.jdt.core.javanature";
   public static final String NATURE_ID                          = Activator.PLUGIN_ID + ".Nature";
   public static final String BUILDER_ID                         = Activator.PLUGIN_ID + ".Builder";
-  public static final String MARKER_TYPE                        =
-                                                                  "net.thecodemaster.sap.security.vulnerabilities";
+  public static final String MARKER_TYPE                        = Activator.PLUGIN_ID + ".Marker";
 
   public static final String SEPARATOR                          = ";";
   public static final String RESOURCE_TYPE_TO_PERFORM_DETECTION = "java" + SEPARATOR + "jsp";

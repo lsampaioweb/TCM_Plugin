@@ -64,14 +64,14 @@ public class Manager implements IResourceVisitor, IResourceDeltaVisitor {
 
     // If at least one was selected, the analyzer is added to the list.
     if (cookiePoisoning || crossSiteScripting || sqlInjection || securityMisconfiguration) {
-      instance.addAnalyzer(new SecurityVulnerabilityAnalyzer(cookiePoisoning, crossSiteScripting,
-        sqlInjection, securityMisconfiguration));
+      addAnalyzer(new SecurityVulnerabilityAnalyzer(cookiePoisoning, crossSiteScripting, sqlInjection,
+        securityMisconfiguration));
     }
 
     boolean nameConvention = true;
     // If at least one was selected, the analyzer is added to the list.
     if (nameConvention) {
-      instance.addAnalyzer(new CodeAnomaliesAnalyzer(nameConvention));
+      addAnalyzer(new CodeAnomaliesAnalyzer(nameConvention));
     }
   }
 

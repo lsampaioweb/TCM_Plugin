@@ -12,14 +12,14 @@ public class CookiePoisoningVerifier extends Verifier {
 
   @Override
   public boolean visit(MethodDeclaration node) {
-    System.out.println("CookiePoisoningVerifier - " + node.getName());
+    System.out.println("CookiePoisoningVerifier - MethodDeclaration " + node.getName());
 
     return super.visit(node);
   }
 
   @Override
   public boolean visit(MethodInvocation node) {
-    System.out.println("CookiePoisoningVerifier - " + node.getName());
+    System.out.println("CookiePoisoningVerifier - MethodInvocation " + node.getName());
 
     return true;
   }
