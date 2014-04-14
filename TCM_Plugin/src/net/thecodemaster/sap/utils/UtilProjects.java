@@ -6,7 +6,7 @@ import java.util.Iterator;
 import net.thecodemaster.sap.Activator;
 import net.thecodemaster.sap.Manager;
 import net.thecodemaster.sap.constants.Constants;
-import net.thecodemaster.sap.logger.PluginLogger;
+import net.thecodemaster.sap.loggers.PluginLogger;
 import net.thecodemaster.sap.natures.NatureHandler;
 
 import org.eclipse.core.commands.ExecutionEvent;

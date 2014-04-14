@@ -10,34 +10,9 @@
 06 + Track changes on java files.
 06.1 + Perform detection only in projects selected by the developer.
 06.1 ** I am having problems because the BUILDER is only being invokes when the user saves the file and not automatically.
-
-06.2 - Run the detection on a different thread.
-06.3 - Inform the user which files are being processed.
+06.2 + Run the detection on a different thread.
+06.3 + Inform the user which files are being processed.
 
 07 + Create the markers for the plug-in.
 
 08 - Create a hidden file that will be used by our plug-in.
-
-     if (null == job) {
-      job = new Job("Early Vulnerability Detection - Job") {
-        @Override
-        protected IStatus run(IProgressMonitor monitor) {
-          try {
-            monitor.beginTask("Preparing", 5000);
-            for (int i = 0; i < 50 && !monitor.isCanceled(); i++) {
-              monitor.subTask("Performing operation:" + i);
-              Thread.sleep(100);
-              monitor.worked(100);
-            }
-          }
-          catch (InterruptedException e) {
-          }
-          finally {
-            monitor.done();
-          }
-          return Status.OK_STATUS;
-        }
-      };
-      job.setUser(true);
-    }
-    job.schedule();

@@ -1,4 +1,4 @@
-package net.thecodemaster.sap.logger;
+package net.thecodemaster.sap.loggers;
 
 import net.thecodemaster.sap.Activator;
 

@@ -1,5 +1,6 @@
 package net.thecodemaster.sap.verifiers.security.vulnerabilities;
 
+import net.thecodemaster.sap.ui.l10n.Messages;
 import net.thecodemaster.sap.verifiers.Verifier;
 
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -10,11 +11,15 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
  */
 public class CookiePoisoningVerifier extends Verifier {
 
+  public CookiePoisoningVerifier() {
+    super(Messages.Plugin.COOKIE_POISONING_VERIFIER);
+  }
+
   @Override
   public boolean visit(MethodDeclaration node) {
     System.out.println("CookiePoisoningVerifier - MethodDeclaration " + node.getName());
 
-    return super.visit(node);
+    return true;
   }
 
   @Override

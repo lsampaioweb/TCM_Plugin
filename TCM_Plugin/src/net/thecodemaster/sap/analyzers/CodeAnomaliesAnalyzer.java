@@ -25,7 +25,8 @@ public class CodeAnomaliesAnalyzer extends Analyzer {
    */
   @Override
   public boolean run(IResource resource, Reporter reporter) throws CoreException {
-    return false;
+    // Return true to continue visiting children.
+    return true;
   }
 
 }

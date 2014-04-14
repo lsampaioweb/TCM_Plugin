@@ -1,5 +1,6 @@
 package net.thecodemaster.sap.verifiers.security.vulnerabilities;
 
+import net.thecodemaster.sap.ui.l10n.Messages;
 import net.thecodemaster.sap.verifiers.Verifier;
 
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -10,19 +11,15 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
  */
 public class SecurityMisconfigurationVerifier extends Verifier {
 
+  public SecurityMisconfigurationVerifier() {
+    super(Messages.Plugin.SECURITY_MISCONFIGURATION_VERIFIER);
+  }
+
   @Override
   public boolean visit(MethodDeclaration node) {
-    reporter.getProgressMonitor().setTaskName("SecurityMisconfigurationVerifier - " + node.getName());
     System.out.println("SecurityMisconfigurationVerifier - MethodDeclaration " + node.getName());
 
-    try {
-      Thread.sleep(3000);
-    }
-    catch (InterruptedException e) {
-      e.printStackTrace();
-    }
-
-    return super.visit(node);
+    return true;
   }
 
   @Override

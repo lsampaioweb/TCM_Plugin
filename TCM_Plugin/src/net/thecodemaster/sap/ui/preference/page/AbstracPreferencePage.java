@@ -5,7 +5,7 @@ import java.net.URL;
 import java.util.Collection;
 
 import net.thecodemaster.sap.Activator;
-import net.thecodemaster.sap.logger.PluginLogger;
+import net.thecodemaster.sap.loggers.PluginLogger;
 import net.thecodemaster.sap.utils.UtilProjects;
 
 import org.eclipse.core.resources.IProject;

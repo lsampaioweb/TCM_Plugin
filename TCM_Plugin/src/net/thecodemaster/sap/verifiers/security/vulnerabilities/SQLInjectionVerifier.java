@@ -1,5 +1,6 @@
 package net.thecodemaster.sap.verifiers.security.vulnerabilities;
 
+import net.thecodemaster.sap.ui.l10n.Messages;
 import net.thecodemaster.sap.verifiers.Verifier;
 
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -10,11 +11,15 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
  */
 public class SQLInjectionVerifier extends Verifier {
 
+  public SQLInjectionVerifier() {
+    super(Messages.Plugin.SQL_INJECTION_VERIFIER);
+  }
+
   @Override
   public boolean visit(MethodDeclaration node) {
     System.out.println("SQLInjectionVerifier - MethodDeclaration " + node.getName());
 
-    return super.visit(node);
+    return true;
   }
 
   @Override

@@ -4,7 +4,9 @@ import java.util.Map;
 
 import net.thecodemaster.sap.Manager;
 import net.thecodemaster.sap.constants.Constants;
-import net.thecodemaster.sap.logger.PluginLogger;
+import net.thecodemaster.sap.jobs.ManagerJob;
+import net.thecodemaster.sap.loggers.PluginLogger;
+import net.thecodemaster.sap.ui.l10n.Messages;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -54,32 +56,21 @@ public class Builder extends IncrementalProjectBuilder {
     getProject().deleteMarkers(Constants.MARKER_TYPE, true, IResource.DEPTH_INFINITE);
   }
 
-  /**
-   * @param monitor
-   * @throws CoreException
-   */
-  protected void fullBuild(final IProgressMonitor monitor) throws CoreException {
-    getProject().accept(getManager(monitor));
+  protected void fullBuild(final IProgressMonitor monitor) {
+    ManagerJob job = new ManagerJob(Messages.Plugin.JOB, getManager(), getProject());
+    job.run();
+  }
+
+  protected void incrementalBuild(IResourceDelta delta, IProgressMonitor monitor) {
+    ManagerJob job = new ManagerJob(Messages.Plugin.JOB, getManager(), delta);
+    job.run();
   }
 
   /**
-   * @param delta
-   * @param monitor
-   * @throws CoreException
-   */
-  protected void incrementalBuild(IResourceDelta delta, IProgressMonitor monitor) throws CoreException {
-    delta.accept(getManager(monitor));
-  }
-
-  /**
-   * @param monitor
    * @return An instance of the manager analyzer.
    */
-  private Manager getManager(IProgressMonitor monitor) {
-    Manager manager = Manager.getInstance();
-    manager.setProgressMonitor(monitor);
-
-    return manager;
+  private Manager getManager() {
+    return Manager.getInstance();
   }
 
 }

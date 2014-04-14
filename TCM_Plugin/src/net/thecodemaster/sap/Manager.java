@@ -105,19 +105,6 @@ public class Manager implements IResourceVisitor, IResourceDeltaVisitor {
    * {@inheritDoc}
    */
   @Override
-  public boolean visit(IResource resource) throws CoreException {
-    for (Analyzer analyzer : analyzers) {
-      analyzer.run(resource, reporter);
-    }
-
-    // Return true to continue visiting children.
-    return true;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public boolean visit(IResourceDelta delta) throws CoreException {
     IResource resource = delta.getResource();
 
@@ -130,6 +117,19 @@ public class Manager implements IResourceVisitor, IResourceDeltaVisitor {
         visit(resource);
         break;
     }
+    // Return true to continue visiting children.
+    return true;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public boolean visit(IResource resource) throws CoreException {
+    for (Analyzer analyzer : analyzers) {
+      analyzer.run(resource, reporter);
+    }
+
     // Return true to continue visiting children.
     return true;
   }

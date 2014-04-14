@@ -23,7 +23,7 @@ public abstract class Messages extends NLS {
     public static String        URL_THECODEMASTER;
 
     static {
-      // initialize resource bundle
+      // Initialize resource bundle.
       NLS.initializeMessages(BUNDLE_NAME, Acknowledgements.class);
     }
   }
@@ -38,7 +38,7 @@ public abstract class Messages extends NLS {
     public static String        LABEL_MONITORED_PROJECTS;
 
     static {
-      // initialize resource bundle
+      // Initialize resource bundle.
       NLS.initializeMessages(BUNDLE_NAME, SecurityVulnerabilities.class);
     }
   }
@@ -63,9 +63,26 @@ public abstract class Messages extends NLS {
     public static String        LABEL_OUTPUT_XML_FILE;
 
     static {
-      // initialize resource bundle
+      // Initialize resource bundle.
       NLS.initializeMessages(BUNDLE_NAME, Settings.class);
     }
+  }
 
+  public static abstract class Plugin {
+    private static final String BUNDLE_NAME = Constants.PACKAGE_UI + ".l10n.messages.plugin"; //$NON-NLS-1$
+    public static String        JOB;
+    public static String        TASK;
+
+    public static String        NAME_CONVENTION_VERIFIER;
+
+    public static String        SECURITY_MISCONFIGURATION_VERIFIER;
+    public static String        COOKIE_POISONING_VERIFIER;
+    public static String        SQL_INJECTION_VERIFIER;
+    public static String        XSS_VERIFIER;
+
+    static {
+      // Initialize resource bundle.
+      NLS.initializeMessages(BUNDLE_NAME, Plugin.class);
+    }
   }
 }
