@@ -6,13 +6,18 @@
 03.3 + Make the buttons add and remove only available if the project is or is not already being monitored.
 04 + Make the plug-in start automatically with Eclipse.
 05 + Create the exception handling mechanism.
-
 06 + Track changes on java files.
 06.1 + Perform detection only in projects selected by the developer.
 06.1 ** I am having problems because the BUILDER is only being invokes when the user saves the file and not automatically.
 06.2 + Run the detection on a different thread.
 06.3 + Inform the user which files are being processed.
-
 07 + Create the markers for the plug-in.
 
-08 - Create a hidden file that will be used by our plug-in.
+08 - Implement the verifiers.
+08.1 - SecurityMisconfigurationVerifier.
+08.2 - CookiePoisoningVerifier.
+08.3 - SQLInjectionVerifier.
+08.4 - XSSVerifier.
+08.5 - NameConventionVerifier.
+
+XX - Create a hidden file that will be used by our plug-in.

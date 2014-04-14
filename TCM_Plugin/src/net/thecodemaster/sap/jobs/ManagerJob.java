@@ -53,7 +53,7 @@ public class ManagerJob extends Job {
     try {
       monitor.beginTask(Messages.Plugin.TASK, IProgressMonitor.UNKNOWN);
 
-      if (delta != null) {
+      if (null != delta) {
         delta.accept(manager);
       }
 

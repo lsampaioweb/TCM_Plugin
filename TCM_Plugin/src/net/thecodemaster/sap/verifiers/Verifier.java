@@ -10,8 +10,8 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
  */
 public abstract class Verifier extends ASTVisitor {
 
-  protected Reporter reporter;
   protected String   name;
+  protected Reporter reporter;
 
   /**
    * @param name The name of the verifier.
