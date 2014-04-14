@@ -1,4 +1,4 @@
-package net.thecodemaster.sap.reporter;
+package net.thecodemaster.sap.reporters;
 
 import java.util.List;
 

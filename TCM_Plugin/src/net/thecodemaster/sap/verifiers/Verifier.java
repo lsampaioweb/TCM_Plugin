@@ -1,6 +1,6 @@
 package net.thecodemaster.sap.verifiers;
 
-import net.thecodemaster.sap.reporter.Reporter;
+import net.thecodemaster.sap.reporters.Reporter;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.CompilationUnit;

@@ -6,7 +6,7 @@ import net.thecodemaster.sap.analyzers.Analyzer;
 import net.thecodemaster.sap.analyzers.CodeAnomaliesAnalyzer;
 import net.thecodemaster.sap.analyzers.SecurityVulnerabilityAnalyzer;
 import net.thecodemaster.sap.constants.Constants;
-import net.thecodemaster.sap.reporter.Reporter;
+import net.thecodemaster.sap.reporters.Reporter;
 import net.thecodemaster.sap.utils.Creator;
 
 import org.eclipse.core.resources.IResource;

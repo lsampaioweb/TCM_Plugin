@@ -2,7 +2,7 @@ package net.thecodemaster.sap.analyzers;
 
 import java.util.Collection;
 
-import net.thecodemaster.sap.reporter.Reporter;
+import net.thecodemaster.sap.reporters.Reporter;
 import net.thecodemaster.sap.utils.UtilProjects;
 import net.thecodemaster.sap.verifiers.Verifier;
 

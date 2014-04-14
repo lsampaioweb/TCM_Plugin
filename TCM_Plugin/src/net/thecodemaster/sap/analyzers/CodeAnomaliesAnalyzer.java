@@ -1,6 +1,6 @@
 package net.thecodemaster.sap.analyzers;
 
-import net.thecodemaster.sap.reporter.Reporter;
+import net.thecodemaster.sap.reporters.Reporter;
 import net.thecodemaster.sap.utils.Creator;
 import net.thecodemaster.sap.verifiers.code.anomalies.NameConventionVerifier;
 
