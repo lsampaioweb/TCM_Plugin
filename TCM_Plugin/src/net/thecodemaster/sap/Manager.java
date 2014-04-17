@@ -114,8 +114,7 @@ public class Manager implements IResourceVisitor, IResourceDeltaVisitor {
         break;
       case IResourceDelta.ADDED:
       case IResourceDelta.CHANGED:
-        visit(resource);
-        break;
+        return visit(resource);
     }
     // Return true to continue visiting children.
     return true;

@@ -13,6 +13,12 @@
 06.3 + Inform the user which files are being processed.
 07 + Create the markers for the plug-in.
 
+08 - Create the heuristics.
+08.1 - Security Misconfiguration.
+08.1.1 - DriverManager.getConnection.
+08.1.2 - FTP.
+08.1.3 - Email.
+
 08 - Implement the verifiers.
 08.1 - SecurityMisconfigurationVerifier.
 08.2 - CookiePoisoningVerifier.

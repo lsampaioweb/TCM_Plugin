@@ -23,7 +23,7 @@ public abstract class Verifier extends ASTVisitor {
   public void run(CompilationUnit cu, Reporter reporter) {
     this.reporter = reporter;
 
-    if (null != reporter) {
+    if ((null != reporter) && (null != reporter.getProgressMonitor())) {
       reporter.getProgressMonitor().subTask(name);
     }
 
