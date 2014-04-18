@@ -1,6 +1,6 @@
 package net.thecodemaster.sap.ui.preference.page;
 
-import java.util.Collection;
+import java.util.List;
 
 import net.thecodemaster.sap.Activator;
 import net.thecodemaster.sap.constants.Constants;
@@ -110,10 +110,10 @@ public class SecurityVulnerabilities extends AbstracPreferencePage {
 
   private void populateProjectsList() {
     // The collection of projects which exist under this workspace.
-    Collection<IProject> projects = getListOfProjectsInWorkspace();
+    List<IProject> projects = getListOfProjectsInWorkspace();
 
     // The collection of projects that are being monitored by our plug-in.
-    Collection<IProject> monitoredProjects = getListOfMonitoredProjects();
+    List<IProject> monitoredProjects = getListOfMonitoredProjects();
 
     for (IProject project : projects) {
       TableItem item = new TableItem(projectsList, SWT.NONE);
@@ -160,7 +160,7 @@ public class SecurityVulnerabilities extends AbstracPreferencePage {
     storeValue(ckbtnSecurityMisconfiguration);
 
     // The list with the projects to be monitored.
-    Collection<IProject> selectedProjects = Creator.newCollection();
+    List<IProject> selectedProjects = Creator.newList();
 
     // Iterate over the list of selected projects and if they are checked, add them to the list.
     TableItem items[] = projectsList.getItems();

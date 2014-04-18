@@ -1,7 +1,9 @@
 package net.thecodemaster.sap.utils;
 
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Luciano Sampaio
@@ -9,21 +11,30 @@ import java.util.HashSet;
 public class Creator {
 
   /**
-   * Return a Collection of type T.
+   * Return a List of type T.
    * 
-   * @return Collection<T>
+   * @return List<T>
    */
-  public static <T> Collection<T> newCollection() {
-    return new HashSet<T>();
+  public static <T> List<T> newList() {
+    return new ArrayList<T>();
   }
 
   /**
-   * Return a Collection of type T.
+   * Return a List of type T.
    * 
-   * @param initialCapacity the initial capacity of the Collection.
-   * @return Collection<T>
+   * @param initialCapacity the initial capacity of the List.
+   * @return List<T>
    */
-  public static <T> Collection<T> newCollection(int initialCapacity) {
-    return new HashSet<T>(initialCapacity);
+  public static <T> List<T> newList(int initialCapacity) {
+    return new ArrayList<T>(initialCapacity);
+  }
+
+  /**
+   * Return a Map of type T and W.
+   * 
+   * @return Map<T, W>
+   */
+  public static <T, W> Map<T, W> newMap() {
+    return new LinkedHashMap<T, W>();
   }
 }

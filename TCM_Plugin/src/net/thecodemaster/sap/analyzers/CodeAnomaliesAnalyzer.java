@@ -13,7 +13,7 @@ import org.eclipse.core.runtime.CoreException;
 public class CodeAnomaliesAnalyzer extends Analyzer {
 
   public CodeAnomaliesAnalyzer(boolean nameConvention) {
-    verifiers = Creator.newCollection();
+    verifiers = Creator.newList();
 
     if (nameConvention) {
       verifiers.add(new NameConventionVerifier());

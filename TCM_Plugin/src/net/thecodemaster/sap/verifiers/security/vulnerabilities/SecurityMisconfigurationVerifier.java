@@ -1,22 +1,20 @@
 package net.thecodemaster.sap.verifiers.security.vulnerabilities;
 
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.Map;
 
+import net.thecodemaster.sap.arguments.Argument;
+import net.thecodemaster.sap.exitpoints.ExitPoint;
 import net.thecodemaster.sap.ui.l10n.Messages;
+import net.thecodemaster.sap.utils.Convert;
+import net.thecodemaster.sap.utils.Creator;
 import net.thecodemaster.sap.verifiers.Verifier;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.StringLiteral;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 /**
  * @author Luciano Sampaio
@@ -25,92 +23,89 @@ public class SecurityMisconfigurationVerifier extends Verifier {
 
   public SecurityMisconfigurationVerifier() {
     super(Messages.Plugin.SECURITY_MISCONFIGURATION_VERIFIER);
-  }
 
-  @Override
-  public boolean visit(VariableDeclarationStatement node) {
-    System.out.println("VariableDeclarationStatement " + node);
+    // 02 - Create each ExitPoint.
+    ExitPoint exitPointGetConnection = new ExitPoint("java.sql.DriverManager", "getConnection");
+    Map<Argument, List<Integer>> argumentsGetConnection = Creator.newMap();
+    argumentsGetConnection.put(new Argument("java.lang.String", "url"), null);
+    argumentsGetConnection.put(new Argument("java.lang.String", "userName"),
+      Arrays.asList(ASTNode.STRING_LITERAL, ASTNode.INFIX_EXPRESSION));
+    argumentsGetConnection.put(new Argument("java.lang.String", "password"),
+      Arrays.asList(ASTNode.STRING_LITERAL, ASTNode.INFIX_EXPRESSION));
+    exitPointGetConnection.setArguments(argumentsGetConnection);
 
-    for (Iterator<?> iter = node.fragments().iterator(); iter.hasNext();) {
-      VariableDeclarationFragment fragment = (VariableDeclarationFragment) iter.next();
-
-      listVariables.put(fragment.getName().getIdentifier(), fragment);
-      System.out.println("VariableDeclarationStatement - fragments - " + fragment.getName().getIdentifier());
-    }
-    return super.visit(node);
-    // return false; // prevent that SimpleName is interpreted as reference
+    // 03 - Add the ExitPoint to the list.
+    listExitPoints.add(exitPointGetConnection);
   }
 
   @Override
   public boolean visit(MethodInvocation node) {
-    System.out.println("MethodInvocation " + node.getName());
+    // Verify if the current method belongs to the list of ExitPoints.
+    ExitPoint exitPoint = isMethodAnExitPoint(listExitPoints, node);
 
-    SimpleName simpleName = node.getName();
-    if (simpleName.getIdentifier().equals("getConnection")) {
-      // IMethodBinding methodBinding = node.resolveMethodBinding();
-      // ITypeBinding returnTypeBinding = methodBinding.getReturnType();
-      // String qualifiedName = returnTypeBinding.getQualifiedName();
-      // ITypeBinding type = methodBinding.getDeclaringClass();
-
-      Expression expression = node.getExpression();
-      if (null != expression) {
-        ITypeBinding typeBinding = expression.resolveTypeBinding();
-        String className = typeBinding.getName();
-
-        if (className.equals("DriverManager")) {
-          System.out.println("Type: " + typeBinding.getName());
-
-          doVisitChildren(node.arguments());
-        }
-      }
+    if (null != exitPoint) {
+      // This is an important NODE and it needs to be verified.
+      validateNode(node, exitPoint);
     }
 
     return super.visit(node);
   }
 
-  private HashMap<String, VariableDeclarationFragment> listVariables =
-                                                                       new HashMap<String, VariableDeclarationFragment>();
+  private ExitPoint isMethodAnExitPoint(List<ExitPoint> listExitPoints, MethodInvocation node) {
+    // The name of the current method.
+    String methodName = node.getName().getIdentifier();
 
-  private void doVisitChildren(List<?> elements) {
-    for (Object currentParameter : elements) {
-      if (currentParameter instanceof StringLiteral) {
-        StringLiteral parameter = (StringLiteral) currentParameter;
-        System.out.println("(StringLiteral) - We have a vulnerability: " + parameter);
-      }
-      else if (currentParameter instanceof InfixExpression) {
-        InfixExpression parameter = (InfixExpression) currentParameter;
-        System.out.println("(InfixExpression) - We have a vulnerability: " + parameter);
-      }
-      else if (currentParameter instanceof SimpleName) {
-        SimpleName parameter = (SimpleName) currentParameter;
+    for (ExitPoint currentExitPoint : listExitPoints) {
+      if (currentExitPoint.getMethodName().equals(methodName)) {
 
-        for (Entry<String, VariableDeclarationFragment> entry : listVariables.entrySet()) {
-          String key = entry.getKey();
+        Expression expression = node.getExpression();
+        if (null != expression) {
 
-          if (parameter.getIdentifier().equals(key)) {
-            VariableDeclarationFragment fragment = entry.getValue();
+          // The fully qualified name.
+          String qualifiedName = expression.resolveTypeBinding().getQualifiedName();
 
-            Expression expression = fragment.getInitializer();
-            if (null != expression) {
-              if (expression.getNodeType() == ASTNode.STRING_LITERAL) {
-                System.out.println("(StringLiteral) - We have a vulnerability: " + parameter);
+          // It is necessary to check against the qualified name
+          // because same method names can appear in more than one class.
+          if (currentExitPoint.getPackageName().equals(qualifiedName)) {
+
+            Map<Argument, List<Integer>> expectedArguments = currentExitPoint.getArguments();
+            List<Expression> receivedArguments = Convert.fromListObjectToListExpression(node.arguments());
+
+            if (expectedArguments.size() == receivedArguments.size()) {
+              boolean isMethodAnExitPoint = true;
+              int index = 0;
+              for (Argument expectedArgument : expectedArguments.keySet()) {
+                ITypeBinding receivedArgument = receivedArguments.get(index++).resolveTypeBinding();
+
+                // Verify if all the arguments are the ones expected.
+                if (!expectedArgument.getType().equals(receivedArgument.getQualifiedName())) {
+                  isMethodAnExitPoint = false;
+                }
               }
-              else if (expression.getNodeType() == ASTNode.INFIX_EXPRESSION) {
-                System.out.println("(InfixExpression) - We have a vulnerability: " + parameter);
-              }
-              else if (expression.getNodeType() == ASTNode.METHOD_INVOCATION) {
-                // ASTNode parentNode = parameter.getParent();
-                // while (parentNode.getNodeType() != ASTNode.METHOD_DECLARATION) {
-                // parentNode = parentNode.getParent();
-                // }
+
+              if (isMethodAnExitPoint) {
+                return currentExitPoint;
               }
             }
           }
         }
-
-        // System.out.println("SimpleName " + parameter);
       }
     }
+
+    return null;
+  }
+
+  private void validateNode(MethodInvocation node, ExitPoint exitPoint) {
+    List<Expression> arguments = Convert.fromListObjectToListExpression(node.arguments());
+    Map<Argument, List<Integer>> mapArguments = exitPoint.getArguments();
+
+    for (Expression argument : arguments) {
+      System.out.println("Argument " + argument);
+      if (argument.getNodeType() == ASTNode.STRING_LITERAL) {
+
+      }
+    }
+
   }
 
 }

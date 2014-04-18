@@ -2,7 +2,7 @@ package net.thecodemaster.sap.ui.preference.page;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collection;
+import java.util.List;
 
 import net.thecodemaster.sap.Activator;
 import net.thecodemaster.sap.loggers.PluginLogger;
@@ -159,7 +159,7 @@ public abstract class AbstracPreferencePage extends PreferencePage implements IW
    * 
    * @return An list of projects.
    */
-  protected Collection<IProject> getListOfProjectsInWorkspace() {
+  protected List<IProject> getListOfProjectsInWorkspace() {
     return UtilProjects.getProjectsInWorkspace();
   }
 
@@ -168,14 +168,14 @@ public abstract class AbstracPreferencePage extends PreferencePage implements IW
    * 
    * @return A collection of projects' names.
    */
-  protected Collection<IProject> getListOfMonitoredProjects() {
+  protected List<IProject> getListOfMonitoredProjects() {
     return UtilProjects.getMonitoredProjects();
   }
 
   /**
    * @param projects
    */
-  protected void setProjectsToListOfMonitoredProjects(Collection<IProject> projects) {
+  protected void setProjectsToListOfMonitoredProjects(List<IProject> projects) {
     UtilProjects.setProjectsToListOfMonitoredProjects(projects);
   }
 

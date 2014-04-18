@@ -95,7 +95,7 @@ public class Manager implements IResourceVisitor, IResourceDeltaVisitor {
    */
   private void addAnalyzer(Analyzer analyzer) {
     if (null == analyzers) {
-      analyzers = Creator.newCollection();
+      analyzers = Creator.newList();
     }
 
     analyzers.add(analyzer);

@@ -1,7 +1,7 @@
 package net.thecodemaster.sap.utils;
 
-import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import net.thecodemaster.sap.Activator;
 import net.thecodemaster.sap.Manager;
@@ -31,11 +31,11 @@ public abstract class UtilProjects {
    * 
    * @return An list of projects.
    */
-  public static Collection<IProject> getProjectsInWorkspace() {
+  public static List<IProject> getProjectsInWorkspace() {
     // Returns the collection of projects which exist under this root. The projects can be open or closed.
     IProject[] allProjects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
     // This collection only has Java projects which are also accessible and opened.
-    Collection<IProject> javaProjects = Creator.newCollection(allProjects.length);
+    List<IProject> javaProjects = Creator.newList(allProjects.length);
 
     for (IProject project : allProjects) {
       try {
@@ -57,7 +57,7 @@ public abstract class UtilProjects {
    * 
    * @return A collection of projects' names.
    */
-  public static Collection<IProject> getMonitoredProjects() {
+  public static List<IProject> getMonitoredProjects() {
     IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 
     // Get the list of monitored projects split by the SEPARATOR constant.
@@ -65,10 +65,10 @@ public abstract class UtilProjects {
       store.getString(Constants.SecurityVulnerabilities.FIELD_MONITORED_PROJECTS);
 
     // Extract a collection (unique elements) from the string.
-    Collection<String> projectsNames = Convert.fromStringToList(storedMonitoredProjects, Constants.SEPARATOR);
+    List<String> projectsNames = Convert.fromStringToList(storedMonitoredProjects, Constants.SEPARATOR);
 
     // The list with the projects that are being monitored by our plug-in.
-    Collection<IProject> listMonitoredProjects = Creator.newCollection();
+    List<IProject> listMonitoredProjects = Creator.newList();
 
     IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
     for (String projectName : projectsNames) {
@@ -81,9 +81,9 @@ public abstract class UtilProjects {
   /**
    * @param projects
    */
-  public static void setProjectsToListOfMonitoredProjects(Collection<IProject> projects) {
+  public static void setProjectsToListOfMonitoredProjects(List<IProject> projects) {
     // The collection of projects that are being monitored by our plug-in.
-    Collection<IProject> monitoredProjects = getMonitoredProjects();
+    List<IProject> monitoredProjects = getMonitoredProjects();
 
     IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 
@@ -101,14 +101,13 @@ public abstract class UtilProjects {
     Manager.resetManager();
   }
 
-  private static void updateNatureOnProjects(Collection<IProject> oldProjects,
-    Collection<IProject> newProjects) {
+  private static void updateNatureOnProjects(List<IProject> oldProjects, List<IProject> newProjects) {
     // Create a difference from the old and the new list.
-    Collection<IProject> projectsToAdd = Creator.newCollection();
+    List<IProject> projectsToAdd = Creator.newList();
     projectsToAdd.addAll(newProjects);
     projectsToAdd.removeAll(oldProjects);
 
-    Collection<IProject> projectsToRemove = Creator.newCollection();
+    List<IProject> projectsToRemove = Creator.newList();
     projectsToRemove.addAll(oldProjects);
     projectsToRemove.removeAll(newProjects);
 
@@ -125,16 +124,18 @@ public abstract class UtilProjects {
   /**
    * @param projects
    */
-  public static void addProjectsToListOfMonitoredProjects(Collection<IProject> projects) {
+  public static void addProjectsToListOfMonitoredProjects(List<IProject> projects) {
     // If the collection is empty there is nothing to do.
     if ((null != projects) && (!projects.isEmpty())) {
       // The collection of projects that are being monitored by our plug-in.
-      Collection<IProject> monitoredProjects = getMonitoredProjects();
+      List<IProject> monitoredProjects = getMonitoredProjects();
 
       // Adds the selected projects to the list of monitored projects.
-      // Because it is a HashSet collection, it will not allow repeated elements.
+      // It should not allow repeated elements.
       for (IProject project : projects) {
-        monitoredProjects.add(project);
+        if (!monitoredProjects.contains(project)) {
+          monitoredProjects.add(project);
+        }
       }
 
       // Save the list back to the preference store.
@@ -145,11 +146,11 @@ public abstract class UtilProjects {
   /**
    * @param projects
    */
-  public static void removeProjectsFromListOfMonitoredProjects(Collection<IProject> projects) {
+  public static void removeProjectsFromListOfMonitoredProjects(List<IProject> projects) {
     // If the collection is empty there is nothing to do.
     if ((null != projects) && (!projects.isEmpty())) {
       // The collection of projects that are being monitored by our plug-in.
-      Collection<IProject> monitoredProjects = getMonitoredProjects();
+      List<IProject> monitoredProjects = getMonitoredProjects();
 
       // Removes the selected projects from the list of monitored projects.
       for (IProject project : projects) {
@@ -167,7 +168,7 @@ public abstract class UtilProjects {
    * @param event The data object to pass to the command (and its handler) as it executes.
    * @return A list(unique elements) of selected projects by the developer.
    */
-  public static Collection<IProject> getSelectedProjects(ExecutionEvent event) {
+  public static List<IProject> getSelectedProjects(ExecutionEvent event) {
     IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
     ISelection selection = window.getActivePage().getSelection();
 
@@ -180,16 +181,16 @@ public abstract class UtilProjects {
    * @param selection The objection that contains the current selection.
    * @return A list(unique elements) of selected projects by the developer.
    */
-  public static Collection<IProject> getSelectedProjects(ISelection selection) {
-    Collection<IProject> projects = Creator.newCollection();
+  public static List<IProject> getSelectedProjects(ISelection selection) {
+    List<IProject> projects = Creator.newList();
 
     if (selection instanceof IStructuredSelection) {
       for (Iterator<?> iter = ((IStructuredSelection) selection).iterator(); iter.hasNext();) {
         // Translate the selected object into a project.
-        IProject element = Convert.fromResourceToProject(iter.next());
+        IProject project = Convert.fromResourceToProject(iter.next());
 
-        if (null != element) {
-          projects.add(element);
+        if ((null != project) && (!projects.contains(project))) {
+          projects.add(project);
         }
       }
     }
@@ -202,8 +203,8 @@ public abstract class UtilProjects {
    * 
    * @return A list of resource types.
    */
-  public static Collection<String> getResourceTypesToPerformDetection() {
-    Collection<String> resourceTypes =
+  public static List<String> getResourceTypesToPerformDetection() {
+    List<String> resourceTypes =
       Convert.fromStringToList(Constants.RESOURCE_TYPE_TO_PERFORM_DETECTION, Constants.SEPARATOR);
 
     return resourceTypes;

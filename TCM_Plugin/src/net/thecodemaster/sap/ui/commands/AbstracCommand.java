@@ -1,6 +1,6 @@
 package net.thecodemaster.sap.ui.commands;
 
-import java.util.Collection;
+import java.util.List;
 
 import net.thecodemaster.sap.utils.UtilProjects;
 
@@ -21,7 +21,7 @@ public abstract class AbstracCommand extends AbstractHandler {
    * @param event The data object to pass to the command (and its handler) as it executes.
    * @return A list(unique elements) of selected projects by the developer.
    */
-  protected Collection<IProject> getSelectedProjects(ExecutionEvent event) {
+  protected List<IProject> getSelectedProjects(ExecutionEvent event) {
     return UtilProjects.getSelectedProjects(event);
   }
 
@@ -30,21 +30,21 @@ public abstract class AbstracCommand extends AbstractHandler {
    * 
    * @return A collection of projects' names.
    */
-  protected Collection<IProject> getListOfMonitoredProjects() {
+  protected List<IProject> getListOfMonitoredProjects() {
     return UtilProjects.getMonitoredProjects();
   }
 
   /**
    * @param projects
    */
-  protected void addProjectsToListOfMonitoredProjects(Collection<IProject> projects) {
+  protected void addProjectsToListOfMonitoredProjects(List<IProject> projects) {
     UtilProjects.addProjectsToListOfMonitoredProjects(projects);
   }
 
   /**
    * @param projects
    */
-  protected void removeProjectsFromListOfMonitoredProjects(Collection<IProject> projects) {
+  protected void removeProjectsFromListOfMonitoredProjects(List<IProject> projects) {
     UtilProjects.removeProjectsFromListOfMonitoredProjects(projects);
   }
 

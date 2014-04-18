@@ -29,3 +29,4 @@
 XX - Create a hidden file that will be used by our plug-in.
 
 XX - Check for infinitive loop.
+XX - Check for methods with same names.
