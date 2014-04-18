@@ -1,0 +1,10 @@
+ExitPoints
+	[01] - 
+	Package	  : java.sql.Statement
+	Method 	  : executeQuery
+
+	Parameters:
+		String sql 	: InfixExpression
+
+EntryPoints
+	isClean : True|False
