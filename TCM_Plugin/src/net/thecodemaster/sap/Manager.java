@@ -56,16 +56,13 @@ public class Manager implements IResourceVisitor, IResourceDeltaVisitor {
   private void addAnalyzers(IPreferenceStore store) {
     // Get the options checked by the developer.
     boolean cookiePoisoning = store.getBoolean(Constants.SecurityVulnerabilities.FIELD_COOKIE_POISONING);
-    boolean crossSiteScripting =
-      store.getBoolean(Constants.SecurityVulnerabilities.FIELD_CROSS_SITE_SCRIPTING);
+    boolean crossSiteScripting = store.getBoolean(Constants.SecurityVulnerabilities.FIELD_CROSS_SITE_SCRIPTING);
     boolean sqlInjection = store.getBoolean(Constants.SecurityVulnerabilities.FIELD_SQL_INJECTION);
-    boolean securityMisconfiguration =
-      store.getBoolean(Constants.SecurityVulnerabilities.FIELD_SECURITY_MISCONFIGURATION);
+    boolean securityMisconfiguration = store.getBoolean(Constants.SecurityVulnerabilities.FIELD_SECURITY_MISCONFIGURATION);
 
     // If at least one was selected, the analyzer is added to the list.
     if (cookiePoisoning || crossSiteScripting || sqlInjection || securityMisconfiguration) {
-      addAnalyzer(new SecurityVulnerabilityAnalyzer(cookiePoisoning, crossSiteScripting, sqlInjection,
-        securityMisconfiguration));
+      addAnalyzer(new SecurityVulnerabilityAnalyzer(cookiePoisoning, crossSiteScripting, sqlInjection, securityMisconfiguration));
     }
 
     boolean nameConvention = true;

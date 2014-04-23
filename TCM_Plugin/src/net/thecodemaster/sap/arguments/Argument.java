@@ -6,11 +6,9 @@ package net.thecodemaster.sap.arguments;
 public class Argument {
 
   private String type;
-  private String name;
 
-  public Argument(String type, String name) {
+  public Argument(String type) {
     this.type = type;
-    this.name = name;
   }
 
   public String getType() {
@@ -19,14 +17,6 @@ public class Argument {
 
   public void setType(String type) {
     this.type = type;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
   }
 
 }

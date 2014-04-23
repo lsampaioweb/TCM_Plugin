@@ -1,6 +1,6 @@
 package net.thecodemaster.sap.analyzers;
 
-import java.util.Collection;
+import java.util.List;
 
 import net.thecodemaster.sap.reporters.Reporter;
 import net.thecodemaster.sap.utils.UtilProjects;
@@ -19,8 +19,8 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
  */
 public abstract class Analyzer {
 
-  protected Collection<Verifier>      verifiers;
-  protected static Collection<String> resourceTypes;
+  protected List<Verifier>      verifiers;
+  protected static List<String> resourceTypes;
 
   /**
    * Check if the detection should be performed in this resource or not.
@@ -44,7 +44,7 @@ public abstract class Analyzer {
     return false;
   }
 
-  protected Collection<String> getResourceTypesToPerformDetection() {
+  protected List<String> getResourceTypesToPerformDetection() {
     return UtilProjects.getResourceTypesToPerformDetection();
   }
 
