@@ -12,6 +12,7 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.jobs.Job;
 
 public class Builder extends IncrementalProjectBuilder {
 
@@ -19,6 +20,8 @@ public class Builder extends IncrementalProjectBuilder {
    * This mutex rule will guarantee that only one job will be running at any given time.
    */
   private static MutexRule rule = new MutexRule();
+  private BuilderJob       jobProject;
+  private BuilderJob       jobDelta;
 
   /**
    * {@inheritDoc}
@@ -59,15 +62,24 @@ public class Builder extends IncrementalProjectBuilder {
   }
 
   protected void fullBuild(final IProgressMonitor monitor) {
-    BuilderJob job = new BuilderJob(Messages.Plugin.JOB, getProject());
-    job.setRule(rule);
-    job.run();
+    cancelIfNotRunning(jobProject);
+
+    jobProject = new BuilderJob(Messages.Plugin.JOB, getProject());
+    jobProject.setRule(rule);
+    jobProject.run();
   }
 
   protected void incrementalBuild(IResourceDelta delta, IProgressMonitor monitor) {
-    BuilderJob job = new BuilderJob(Messages.Plugin.JOB, delta);
-    job.setRule(rule);
-    job.run();
+    cancelIfNotRunning(jobDelta);
+
+    jobDelta = new BuilderJob(Messages.Plugin.JOB, delta);
+    jobDelta.setRule(rule);
+    jobDelta.run();
   }
 
+  private void cancelIfNotRunning(BuilderJob job) {
+    if ((null != job) && (job.getState() != Job.RUNNING)) {
+      job.cancel();
+    }
+  }
 }

@@ -6,9 +6,11 @@ import net.thecodemaster.sap.analyzers.Analyzer;
 import net.thecodemaster.sap.analyzers.CodeAnomaliesAnalyzer;
 import net.thecodemaster.sap.analyzers.SecurityVulnerabilityAnalyzer;
 import net.thecodemaster.sap.constants.Constants;
+import net.thecodemaster.sap.graph.CallGraph;
 import net.thecodemaster.sap.reporters.Reporter;
 import net.thecodemaster.sap.utils.Creator;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
 
@@ -90,10 +92,10 @@ public class Manager {
     reporter.setProgressMonitor(progressMonitor);
   }
 
-  public boolean run() {
-    for (Analyzer analyzer : analyzers) {
-      // analyzer.run(resource, reporter);
-    }
+  public boolean run(CallGraph callGraph, List<IResource> listUpdatedResources) {
+    // for (Analyzer analyzer : analyzers) {
+    // analyzer.run(resource, reporter);
+    // }
 
     // Return true to continue visiting children.
     return true;

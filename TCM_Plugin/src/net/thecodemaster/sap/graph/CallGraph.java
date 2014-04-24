@@ -5,38 +5,45 @@ import java.util.Map;
 
 import net.thecodemaster.sap.utils.Creator;
 
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
 
 /**
  * @author Luciano Sampaio
  */
 public class CallGraph {
 
-  private Map<MethodDeclaration, List<MethodInvocation>> methods;
+  /**
+   * List with all the declared methods of the analyzed code.
+   */
+  private Map<MethodDeclaration, List<IMethodBinding>>   listMethods;
+  /**
+   * List with all the declared variables of the analyzed code.
+   */
+  private Map<MethodDeclaration, List<IVariableBinding>> listVariables;
 
   public CallGraph() {
-    methods = Creator.newMap();
+    listMethods = Creator.newMap();
+    listVariables = Creator.newMap();
   }
 
-  public void addMethod(Method method) {
-    // if (invocationsForMethods.get(activeMethod) == null) {
-    // invocationsForMethods.put(activeMethod, new ArrayList<MethodInvocation>());
-    // }
-    // invocationsForMethods.get(activeMethod).add(node);
-    //
-    // if (methods.containsKey(method)) {
-    // // Update
-    // if (method.getStart() != -1 && method.getEnd() != -1) {
-    // Method value = methods.get(method);
-    // value.setFile(method.getFile());
-    // value.setStart(method.getStart());
-    // value.setEnd(method.getEnd());
-    // }
-    // }
-    // else {
-    // // Insert
-    // methods.put(method, method);
-    // }
+  public synchronized void addMethod(MethodDeclaration method) {
+    if (!listMethods.containsKey(method)) {
+      List<IMethodBinding> listInvocations = Creator.newList();
+      listMethods.put(method, listInvocations);
+    }
+  }
+
+  public synchronized void addInvokes(MethodDeclaration caller, IMethodBinding callee) {
+    if (listMethods.containsKey(caller)) {
+      List<IMethodBinding> listInvocations = listMethods.get(caller);
+      listInvocations.add(callee);
+    }
+    else {
+      List<IMethodBinding> listInvocations = Creator.newList();
+      listInvocations.add(callee);
+      listMethods.put(caller, listInvocations);
+    }
   }
 }

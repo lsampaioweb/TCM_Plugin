@@ -2,13 +2,14 @@ package net.thecodemaster.sap.visitors;
 
 import java.util.List;
 
-import net.thecodemaster.sap.graph.BindingResolver;
 import net.thecodemaster.sap.graph.CallGraph;
 import net.thecodemaster.sap.loggers.PluginLogger;
+import net.thecodemaster.sap.utils.Creator;
 import net.thecodemaster.sap.utils.Timer;
 import net.thecodemaster.sap.utils.UtilProjects;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
@@ -29,13 +30,25 @@ public class CallGraphVisitor implements IResourceVisitor, IResourceDeltaVisitor
    * The resource types that should be trigger the call graph visitor.
    */
   private static List<String> resourceTypes;
+  private List<IResource>     listUpdatedResources;
 
   private CallGraph           callGraph;
-  private BindingResolver     bindingResolver;
 
-  public CallGraphVisitor(CallGraph callGraph, BindingResolver bindingResolver) {
+  public CallGraphVisitor(CallGraph callGraph) {
     this.callGraph = callGraph;
-    this.bindingResolver = bindingResolver;
+    listUpdatedResources = Creator.newList();
+  }
+
+  public List<IResource> run(IProject project) throws CoreException {
+    project.accept(this);
+
+    return listUpdatedResources;
+  }
+
+  public List<IResource> run(IResourceDelta delta) throws CoreException {
+    delta.accept(this);
+
+    return listUpdatedResources;
   }
 
   /**
@@ -73,10 +86,12 @@ public class CallGraphVisitor implements IResourceVisitor, IResourceDeltaVisitor
 
         // Visit the compilation unit.
         timer = (new Timer("Visiting: " + resource.getName())).start();
-        CompilationUnitVisitor cuVisitor =
-          new CompilationUnitVisitor(resource.getProjectRelativePath().toOSString(), cUnit, callGraph, bindingResolver);
+        CompilationUnitVisitor cuVisitor = new CompilationUnitVisitor(resource.getProjectRelativePath().toOSString(), cUnit, callGraph);
         cUnit.accept(cuVisitor);
         PluginLogger.logInfo(timer.stop().toString());
+
+        // Add this resource to the list of updated resources.
+        listUpdatedResources.add(resource);
       }
     }
     // Return true to continue visiting children.
@@ -118,4 +133,5 @@ public class CallGraphVisitor implements IResourceVisitor, IResourceDeltaVisitor
     parser.setResolveBindings(true);
     return (CompilationUnit) parser.createAST(null); // Parse.
   }
+
 }

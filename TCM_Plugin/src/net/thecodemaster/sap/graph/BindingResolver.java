@@ -1,45 +1,58 @@
 package net.thecodemaster.sap.graph;
 
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
 
 /**
  * @author Luciano Sampaio
  */
 public class BindingResolver {
 
-  public ITypeBinding getDeclaringClass(IMethodBinding methodBinding) {
+  private BindingResolver() {
+  }
+
+  public static ITypeBinding getDeclaringClass(IMethodBinding methodBinding) {
     return methodBinding.getDeclaringClass();
   }
 
-  public String getName(IMethodBinding methodBinding) {
+  public static String getName(IMethodBinding methodBinding) {
     return methodBinding.getName();
   }
 
-  public String getName(IPackageBinding pkg) {
+  public static String getName(IPackageBinding pkg) {
     return pkg.getName();
   }
 
-  public String getName(ITypeBinding clazz) {
+  public static String getName(ITypeBinding clazz) {
     return clazz.getName();
   }
 
-  public IPackageBinding getPackage(ITypeBinding clazz) {
+  public static IPackageBinding getPackage(ITypeBinding clazz) {
     return clazz.getPackage();
   }
 
-  public ITypeBinding[] getParameterTypes(IMethodBinding methodBinding) {
+  public static ITypeBinding[] getParameterTypes(IMethodBinding methodBinding) {
     return methodBinding.getParameterTypes();
   }
 
-  public String getQualifiedName(ITypeBinding iTypeBinding) {
+  public static String getQualifiedName(ITypeBinding iTypeBinding) {
     return iTypeBinding.getQualifiedName();
   }
 
-  public IMethodBinding resolveBinding(MethodDeclaration node) {
-    return node.resolveBinding();
+  public static IMethodBinding resolveBinding(MethodDeclaration node) {
+    return (null != node) ? node.resolveBinding() : null;
+  }
+
+  public static IMethodBinding resolveMethodBinding(MethodInvocation node) {
+    return (null != node) ? node.resolveMethodBinding() : null;
+  }
+
+  public static IMethodBinding resolveConstructorBinding(ClassInstanceCreation node) {
+    return (null != node) ? node.resolveConstructorBinding() : null;
   }
 
 }
