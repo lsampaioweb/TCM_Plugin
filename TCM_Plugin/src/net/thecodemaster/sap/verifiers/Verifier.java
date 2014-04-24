@@ -3,20 +3,16 @@ package net.thecodemaster.sap.verifiers;
 import java.util.List;
 import java.util.Map;
 
-import net.thecodemaster.sap.arguments.Argument;
 import net.thecodemaster.sap.exitpoints.ExitPoint;
+import net.thecodemaster.sap.graph.BindingResolver;
+import net.thecodemaster.sap.graph.CallGraph;
+import net.thecodemaster.sap.graph.Parameter;
 import net.thecodemaster.sap.reporters.Reporter;
-import net.thecodemaster.sap.utils.Convert;
 import net.thecodemaster.sap.utils.Creator;
-import net.thecodemaster.sap.verifiers.helpers.VariableBindingManager;
 
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
-import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
 
 /**
  * @author Luciano Sampaio
@@ -26,28 +22,21 @@ public abstract class Verifier {
   /**
    * The name of the current verifier.
    */
-  private String                                        verifierName;
+  private String                 verifierName;
 
+  /**
+   * This object contains all the methods, variables and their interactions, on the project that is being analyzed.
+   */
+  private CallGraph              callGraph;
   /**
    * The report object
    */
-  private Reporter                                      reporter;
+  private Reporter               reporter;
+
   /**
    * List with all the ExitPoints of this verifier.
    */
-  private static List<ExitPoint>                        listExitPoints;
-  /**
-   * 
-   */
-  private Map<IMethodBinding, MethodDeclaration>        listMethodDeclarations;
-  /**
-   * 
-   */
-  private Map<IMethodBinding, MethodInvocation>         listMethodInvocations;
-  /**
-   * List with all the declared variables of the analyzed code.
-   */
-  private Map<IVariableBinding, VariableBindingManager> listLocalVariables;
+  private static List<ExitPoint> listExitPoints;
 
   /**
    * @param name The name of the verifier.
@@ -56,28 +45,42 @@ public abstract class Verifier {
     this.verifierName = name;
   }
 
-  private void initializeVolatileLists() {
-    listMethodDeclarations = Creator.newMap();
-    listMethodInvocations = Creator.newMap();
-    listLocalVariables = Creator.newMap();
-  }
-
-  /**
-   * @param cu
-   * @param reporter
-   */
-  public void run(CompilationUnit cu, Reporter reporter) {
+  public void run(List<String> resources, CallGraph callGraph, Reporter reporter) {
+    this.callGraph = callGraph;
     this.reporter = reporter;
-    initializeVolatileLists();
 
     setSubTask(verifierName);
 
-    // After the whole file was processed, invoke the run method of each verifier
-    // to start the detection.
-    run();
+    // Perform the verifications on the resources.
+    run(resources);
   }
 
-  protected abstract void run();
+  protected void run(List<String> resources) {
+    // 01 - Run the vulnerability detection on all the passed resources.
+    for (String file : resources) {
+      if (callGraph.containsFile(file)) {
+        // 02 - Get the list of methods in the current file.
+        Map<MethodDeclaration, List<IMethodBinding>> methods = callGraph.getMethods(file);
+
+        // 03 - Get all the method invocations of each method declaration.
+        for (List<IMethodBinding> invocations : methods.values()) {
+
+          // 04 - Iterate over all method invocations to verify if it is a ExitPoint.
+          for (IMethodBinding method : invocations) {
+            ExitPoint exitPoint = isMethodAnExitPoint(method);
+
+            if (null != exitPoint) {
+              // 05 - This is an ExitPoint method and it needs to be verified.
+              run(method, exitPoint);
+            }
+          }
+
+        }
+      }
+    }
+  }
+
+  protected abstract void run(IMethodBinding method, ExitPoint exitPoint);
 
   /**
    * Notifies that a subtask of the main task is beginning.
@@ -94,44 +97,44 @@ public abstract class Verifier {
    * @param node
    * @return An ExitPoint object if this node belongs to the list, otherwise null.
    */
-  protected ExitPoint isMethodAnExitPoint(MethodInvocation node) {
-    // The name of the current method.
-    String methodName = node.getName().getIdentifier();
+  protected ExitPoint isMethodAnExitPoint(IMethodBinding node) {
+    // 01 - Get the method name.
+    String methodName = BindingResolver.getName(node);
 
     for (ExitPoint currentExitPoint : getListExitPoints()) {
+      // 02 - Verify if this method is in the list of ExitPoints.
       if (currentExitPoint.getMethodName().equals(methodName)) {
 
-        Expression expression = node.getExpression();
-        if (null != expression) {
+        // 03 - Get the qualified name (Package + Class) of this method.
+        String qualifiedName = BindingResolver.getQualifiedName(node);
 
-          // The fully qualified name.
-          String qualifiedName = expression.resolveTypeBinding().getQualifiedName();
+        // 04 - Verify if this is the method really the method we were looking for.
+        // Method names can repeat in other classes.
+        if (currentExitPoint.getQualifiedName().equals(qualifiedName)) {
 
-          // It is necessary to check against the qualified name
-          // because same method names can appear in more than one class.
-          if (currentExitPoint.getPackageName().equals(qualifiedName)) {
+          // 05 - Get the expected arguments of this method.
+          Map<Parameter, List<Integer>> expectedParameters = currentExitPoint.getParameters();
 
-            Map<Argument, List<Integer>> expectedArguments = currentExitPoint.getArguments();
-            List<Expression> receivedArguments = Convert.fromListObjectToListExpression(node.arguments());
+          // 06 - Get the received arguments of the current method.
+          List<ITypeBinding> receivedParameters = BindingResolver.getParameterTypes(node);
 
-            // It is necessary to check the number of arguments and its types
-            // because it may exist methods with the same names but different arguments.
-            if (expectedArguments.size() == receivedArguments.size()) {
-              boolean isMethodAnExitPoint = true;
-              int index = 0;
-              for (Argument expectedArgument : expectedArguments.keySet()) {
-                ITypeBinding receivedArgument = receivedArguments.get(index++).resolveTypeBinding();
+          // 07 - It is necessary to check the number of arguments and its types
+          // because it may exist methods with the same names but different parameters.
+          if (expectedParameters.size() == receivedParameters.size()) {
+            boolean isMethodAnExitPoint = true;
+            int index = 0;
+            for (Parameter expectedParameter : expectedParameters.keySet()) {
+              ITypeBinding receivedParameter = receivedParameters.get(index++);
 
-                // Verify if all the arguments are the ones expected.
-                if (!expectedArgument.getType().equals(receivedArgument.getQualifiedName())) {
-                  isMethodAnExitPoint = false;
-                  break;
-                }
+              // Verify if all the parameters are the ones expected.
+              if (!expectedParameter.getType().equals(receivedParameter.getQualifiedName())) {
+                isMethodAnExitPoint = false;
+                break;
               }
+            }
 
-              if (isMethodAnExitPoint) {
-                return currentExitPoint;
-              }
+            if (isMethodAnExitPoint) {
+              return currentExitPoint;
             }
           }
         }
@@ -147,23 +150,6 @@ public abstract class Verifier {
     }
 
     return listExitPoints;
-  }
-
-  protected Map<IMethodBinding, MethodDeclaration> getListMethodDeclarations() {
-    return listMethodDeclarations;
-  }
-
-  protected Map<IMethodBinding, MethodInvocation> getListMethodInvocations() {
-    return listMethodInvocations;
-  }
-
-  /**
-   * Getter for the resulting map.
-   * 
-   * @return a map with variable bindings as keys and {@link VariableBindingManager} as values.
-   */
-  protected Map<IVariableBinding, VariableBindingManager> getLocalVariables() {
-    return listLocalVariables;
   }
 
 }

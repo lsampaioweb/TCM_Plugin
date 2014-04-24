@@ -3,7 +3,7 @@ package net.thecodemaster.sap.exitpoints;
 import java.util.List;
 import java.util.Map;
 
-import net.thecodemaster.sap.arguments.Argument;
+import net.thecodemaster.sap.graph.Parameter;
 
 /**
  * @author Luciano Sampaio
@@ -16,36 +16,28 @@ import net.thecodemaster.sap.arguments.Argument;
  */
 public class ExitPoint {
 
-  private String                       packageName;
-  private String                       methodName;
-  private Map<Argument, List<Integer>> arguments;
+  private String                        qualifiedName;
+  private String                        methodName;
+  private Map<Parameter, List<Integer>> parameters;
 
-  public ExitPoint(String packageName, String methodName) {
-    this.packageName = packageName;
+  public ExitPoint(String qualifiedName, String methodName) {
+    this.qualifiedName = qualifiedName;
     this.methodName = methodName;
   }
 
-  public String getPackageName() {
-    return packageName;
-  }
-
-  public void setPackageName(String packageName) {
-    this.packageName = packageName;
+  public String getQualifiedName() {
+    return qualifiedName;
   }
 
   public String getMethodName() {
     return methodName;
   }
 
-  public void setMethodName(String methodName) {
-    this.methodName = methodName;
+  public Map<Parameter, List<Integer>> getParameters() {
+    return parameters;
   }
 
-  public Map<Argument, List<Integer>> getArguments() {
-    return arguments;
-  }
-
-  public void setArguments(Map<Argument, List<Integer>> arguments) {
-    this.arguments = arguments;
+  public void setParameters(Map<Parameter, List<Integer>> parameters) {
+    this.parameters = parameters;
   }
 }

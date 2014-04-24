@@ -30,25 +30,25 @@ public class CallGraphVisitor implements IResourceVisitor, IResourceDeltaVisitor
    * The resource types that should be trigger the call graph visitor.
    */
   private static List<String> resourceTypes;
-  private List<IResource>     listUpdatedResources;
+  private List<String>        updatedResources;
 
   private CallGraph           callGraph;
 
   public CallGraphVisitor(CallGraph callGraph) {
     this.callGraph = callGraph;
-    listUpdatedResources = Creator.newList();
+    updatedResources = Creator.newList();
   }
 
-  public List<IResource> run(IProject project) throws CoreException {
+  public List<String> run(IProject project) throws CoreException {
     project.accept(this);
 
-    return listUpdatedResources;
+    return updatedResources;
   }
 
-  public List<IResource> run(IResourceDelta delta) throws CoreException {
+  public List<String> run(IResourceDelta delta) throws CoreException {
     delta.accept(this);
 
-    return listUpdatedResources;
+    return updatedResources;
   }
 
   /**
@@ -86,12 +86,19 @@ public class CallGraphVisitor implements IResourceVisitor, IResourceDeltaVisitor
 
         // Visit the compilation unit.
         timer = (new Timer("Visiting: " + resource.getName())).start();
-        CompilationUnitVisitor cuVisitor = new CompilationUnitVisitor(resource.getProjectRelativePath().toOSString(), cUnit, callGraph);
+
+        String file = resource.getProjectRelativePath().toOSString();
+        if (callGraph.containsFile(file)) {
+          callGraph.removeFile(file);
+        }
+
+        callGraph.addFile(file);
+        CompilationUnitVisitor cuVisitor = new CompilationUnitVisitor(callGraph);
         cUnit.accept(cuVisitor);
         PluginLogger.logInfo(timer.stop().toString());
 
         // Add this resource to the list of updated resources.
-        listUpdatedResources.add(resource);
+        updatedResources.add(file);
       }
     }
     // Return true to continue visiting children.

@@ -11,7 +11,6 @@ import net.thecodemaster.sap.utils.Timer;
 import net.thecodemaster.sap.visitors.CallGraphVisitor;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -27,7 +26,10 @@ public class BuilderJob extends Job {
   private IProject         project;
   private IResourceDelta   delta;
 
-  // At any given time, we should only have on call graph of the code.
+  /**
+   * This object contains all the methods, variables and their interactions, on the project that is being analyzed.
+   * At any given time, we should only have on call graph of the code.
+   */
   private static CallGraph callGraph;
 
   private BuilderJob(String name) {
@@ -65,17 +67,17 @@ public class BuilderJob extends Job {
       monitor.beginTask(Messages.Plugin.TASK, IProgressMonitor.UNKNOWN);
 
       CallGraphVisitor callGraphVisitor = new CallGraphVisitor(callGraph);
-      List<IResource> listUpdatedResources = Creator.newList();
+      List<String> updatedResources = Creator.newList();
 
       if (null != delta) {
         Timer timer = (new Timer("Call Graph Delta: ")).start();
-        listUpdatedResources = callGraphVisitor.run(delta);
+        updatedResources = callGraphVisitor.run(delta);
         PluginLogger.logInfo(timer.stop().toString());
       }
 
       if (null != project) {
         Timer timer = (new Timer("Call Graph Project: ")).start();
-        listUpdatedResources = callGraphVisitor.run(project);
+        updatedResources = callGraphVisitor.run(project);
         PluginLogger.logInfo(timer.stop().toString());
       }
 
@@ -83,7 +85,7 @@ public class BuilderJob extends Job {
         Timer timer = (new Timer("Plugin verifications: ")).start();
         Manager manager = Manager.getInstance();
         manager.setProgressMonitor(monitor);
-        manager.run(callGraph, listUpdatedResources);
+        manager.run(updatedResources, callGraph);
         PluginLogger.logInfo(timer.stop().toString());
       }
       else {

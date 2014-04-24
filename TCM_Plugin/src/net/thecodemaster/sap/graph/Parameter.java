@@ -1,13 +1,13 @@
-package net.thecodemaster.sap.arguments;
+package net.thecodemaster.sap.graph;
 
 /**
  * @author Luciano Sampaio
  */
-public class Argument {
+public class Parameter {
 
   private String type;
 
-  public Argument(String type) {
+  public Parameter(String type) {
     this.type = type;
   }
 

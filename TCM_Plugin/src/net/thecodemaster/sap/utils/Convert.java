@@ -6,7 +6,6 @@ import java.util.List;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.jdt.core.dom.Expression;
 
 /**
  * @author Luciano Sampaio
@@ -54,20 +53,5 @@ public class Convert {
     }
 
     return (IProject) element;
-  }
-
-  /**
-   * This method was created because the list returned from the arguments is not generic.
-   * 
-   * @param arguments The live ordered list of argument expressions in this method invocation expression.
-   * @return List<Expression>
-   */
-  @SuppressWarnings("unchecked")
-  public static List<Expression> fromListObjectToListExpression(List<?> arguments) {
-    if (null != arguments) {
-      return (List<Expression>) arguments;
-    }
-
-    return Creator.newList();
   }
 }

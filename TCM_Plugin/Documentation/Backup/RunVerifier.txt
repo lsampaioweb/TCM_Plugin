@@ -1,53 +1,4 @@
-package net.thecodemaster.sap.verifiers.security.vulnerabilities;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-import net.thecodemaster.sap.arguments.Argument;
-import net.thecodemaster.sap.exitpoints.ExitPoint;
-import net.thecodemaster.sap.loggers.PluginLogger;
-import net.thecodemaster.sap.ui.l10n.Messages;
-import net.thecodemaster.sap.utils.Convert;
-import net.thecodemaster.sap.utils.Creator;
-import net.thecodemaster.sap.verifiers.Verifier;
-import net.thecodemaster.sap.verifiers.helpers.VariableBindingManager;
-
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.Block;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.IMethodBinding;
-import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.Statement;
-
-/**
- * @author Luciano Sampaio
- */
-public class SecurityMisconfigurationVerifier extends Verifier {
-
-  static {
-    // These ExitPoints are common to all instances of this verifier.
-    // 01 - Create each ExitPoint.
-    ExitPoint exitPointGetConnection = new ExitPoint("java.sql.DriverManager", "getConnection");
-    Map<Argument, List<Integer>> argsGetConnection = Creator.newMap();
-    argsGetConnection.put(new Argument("java.lang.String"), null);
-    argsGetConnection.put(new Argument("java.lang.String"), Arrays.asList(ASTNode.STRING_LITERAL, ASTNode.INFIX_EXPRESSION));
-    argsGetConnection.put(new Argument("java.lang.String"), Arrays.asList(ASTNode.STRING_LITERAL, ASTNode.INFIX_EXPRESSION));
-    exitPointGetConnection.setArguments(argsGetConnection);
-
-    // 02 - Add the ExitPoint to the list.
-    getListExitPoints().add(exitPointGetConnection);
-  }
-
-  public SecurityMisconfigurationVerifier() {
-    super(Messages.Plugin.SECURITY_MISCONFIGURATION_VERIFIER);
-  }
-
-  @Override
+@Override
   protected void run() {
     for (MethodInvocation node : getListMethodInvocations().values()) {
       PluginLogger.logInfo("run - " + node);
@@ -87,9 +38,9 @@ public class SecurityMisconfigurationVerifier extends Verifier {
 
         if (argument.getNodeType() == ASTNode.SIMPLE_NAME) {
           IBinding binding = ((SimpleName) argument).resolveBinding();
-          PluginLogger.logInfo(argument.toString());
+          PluginLogger.logInfo(argument);
           for (IVariableBinding vBinding : getLocalVariables().keySet()) {
-            PluginLogger.logInfo(vBinding.toString());
+            PluginLogger.logInfo(vBinding);
           }
 
           if (getLocalVariables().containsKey(binding)) {
@@ -134,5 +85,3 @@ public class SecurityMisconfigurationVerifier extends Verifier {
 
     return false;
   }
-
-}

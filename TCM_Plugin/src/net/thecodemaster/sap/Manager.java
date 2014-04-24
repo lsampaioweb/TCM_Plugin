@@ -3,14 +3,12 @@ package net.thecodemaster.sap;
 import java.util.List;
 
 import net.thecodemaster.sap.analyzers.Analyzer;
-import net.thecodemaster.sap.analyzers.CodeAnomaliesAnalyzer;
 import net.thecodemaster.sap.analyzers.SecurityVulnerabilityAnalyzer;
 import net.thecodemaster.sap.constants.Constants;
 import net.thecodemaster.sap.graph.CallGraph;
 import net.thecodemaster.sap.reporters.Reporter;
 import net.thecodemaster.sap.utils.Creator;
 
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
 
@@ -61,12 +59,6 @@ public class Manager {
     if (cookiePoisoning || crossSiteScripting || sqlInjection || securityMisconfiguration) {
       addAnalyzer(new SecurityVulnerabilityAnalyzer(cookiePoisoning, crossSiteScripting, sqlInjection, securityMisconfiguration));
     }
-
-    boolean nameConvention = true;
-    // If at least one was selected, the analyzer is added to the list.
-    if (nameConvention) {
-      addAnalyzer(new CodeAnomaliesAnalyzer(nameConvention));
-    }
   }
 
   private void addAnalyzer(Analyzer analyzer) {
@@ -92,13 +84,10 @@ public class Manager {
     reporter.setProgressMonitor(progressMonitor);
   }
 
-  public boolean run(CallGraph callGraph, List<IResource> listUpdatedResources) {
-    // for (Analyzer analyzer : analyzers) {
-    // analyzer.run(resource, reporter);
-    // }
-
-    // Return true to continue visiting children.
-    return true;
+  public void run(List<String> resources, CallGraph callGraph) {
+    for (Analyzer analyzer : analyzers) {
+      analyzer.run(resources, callGraph, reporter);
+    }
   }
 
 }
