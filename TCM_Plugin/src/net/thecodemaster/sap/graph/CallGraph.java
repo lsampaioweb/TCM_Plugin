@@ -5,7 +5,7 @@ import java.util.Map;
 
 import net.thecodemaster.sap.utils.Creator;
 
-import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
 /**
@@ -19,12 +19,12 @@ public class CallGraph {
   /**
    * The file means the current branch that is being analyzed.
    */
-  private String                                                    currentFile;
+  private String                                                currentFile;
 
   /**
    * List with all the declared methods of the analyzed code.
    */
-  private Map<String, Map<MethodDeclaration, List<IMethodBinding>>> methodsPerFile;
+  private Map<String, Map<MethodDeclaration, List<Expression>>> methodsPerFile;
 
   public CallGraph() {
     methodsPerFile = Creator.newMap();
@@ -45,25 +45,25 @@ public class CallGraph {
   public void addMethod(MethodDeclaration method) {
     // 01 - Check if the current file is already in the list.
     if (!methodsPerFile.containsKey(currentFile)) {
-      Map<MethodDeclaration, List<IMethodBinding>> methods = Creator.newMap();
+      Map<MethodDeclaration, List<Expression>> methods = Creator.newMap();
 
       methodsPerFile.put(currentFile, methods);
     }
 
     // 02 - Get the list of methods in the current file.
-    Map<MethodDeclaration, List<IMethodBinding>> methods = getMethods(currentFile);
+    Map<MethodDeclaration, List<Expression>> methods = getMethods(currentFile);
 
     if (!methods.containsKey(method)) {
-      List<IMethodBinding> invocations = Creator.newList();
+      List<Expression> invocations = Creator.newList();
 
       // Create a empty list of method invocations.
       methods.put(method, invocations);
     }
   }
 
-  public void addInvokes(MethodDeclaration caller, IMethodBinding callee) {
+  public void addInvokes(MethodDeclaration caller, Expression callee) {
     // 01 - Get the list of methods in the current file.
-    Map<MethodDeclaration, List<IMethodBinding>> methods = getMethods(currentFile);
+    Map<MethodDeclaration, List<Expression>> methods = getMethods(currentFile);
 
     if (null == methods) {
       return;
@@ -75,11 +75,11 @@ public class CallGraph {
     }
 
     // 03 - Add the method invocation for the current method (caller).
-    List<IMethodBinding> invocations = methods.get(caller);
+    List<Expression> invocations = methods.get(caller);
     invocations.add(callee);
   }
 
-  public Map<MethodDeclaration, List<IMethodBinding>> getMethods(String file) {
+  public Map<MethodDeclaration, List<Expression>> getMethods(String file) {
     return methodsPerFile.get(file);
   }
 

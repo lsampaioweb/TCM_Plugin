@@ -10,7 +10,7 @@ import net.thecodemaster.sap.graph.Parameter;
 import net.thecodemaster.sap.reporters.Reporter;
 import net.thecodemaster.sap.utils.Creator;
 
-import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
@@ -60,13 +60,13 @@ public abstract class Verifier {
     for (String file : resources) {
       if (callGraph.containsFile(file)) {
         // 02 - Get the list of methods in the current file.
-        Map<MethodDeclaration, List<IMethodBinding>> methods = callGraph.getMethods(file);
+        Map<MethodDeclaration, List<Expression>> methods = callGraph.getMethods(file);
 
         // 03 - Get all the method invocations of each method declaration.
-        for (List<IMethodBinding> invocations : methods.values()) {
+        for (List<Expression> invocations : methods.values()) {
 
           // 04 - Iterate over all method invocations to verify if it is a ExitPoint.
-          for (IMethodBinding method : invocations) {
+          for (Expression method : invocations) {
             ExitPoint exitPoint = isMethodAnExitPoint(method);
 
             if (null != exitPoint) {
@@ -80,7 +80,7 @@ public abstract class Verifier {
     }
   }
 
-  protected abstract void run(IMethodBinding method, ExitPoint exitPoint);
+  protected abstract void run(Expression method, ExitPoint exitPoint);
 
   /**
    * Notifies that a subtask of the main task is beginning.
@@ -94,19 +94,21 @@ public abstract class Verifier {
   }
 
   /**
-   * @param node
+   * @param method
    * @return An ExitPoint object if this node belongs to the list, otherwise null.
    */
-  protected ExitPoint isMethodAnExitPoint(IMethodBinding node) {
+  protected ExitPoint isMethodAnExitPoint(Expression method) {
+    ITypeBinding typeBinding = method.resolveTypeBinding();
+
+    String methodName = BindingResolver.getName(typeBinding);
     // 01 - Get the method name.
-    String methodName = BindingResolver.getName(node);
 
     for (ExitPoint currentExitPoint : getListExitPoints()) {
       // 02 - Verify if this method is in the list of ExitPoints.
       if (currentExitPoint.getMethodName().equals(methodName)) {
 
         // 03 - Get the qualified name (Package + Class) of this method.
-        String qualifiedName = BindingResolver.getQualifiedName(node);
+        String qualifiedName = BindingResolver.getQualifiedName(typeBinding);
 
         // 04 - Verify if this is the method really the method we were looking for.
         // Method names can repeat in other classes.
@@ -115,19 +117,20 @@ public abstract class Verifier {
           // 05 - Get the expected arguments of this method.
           Map<Parameter, List<Integer>> expectedParameters = currentExitPoint.getParameters();
 
-          // 06 - Get the received arguments of the current method.
-          List<ITypeBinding> receivedParameters = BindingResolver.getParameterTypes(node);
+          // 06 - Get the received parameters of the current method.
+          List<Expression> receivedParameters = BindingResolver.getParameterTypes(method);
 
-          // 07 - It is necessary to check the number of arguments and its types
+          // 07 - It is necessary to check the number of parameters and its types
           // because it may exist methods with the same names but different parameters.
           if (expectedParameters.size() == receivedParameters.size()) {
             boolean isMethodAnExitPoint = true;
             int index = 0;
             for (Parameter expectedParameter : expectedParameters.keySet()) {
-              ITypeBinding receivedParameter = receivedParameters.get(index++);
+              Expression receivedParameter = receivedParameters.get(index++);
+              ITypeBinding tempTypeBinding = receivedParameter.resolveTypeBinding();
 
               // Verify if all the parameters are the ones expected.
-              if (!expectedParameter.getType().equals(receivedParameter.getQualifiedName())) {
+              if (!expectedParameter.getType().equals(tempTypeBinding.getQualifiedName())) {
                 isMethodAnExitPoint = false;
                 break;
               }

@@ -7,7 +7,7 @@ import net.thecodemaster.sap.graph.CallGraph;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
-import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -49,19 +49,19 @@ public class CompilationUnitVisitor extends ASTVisitor {
 
   @Override
   public boolean visit(MethodInvocation node) {
-    addInvokes(node.resolveMethodBinding());
+    addInvokes(node);
 
     return super.visit(node);
   }
 
   @Override
   public boolean visit(ClassInstanceCreation node) {
-    addInvokes(node.resolveConstructorBinding());
+    addInvokes(node);
 
     return super.visit(node);
   }
 
-  private void addInvokes(IMethodBinding method) {
+  private void addInvokes(Expression method) {
     if ((null != method) && (!methodStack.isEmpty())) {
       callGraph.addInvokes(methodStack.peek(), method);
     }

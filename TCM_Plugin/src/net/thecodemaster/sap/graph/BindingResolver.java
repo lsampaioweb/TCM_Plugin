@@ -3,7 +3,10 @@ package net.thecodemaster.sap.graph;
 import java.util.Arrays;
 import java.util.List;
 
+import net.thecodemaster.sap.utils.Creator;
+
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
+import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -53,11 +56,11 @@ public class BindingResolver {
   /**
    * Returns the unqualified name of the type represented by this binding if it has one.
    * 
-   * @param clazz
+   * @param typeBinding
    * @return the unqualified name of the type represented by this binding, or the empty string if it has none.
    */
-  public static String getName(ITypeBinding clazz) {
-    return clazz.getName();
+  public static String getName(ITypeBinding typeBinding) {
+    return typeBinding.getName();
   }
 
   /**
@@ -66,20 +69,20 @@ public class BindingResolver {
    * The package of a recovered type reference binding is either the package of the enclosing type, or, if the type name is the name of a
    * well-known type, the package of the matching well-known type.
    * 
-   * @param clazz
+   * @param typeBinding
    * @return the binding for the package in which this class, interface, enum, or annotation type is declared, or null if this type binding
    *         represents a primitive type, an array type, the null type, a type variable, a wild card type, a capture binding.
    */
-  public static IPackageBinding getPackage(ITypeBinding clazz) {
-    return clazz.getPackage();
+  public static IPackageBinding getPackage(ITypeBinding typeBinding) {
+    return typeBinding.getPackage();
   }
 
   public static List<ITypeBinding> getParameterTypes(IMethodBinding methodBinding) {
     return Arrays.asList(methodBinding.getParameterTypes());
   }
 
-  public static String getQualifiedName(ITypeBinding iTypeBinding) {
-    return iTypeBinding.getQualifiedName();
+  public static String getQualifiedName(ITypeBinding typeBinding) {
+    return typeBinding.getQualifiedName();
   }
 
   public static IMethodBinding resolveBinding(MethodDeclaration node) {
@@ -107,6 +110,10 @@ public class BindingResolver {
     }
 
     return qualifiedName;
+  }
+
+  public static List<Expression> getParameterTypes(Expression method) {
+    return Creator.newList();
   }
 
 }
