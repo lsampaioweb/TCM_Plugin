@@ -1,10 +1,10 @@
 package net.thecodemaster.sap.graph;
 
-import java.util.Arrays;
 import java.util.List;
 
 import net.thecodemaster.sap.utils.Creator;
 
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -77,14 +77,6 @@ public class BindingResolver {
     return typeBinding.getPackage();
   }
 
-  public static List<ITypeBinding> getParameterTypes(IMethodBinding methodBinding) {
-    return Arrays.asList(methodBinding.getParameterTypes());
-  }
-
-  public static String getQualifiedName(ITypeBinding typeBinding) {
-    return typeBinding.getQualifiedName();
-  }
-
   public static IMethodBinding resolveBinding(MethodDeclaration node) {
     return (null != node) ? node.resolveBinding() : null;
   }
@@ -112,8 +104,42 @@ public class BindingResolver {
     return qualifiedName;
   }
 
-  public static List<Expression> getParameterTypes(Expression method) {
+  public static String getName(Expression expr) {
+    if (expr.getNodeType() == ASTNode.METHOD_INVOCATION) {
+      return getName(((MethodInvocation) expr).resolveMethodBinding());
+    }
+
+    return null;
+  }
+
+  public static String getQualifiedName(Expression expr) {
+    if (expr.getNodeType() == ASTNode.METHOD_INVOCATION) {
+      return getQualifiedName(((MethodInvocation) expr).resolveMethodBinding());
+    }
+
+    return null;
+  }
+
+  public static List<Expression> getParameterTypes(Expression expr) {
+    if (expr.getNodeType() == ASTNode.METHOD_INVOCATION) {
+      return getParameterTypes(((MethodInvocation) expr).arguments());
+    }
+
     return Creator.newList();
   }
 
+  /**
+   * This method was created because the list returned from the arguments is not generic.
+   * 
+   * @param arguments The live ordered list of argument expressions in this method invocation expression.
+   * @return List<Expression>
+   */
+  @SuppressWarnings("unchecked")
+  private static List<Expression> getParameterTypes(List<?> arguments) {
+    if (null != arguments) {
+      return (List<Expression>) arguments;
+    }
+
+    return Creator.newList();
+  }
 }

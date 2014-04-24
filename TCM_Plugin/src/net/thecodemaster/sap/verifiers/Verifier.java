@@ -98,9 +98,7 @@ public abstract class Verifier {
    * @return An ExitPoint object if this node belongs to the list, otherwise null.
    */
   protected ExitPoint isMethodAnExitPoint(Expression method) {
-    ITypeBinding typeBinding = method.resolveTypeBinding();
-
-    String methodName = BindingResolver.getName(typeBinding);
+    String methodName = BindingResolver.getName(method);
     // 01 - Get the method name.
 
     for (ExitPoint currentExitPoint : getListExitPoints()) {
@@ -108,7 +106,7 @@ public abstract class Verifier {
       if (currentExitPoint.getMethodName().equals(methodName)) {
 
         // 03 - Get the qualified name (Package + Class) of this method.
-        String qualifiedName = BindingResolver.getQualifiedName(typeBinding);
+        String qualifiedName = BindingResolver.getQualifiedName(method);
 
         // 04 - Verify if this is the method really the method we were looking for.
         // Method names can repeat in other classes.
@@ -126,11 +124,11 @@ public abstract class Verifier {
             boolean isMethodAnExitPoint = true;
             int index = 0;
             for (Parameter expectedParameter : expectedParameters.keySet()) {
-              Expression receivedParameter = receivedParameters.get(index++);
-              ITypeBinding tempTypeBinding = receivedParameter.resolveTypeBinding();
+              Expression expression = receivedParameters.get(index++);
+              ITypeBinding typeBinding = expression.resolveTypeBinding();
 
               // Verify if all the parameters are the ones expected.
-              if (!expectedParameter.getType().equals(tempTypeBinding.getQualifiedName())) {
+              if (!expectedParameter.getType().equals(typeBinding.getQualifiedName())) {
                 isMethodAnExitPoint = false;
                 break;
               }
