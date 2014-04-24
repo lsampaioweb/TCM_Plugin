@@ -10,7 +10,7 @@ import net.thecodemaster.sap.arguments.Argument;
  *         Package : java.sql.DriverManager
  *         Method : getConnection
  *         Parameters:
- *         [0] : null;
+ *         [0] : null; (String url)
  *         [1] : StringLiteral;InfixExpression; (String user)
  *         [2] : StringLiteral;InfixExpression; (String password)
  */

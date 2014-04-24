@@ -1,5 +1,8 @@
 package net.thecodemaster.sap.utils;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * This is a timer class, it will calculate how long an operation took from start to finish.
  * 
@@ -49,7 +52,7 @@ public class Timer {
   /**
    * @return the name of the times.
    */
-  private String getName() {
+  public String getName() {
     return name;
   }
 
@@ -73,7 +76,8 @@ public class Timer {
    */
   @Override
   public String toString() {
-    return String.format("%s took %d\n", getName(), getTotalTime());
+    SimpleDateFormat sdf = new SimpleDateFormat("mm:ss:SS");
+    return String.format("%s took %s.", getName(), sdf.format(new Date(getTotalTime())));
   }
 
 }

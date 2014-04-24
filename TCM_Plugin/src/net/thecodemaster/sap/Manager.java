@@ -1,6 +1,6 @@
 package net.thecodemaster.sap;
 
-import java.util.Collection;
+import java.util.List;
 
 import net.thecodemaster.sap.analyzers.Analyzer;
 import net.thecodemaster.sap.analyzers.CodeAnomaliesAnalyzer;
@@ -9,11 +9,6 @@ import net.thecodemaster.sap.constants.Constants;
 import net.thecodemaster.sap.reporters.Reporter;
 import net.thecodemaster.sap.utils.Creator;
 
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceDelta;
-import org.eclipse.core.resources.IResourceDeltaVisitor;
-import org.eclipse.core.resources.IResourceVisitor;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
 
@@ -22,12 +17,12 @@ import org.eclipse.jface.preference.IPreferenceStore;
  * 
  * @author Luciano Sampaio
  */
-public class Manager implements IResourceVisitor, IResourceDeltaVisitor {
+public class Manager {
 
   // This object controls which analyzers are going to be executed to perform the security vulnerability
   // detection.
   private static volatile Manager instance = null;
-  private Collection<Analyzer>    analyzers;
+  private List<Analyzer>          analyzers;
   private Reporter                reporter;
 
   private Manager() {
@@ -72,6 +67,14 @@ public class Manager implements IResourceVisitor, IResourceDeltaVisitor {
     }
   }
 
+  private void addAnalyzer(Analyzer analyzer) {
+    if (null == analyzers) {
+      analyzers = Creator.newList();
+    }
+
+    analyzers.add(analyzer);
+  }
+
   private void addOutputs(IPreferenceStore store) {
     boolean problemView = store.getBoolean(Constants.Settings.FIELD_OUTPUT_PROBLEMS_VIEW);
     boolean textFile = store.getBoolean(Constants.Settings.FIELD_OUTPUT_TEXT_FILE);
@@ -87,43 +90,9 @@ public class Manager implements IResourceVisitor, IResourceDeltaVisitor {
     reporter.setProgressMonitor(progressMonitor);
   }
 
-  /**
-   * @param analyzer
-   */
-  private void addAnalyzer(Analyzer analyzer) {
-    if (null == analyzers) {
-      analyzers = Creator.newList();
-    }
-
-    analyzers.add(analyzer);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean visit(IResourceDelta delta) throws CoreException {
-    IResource resource = delta.getResource();
-
-    switch (delta.getKind()) {
-      case IResourceDelta.REMOVED:
-        // TODO
-        break;
-      case IResourceDelta.ADDED:
-      case IResourceDelta.CHANGED:
-        return visit(resource);
-    }
-    // Return true to continue visiting children.
-    return true;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public boolean visit(IResource resource) throws CoreException {
+  public boolean run() {
     for (Analyzer analyzer : analyzers) {
-      analyzer.run(resource, reporter);
+      // analyzer.run(resource, reporter);
     }
 
     // Return true to continue visiting children.

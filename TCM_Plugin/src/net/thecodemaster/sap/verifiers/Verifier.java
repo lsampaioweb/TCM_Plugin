@@ -1,6 +1,5 @@
 package net.thecodemaster.sap.verifiers;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -9,28 +8,20 @@ import net.thecodemaster.sap.exitpoints.ExitPoint;
 import net.thecodemaster.sap.reporters.Reporter;
 import net.thecodemaster.sap.utils.Convert;
 import net.thecodemaster.sap.utils.Creator;
-import net.thecodemaster.sap.utils.Timer;
 import net.thecodemaster.sap.verifiers.helpers.VariableBindingManager;
 
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 /**
  * @author Luciano Sampaio
  */
-public abstract class Verifier extends ASTVisitor {
+public abstract class Verifier {
 
   /**
    * The name of the current verifier.
@@ -81,12 +72,6 @@ public abstract class Verifier extends ASTVisitor {
 
     setSubTask(verifierName);
 
-    if (null != cu) {
-      Timer timer = (new Timer(verifierName)).start();
-      cu.accept(this);
-      System.out.println(timer.stop().toString());
-    }
-
     // After the whole file was processed, invoke the run method of each verifier
     // to start the detection.
     run();
@@ -103,104 +88,6 @@ public abstract class Verifier extends ASTVisitor {
     if ((null != reporter) && (null != reporter.getProgressMonitor())) {
       reporter.getProgressMonitor().subTask(taskName);
     }
-  }
-
-  @Override
-  public boolean visit(MethodDeclaration node) {
-    System.out.println("MethodDeclaration - " + node);
-
-    getListMethodDeclarations().put(node.resolveBinding(), node);
-
-    return super.visit(node);
-  }
-
-  @Override
-  public boolean visit(MethodInvocation node) {
-    System.out.println("MethodInvocation - " + node);
-
-    getListMethodInvocations().put(node.resolveMethodBinding(), node);
-
-    return super.visit(node);
-  }
-
-  /**
-   * Looks for local variable declarations. For every occurrence of a local
-   * variable, a {@link VariableBindingManager} is created and stored in {@link #listLocalVariables} map.
-   * 
-   * @param node
-   *          the node to visit
-   * @return static {@code false} to prevent that the simple name in the
-   *         declaration is understood by {@link #visit(SimpleName)} as
-   *         reference
-   */
-  @Override
-  public boolean visit(VariableDeclarationStatement node) {
-    System.out.println("VariableDeclarationStatement - " + node);
-    for (Iterator<?> iter = node.fragments().iterator(); iter.hasNext();) {
-      VariableDeclarationFragment fragment = (VariableDeclarationFragment) iter.next();
-
-      // VariableDeclarationFragment: is the plain variable declaration part.
-      // Example: "int x=0, y=0;" contains two VariableDeclarationFragments, "x=0" and "y=0"
-      IVariableBinding binding = fragment.resolveBinding();
-
-      // Creates the manager of the fragment.
-      VariableBindingManager manager = new VariableBindingManager(fragment);
-
-      getLocalVariables().put(binding, manager);
-
-      // The first assignment is the initializer.
-      manager.variableInitialized(fragment.getInitializer());
-    }
-
-    return false; // Prevents that SimpleName is interpreted as reference.
-  }
-
-  /**
-   * Visits {@link Assignment} AST nodes (e.g. {@code x = 7 + 8} ).
-   * Resolves the binding of the left hand side (in the example: {@code x}).
-   * If the binding is found in the {@link #listLocalVariables} map, we have an
-   * assignment of a local variable.
-   * The variable binding manager of this local variable then has to be informed about this assignment.
-   * 
-   * @param node
-   *          the node to visit
-   */
-  @Override
-  public boolean visit(Assignment node) {
-    System.out.println("Assignment - " + node);
-    if (node.getLeftHandSide().getNodeType() == ASTNode.SIMPLE_NAME) {
-      IBinding binding = ((SimpleName) node.getLeftHandSide()).resolveBinding();
-      if (getLocalVariables().containsKey(binding)) {
-        // It contains the key -> it is an assignment of a local variable.
-
-        VariableBindingManager manager = getLocalVariables().get(binding);
-
-        manager.variableInitialized(node.getRightHandSide());
-      }
-    }
-
-    return false; // Prevents that SimpleName is interpreted as reference.
-  }
-
-  /**
-   * Visits {@link SimpleName} AST nodes. Resolves the binding of the simple
-   * name and looks for it in the {@link #listLocalVariables} map.
-   * If the binding is found, this is a reference to a local variable.
-   * The variable binding manager of this local variable then has to be informed about that reference.
-   * 
-   * @param node
-   *          the node to visit
-   */
-  @Override
-  public boolean visit(SimpleName node) {
-    IBinding binding = node.resolveBinding();
-    if (getLocalVariables().containsKey(binding)) {
-      System.out.println("SimpleName - " + node);
-      VariableBindingManager manager = getLocalVariables().get(binding);
-      manager.variableRefereneced(node);
-    }
-
-    return true;
   }
 
   /**

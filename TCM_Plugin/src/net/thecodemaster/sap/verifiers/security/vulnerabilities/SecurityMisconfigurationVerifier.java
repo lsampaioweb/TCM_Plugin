@@ -6,6 +6,7 @@ import java.util.Map;
 
 import net.thecodemaster.sap.arguments.Argument;
 import net.thecodemaster.sap.exitpoints.ExitPoint;
+import net.thecodemaster.sap.loggers.PluginLogger;
 import net.thecodemaster.sap.ui.l10n.Messages;
 import net.thecodemaster.sap.utils.Convert;
 import net.thecodemaster.sap.utils.Creator;
@@ -49,7 +50,7 @@ public class SecurityMisconfigurationVerifier extends Verifier {
   @Override
   protected void run() {
     for (MethodInvocation node : getListMethodInvocations().values()) {
-      System.out.println("run - " + node);
+      PluginLogger.logInfo("run - " + node);
       // Verify if the current method belongs to the list of ExitPoints.
       ExitPoint exitPoint = isMethodAnExitPoint(node);
 
@@ -86,13 +87,13 @@ public class SecurityMisconfigurationVerifier extends Verifier {
 
         if (argument.getNodeType() == ASTNode.SIMPLE_NAME) {
           IBinding binding = ((SimpleName) argument).resolveBinding();
-          System.out.println(argument);
+          PluginLogger.logInfo(argument.toString());
           for (IVariableBinding vBinding : getLocalVariables().keySet()) {
-            System.out.println(vBinding);
+            PluginLogger.logInfo(vBinding.toString());
           }
 
           if (getLocalVariables().containsKey(binding)) {
-            System.out.println("1");
+            PluginLogger.logInfo("1");
             VariableBindingManager manager = getLocalVariables().get(binding);
 
             // 02 - This is the case where we have to go deeper into the argument's path.
@@ -102,7 +103,7 @@ public class SecurityMisconfigurationVerifier extends Verifier {
         else if (argument.getNodeType() == ASTNode.METHOD_INVOCATION) {
           IMethodBinding binding = ((MethodInvocation) argument).resolveMethodBinding();
           if (getListMethodDeclarations().containsKey(binding)) {
-            System.out.println("METHOD_DECLARATION - " + argument);
+            PluginLogger.logInfo("METHOD_DECLARATION - " + argument);
 
             MethodDeclaration method2 = getListMethodDeclarations().get(binding);
 
@@ -111,7 +112,7 @@ public class SecurityMisconfigurationVerifier extends Verifier {
             List<?> statements = block.statements();
             for (Object object : statements) {
               Statement statement = (Statement) object;
-              System.out.println("statement - " + statement);
+              PluginLogger.logInfo("statement - " + statement);
             }
 
             validadeArgumentPath(rules, block);
@@ -126,7 +127,7 @@ public class SecurityMisconfigurationVerifier extends Verifier {
     for (Integer astNodeValue : rules) {
       if (argument.getNodeType() == astNodeValue) {
         // TODO - We found a vulnerability.
-        System.out.println("We have a vulnerability: " + argument);
+        PluginLogger.logInfo("We have a vulnerability: " + argument);
         return true;
       }
     }
