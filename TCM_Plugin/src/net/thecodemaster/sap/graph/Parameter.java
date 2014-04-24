@@ -5,18 +5,14 @@ package net.thecodemaster.sap.graph;
  */
 public class Parameter {
 
-  private String type;
+  private String qualifiedName;
 
-  public Parameter(String type) {
-    this.type = type;
+  public Parameter(String qualifiedName) {
+    this.qualifiedName = qualifiedName;
   }
 
-  public String getType() {
-    return type;
-  }
-
-  public void setType(String type) {
-    this.type = type;
+  public String getQualifiedName() {
+    return qualifiedName;
   }
 
 }

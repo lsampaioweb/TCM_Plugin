@@ -31,7 +31,7 @@ public class XSSVerifier extends Verifier {
     ep01.setParameters(params01);
 
     // 01.1 - Add the ExitPoint to the list.
-    getListExitPoints().add(ep01);
+    getExitPoints().add(ep01);
 
     // 02 ExitPoint
     // 02.1 - Add the ExitPoint to the list.

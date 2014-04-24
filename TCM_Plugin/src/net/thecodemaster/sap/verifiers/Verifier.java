@@ -36,7 +36,7 @@ public abstract class Verifier {
   /**
    * List with all the ExitPoints of this verifier.
    */
-  private static List<ExitPoint> listExitPoints;
+  private static List<ExitPoint> exitPoints;
 
   /**
    * @param name The name of the verifier.
@@ -98,10 +98,10 @@ public abstract class Verifier {
    * @return An ExitPoint object if this node belongs to the list, otherwise null.
    */
   protected ExitPoint isMethodAnExitPoint(Expression method) {
-    String methodName = BindingResolver.getName(method);
     // 01 - Get the method name.
+    String methodName = BindingResolver.getName(method);
 
-    for (ExitPoint currentExitPoint : getListExitPoints()) {
+    for (ExitPoint currentExitPoint : getExitPoints()) {
       // 02 - Verify if this method is in the list of ExitPoints.
       if (currentExitPoint.getMethodName().equals(methodName)) {
 
@@ -124,11 +124,10 @@ public abstract class Verifier {
             boolean isMethodAnExitPoint = true;
             int index = 0;
             for (Parameter expectedParameter : expectedParameters.keySet()) {
-              Expression expression = receivedParameters.get(index++);
-              ITypeBinding typeBinding = expression.resolveTypeBinding();
+              ITypeBinding typeBinding = receivedParameters.get(index++).resolveTypeBinding();
 
               // Verify if all the parameters are the ones expected.
-              if (!expectedParameter.getType().equals(typeBinding.getQualifiedName())) {
+              if ((typeBinding == null) || (!expectedParameter.getQualifiedName().equals(typeBinding.getQualifiedName()))) {
                 isMethodAnExitPoint = false;
                 break;
               }
@@ -145,12 +144,12 @@ public abstract class Verifier {
     return null;
   }
 
-  protected static List<ExitPoint> getListExitPoints() {
-    if (null == listExitPoints) {
-      listExitPoints = Creator.newList();
+  protected static List<ExitPoint> getExitPoints() {
+    if (null == exitPoints) {
+      exitPoints = Creator.newList();
     }
 
-    return listExitPoints;
+    return exitPoints;
   }
 
 }

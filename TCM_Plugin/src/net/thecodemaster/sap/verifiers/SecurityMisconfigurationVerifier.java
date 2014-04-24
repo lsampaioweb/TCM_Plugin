@@ -33,7 +33,7 @@ public class SecurityMisconfigurationVerifier extends Verifier {
     exitPointGetConnection.setParameters(paramsGetConnection);
 
     // 02 - Add the ExitPoint to the list.
-    getListExitPoints().add(exitPointGetConnection);
+    getExitPoints().add(exitPointGetConnection);
   }
 
   /**
