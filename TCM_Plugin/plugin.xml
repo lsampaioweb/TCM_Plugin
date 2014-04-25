@@ -158,12 +158,15 @@
       </builder>
    </extension>
    <extension
-         id="TheCodeMasterSecurityAnalyzerPlugin.Marker"
+         id="TCMSAMarker"
          name="Security Vulnerability"
          point="org.eclipse.core.resources.markers">
       <persistent
-            value="false">
+            value="true">
       </persistent>
+      <super
+            type="org.eclipse.core.resources.problemmarker">
+      </super>
    </extension>
 
 </plugin>

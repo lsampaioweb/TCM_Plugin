@@ -5,6 +5,7 @@ import java.util.Map;
 
 import net.thecodemaster.sap.utils.Creator;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
@@ -30,16 +31,20 @@ public class CallGraph {
     methodsPerFile = Creator.newMap();
   }
 
-  public void addFile(String file) {
-    this.currentFile = file;
+  private String getResourceName(IResource resource) {
+    return resource.getProjectRelativePath().toOSString();
   }
 
-  public boolean containsFile(String file) {
-    return methodsPerFile.containsKey(file);
+  public void addFile(IResource resource) {
+    this.currentFile = getResourceName(resource);
   }
 
-  public boolean removeFile(String file) {
-    return (null != methodsPerFile.remove(file));
+  public boolean containsFile(IResource resource) {
+    return methodsPerFile.containsKey(getResourceName(resource));
+  }
+
+  public boolean removeFile(IResource resource) {
+    return (null != methodsPerFile.remove(getResourceName(resource)));
   }
 
   public void addMethod(MethodDeclaration method) {
@@ -79,7 +84,11 @@ public class CallGraph {
     invocations.add(callee);
   }
 
-  public Map<MethodDeclaration, List<Expression>> getMethods(String file) {
+  public Map<MethodDeclaration, List<Expression>> getMethods(IResource resource) {
+    return getMethods(getResourceName(resource));
+  }
+
+  private Map<MethodDeclaration, List<Expression>> getMethods(String file) {
     return methodsPerFile.get(file);
   }
 

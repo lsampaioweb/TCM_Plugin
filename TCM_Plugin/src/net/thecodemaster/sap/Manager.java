@@ -9,6 +9,7 @@ import net.thecodemaster.sap.graph.CallGraph;
 import net.thecodemaster.sap.reporters.Reporter;
 import net.thecodemaster.sap.utils.Creator;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
 
@@ -84,7 +85,7 @@ public class Manager {
     reporter.setProgressMonitor(progressMonitor);
   }
 
-  public void run(List<String> resources, CallGraph callGraph) {
+  public void run(List<IResource> resources, CallGraph callGraph) {
     for (Analyzer analyzer : analyzers) {
       analyzer.run(resources, callGraph, reporter);
     }

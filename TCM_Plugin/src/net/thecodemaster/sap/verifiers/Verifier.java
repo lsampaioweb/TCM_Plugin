@@ -3,13 +3,19 @@ package net.thecodemaster.sap.verifiers;
 import java.util.List;
 import java.util.Map;
 
+import net.thecodemaster.sap.constants.Constants;
 import net.thecodemaster.sap.exitpoints.ExitPoint;
 import net.thecodemaster.sap.graph.BindingResolver;
 import net.thecodemaster.sap.graph.CallGraph;
 import net.thecodemaster.sap.graph.Parameter;
+import net.thecodemaster.sap.loggers.PluginLogger;
 import net.thecodemaster.sap.reporters.Reporter;
 import net.thecodemaster.sap.utils.Creator;
 
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -32,11 +38,14 @@ public abstract class Verifier {
    * The report object
    */
   private Reporter               reporter;
-
   /**
    * List with all the ExitPoints of this verifier.
    */
   private static List<ExitPoint> exitPoints;
+  /**
+   * The current resource that is being analyzed.
+   */
+  private IResource              currentResource;
 
   /**
    * @param name The name of the verifier.
@@ -45,7 +54,7 @@ public abstract class Verifier {
     this.verifierName = name;
   }
 
-  public void run(List<String> resources, CallGraph callGraph, Reporter reporter) {
+  public void run(List<IResource> resources, CallGraph callGraph, Reporter reporter) {
     this.callGraph = callGraph;
     this.reporter = reporter;
 
@@ -55,28 +64,70 @@ public abstract class Verifier {
     run(resources);
   }
 
-  protected void run(List<String> resources) {
+  protected void run(List<IResource> resources) {
     // 01 - Run the vulnerability detection on all the passed resources.
-    for (String file : resources) {
-      if (callGraph.containsFile(file)) {
-        // 02 - Get the list of methods in the current file.
-        Map<MethodDeclaration, List<Expression>> methods = callGraph.getMethods(file);
+    for (IResource resource : resources) {
+      if (callGraph.containsFile(resource)) {
+        // 02 - Delete any old markers of this resource.
+        deleteMarkers(resource);
 
-        // 03 - Get all the method invocations of each method declaration.
+        // 03 - Get the list of methods in the current resource.
+        Map<MethodDeclaration, List<Expression>> methods = callGraph.getMethods(resource);
+
+        // 04 - Get all the method invocations of each method declaration.
         for (List<Expression> invocations : methods.values()) {
 
-          // 04 - Iterate over all method invocations to verify if it is a ExitPoint.
+          // 05 - Iterate over all method invocations to verify if it is a ExitPoint.
           for (Expression method : invocations) {
             ExitPoint exitPoint = isMethodAnExitPoint(method);
 
             if (null != exitPoint) {
-              // 05 - This is an ExitPoint method and it needs to be verified.
+              // 06 - Some methods will need to have access to the resource that is currently being analyzed.
+              // but we do not want to pass it to all these methods as a parameter.
+              setCurrentResource(resource);
+
+              // 07 - This is an ExitPoint method and it needs to be verified.
               run(method, exitPoint);
             }
           }
 
         }
       }
+    }
+  }
+
+  protected boolean deleteMarkers(IResource resource) {
+    try {
+      resource.deleteMarkers(Constants.MARKER_ID, false, IResource.DEPTH_INFINITE);
+      return true;
+    }
+    catch (CoreException e) {
+      PluginLogger.logError(e);
+      return false;
+    }
+  }
+
+  protected boolean addMarker(IResource resource, String message, Expression expr) {
+    try {
+      IMarker marker = resource.createMarker(Constants.MARKER_ID);
+      marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
+      marker.setAttribute(IMarker.MESSAGE, message);
+
+      // Get the Compilation Unit of this resource.
+      CompilationUnit cUnit = BindingResolver.findParentCompilationUnit(expr);
+
+      int startPosition = expr.getStartPosition();
+      int endPosition = startPosition + expr.getLength();
+      int lineNumber = cUnit.getLineNumber(startPosition);
+
+      marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
+      marker.setAttribute(IMarker.CHAR_START, startPosition);
+      marker.setAttribute(IMarker.CHAR_END, endPosition);
+      return true;
+    }
+    catch (CoreException e) {
+      PluginLogger.logError(e);
+      return false;
     }
   }
 
@@ -144,12 +195,30 @@ public abstract class Verifier {
     return null;
   }
 
+  protected boolean matchRules(List<Integer> rules, Expression parameter) {
+    for (Integer astNodeValue : rules) {
+      if (parameter.getNodeType() == astNodeValue) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   protected static List<ExitPoint> getExitPoints() {
     if (null == exitPoints) {
       exitPoints = Creator.newList();
     }
 
     return exitPoints;
+  }
+
+  private void setCurrentResource(IResource currentResource) {
+    this.currentResource = currentResource;
+  }
+
+  protected IResource getCurrentResource() {
+    return currentResource;
   }
 
 }

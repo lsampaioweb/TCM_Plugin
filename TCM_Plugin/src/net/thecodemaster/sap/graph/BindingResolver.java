@@ -6,6 +6,7 @@ import net.thecodemaster.sap.utils.Creator;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
@@ -141,5 +142,16 @@ public class BindingResolver {
     }
 
     return Creator.newList();
+  }
+
+  public static CompilationUnit findParentCompilationUnit(ASTNode node) {
+    return (CompilationUnit) findAncestor(node, ASTNode.COMPILATION_UNIT);
+  }
+
+  public static ASTNode findAncestor(ASTNode node, int nodeType) {
+    while ((node != null) && (node.getNodeType() != nodeType)) {
+      node = node.getParent();
+    }
+    return node;
   }
 }
