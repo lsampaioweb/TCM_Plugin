@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.dom.InfixExpression;
 public class SecurityMisconfigurationVerifier extends Verifier {
 
   public SecurityMisconfigurationVerifier() {
-    super(Messages.Plugin.SECURITY_MISCONFIGURATION_VERIFIER);
+    super(Messages.Plugin.SECURITY_MISCONFIGURATION_VERIFIER_NAME, Constants.Plugin.SECURITY_MISCONFIGURATION_VERIFIER_ID);
   }
 
   static {
@@ -80,25 +80,34 @@ public class SecurityMisconfigurationVerifier extends Verifier {
           checkInfixExpression(rules, parameter, ++depth);
           break;
         case ASTNode.SIMPLE_NAME:
-
+          checkSimpleName(rules, parameter, ++depth);
           break;
         case ASTNode.METHOD_INVOCATION:
-
+          checkMethodInvocation(rules, parameter, ++depth);
           break;
         case ASTNode.METHOD_DECLARATION:
-
+          checkMethodDeclaration(rules, parameter, ++depth);
           break;
       }
     }
   }
 
-  private void checkStringLiteral(List<Integer> rules, Expression parameter) {
-    addMarker(getCurrentResource(), "(StringLiteral) - We have a vulnerability: ", parameter);
+  private void checkStringLiteral(List<Integer> rules, Expression expr) {
+    getReporter().addProblem(getVerifierId(), getCurrentResource(), expr, "(StringLiteral) - We have a vulnerability: ");
   }
 
   private void checkInfixExpression(List<Integer> rules, Expression expr, int depth) {
     InfixExpression parameter = (InfixExpression) expr;
     System.out.println("(InfixExpression) - We have a vulnerability: " + parameter);
+  }
+
+  private void checkSimpleName(List<Integer> rules, Expression expr, int depth) {
+  }
+
+  private void checkMethodInvocation(List<Integer> rules, Expression expr, int depth) {
+  }
+
+  private void checkMethodDeclaration(List<Integer> rules, Expression expr, int depth) {
   }
 
 }

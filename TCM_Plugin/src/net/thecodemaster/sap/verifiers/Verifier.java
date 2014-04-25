@@ -3,19 +3,14 @@ package net.thecodemaster.sap.verifiers;
 import java.util.List;
 import java.util.Map;
 
-import net.thecodemaster.sap.constants.Constants;
 import net.thecodemaster.sap.exitpoints.ExitPoint;
 import net.thecodemaster.sap.graph.BindingResolver;
 import net.thecodemaster.sap.graph.CallGraph;
 import net.thecodemaster.sap.graph.Parameter;
-import net.thecodemaster.sap.loggers.PluginLogger;
 import net.thecodemaster.sap.reporters.Reporter;
 import net.thecodemaster.sap.utils.Creator;
 
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -29,6 +24,10 @@ public abstract class Verifier {
    * The name of the current verifier.
    */
   private String                 verifierName;
+  /**
+   * The id of the current verifier.
+   */
+  private int                    verifierId;
 
   /**
    * This object contains all the methods, variables and their interactions, on the project that is being analyzed.
@@ -39,19 +38,21 @@ public abstract class Verifier {
    */
   private Reporter               reporter;
   /**
-   * List with all the ExitPoints of this verifier.
-   */
-  private static List<ExitPoint> exitPoints;
-  /**
    * The current resource that is being analyzed.
    */
   private IResource              currentResource;
+  /**
+   * List with all the ExitPoints of this verifier.
+   */
+  private static List<ExitPoint> exitPoints;
 
   /**
    * @param name The name of the verifier.
+   * @param id The id of the verifier.
    */
-  public Verifier(String name) {
+  public Verifier(String name, int id) {
     this.verifierName = name;
+    this.verifierId = id;
   }
 
   public void run(List<IResource> resources, CallGraph callGraph, Reporter reporter) {
@@ -69,7 +70,7 @@ public abstract class Verifier {
     for (IResource resource : resources) {
       if (callGraph.containsFile(resource)) {
         // 02 - Delete any old markers of this resource.
-        deleteMarkers(resource);
+        getReporter().clearProblems(resource);
 
         // 03 - Get the list of methods in the current resource.
         Map<MethodDeclaration, List<Expression>> methods = callGraph.getMethods(resource);
@@ -93,41 +94,6 @@ public abstract class Verifier {
 
         }
       }
-    }
-  }
-
-  protected boolean deleteMarkers(IResource resource) {
-    try {
-      resource.deleteMarkers(Constants.MARKER_ID, false, IResource.DEPTH_INFINITE);
-      return true;
-    }
-    catch (CoreException e) {
-      PluginLogger.logError(e);
-      return false;
-    }
-  }
-
-  protected boolean addMarker(IResource resource, String message, Expression expr) {
-    try {
-      IMarker marker = resource.createMarker(Constants.MARKER_ID);
-      marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
-      marker.setAttribute(IMarker.MESSAGE, message);
-
-      // Get the Compilation Unit of this resource.
-      CompilationUnit cUnit = BindingResolver.findParentCompilationUnit(expr);
-
-      int startPosition = expr.getStartPosition();
-      int endPosition = startPosition + expr.getLength();
-      int lineNumber = cUnit.getLineNumber(startPosition);
-
-      marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
-      marker.setAttribute(IMarker.CHAR_START, startPosition);
-      marker.setAttribute(IMarker.CHAR_END, endPosition);
-      return true;
-    }
-    catch (CoreException e) {
-      PluginLogger.logError(e);
-      return false;
     }
   }
 
@@ -203,6 +169,14 @@ public abstract class Verifier {
     }
 
     return false;
+  }
+
+  protected int getVerifierId() {
+    return verifierId;
+  }
+
+  protected Reporter getReporter() {
+    return reporter;
   }
 
   protected static List<ExitPoint> getExitPoints() {

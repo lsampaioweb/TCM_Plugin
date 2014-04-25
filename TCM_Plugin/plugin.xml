@@ -167,6 +167,16 @@
       <super
             type="org.eclipse.core.resources.problemmarker">
       </super>
+      <attribute
+            name="TCMSA_TYPE_SECURITY_VULNERABILITY">
+      </attribute>
+   </extension>
+   <extension
+         point="org.eclipse.ui.ide.markerResolution">
+      <markerResolutionGenerator
+            class="net.thecodemaster.sap.markers.SecurityVulnerabilitiesResolutionGenerator"
+            markerType="TheCodeMasterSecurityAnalyzerPlugin.TCMSAMarker">
+      </markerResolutionGenerator>
    </extension>
 
 </plugin>

@@ -73,12 +73,10 @@ public abstract class Messages extends NLS {
     public static String        JOB;
     public static String        TASK;
 
-    public static String        NAME_CONVENTION_VERIFIER;
-
-    public static String        SECURITY_MISCONFIGURATION_VERIFIER;
-    public static String        COOKIE_POISONING_VERIFIER;
-    public static String        SQL_INJECTION_VERIFIER;
-    public static String        XSS_VERIFIER;
+    public static String        SECURITY_MISCONFIGURATION_VERIFIER_NAME;
+    public static String        COOKIE_POISONING_VERIFIER_NAME;
+    public static String        SQL_INJECTION_VERIFIER_NAME;
+    public static String        XSS_VERIFIER_NAME;
 
     static {
       // Initialize resource bundle.

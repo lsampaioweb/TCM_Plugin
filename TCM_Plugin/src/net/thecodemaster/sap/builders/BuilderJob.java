@@ -66,7 +66,6 @@ public class BuilderJob extends Job {
   protected IStatus run(IProgressMonitor monitor) {
     Timer timerCP = (new Timer("Complete Process: ")).start();
     try {
-
       monitor.beginTask(Messages.Plugin.TASK, IProgressMonitor.UNKNOWN);
 
       CallGraphVisitor callGraphVisitor = new CallGraphVisitor(callGraph);

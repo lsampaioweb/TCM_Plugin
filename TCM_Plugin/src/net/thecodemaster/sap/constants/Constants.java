@@ -38,4 +38,20 @@ public abstract class Constants {
     public static final String FIELD_OUTPUT_XML_FILE      = Activator.PLUGIN_ID + ".XmlFile";
   }
 
+  public abstract class Marker {
+    public static final String TYPE_SECURITY_VULNERABILITY = "TCMSA_TYPE_SECURITY_VULNERABILITY";
+  }
+
+  public abstract class Plugin {
+    public static final int COOKIE_POISONING_VERIFIER_ID          = 1;
+    public static final int SECURITY_MISCONFIGURATION_VERIFIER_ID = 2;
+    public static final int SQL_INJECTION_VERIFIER_ID             = 3;
+    public static final int XSS_VERIFIER_ID                       = 4;
+  }
+
+  public abstract class Icons {
+    public static final String ICONS_FOLDER           = "icons/";
+    public static final String SECURITY_VULNERABILITY = ICONS_FOLDER + "SecurityVulnerability.png";
+  }
+
 }

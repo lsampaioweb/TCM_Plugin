@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import net.thecodemaster.sap.constants.Constants;
 import net.thecodemaster.sap.exitpoints.ExitPoint;
 import net.thecodemaster.sap.graph.Parameter;
 import net.thecodemaster.sap.ui.l10n.Messages;
@@ -18,7 +19,7 @@ import org.eclipse.jdt.core.dom.Expression;
 public class XSSVerifier extends Verifier {
 
   public XSSVerifier() {
-    super(Messages.Plugin.XSS_VERIFIER);
+    super(Messages.Plugin.XSS_VERIFIER_NAME, Constants.Plugin.XSS_VERIFIER_ID);
   }
 
   static {

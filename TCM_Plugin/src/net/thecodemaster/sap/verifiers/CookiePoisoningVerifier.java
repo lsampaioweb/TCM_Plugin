@@ -1,5 +1,6 @@
 package net.thecodemaster.sap.verifiers;
 
+import net.thecodemaster.sap.constants.Constants;
 import net.thecodemaster.sap.exitpoints.ExitPoint;
 import net.thecodemaster.sap.ui.l10n.Messages;
 
@@ -11,7 +12,7 @@ import org.eclipse.jdt.core.dom.Expression;
 public class CookiePoisoningVerifier extends Verifier {
 
   public CookiePoisoningVerifier() {
-    super(Messages.Plugin.COOKIE_POISONING_VERIFIER);
+    super(Messages.Plugin.COOKIE_POISONING_VERIFIER_NAME, Constants.Plugin.COOKIE_POISONING_VERIFIER_ID);
   }
 
   /**
