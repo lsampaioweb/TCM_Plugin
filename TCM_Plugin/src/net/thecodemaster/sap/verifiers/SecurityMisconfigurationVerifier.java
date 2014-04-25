@@ -14,6 +14,7 @@ import net.thecodemaster.sap.utils.Creator;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.StringLiteral;
 
 /**
  * @author Luciano Sampaio
@@ -93,7 +94,7 @@ public class SecurityMisconfigurationVerifier extends Verifier {
   }
 
   private void checkStringLiteral(List<Integer> rules, Expression expr) {
-    getReporter().addProblem(getVerifierId(), getCurrentResource(), expr, "(StringLiteral) - We have a vulnerability: ");
+    getReporter().addProblem(getVerifierId(), getCurrentResource(), expr, getMessageStringLiteral((StringLiteral) expr));
   }
 
   private void checkInfixExpression(List<Integer> rules, Expression expr, int depth) {
@@ -110,4 +111,7 @@ public class SecurityMisconfigurationVerifier extends Verifier {
   private void checkMethodDeclaration(List<Integer> rules, Expression expr, int depth) {
   }
 
+  private String getMessageStringLiteral(StringLiteral node) {
+    return String.format(Messages.SecurityMisconfigurationVerifier.STRING_LITERAL, getVerifierName(), node.getEscapedValue());
+  }
 }

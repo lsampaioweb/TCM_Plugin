@@ -17,6 +17,7 @@ public abstract class Constants {
   public static final String SEPARATOR                          = ";";
   public static final String RESOURCE_TYPE_TO_PERFORM_DETECTION = "java" + SEPARATOR + "jsp";
   public static final String PACKAGE_UI                         = "net.thecodemaster.sap.ui";
+  public static final String PACKAGE_L10N_MESSAGES              = PACKAGE_UI + ".l10n.messages";
   public static final int    MAXIMUM_DEPTH                      = 4;
 
   public abstract class SecurityVulnerabilities {

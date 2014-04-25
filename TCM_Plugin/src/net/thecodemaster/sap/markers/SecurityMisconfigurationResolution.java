@@ -8,6 +8,10 @@ import org.eclipse.ui.IMarkerResolution2;
  * @author Luciano Sampaio
  */
 public class SecurityMisconfigurationResolution implements IMarkerResolution2 {
+
+  public SecurityMisconfigurationResolution(IMarker marker) {
+  }
+
   @Override
   public String getLabel() {
     return "Create a new property key";

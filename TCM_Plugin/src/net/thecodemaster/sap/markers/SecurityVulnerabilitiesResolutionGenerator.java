@@ -40,16 +40,16 @@ public class SecurityVulnerabilitiesResolutionGenerator implements IMarkerResolu
 
     switch (getTypeVulnerability(marker)) {
       case Constants.Plugin.COOKIE_POISONING_VERIFIER_ID:
-        resolutions.add(new SecurityMisconfigurationResolution());
+        resolutions.add(new SecurityMisconfigurationResolution(marker));
         break;
       case Constants.Plugin.SECURITY_MISCONFIGURATION_VERIFIER_ID:
-        resolutions.add(new SecurityMisconfigurationResolution());
+        resolutions.add(new SecurityMisconfigurationResolution(marker));
         break;
       case Constants.Plugin.SQL_INJECTION_VERIFIER_ID:
-        resolutions.add(new SecurityMisconfigurationResolution());
+        resolutions.add(new SecurityMisconfigurationResolution(marker));
         break;
       case Constants.Plugin.XSS_VERIFIER_ID:
-        resolutions.add(new SecurityMisconfigurationResolution());
+        resolutions.add(new SecurityMisconfigurationResolution(marker));
         break;
       default:
         PluginLogger.logInfo("getResolutions Default Case");

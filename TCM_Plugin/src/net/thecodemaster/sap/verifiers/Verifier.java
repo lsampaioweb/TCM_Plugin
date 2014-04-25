@@ -171,6 +171,10 @@ public abstract class Verifier {
     return false;
   }
 
+  protected String getVerifierName() {
+    return verifierName;
+  }
+
   protected int getVerifierId() {
     return verifierId;
   }

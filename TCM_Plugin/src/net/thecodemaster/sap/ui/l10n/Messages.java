@@ -10,7 +10,7 @@ import org.eclipse.osgi.util.NLS;
 public abstract class Messages extends NLS {
 
   public static abstract class Acknowledgements {
-    private static final String BUNDLE_NAME = Constants.PACKAGE_UI + ".l10n.messages.acknowledgements"; //$NON-NLS-1$
+    private static final String BUNDLE_NAME = Constants.PACKAGE_L10N_MESSAGES + ".acknowledgements"; //$NON-NLS-1$
     public static String        DESCRIPTION;
 
     public static String        LABEL_GROUP_AUTHORS;
@@ -29,7 +29,7 @@ public abstract class Messages extends NLS {
   }
 
   public static abstract class SecurityVulnerabilities {
-    private static final String BUNDLE_NAME = Constants.PACKAGE_UI + ".l10n.messages.securityvulnerabilities"; //$NON-NLS-1$
+    private static final String BUNDLE_NAME = Constants.PACKAGE_L10N_MESSAGES + ".security_vulnerabilities"; //$NON-NLS-1$
     public static String        LABEL_SECURITY_VULNERABILITIES;
     public static String        LABEL_SQL_INJECTION;
     public static String        LABEL_COOKIE_POISONING;
@@ -44,7 +44,7 @@ public abstract class Messages extends NLS {
   }
 
   public static abstract class Settings {
-    private static final String BUNDLE_NAME = Constants.PACKAGE_UI + ".l10n.messages.settings"; //$NON-NLS-1$
+    private static final String BUNDLE_NAME = Constants.PACKAGE_L10N_MESSAGES + ".settings"; //$NON-NLS-1$
     public static String        DESCRIPTION;
     public static String        LABEL_RUN_MODE;
 
@@ -69,7 +69,7 @@ public abstract class Messages extends NLS {
   }
 
   public static abstract class Plugin {
-    private static final String BUNDLE_NAME = Constants.PACKAGE_UI + ".l10n.messages.plugin"; //$NON-NLS-1$
+    private static final String BUNDLE_NAME = Constants.PACKAGE_L10N_MESSAGES + ".plugin"; //$NON-NLS-1$
     public static String        JOB;
     public static String        TASK;
 
@@ -81,6 +81,17 @@ public abstract class Messages extends NLS {
     static {
       // Initialize resource bundle.
       NLS.initializeMessages(BUNDLE_NAME, Plugin.class);
+    }
+  }
+
+  public static abstract class SecurityMisconfigurationVerifier {
+    private static final String BUNDLE_NAME = Constants.PACKAGE_L10N_MESSAGES + ".security_misconfiguration_verifier"; //$NON-NLS-1$
+
+    public static String        STRING_LITERAL;
+
+    static {
+      // Initialize resource bundle.
+      NLS.initializeMessages(BUNDLE_NAME, SecurityMisconfigurationVerifier.class);
     }
   }
 }

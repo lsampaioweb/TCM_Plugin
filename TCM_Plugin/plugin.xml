@@ -172,11 +172,43 @@
       </attribute>
    </extension>
    <extension
+         id="TCMSAMarkerResolution"
          point="org.eclipse.ui.ide.markerResolution">
       <markerResolutionGenerator
             class="net.thecodemaster.sap.markers.SecurityVulnerabilitiesResolutionGenerator"
             markerType="TheCodeMasterSecurityAnalyzerPlugin.TCMSAMarker">
       </markerResolutionGenerator>
+   </extension>
+   <extension
+         id="TCMSAMarkerAnnotation"
+         point="org.eclipse.ui.editors.annotationTypes">
+      <type
+            markerSeverity="1"
+            markerType="TheCodeMasterSecurityAnalyzerPlugin.TCMSAMarker"
+            name="TheCodeMasterSecurityAnalyzerPlugin.TCMSAMarkerAnnotation">
+      </type>
+   </extension>
+   <extension
+         id="TCMSAMarkerAnnotationSpecification"
+         point="org.eclipse.ui.editors.markerAnnotationSpecification">
+      <specification annotationImageProvider="net.thecodemaster.sap.markers.ImageProvider"
+			annotationType="TheCodeMasterSecurityAnalyzerPlugin.TCMSAMarkerAnnotation"
+			colorPreferenceKey="org.eclipse.viatra2.slice.color" colorPreferenceValue="192,255,192"
+			contributesToHeader="false" highlightPreferenceKey="org.eclipse.viatra2.slice.highlight"
+			highlightPreferenceValue="true" icon="icons/SecurityVulnerability.png"
+			includeOnPreferencePage="true" isGoToNextNavigationTarget="true"
+			isGoToNextNavigationTargetKey="TCMSAIsGoToNextNavigationTarget"
+			isGoToPreviousNavigationTarget="true"
+			isGoToPreviousNavigationTargetKey="TCMSAIsGoToPreviousNavigationTarget"
+			label="TCM Security Analyzer Warnings" overviewRulerPreferenceKey="org.eclipse.viatra2.slice.overview"
+			overviewRulerPreferenceValue="true" presentationLayer="0"
+			quickFixIcon="icons/SecurityVulnerability.png" showInNextPrevDropdownToolbarAction="true"
+			showInNextPrevDropdownToolbarActionKey="TCMSAShowInNextPrevDropdownToolbarAction"
+			symbolicIcon="warning" textPreferenceKey="org.eclipse.viatra2.slice.text"
+			textPreferenceValue="true" textStylePreferenceKey="TCMSATextStylePreference"
+			textStylePreferenceValue="BOX" verticalRulerPreferenceKey="org.eclipse.viatra2.slice.ruler"
+			verticalRulerPreferenceValue="true">
+		</specification>
    </extension>
 
 </plugin>
