@@ -136,7 +136,7 @@ public class BindingResolver {
    * @return List<Expression>
    */
   @SuppressWarnings("unchecked")
-  private static List<Expression> getParameterTypes(List<?> arguments) {
+  public static List<Expression> getParameterTypes(List<?> arguments) {
     if (null != arguments) {
       return (List<Expression>) arguments;
     }

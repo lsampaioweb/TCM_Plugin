@@ -88,6 +88,8 @@ public abstract class Messages extends NLS {
     private static final String BUNDLE_NAME = Constants.PACKAGE_L10N_MESSAGES + ".security_misconfiguration_verifier"; //$NON-NLS-1$
 
     public static String        STRING_LITERAL;
+    public static String        LABEL_RESOLUTION;
+    public static String        DESCRIPTION_RESOLUTION;
 
     static {
       // Initialize resource bundle.

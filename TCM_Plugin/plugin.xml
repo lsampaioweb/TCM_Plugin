@@ -191,9 +191,9 @@
    <extension
          id="TCMSAMarkerAnnotationSpecification"
          point="org.eclipse.ui.editors.markerAnnotationSpecification">
-      <specification annotationImageProvider="net.thecodemaster.sap.markers.ImageProvider"
+      <specification
 			annotationType="TheCodeMasterSecurityAnalyzerPlugin.TCMSAMarkerAnnotation"
-			colorPreferenceKey="org.eclipse.viatra2.slice.color" colorPreferenceValue="192,255,192"
+			colorPreferenceKey="org.eclipse.viatra2.slice.color" colorPreferenceValue="243,199,64"
 			contributesToHeader="false" highlightPreferenceKey="org.eclipse.viatra2.slice.highlight"
 			highlightPreferenceValue="true" icon="icons/SecurityVulnerability.png"
 			includeOnPreferencePage="true" isGoToNextNavigationTarget="true"
@@ -206,7 +206,7 @@
 			showInNextPrevDropdownToolbarActionKey="TCMSAShowInNextPrevDropdownToolbarAction"
 			symbolicIcon="warning" textPreferenceKey="org.eclipse.viatra2.slice.text"
 			textPreferenceValue="true" textStylePreferenceKey="TCMSATextStylePreference"
-			textStylePreferenceValue="BOX" verticalRulerPreferenceKey="org.eclipse.viatra2.slice.ruler"
+			textStylePreferenceValue="PROBLEM_UNDERLINE" verticalRulerPreferenceKey="org.eclipse.viatra2.slice.ruler"
 			verticalRulerPreferenceValue="true">
 		</specification>
    </extension>

@@ -76,8 +76,8 @@ public class Timer {
    */
   @Override
   public String toString() {
-    SimpleDateFormat sdf = new SimpleDateFormat("mm:ss:SS");
-    return String.format("%s took %s.", getName(), sdf.format(new Date(getTotalTime())));
+    SimpleDateFormat sdf = new SimpleDateFormat("mm:ss:SSS");
+    return String.format("%s took %s ms.", getName(), sdf.format(new Date(getTotalTime())));
   }
 
 }

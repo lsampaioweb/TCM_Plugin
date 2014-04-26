@@ -53,6 +53,7 @@ public class SecurityVulnerabilitiesResolutionGenerator implements IMarkerResolu
         break;
       default:
         PluginLogger.logInfo("getResolutions Default Case");
+        break;
     }
 
     return resolutions.toArray(new IMarkerResolution[resolutions.size()]);

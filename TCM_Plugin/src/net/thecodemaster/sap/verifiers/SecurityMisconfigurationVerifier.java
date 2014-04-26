@@ -75,7 +75,7 @@ public class SecurityMisconfigurationVerifier extends Verifier {
       // 02 - We need to check the type of the parameter and deal with it accordingly to its type.
       switch (parameter.getNodeType()) {
         case ASTNode.STRING_LITERAL:
-          checkStringLiteral(rules, parameter);
+          checkStringLiteral(parameter);
           break;
         case ASTNode.INFIX_EXPRESSION:
           checkInfixExpression(rules, parameter, ++depth);
@@ -93,13 +93,25 @@ public class SecurityMisconfigurationVerifier extends Verifier {
     }
   }
 
-  private void checkStringLiteral(List<Integer> rules, Expression expr) {
+  private void checkStringLiteral(Expression expr) {
     getReporter().addProblem(getVerifierId(), getCurrentResource(), expr, getMessageStringLiteral((StringLiteral) expr));
   }
 
   private void checkInfixExpression(List<Integer> rules, Expression expr, int depth) {
     InfixExpression parameter = (InfixExpression) expr;
-    System.out.println("(InfixExpression) - We have a vulnerability: " + parameter);
+
+    // 01 - Get the elements from the operation.
+    Expression leftOperand = parameter.getLeftOperand();
+    Expression rightOperand = parameter.getRightOperand();
+    List<Expression> extendedOperands = BindingResolver.getParameterTypes(parameter.extendedOperands());
+
+    // 02 - Check each element.
+    checkParameters(rules, leftOperand, depth);
+    checkParameters(rules, rightOperand, depth);
+
+    for (Expression expression : extendedOperands) {
+      checkParameters(rules, expression, depth);
+    }
   }
 
   private void checkSimpleName(List<Integer> rules, Expression expr, int depth) {

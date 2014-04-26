@@ -1,5 +1,9 @@
 package net.thecodemaster.sap.markers;
 
+import net.thecodemaster.sap.Activator;
+import net.thecodemaster.sap.constants.Constants;
+import net.thecodemaster.sap.ui.l10n.Messages;
+
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IMarkerResolution2;
@@ -14,18 +18,17 @@ public class SecurityMisconfigurationResolution implements IMarkerResolution2 {
 
   @Override
   public String getLabel() {
-    return "Create a new property key";
+    return Messages.SecurityMisconfigurationVerifier.LABEL_RESOLUTION;
   }
 
   @Override
   public String getDescription() {
-    return "Append a new property key/value pair to the plugin.properties file.";
+    return Messages.SecurityMisconfigurationVerifier.DESCRIPTION_RESOLUTION;
   }
 
   @Override
   public Image getImage() {
-    // return Activator.getImageDescriptor(Constants.Icons.SECURITY_VULNERABILITY).createImage();
-    return null;
+    return Activator.getImageDescriptor(Constants.Icons.SECURITY_VULNERABILITY).createImage();
   }
 
   /**
