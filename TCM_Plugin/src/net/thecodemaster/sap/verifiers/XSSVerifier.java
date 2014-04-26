@@ -24,11 +24,10 @@ public class XSSVerifier extends Verifier {
 
   static {
     // 01 - Create each ExitPoint.
+    ExitPoint ep01 = new ExitPoint("java.io.PrintWriter", "println");
     Map<Parameter, List<Integer>> params01 = Creator.newMap();
     // Only sanitized values and LITERAL are valid.
     params01.put(new Parameter("java.lang.String"), Arrays.asList(ASTNode.STRING_LITERAL));
-
-    ExitPoint ep01 = new ExitPoint("java.io.PrintWriter", "println");
     ep01.setParameters(params01);
 
     // 01.1 - Add the ExitPoint to the list.

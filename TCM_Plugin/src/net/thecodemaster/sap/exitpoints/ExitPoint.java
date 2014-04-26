@@ -10,9 +10,9 @@ import net.thecodemaster.sap.graph.Parameter;
  *         Package : java.sql.DriverManager
  *         Method : getConnection
  *         Parameters:
- *         [0] : null; (String url)
- *         [1] : StringLiteral;InfixExpression; (String user)
- *         [2] : StringLiteral;InfixExpression; (String password)
+ *         [0] : -1; (String url)
+ *         [1] : 0; (String user)
+ *         [2] : 0; (String password)
  */
 public class ExitPoint {
 
