@@ -7,13 +7,17 @@ import net.thecodemaster.sap.constants.Constants;
 import net.thecodemaster.sap.exitpoints.ExitPoint;
 import net.thecodemaster.sap.graph.BindingResolver;
 import net.thecodemaster.sap.graph.Parameter;
+import net.thecodemaster.sap.graph.VariableBindingManager;
 import net.thecodemaster.sap.loggers.PluginLogger;
 import net.thecodemaster.sap.ui.l10n.Messages;
 import net.thecodemaster.sap.utils.Creator;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.NumberLiteral;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.StringLiteral;
 
 /**
@@ -62,42 +66,57 @@ public class SecurityMisconfigurationVerifier extends Verifier {
     }
   }
 
-  private void checkParameters(List<Integer> rules, Expression parameter, int depth) {
+  private boolean checkParameters(List<Integer> rules, Expression parameter, int depth) {
     // 01 - If the parameter matches the rules (Easy case), the parameter is okay.
     if (!matchRules(rules, parameter)) {
 
       // To avoid infinitive loop, this check is necessary.
       if (Constants.MAXIMUM_DEPTH == depth) {
-        return;
+        return true;
       }
 
-      PluginLogger.logInfo("Node Type: " + parameter.getNodeType() + " - " + parameter);
       // 02 - We need to check the type of the parameter and deal with it accordingly to its type.
       switch (parameter.getNodeType()) {
         case ASTNode.STRING_LITERAL:
-          checkStringLiteral(parameter);
+        case ASTNode.NUMBER_LITERAL:
+          checkLiteral(parameter);
           break;
         case ASTNode.INFIX_EXPRESSION:
-          checkInfixExpression(rules, parameter, ++depth);
-          break;
+          return checkInfixExpression(rules, parameter, ++depth);
         case ASTNode.SIMPLE_NAME:
-          checkSimpleName(rules, parameter, ++depth);
-          break;
+          return checkSimpleName(rules, parameter, ++depth);
         case ASTNode.METHOD_INVOCATION:
-          checkMethodInvocation(rules, parameter, ++depth);
-          break;
+          return checkMethodInvocation(rules, parameter, ++depth);
         case ASTNode.METHOD_DECLARATION:
-          checkMethodDeclaration(rules, parameter, ++depth);
-          break;
+          return checkMethodDeclaration(rules, parameter, ++depth);
+        default:
+          PluginLogger.logError("Default Node Type: " + parameter.getNodeType() + " - " + parameter, null);
+          return false;
       }
     }
+
+    return true;
   }
 
-  private void checkStringLiteral(Expression expr) {
-    getReporter().addProblem(getVerifierId(), getCurrentResource(), expr, getMessageStringLiteral((StringLiteral) expr));
+  private boolean checkLiteral(Expression expr) {
+    String message = null;
+    switch (expr.getNodeType()) {
+      case ASTNode.STRING_LITERAL:
+        message = getMessageLiteral(((StringLiteral) expr).getEscapedValue());
+        break;
+      case ASTNode.NUMBER_LITERAL:
+        message = getMessageLiteral(((NumberLiteral) expr).getToken());
+        break;
+    }
+
+    // 01 - Inform the reporter about the problem.
+    getReporter().addProblem(getVerifierId(), getCurrentResource(), expr, message);
+
+    // 02 - Return false to inform whoever called this method that we have a vulnerability.
+    return false;
   }
 
-  private void checkInfixExpression(List<Integer> rules, Expression expr, int depth) {
+  private boolean checkInfixExpression(List<Integer> rules, Expression expr, int depth) {
     InfixExpression parameter = (InfixExpression) expr;
 
     // 01 - Get the elements from the operation.
@@ -112,18 +131,41 @@ public class SecurityMisconfigurationVerifier extends Verifier {
     for (Expression expression : extendedOperands) {
       checkParameters(rules, expression, depth);
     }
+
+    // 01 - Inform the reporter about the problem.
+    // getReporter().addProblem(getVerifierId(), getCurrentResource(), expr, "checkInfixExpression");
+
+    // 02 - Return false to inform whoever called this method that we have a vulnerability.
+    return false;
   }
 
-  private void checkSimpleName(List<Integer> rules, Expression expr, int depth) {
+  private boolean checkSimpleName(List<Integer> rules, Expression expr, int depth) {
+    IBinding binding = ((SimpleName) expr).resolveBinding();
+
+    // 01 - Try to retrieve the variable from the list of variables.
+    VariableBindingManager manager = getCallGraph().getlistVariables().get(binding);
+    if (null != manager) {
+
+      // 02 - This is the case where we have to go deeper into the variable's path.
+      checkParameters(rules, manager.getInitializer(), depth);
+    }
+
+    return false;
   }
 
-  private void checkMethodInvocation(List<Integer> rules, Expression expr, int depth) {
+  private boolean checkMethodInvocation(List<Integer> rules, Expression expr, int depth) {
+    PluginLogger.logInfo("Node Type: " + expr.getNodeType() + " - " + expr);
+
+    return false;
   }
 
-  private void checkMethodDeclaration(List<Integer> rules, Expression expr, int depth) {
+  private boolean checkMethodDeclaration(List<Integer> rules, Expression expr, int depth) {
+    PluginLogger.logInfo("Node Type: " + expr.getNodeType() + " - " + expr);
+
+    return false;
   }
 
-  private String getMessageStringLiteral(StringLiteral node) {
-    return String.format(Messages.SecurityMisconfigurationVerifier.STRING_LITERAL, getVerifierName(), node.getEscapedValue());
+  private String getMessageLiteral(String value) {
+    return String.format(Messages.SecurityMisconfigurationVerifier.LITERAL, getVerifierName(), value);
   }
 }

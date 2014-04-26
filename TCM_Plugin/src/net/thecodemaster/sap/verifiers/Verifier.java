@@ -179,6 +179,10 @@ public abstract class Verifier {
     return verifierId;
   }
 
+  protected CallGraph getCallGraph() {
+    return callGraph;
+  }
+
   protected Reporter getReporter() {
     return reporter;
   }

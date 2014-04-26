@@ -1,4 +1,4 @@
-package net.thecodemaster.sap.verifiers.helpers;
+package net.thecodemaster.sap.graph;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Block;
@@ -71,7 +71,7 @@ public class VariableBindingManager {
    * For example, suppose {@code System.out.println(x);} is the {{@link #firstReference} statement.
    */
   private void moveFirstReferenceOneBlockLevelUp() {
-    ASTNode node = Helper.getParentBlock(firstReference);
+    ASTNode node = BindingResolver.getParentBlock(firstReference);
     while (!(node.getParent() instanceof Block)) {
       node = node.getParent();
     }
@@ -89,7 +89,7 @@ public class VariableBindingManager {
    *         block. {@code false} otherwise.
    */
   private boolean isReferenceWhithinScope(SimpleName reference) {
-    Block firstReferenceBlock = Helper.getParentBlock(firstReference);
+    Block firstReferenceBlock = BindingResolver.getParentBlock(firstReference);
     // get the block that contains the first reference statement
 
     ASTNode node = reference;

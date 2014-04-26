@@ -7,6 +7,7 @@ import net.thecodemaster.sap.utils.Creator;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
 /**
@@ -27,8 +28,14 @@ public class CallGraph {
    */
   private Map<String, Map<MethodDeclaration, List<Expression>>> methodsPerFile;
 
+  /**
+   * List with all the declared variables of the analyzed code.
+   */
+  private Map<IVariableBinding, VariableBindingManager>         listVariables;
+
   public CallGraph() {
     methodsPerFile = Creator.newMap();
+    listVariables = Creator.newMap();
   }
 
   private String getResourceName(IResource resource) {
@@ -90,6 +97,10 @@ public class CallGraph {
 
   private Map<MethodDeclaration, List<Expression>> getMethods(String file) {
     return methodsPerFile.get(file);
+  }
+
+  public Map<IVariableBinding, VariableBindingManager> getlistVariables() {
+    return listVariables;
   }
 
 }
