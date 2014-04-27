@@ -26,18 +26,6 @@ public class SecurityMisconfigurationVerifier extends Verifier {
 
   static {
     loadExitPoints(Constants.Plugin.SECURITY_MISCONFIGURATION_VERIFIER_ID);
-    // These ExitPoints are common to all instances of this verifier.
-    // 01 - Create each ExitPoint.
-    // ExitPoint exitPointGetConnection = new ExitPoint("java.sql.DriverManager", "getConnection");
-    // Map<Parameter, List<Integer>> paramsGetConnection = Creator.newMap();
-    // List<Integer> emptyList = Creator.newList();
-    // paramsGetConnection.put(new Parameter("java.lang.String"), null); // Anything is valid.
-    // paramsGetConnection.put(new Parameter("java.lang.String"), emptyList); // Only sanitized values are valid.
-    // paramsGetConnection.put(new Parameter("java.lang.String"), emptyList); // Only sanitized values are valid.
-    // exitPointGetConnection.setParameters(paramsGetConnection);
-    //
-    // // 02 - Add the ExitPoint to the list.
-    // getExitPoints().add(exitPointGetConnection);
   }
 
   public SecurityMisconfigurationVerifier() {

@@ -80,12 +80,12 @@ public class CallGraphVisitor implements IResourceVisitor, IResourceDeltaVisitor
 
       if (cu.isStructureKnown()) {
         // Creates the AST for the ICompilationUnits.
-        Timer timer = (new Timer("Parsing: " + resource.getName())).start();
+        Timer timer = (new Timer("01.1.1 - Parsing: " + resource.getName())).start();
         CompilationUnit cUnit = parse(cu);
         PluginLogger.logInfo(timer.stop().toString());
 
         // Visit the compilation unit.
-        timer = (new Timer("Visiting: " + resource.getName())).start();
+        timer = (new Timer("01.1.2 - Visiting: " + resource.getName())).start();
 
         // Remove the old branches of this resource.
         callGraph.removeFile(resource);

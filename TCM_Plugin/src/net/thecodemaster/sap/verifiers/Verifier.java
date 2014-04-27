@@ -190,16 +190,16 @@ public abstract class Verifier {
     return exitPoints;
   }
 
+  protected static void loadExitPoints(int verifierId) {
+    exitPoints = (new ExitPointLoader()).load(verifierId);
+  }
+
   protected CallGraph getCallGraph() {
     return callGraph;
   }
 
   protected Reporter getReporter() {
     return reporter;
-  }
-
-  protected static void loadExitPoints(int verifierId) {
-    exitPoints = (new ExitPointLoader()).load(verifierId);
   }
 
 }

@@ -64,7 +64,7 @@ public class BuilderJob extends Job {
    */
   @Override
   protected IStatus run(IProgressMonitor monitor) {
-    Timer timerCP = (new Timer("Complete Process: ")).start();
+    Timer timerCP = (new Timer("01 - Complete Process: ")).start();
     try {
       monitor.beginTask(Messages.Plugin.TASK, IProgressMonitor.UNKNOWN);
 
@@ -72,19 +72,19 @@ public class BuilderJob extends Job {
       List<IResource> updatedResources = Creator.newList();
 
       if (null != delta) {
-        Timer timerD = (new Timer("Call Graph Delta: ")).start();
+        Timer timerD = (new Timer("01.1 - Call Graph Delta: ")).start();
         updatedResources = callGraphVisitor.run(delta);
         PluginLogger.logInfo(timerD.stop().toString());
       }
 
       if (null != project) {
-        Timer timerP = (new Timer("Call Graph Project: ")).start();
+        Timer timerP = (new Timer("01.1 - Call Graph Project: ")).start();
         updatedResources = callGraphVisitor.run(project);
         PluginLogger.logInfo(timerP.stop().toString());
       }
 
       if ((null != monitor) && (!monitor.isCanceled())) {
-        Timer timerPV = (new Timer("Plugin verifications: ")).start();
+        Timer timerPV = (new Timer("01.2 - Plugin verifications: ")).start();
         Manager manager = Manager.getInstance();
         manager.setProgressMonitor(monitor);
         manager.run(updatedResources, callGraph);
