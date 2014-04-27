@@ -4,13 +4,12 @@ import java.util.List;
 import java.util.Map;
 
 import net.thecodemaster.sap.constants.Constants;
-import net.thecodemaster.sap.exitpoints.ExitPoint;
 import net.thecodemaster.sap.graph.BindingResolver;
 import net.thecodemaster.sap.graph.Parameter;
 import net.thecodemaster.sap.graph.VariableBindingManager;
 import net.thecodemaster.sap.loggers.PluginLogger;
+import net.thecodemaster.sap.points.ExitPoint;
 import net.thecodemaster.sap.ui.l10n.Messages;
-import net.thecodemaster.sap.utils.Creator;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Expression;
@@ -25,23 +24,24 @@ import org.eclipse.jdt.core.dom.StringLiteral;
  */
 public class SecurityMisconfigurationVerifier extends Verifier {
 
-  public SecurityMisconfigurationVerifier() {
-    super(Messages.Plugin.SECURITY_MISCONFIGURATION_VERIFIER_NAME, Constants.Plugin.SECURITY_MISCONFIGURATION_VERIFIER_ID);
-  }
-
   static {
+    loadExitPoints(Constants.Plugin.SECURITY_MISCONFIGURATION_VERIFIER_ID);
     // These ExitPoints are common to all instances of this verifier.
     // 01 - Create each ExitPoint.
-    ExitPoint exitPointGetConnection = new ExitPoint("java.sql.DriverManager", "getConnection");
-    Map<Parameter, List<Integer>> paramsGetConnection = Creator.newMap();
-    List<Integer> emptyList = Creator.newList();
-    paramsGetConnection.put(new Parameter("java.lang.String"), null); // Anything is valid.
-    paramsGetConnection.put(new Parameter("java.lang.String"), emptyList); // Only sanitized values are valid.
-    paramsGetConnection.put(new Parameter("java.lang.String"), emptyList); // Only sanitized values are valid.
-    exitPointGetConnection.setParameters(paramsGetConnection);
+    // ExitPoint exitPointGetConnection = new ExitPoint("java.sql.DriverManager", "getConnection");
+    // Map<Parameter, List<Integer>> paramsGetConnection = Creator.newMap();
+    // List<Integer> emptyList = Creator.newList();
+    // paramsGetConnection.put(new Parameter("java.lang.String"), null); // Anything is valid.
+    // paramsGetConnection.put(new Parameter("java.lang.String"), emptyList); // Only sanitized values are valid.
+    // paramsGetConnection.put(new Parameter("java.lang.String"), emptyList); // Only sanitized values are valid.
+    // exitPointGetConnection.setParameters(paramsGetConnection);
+    //
+    // // 02 - Add the ExitPoint to the list.
+    // getExitPoints().add(exitPointGetConnection);
+  }
 
-    // 02 - Add the ExitPoint to the list.
-    getExitPoints().add(exitPointGetConnection);
+  public SecurityMisconfigurationVerifier() {
+    super(Messages.Plugin.SECURITY_MISCONFIGURATION_VERIFIER_NAME, Constants.Plugin.SECURITY_MISCONFIGURATION_VERIFIER_ID);
   }
 
   /**

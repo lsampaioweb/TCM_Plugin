@@ -43,16 +43,34 @@ public abstract class Constants {
     public static final String TYPE_SECURITY_VULNERABILITY = "TCMSA_TYPE_SECURITY_VULNERABILITY";
   }
 
+  public abstract class Folder {
+    public static final String ICONS          = "icons/";
+    public static final String KNOWLEDGE_BASE = "knowledge_base/";
+    public static final String EXIT_POINTS    = KNOWLEDGE_BASE + "exit_points/";
+  }
+
   public abstract class Plugin {
-    public static final int COOKIE_POISONING_VERIFIER_ID          = 1;
-    public static final int SECURITY_MISCONFIGURATION_VERIFIER_ID = 2;
-    public static final int SQL_INJECTION_VERIFIER_ID             = 3;
-    public static final int XSS_VERIFIER_ID                       = 4;
+    public static final int    COOKIE_POISONING_VERIFIER_ID                       = 1;
+    public static final int    SECURITY_MISCONFIGURATION_VERIFIER_ID              = 2;
+    public static final int    SQL_INJECTION_VERIFIER_ID                          = 3;
+    public static final int    XSS_VERIFIER_ID                                    = 4;
+
+    public static final String COOKIE_POISONING_VERIFIER_EXIT_POINT_FILE          = Folder.EXIT_POINTS + "";
+    public static final String SECURITY_MISCONFIGURATION_VERIFIER_EXIT_POINT_FILE = Folder.EXIT_POINTS
+                                                                                    + "security_misconfiguration_verifier.xml";
+
+    public static final String SM_TAG_EXIT_POINT                                  = "exitpoint";
+    public static final String SM_TAG_QUALIFIED_NAME                              = "qualifiedname";
+    public static final String SM_TAG_METHOD_NAME                                 = "methodname";
+    public static final String SM_TAG_PARAMETERS                                  = "parameters";
+    public static final String SM_TAG_PARAMETERS_TYPE                             = "type";
+    public static final String SM_TAG_PARAMETERS_RULES                            = "rules";
+
+    public static final String SQL_INJECTION_VERIFIER_EXIT_POINT_FILE             = Folder.EXIT_POINTS + "";
+    public static final String XSS_VERIFIER_EXIT_POINT_FILE                       = Folder.EXIT_POINTS + "xss_verifier.xml";
   }
 
   public abstract class Icons {
-    public static final String ICONS_FOLDER           = "icons/";
-    public static final String SECURITY_VULNERABILITY = ICONS_FOLDER + "SecurityVulnerability.png";
+    public static final String SECURITY_VULNERABILITY = Folder.ICONS + "SecurityVulnerability.png";
   }
-
 }

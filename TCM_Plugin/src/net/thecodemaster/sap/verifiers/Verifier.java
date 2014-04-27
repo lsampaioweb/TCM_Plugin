@@ -3,12 +3,12 @@ package net.thecodemaster.sap.verifiers;
 import java.util.List;
 import java.util.Map;
 
-import net.thecodemaster.sap.exitpoints.ExitPoint;
 import net.thecodemaster.sap.graph.BindingResolver;
 import net.thecodemaster.sap.graph.CallGraph;
 import net.thecodemaster.sap.graph.Parameter;
+import net.thecodemaster.sap.points.ExitPoint;
 import net.thecodemaster.sap.reporters.Reporter;
-import net.thecodemaster.sap.utils.Creator;
+import net.thecodemaster.sap.xmlloaders.ExitPointLoader;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.dom.Expression;
@@ -28,7 +28,14 @@ public abstract class Verifier {
    * The id of the current verifier.
    */
   private int                    verifierId;
-
+  /**
+   * The current resource that is being analyzed.
+   */
+  private IResource              currentResource;
+  /**
+   * List with all the ExitPoints of this verifier (shared among other instances of this verifier).
+   */
+  private static List<ExitPoint> exitPoints;
   /**
    * This object contains all the methods, variables and their interactions, on the project that is being analyzed.
    */
@@ -37,14 +44,6 @@ public abstract class Verifier {
    * The report object
    */
   private Reporter               reporter;
-  /**
-   * The current resource that is being analyzed.
-   */
-  private IResource              currentResource;
-  /**
-   * List with all the ExitPoints of this verifier.
-   */
-  private static List<ExitPoint> exitPoints;
 
   /**
    * @param name The name of the verifier.
@@ -179,6 +178,18 @@ public abstract class Verifier {
     return verifierId;
   }
 
+  private void setCurrentResource(IResource currentResource) {
+    this.currentResource = currentResource;
+  }
+
+  protected IResource getCurrentResource() {
+    return currentResource;
+  }
+
+  protected static List<ExitPoint> getExitPoints() {
+    return exitPoints;
+  }
+
   protected CallGraph getCallGraph() {
     return callGraph;
   }
@@ -187,20 +198,8 @@ public abstract class Verifier {
     return reporter;
   }
 
-  protected static List<ExitPoint> getExitPoints() {
-    if (null == exitPoints) {
-      exitPoints = Creator.newList();
-    }
-
-    return exitPoints;
-  }
-
-  private void setCurrentResource(IResource currentResource) {
-    this.currentResource = currentResource;
-  }
-
-  protected IResource getCurrentResource() {
-    return currentResource;
+  protected static void loadExitPoints(int verifierId) {
+    exitPoints = (new ExitPointLoader()).load(verifierId);
   }
 
 }

@@ -1,4 +1,4 @@
-package net.thecodemaster.sap.exitpoints;
+package net.thecodemaster.sap.points;
 
 import java.util.List;
 import java.util.Map;

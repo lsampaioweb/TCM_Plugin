@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 import net.thecodemaster.sap.constants.Constants;
-import net.thecodemaster.sap.exitpoints.ExitPoint;
 import net.thecodemaster.sap.graph.Parameter;
+import net.thecodemaster.sap.points.ExitPoint;
 import net.thecodemaster.sap.ui.l10n.Messages;
 import net.thecodemaster.sap.utils.Creator;
 

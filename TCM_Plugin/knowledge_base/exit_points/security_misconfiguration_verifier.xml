@@ -1,1 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<exitpoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="exit_points_schema.xsd">
+	<exitpoint>
+		<qualifiedname>java.sql.DriverManager</qualifiedname>
+		<methodname>getConnection</methodname>
+		<parameters type="java.lang.String" rules="-1" />
+		<parameters type="java.lang.String" rules="0" />
+		<parameters type="java.lang.String" rules="0" />
+	</exitpoint>
+</exitpoints>

@@ -96,4 +96,18 @@ public abstract class Messages extends NLS {
       NLS.initializeMessages(BUNDLE_NAME, SecurityMisconfigurationVerifier.class);
     }
   }
+
+  public static abstract class Error {
+    private static final String BUNDLE_NAME = Constants.PACKAGE_L10N_MESSAGES + ".error"; //$NON-NLS-1$
+
+    public static String        FILE_NOT_FOUND;
+    public static String        PARSING_XML_FILE;
+    public static String        READING_XML_FILE;
+
+    static {
+      // Initialize resource bundle.
+      NLS.initializeMessages(BUNDLE_NAME, Error.class);
+    }
+  }
+
 }

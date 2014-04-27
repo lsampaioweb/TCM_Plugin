@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<exitpoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="exit_points_schema.xsd">
+	<exitpoint>
+		<qualifiedname>java.io.PrintWriter</qualifiedname>
+		<methodname>println</methodname>
+		<parameters type="java.lang.String" rules="45" />
+	</exitpoint>
+</exitpoints>
