@@ -96,19 +96,6 @@ public abstract class Verifier {
     }
   }
 
-  protected abstract void run(Expression method, ExitPoint exitPoint);
-
-  /**
-   * Notifies that a subtask of the main task is beginning.
-   * 
-   * @param taskName The text that will be displayed to the user.
-   */
-  protected void setSubTask(String taskName) {
-    if ((null != reporter) && (null != reporter.getProgressMonitor())) {
-      reporter.getProgressMonitor().subTask(taskName);
-    }
-  }
-
   /**
    * @param method
    * @return An ExitPoint object if this node belongs to the list, otherwise null.
@@ -160,21 +147,11 @@ public abstract class Verifier {
     return null;
   }
 
-  protected boolean matchRules(List<Integer> rules, Expression parameter) {
-    for (Integer astNodeValue : rules) {
-      if (parameter.getNodeType() == astNodeValue) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
   protected String getVerifierName() {
     return verifierName;
   }
 
-  protected int getVerifierId() {
+  private int getVerifierId() {
     return verifierId;
   }
 
@@ -182,7 +159,7 @@ public abstract class Verifier {
     this.currentResource = currentResource;
   }
 
-  protected IResource getCurrentResource() {
+  private IResource getCurrentResource() {
     return currentResource;
   }
 
@@ -200,6 +177,33 @@ public abstract class Verifier {
 
   protected Reporter getReporter() {
     return reporter;
+  }
+
+  protected abstract void run(Expression method, ExitPoint exitPoint);
+
+  /**
+   * Notifies that a subtask of the main task is beginning.
+   * 
+   * @param taskName The text that will be displayed to the user.
+   */
+  protected void setSubTask(String taskName) {
+    if ((null != getReporter()) && (null != getReporter().getProgressMonitor())) {
+      getReporter().getProgressMonitor().subTask(taskName);
+    }
+  }
+
+  protected boolean matchRules(List<Integer> rules, Expression parameter) {
+    for (Integer astNodeValue : rules) {
+      if (parameter.getNodeType() == astNodeValue) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  protected void foundVulnerability(Expression expr, String message) {
+    getReporter().addProblem(getVerifierId(), getCurrentResource(), expr, message);
   }
 
 }

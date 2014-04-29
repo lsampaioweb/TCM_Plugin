@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.dom.StringLiteral;
 public class SecurityMisconfigurationVerifier extends Verifier {
 
   static {
+    // 01 - Loads all the ExitPoints of this verifier.
     loadExitPoints(Constants.Plugin.SECURITY_MISCONFIGURATION_VERIFIER_ID);
   }
 
@@ -98,7 +99,7 @@ public class SecurityMisconfigurationVerifier extends Verifier {
     }
 
     // 01 - Inform the reporter about the problem.
-    getReporter().addProblem(getVerifierId(), getCurrentResource(), expr, message);
+    foundVulnerability(expr, message);
 
     // 02 - Return false to inform whoever called this method that we have a vulnerability.
     return false;
@@ -121,7 +122,7 @@ public class SecurityMisconfigurationVerifier extends Verifier {
     }
 
     // 01 - Inform the reporter about the problem.
-    // getReporter().addProblem(getVerifierId(), getCurrentResource(), expr, "checkInfixExpression");
+    // foundVulnerability(expr, "checkInfixExpression");
 
     // 02 - Return false to inform whoever called this method that we have a vulnerability.
     return false;

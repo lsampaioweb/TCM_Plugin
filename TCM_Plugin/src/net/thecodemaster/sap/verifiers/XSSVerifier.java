@@ -11,12 +11,13 @@ import org.eclipse.jdt.core.dom.Expression;
  */
 public class XSSVerifier extends Verifier {
 
-  public XSSVerifier() {
-    super(Messages.Plugin.XSS_VERIFIER_NAME, Constants.Plugin.XSS_VERIFIER_ID);
+  static {
+    // 01 - Loads all the ExitPoints of this verifier.
+    loadExitPoints(Constants.Plugin.XSS_VERIFIER_ID);
   }
 
-  static {
-    loadExitPoints(Constants.Plugin.XSS_VERIFIER_ID);
+  public XSSVerifier() {
+    super(Messages.Plugin.XSS_VERIFIER_NAME, Constants.Plugin.XSS_VERIFIER_ID);
   }
 
   /**

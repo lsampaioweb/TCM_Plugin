@@ -29,4 +29,5 @@
 XX - Create a hidden file that will be used by our plug-in.
 
 XX - Check for infinitive loop.
-XX - Check for methods with same names.
+XX - Check for cases where the class A invokes method C from class B, but the developer is working on class A so the class B will 
+not be verified, but it can be a case where the vulnerability happens when something is introduced in class A.
