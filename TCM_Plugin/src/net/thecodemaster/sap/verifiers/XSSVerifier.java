@@ -25,4 +25,9 @@ public class XSSVerifier extends Verifier {
     return "";
   }
 
+  @Override
+  protected String getMessageEntryPoint(String value) {
+    return "";
+  }
+
 }

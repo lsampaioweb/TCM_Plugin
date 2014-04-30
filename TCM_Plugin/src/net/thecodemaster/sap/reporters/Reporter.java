@@ -4,6 +4,7 @@ import java.util.Map;
 
 import net.thecodemaster.sap.constants.Constants;
 import net.thecodemaster.sap.graph.BindingResolver;
+import net.thecodemaster.sap.graph.VulnerabilityPath;
 import net.thecodemaster.sap.loggers.PluginLogger;
 import net.thecodemaster.sap.utils.Creator;
 
@@ -50,9 +51,9 @@ public class Reporter {
     }
   }
 
-  public void addProblem(int typeVulnerability, IResource resource, Expression expr, String message) {
+  public void addProblem(int typeVulnerability, IResource resource, VulnerabilityPath vp) {
     if (problemView) {
-      addMarker(typeVulnerability, resource, expr, message);
+      addMarker(typeVulnerability, resource, vp);
     }
     if (textFile) {
       // TODO
@@ -73,9 +74,12 @@ public class Reporter {
     }
   }
 
-  private void addMarker(int typeVulnerability, IResource resource, Expression expr, String message) {
+  private void addMarker(int typeVulnerability, IResource resource, VulnerabilityPath vp) {
     try {
       Map<String, Object> markerAttributes = Creator.newMap();
+
+      Expression expr = vp.getRoot();
+      String message = vp.getMessage();
 
       markerAttributes.put(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
       markerAttributes.put(Constants.Marker.TYPE_SECURITY_VULNERABILITY, typeVulnerability);

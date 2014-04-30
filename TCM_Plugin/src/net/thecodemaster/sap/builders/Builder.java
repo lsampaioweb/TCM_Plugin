@@ -19,7 +19,8 @@ public class Builder extends IncrementalProjectBuilder {
   /**
    * This mutex rule will guarantee that only one job will be running at any given time.
    */
-  private static MutexRule rule = new MutexRule();
+  private static MutexRule rule         = new MutexRule();
+  private static boolean   isFirstBuild = true;
   private BuilderJob       jobProject;
   private BuilderJob       jobDelta;
 
@@ -62,6 +63,7 @@ public class Builder extends IncrementalProjectBuilder {
   }
 
   protected void fullBuild(final IProgressMonitor monitor) {
+    isFirstBuild = false;
     cancelIfNotRunning(jobProject);
 
     jobProject = new BuilderJob(Messages.Plugin.JOB, getProject());
@@ -72,9 +74,16 @@ public class Builder extends IncrementalProjectBuilder {
   protected void incrementalBuild(IResourceDelta delta, IProgressMonitor monitor) {
     cancelIfNotRunning(jobDelta);
 
-    jobDelta = new BuilderJob(Messages.Plugin.JOB, delta);
-    jobDelta.setRule(rule);
-    jobDelta.run();
+    if (!isFirstBuild) {
+      jobDelta = new BuilderJob(Messages.Plugin.JOB, delta);
+      jobDelta.setRule(rule);
+      jobDelta.run();
+    }
+    else {
+      // Sometimes Eclipse invokes the incremental build without ever invoked the full build,
+      // but we need at least one full build to create the full CallGraph. After this first time we're OK.
+      fullBuild(monitor);
+    }
   }
 
   private void cancelIfNotRunning(BuilderJob job) {

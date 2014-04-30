@@ -19,4 +19,9 @@ public class SQLInjectionVerifier extends Verifier {
   protected String getMessageLiteral(String value) {
     return "";
   }
+
+  @Override
+  protected String getMessageEntryPoint(String value) {
+    return "";
+  }
 }

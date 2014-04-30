@@ -78,6 +78,8 @@ public abstract class Verifier {
 
   protected abstract String getMessageLiteral(String value);
 
+  protected abstract String getMessageEntryPoint(String value);
+
   private String getVerifierName() {
     return verifierName;
   }
@@ -175,7 +177,7 @@ public abstract class Verifier {
 
         checkExpression(vp, rules, expr, depth);
         if (!vp.isEmpty()) {
-          showVulnerability(vp);
+          reportVulnerability(vp);
         }
       }
       index++;
@@ -384,8 +386,10 @@ public abstract class Verifier {
 
     // 02 - Check if this method is a Entry-Point.
     if (isMethodAnEntryPoint(expr)) {
+      String message = getMessageEntryPoint(BindingResolver.getName(expr));
+
       // If a entry point method is being invoked, then we DO have a vulnerability.
-      vp.foundVulnerability(expr, "Method is an EntryPoint");
+      vp.foundVulnerability(expr, message);
       return;
     }
 
@@ -409,8 +413,7 @@ public abstract class Verifier {
 
   protected void checkStatement(VulnerabilityPath vp, List<Integer> rules, Statement statement, int depth) {
     if (statement.getNodeType() == ASTNode.RETURN_STATEMENT) {
-      ReturnStatement rs = (ReturnStatement) statement;
-      Expression expr = rs.getExpression();
+      Expression expr = ((ReturnStatement) statement).getExpression();
       checkExpression(vp.addNodeToPath(expr), rules, expr, depth);
     }
 
@@ -427,6 +430,12 @@ public abstract class Verifier {
       checkIfStatementOrBlock(vp, rules, thenStat, depth);
       checkIfStatementOrBlock(vp, rules, ElseStat, depth);
     }
+    // DoStatement
+    // ForStatement
+    // SwitchCase
+    // SwitchStatement
+    // TryStatement
+    // WhileStatement
   }
 
   protected void checkIfStatementOrBlock(VulnerabilityPath vp, List<Integer> rules, Statement statement, int depth) {
@@ -442,12 +451,8 @@ public abstract class Verifier {
     }
   }
 
-  protected void foundVulnerability(Expression expr, String message) {
-    getReporter().addProblem(getVerifierId(), getCurrentResource(), expr, message);
-  }
-
-  protected void showVulnerability(VulnerabilityPath vp) {
-    PluginLogger.logInfo("VulnerabilityPath: " + vp.toString());
+  protected void reportVulnerability(VulnerabilityPath vp) {
+    getReporter().addProblem(getVerifierId(), getCurrentResource(), vp);
   }
 
 }
