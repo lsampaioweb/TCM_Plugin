@@ -1,5 +1,6 @@
 package net.thecodemaster.sap.graph;
 
+import java.util.Arrays;
 import java.util.List;
 
 import net.thecodemaster.sap.utils.Creator;
@@ -32,7 +33,11 @@ public class BindingResolver {
    * @return the binding of the class or interface that declares this method or constructor
    */
   public static ITypeBinding getDeclaringClass(IMethodBinding methodBinding) {
-    return methodBinding.getDeclaringClass();
+    return (null != methodBinding) ? methodBinding.getDeclaringClass() : null;
+  }
+
+  public static String getName(MethodDeclaration node) {
+    return getName(resolveBinding(node));
   }
 
   /**
@@ -54,7 +59,7 @@ public class BindingResolver {
    * @return the name of the package represented by this binding, or an empty string for an unnamed package.
    */
   public static String getName(IPackageBinding pkg) {
-    return pkg.getName();
+    return (null != pkg) ? pkg.getName() : null;
   }
 
   /**
@@ -64,7 +69,7 @@ public class BindingResolver {
    * @return the unqualified name of the type represented by this binding, or the empty string if it has none.
    */
   public static String getName(ITypeBinding typeBinding) {
-    return typeBinding.getName();
+    return (null != typeBinding) ? typeBinding.getName() : null;
   }
 
   /**
@@ -78,7 +83,7 @@ public class BindingResolver {
    *         represents a primitive type, an array type, the null type, a type variable, a wild card type, a capture binding.
    */
   public static IPackageBinding getPackage(ITypeBinding typeBinding) {
-    return typeBinding.getPackage();
+    return (null != typeBinding) ? typeBinding.getPackage() : null;
   }
 
   public static IMethodBinding resolveBinding(MethodDeclaration node) {
@@ -130,6 +135,12 @@ public class BindingResolver {
     }
 
     return Creator.newList();
+  }
+
+  public static List<ITypeBinding> getParameterTypes(MethodDeclaration node) {
+    IMethodBinding methodBinding = resolveBinding(node);
+
+    return (null != methodBinding) ? Arrays.asList(methodBinding.getParameterTypes()) : null;
   }
 
   /**
@@ -191,4 +202,9 @@ public class BindingResolver {
     }
     return (Block) node;
   }
+
+  public static String getQualifiedName(MethodDeclaration node) {
+    return getQualifiedName(resolveBinding(node));
+  }
+
 }

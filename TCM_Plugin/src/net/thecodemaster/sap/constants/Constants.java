@@ -46,6 +46,7 @@ public abstract class Constants {
   public abstract class Folder {
     public static final String ICONS          = "icons/";
     public static final String KNOWLEDGE_BASE = "knowledge_base/";
+    public static final String ENTRY_POINTS   = KNOWLEDGE_BASE + "entry_points/";
     public static final String EXIT_POINTS    = KNOWLEDGE_BASE + "exit_points/";
   }
 
@@ -55,19 +56,21 @@ public abstract class Constants {
     public static final int    SQL_INJECTION_VERIFIER_ID                          = 3;
     public static final int    XSS_VERIFIER_ID                                    = 4;
 
+    public static final String ENTRY_POINT_FILE                                   = Folder.ENTRY_POINTS + "entry_points.xml";
+
     public static final String COOKIE_POISONING_VERIFIER_EXIT_POINT_FILE          = Folder.EXIT_POINTS + "";
     public static final String SECURITY_MISCONFIGURATION_VERIFIER_EXIT_POINT_FILE = Folder.EXIT_POINTS
                                                                                     + "security_misconfiguration_verifier.xml";
-
-    public static final String SM_TAG_EXIT_POINT                                  = "exitpoint";
-    public static final String SM_TAG_QUALIFIED_NAME                              = "qualifiedname";
-    public static final String SM_TAG_METHOD_NAME                                 = "methodname";
-    public static final String SM_TAG_PARAMETERS                                  = "parameters";
-    public static final String SM_TAG_PARAMETERS_TYPE                             = "type";
-    public static final String SM_TAG_PARAMETERS_RULES                            = "rules";
-
     public static final String SQL_INJECTION_VERIFIER_EXIT_POINT_FILE             = Folder.EXIT_POINTS + "";
     public static final String XSS_VERIFIER_EXIT_POINT_FILE                       = Folder.EXIT_POINTS + "xss_verifier.xml";
+
+    public static final String TAG_ENTRY_POINT                                    = "entrypoint";
+    public static final String TAG_EXIT_POINT                                     = "exitpoint";
+    public static final String TAG_QUALIFIED_NAME                                 = "qualifiedname";
+    public static final String TAG_METHOD_NAME                                    = "methodname";
+    public static final String TAG_PARAMETERS                                     = "parameters";
+    public static final String TAG_PARAMETERS_TYPE                                = "type";
+    public static final String TAG_PARAMETERS_RULES                               = "rules";
   }
 
   public abstract class Icons {

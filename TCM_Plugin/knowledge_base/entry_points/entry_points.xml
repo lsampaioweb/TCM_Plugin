@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entrypoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="entry_points_schema.xsd">
+	<entrypoint>
+		<qualifiedname>javax.servlet.(http.Http)?ServletRequest</qualifiedname>
+		<methodname>getParameter</methodname>
+		<parameters type="java.lang.String" />
+	</entrypoint>
+	<entrypoint>
+		<qualifiedname>javax.servlet.(http.Http)?ServletRequest</qualifiedname>
+		<methodname>getQueryString</methodname>
+		<parameters type="java.lang.String" />
+	</entrypoint>
+	<entrypoint>
+		<qualifiedname>javax.servlet.(http.Http)?ServletRequest</qualifiedname>
+		<methodname>getHeader</methodname>
+		<parameters type="java.lang.String" />
+	</entrypoint>
+	<entrypoint>
+		<qualifiedname>javax.servlet.(http.Http)?ServletRequest</qualifiedname>
+		<methodname>getParameterMap</methodname>
+	</entrypoint>
+</entrypoints>

@@ -1,6 +1,9 @@
 package net.thecodemaster.sap.verifiers;
 
+import java.util.List;
+
 import net.thecodemaster.sap.constants.Constants;
+import net.thecodemaster.sap.points.EntryPoint;
 import net.thecodemaster.sap.points.ExitPoint;
 import net.thecodemaster.sap.ui.l10n.Messages;
 
@@ -16,8 +19,8 @@ public class XSSVerifier extends Verifier {
     loadExitPoints(Constants.Plugin.XSS_VERIFIER_ID);
   }
 
-  public XSSVerifier() {
-    super(Messages.Plugin.XSS_VERIFIER_NAME, Constants.Plugin.XSS_VERIFIER_ID);
+  public XSSVerifier(List<EntryPoint> entryPoints) {
+    super(Messages.Plugin.XSS_VERIFIER_NAME, Constants.Plugin.XSS_VERIFIER_ID, entryPoints);
   }
 
   /**

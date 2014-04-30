@@ -12,7 +12,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import net.thecodemaster.sap.Activator;
 import net.thecodemaster.sap.loggers.PluginLogger;
-import net.thecodemaster.sap.points.ExitPoint;
+import net.thecodemaster.sap.points.AbstractPoint;
 import net.thecodemaster.sap.ui.l10n.Messages;
 import net.thecodemaster.sap.utils.Creator;
 
@@ -30,8 +30,8 @@ import org.xml.sax.SAXException;
  */
 public abstract class XMLLoader {
 
-  public List<ExitPoint> load(int verifierId) {
-    String file = getFilePath(verifierId);
+  public <T extends AbstractPoint> List<T> load() {
+    String file = getFilePath();
     if (fileExists(file)) {
       return load(file);
     }
@@ -42,9 +42,9 @@ public abstract class XMLLoader {
     return Creator.newList();
   }
 
-  protected abstract String getFilePath(int verifierId);
+  protected abstract String getFilePath();
 
-  protected abstract List<ExitPoint> load(String file);
+  protected abstract <T extends AbstractPoint> List<T> load(String file);
 
   protected boolean fileExists(String file) {
     return (getInputStream(file) != null);

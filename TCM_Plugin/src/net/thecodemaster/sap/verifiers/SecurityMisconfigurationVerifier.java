@@ -9,6 +9,7 @@ import net.thecodemaster.sap.graph.Parameter;
 import net.thecodemaster.sap.graph.VariableBindingManager;
 import net.thecodemaster.sap.graph.VulnerabilityPath;
 import net.thecodemaster.sap.loggers.PluginLogger;
+import net.thecodemaster.sap.points.EntryPoint;
 import net.thecodemaster.sap.points.ExitPoint;
 import net.thecodemaster.sap.ui.l10n.Messages;
 
@@ -34,8 +35,8 @@ public class SecurityMisconfigurationVerifier extends Verifier {
     loadExitPoints(Constants.Plugin.SECURITY_MISCONFIGURATION_VERIFIER_ID);
   }
 
-  public SecurityMisconfigurationVerifier() {
-    super(Messages.Plugin.SECURITY_MISCONFIGURATION_VERIFIER_NAME, Constants.Plugin.SECURITY_MISCONFIGURATION_VERIFIER_ID);
+  public SecurityMisconfigurationVerifier(List<EntryPoint> entryPoints) {
+    super(Messages.Plugin.SECURITY_MISCONFIGURATION_VERIFIER_NAME, Constants.Plugin.SECURITY_MISCONFIGURATION_VERIFIER_ID, entryPoints);
   }
 
   /**
@@ -145,13 +146,22 @@ public class SecurityMisconfigurationVerifier extends Verifier {
 
   private void checkMethodInvocation(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
     // 01 - Check if this method is a Sanitization-Point.
+    if (isMethodASanitizationPoint(expr)) {
+      // If a sanitization method is being invoked, then we do not have a vulnerability.
+      return;
+    }
 
     // 02 - Check if this method is a Entry-Point.
+    if (isMethodAnEntryPoint(expr)) {
+      // If a entry point method is being invoked, then we DO have a vulnerability.
+      vp.foundVulnerability(expr, "Method is an EntryPoint");
+      return;
+    }
 
     // 03 - Follow the data flow of this method and try to identify what is the return from it.
 
     // Get the implementation of this method. If the return is NULL it means this is a library that the developer
-    // do not own the source code.
+    // does not own the source code.
     MethodDeclaration methodDeclaration = getCallGraph().getMethod(getCurrentResource(), expr);
 
     if (null != methodDeclaration) {
@@ -162,7 +172,6 @@ public class SecurityMisconfigurationVerifier extends Verifier {
         Statement statement = (Statement) object;
         checkStatement(vp, rules, statement, depth);
       }
-
     }
   }
 

@@ -18,9 +18,15 @@ import org.w3c.dom.NodeList;
  */
 public class ExitPointLoader extends XMLLoader {
 
+  private int fileId;
+
+  public ExitPointLoader(int fileId) {
+    this.fileId = fileId;
+  }
+
   @Override
-  protected String getFilePath(int verifierId) {
-    switch (verifierId) {
+  protected String getFilePath() {
+    switch (fileId) {
       case Constants.Plugin.COOKIE_POISONING_VERIFIER_ID:
         return Constants.Plugin.COOKIE_POISONING_VERIFIER_EXIT_POINT_FILE;
       case Constants.Plugin.SECURITY_MISCONFIGURATION_VERIFIER_ID:
@@ -35,6 +41,7 @@ public class ExitPointLoader extends XMLLoader {
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   protected List<ExitPoint> load(String file) {
     List<ExitPoint> exitPoints = Creator.newList();
 
@@ -43,7 +50,7 @@ public class ExitPointLoader extends XMLLoader {
 
     if (null != document) {
       // It gets the list of element by the type of "exitpoint".
-      NodeList nodeList = document.getElementsByTagName(Constants.Plugin.SM_TAG_EXIT_POINT);
+      NodeList nodeList = document.getElementsByTagName(Constants.Plugin.TAG_EXIT_POINT);
 
       // It iterates over all the "exitpoint" elements in the xml file.
       for (int i = 0; i < nodeList.getLength(); i++) {
@@ -52,14 +59,14 @@ public class ExitPointLoader extends XMLLoader {
 
           Element element = (Element) node;
 
-          String qualifiedName = getTagValueFromElement(element, Constants.Plugin.SM_TAG_QUALIFIED_NAME);
-          String methodName = getTagValueFromElement(element, Constants.Plugin.SM_TAG_METHOD_NAME);
+          String qualifiedName = getTagValueFromElement(element, Constants.Plugin.TAG_QUALIFIED_NAME);
+          String methodName = getTagValueFromElement(element, Constants.Plugin.TAG_METHOD_NAME);
           ExitPoint exitPoint = new ExitPoint(qualifiedName, methodName);
 
           Map<Parameter, List<Integer>> params = Creator.newMap();
 
           // It gets the list of element by the type of "exitpoints".
-          NodeList nodeListParameters = element.getElementsByTagName(Constants.Plugin.SM_TAG_PARAMETERS);
+          NodeList nodeListParameters = element.getElementsByTagName(Constants.Plugin.TAG_PARAMETERS);
 
           // It iterates over all the "parameter" elements in the xml file.
           for (int j = 0; j < nodeListParameters.getLength(); j++) {
@@ -67,8 +74,8 @@ public class ExitPointLoader extends XMLLoader {
             if (nodeParameter.getNodeType() == Node.ELEMENT_NODE) {
               Element elementParameter = (Element) nodeParameter;
 
-              String type = getAttributeValueFromElement(elementParameter, Constants.Plugin.SM_TAG_PARAMETERS_TYPE);
-              String rules = getAttributeValueFromElement(elementParameter, Constants.Plugin.SM_TAG_PARAMETERS_RULES);
+              String type = getAttributeValueFromElement(elementParameter, Constants.Plugin.TAG_PARAMETERS_TYPE);
+              String rules = getAttributeValueFromElement(elementParameter, Constants.Plugin.TAG_PARAMETERS_RULES);
 
               params.put(new Parameter(type), getListFromRules(rules));
             }

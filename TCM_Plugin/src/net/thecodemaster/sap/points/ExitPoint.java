@@ -7,6 +7,7 @@ import net.thecodemaster.sap.graph.Parameter;
 
 /**
  * @author Luciano Sampaio
+ * 
  *         Package : java.sql.DriverManager
  *         Method : getConnection
  *         Parameters:
@@ -14,23 +15,12 @@ import net.thecodemaster.sap.graph.Parameter;
  *         [1] : 0; (String user)
  *         [2] : 0; (String password)
  */
-public class ExitPoint {
+public class ExitPoint extends AbstractPoint {
 
-  private String                        qualifiedName;
-  private String                        methodName;
   private Map<Parameter, List<Integer>> parameters;
 
   public ExitPoint(String qualifiedName, String methodName) {
-    this.qualifiedName = qualifiedName;
-    this.methodName = methodName;
-  }
-
-  public String getQualifiedName() {
-    return qualifiedName;
-  }
-
-  public String getMethodName() {
-    return methodName;
+    super(qualifiedName, methodName);
   }
 
   public Map<Parameter, List<Integer>> getParameters() {

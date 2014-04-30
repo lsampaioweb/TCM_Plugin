@@ -6,6 +6,8 @@ import java.util.Map;
 import net.thecodemaster.sap.graph.BindingResolver;
 import net.thecodemaster.sap.graph.CallGraph;
 import net.thecodemaster.sap.graph.Parameter;
+import net.thecodemaster.sap.points.AbstractPoint;
+import net.thecodemaster.sap.points.EntryPoint;
 import net.thecodemaster.sap.points.ExitPoint;
 import net.thecodemaster.sap.reporters.Reporter;
 import net.thecodemaster.sap.xmlloaders.ExitPointLoader;
@@ -23,35 +25,41 @@ public abstract class Verifier {
   /**
    * The name of the current verifier.
    */
-  private String                 verifierName;
+  private String                  verifierName;
   /**
    * The id of the current verifier.
    */
-  private int                    verifierId;
+  private int                     verifierId;
   /**
    * The current resource that is being analyzed.
    */
-  private IResource              currentResource;
-  /**
-   * List with all the ExitPoints of this verifier (shared among other instances of this verifier).
-   */
-  private static List<ExitPoint> exitPoints;
+  private IResource               currentResource;
   /**
    * This object contains all the methods, variables and their interactions, on the project that is being analyzed.
    */
-  private CallGraph              callGraph;
+  private CallGraph               callGraph;
   /**
    * The report object
    */
-  private Reporter               reporter;
+  private Reporter                reporter;
+  /**
+   * List with all the ExitPoints of this verifier (shared among other instances of this verifier).
+   */
+  private static List<ExitPoint>  exitPoints;
+  /**
+   * List with all the EntryPoints (shared among other instances of the verifiers).
+   */
+  private static List<EntryPoint> entryPoints;
 
   /**
    * @param name The name of the verifier.
    * @param id The id of the verifier.
+   * @param listEntryPoints List with all the EntryPoints methods.
    */
-  public Verifier(String name, int id) {
+  public Verifier(String name, int id, List<EntryPoint> listEntryPoints) {
     this.verifierName = name;
     this.verifierId = id;
+    entryPoints = listEntryPoints;
   }
 
   public void run(List<IResource> resources, CallGraph callGraph, Reporter reporter) {
@@ -65,7 +73,7 @@ public abstract class Verifier {
   }
 
   protected void run(List<IResource> resources) {
-    // 01 - Run the vulnerability detection on all the passed resources.
+    // 01 - Run the vulnerability detection on all the provided resources.
     for (IResource resource : resources) {
       if (callGraph.containsFile(resource)) {
         // 02 - Delete any old markers of this resource.
@@ -101,50 +109,91 @@ public abstract class Verifier {
    * @return An ExitPoint object if this node belongs to the list, otherwise null.
    */
   protected ExitPoint isMethodAnExitPoint(Expression method) {
-    // 01 - Get the method name.
-    String methodName = BindingResolver.getName(method);
-
     for (ExitPoint currentExitPoint : getExitPoints()) {
-      // 02 - Verify if this method is in the list of ExitPoints.
-      if (currentExitPoint.getMethodName().equals(methodName)) {
+      if (methodsHaveSameNameAndPackage(currentExitPoint, method)) {
+        // 05 - Get the expected arguments of this method.
+        Map<Parameter, List<Integer>> expectedParameters = currentExitPoint.getParameters();
 
-        // 03 - Get the qualified name (Package + Class) of this method.
-        String qualifiedName = BindingResolver.getQualifiedName(method);
+        // 06 - Get the received parameters of the current method.
+        List<Expression> receivedParameters = BindingResolver.getParameterTypes(method);
 
-        // 04 - Verify if this is the method really the method we were looking for.
-        // Method names can repeat in other classes.
-        if (currentExitPoint.getQualifiedName().equals(qualifiedName)) {
+        // 07 - It is necessary to check the number of parameters and its types
+        // because it may exist methods with the same names but different parameters.
+        if (expectedParameters.size() == receivedParameters.size()) {
+          boolean isMethodAnExitPoint = true;
+          int index = 0;
+          for (Parameter expectedParameter : expectedParameters.keySet()) {
+            ITypeBinding typeBinding = receivedParameters.get(index++).resolveTypeBinding();
 
-          // 05 - Get the expected arguments of this method.
-          Map<Parameter, List<Integer>> expectedParameters = currentExitPoint.getParameters();
-
-          // 06 - Get the received parameters of the current method.
-          List<Expression> receivedParameters = BindingResolver.getParameterTypes(method);
-
-          // 07 - It is necessary to check the number of parameters and its types
-          // because it may exist methods with the same names but different parameters.
-          if (expectedParameters.size() == receivedParameters.size()) {
-            boolean isMethodAnExitPoint = true;
-            int index = 0;
-            for (Parameter expectedParameter : expectedParameters.keySet()) {
-              ITypeBinding typeBinding = receivedParameters.get(index++).resolveTypeBinding();
-
-              // Verify if all the parameters are the ones expected.
-              if ((typeBinding == null) || (!expectedParameter.getQualifiedName().equals(typeBinding.getQualifiedName()))) {
-                isMethodAnExitPoint = false;
-                break;
-              }
+            // Verify if all the parameters are the ones expected.
+            if ((typeBinding == null) || (!expectedParameter.getQualifiedName().equals(typeBinding.getQualifiedName()))) {
+              isMethodAnExitPoint = false;
+              break;
             }
+          }
 
-            if (isMethodAnExitPoint) {
-              return currentExitPoint;
-            }
+          if (isMethodAnExitPoint) {
+            return currentExitPoint;
           }
         }
       }
     }
 
     return null;
+  }
+
+  protected boolean isMethodAnEntryPoint(Expression method) {
+    for (EntryPoint currentEntryPoint : getEntryPoints()) {
+      if (methodsHaveSameNameAndPackage(currentEntryPoint, method)) {
+        // 05 - Get the expected arguments of this method.
+        List<String> expectedParameters = currentEntryPoint.getParameters();
+
+        // 06 - Get the received parameters of the current method.
+        List<Expression> receivedParameters = BindingResolver.getParameterTypes(method);
+
+        // 07 - It is necessary to check the number of parameters and its types
+        // because it may exist methods with the same names but different parameters.
+        if (expectedParameters.size() == receivedParameters.size()) {
+          int index = 0;
+          for (String expectedParameter : expectedParameters) {
+            ITypeBinding typeBinding = receivedParameters.get(index++).resolveTypeBinding();
+
+            // Verify if all the parameters are the ones expected.
+            if ((typeBinding == null) || (!expectedParameter.equals(typeBinding.getQualifiedName()))) {
+              return false;
+            }
+          }
+
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  private boolean methodsHaveSameNameAndPackage(AbstractPoint abstractPoint, Expression method) {
+    // 01 - Get the method name.
+    String methodName = BindingResolver.getName(method);
+
+    // 02 - Verify if this method is in the list of ExitPoints.
+    if (abstractPoint.getMethodName().equals(methodName)) {
+
+      // 03 - Get the qualified name (Package + Class) of this method.
+      String qualifiedName = BindingResolver.getQualifiedName(method);
+
+      // 04 - Verify if this is really the method we were looking for.
+      // Method names can repeat in other classes.
+      if (null != qualifiedName) {
+        return qualifiedName.matches(abstractPoint.getQualifiedName());
+      }
+    }
+
+    return false;
+  }
+
+  protected boolean isMethodASanitizationPoint(Expression method) {
+    return false;
   }
 
   protected String getVerifierName() {
@@ -163,20 +212,24 @@ public abstract class Verifier {
     return currentResource;
   }
 
-  protected static List<ExitPoint> getExitPoints() {
-    return exitPoints;
-  }
-
-  protected static void loadExitPoints(int verifierId) {
-    exitPoints = (new ExitPointLoader()).load(verifierId);
-  }
-
   protected CallGraph getCallGraph() {
     return callGraph;
   }
 
   protected Reporter getReporter() {
     return reporter;
+  }
+
+  protected static List<ExitPoint> getExitPoints() {
+    return exitPoints;
+  }
+
+  protected static void loadExitPoints(int verifierId) {
+    exitPoints = (new ExitPointLoader(verifierId)).load();
+  }
+
+  protected static List<EntryPoint> getEntryPoints() {
+    return entryPoints;
   }
 
   protected abstract void run(Expression method, ExitPoint exitPoint);
@@ -193,8 +246,13 @@ public abstract class Verifier {
   }
 
   protected boolean matchRules(List<Integer> rules, Expression parameter) {
+    if (null == parameter) {
+      // There is nothing we can do to verify it.
+      return true;
+    }
+
     for (Integer astNodeValue : rules) {
-      if (parameter.getNodeType() == astNodeValue) {
+      if (astNodeValue == parameter.getNodeType()) {
         return true;
       }
     }

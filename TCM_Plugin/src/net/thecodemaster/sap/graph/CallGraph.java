@@ -2,12 +2,13 @@ package net.thecodemaster.sap.graph;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 
 import net.thecodemaster.sap.utils.Creator;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 
@@ -105,20 +106,79 @@ public class CallGraph {
   }
 
   public MethodDeclaration getMethod(IResource resource, Expression expr) {
-    Map<MethodDeclaration, List<Expression>> mapMethods = getMethods(resource);
+    // 01 - Get all the methods from this resource.
+    // 02 - From that list, try to find this method (expr).
+    MethodDeclaration method = getMethod(getMethods(resource), expr);
 
-    Set<MethodDeclaration> methods = mapMethods.keySet();
+    // 03 - If method is different from null, it means we found it.
+    if (null != method) {
+      return method;
+    }
 
-    for (MethodDeclaration methodDeclaration : methods) {
-      // 01 - Get the method name.
-      String methodName = BindingResolver.getName(expr);
-      String methodName2 = BindingResolver.getName(methodDeclaration.resolveBinding());
+    // 04 - If it reaches this point, it means that this method was not implemented into this resource.
+    // We now have to try to find its implementation in other resources of this project.
+    for (Entry<String, Map<MethodDeclaration, List<Expression>>> entry : methodsPerFile.entrySet()) {
+      method = getMethod(entry.getValue(), expr);
 
-      if (methodName.equals(methodName2)) {
+      // 05 - If method is different from null, it means we found it.
+      if (null != method) {
+        return method;
+      }
+    }
+
+    // We did not find this method into our list of methods. (We do not have this method's implementation)
+    return null;
+  }
+
+  private MethodDeclaration getMethod(Map<MethodDeclaration, List<Expression>> mapMethods, Expression expr) {
+    // 01 - Iterate through the list to verify if we have the implementation of this method in our list.
+    for (MethodDeclaration methodDeclaration : mapMethods.keySet()) {
+      // 02 - Verify if these methods are the same.
+      if (areMethodsEqual(methodDeclaration, expr)) {
         return methodDeclaration;
       }
     }
 
     return null;
+  }
+
+  private boolean areMethodsEqual(MethodDeclaration method, Expression other) {
+    String methodName = BindingResolver.getName(method);
+    String otherName = BindingResolver.getName(other);
+
+    // 02 - Verify if they have the same name.
+    if (methodName.equals(otherName)) {
+
+      // 03 - Get the qualified name (Package + Class) of these methods.
+      String qualifiedName = BindingResolver.getQualifiedName(method);
+      String otherQualifiedName = BindingResolver.getQualifiedName(other);
+
+      // 04 - Verify if they are from the same package and class.
+      // Method names can repeat in other classes.
+      if (qualifiedName.equals(otherQualifiedName)) {
+
+        // 05 - Get their parameters.
+        List<ITypeBinding> methodParameters = BindingResolver.getParameterTypes(method);
+        List<Expression> otherParameters = BindingResolver.getParameterTypes(other);
+
+        // 06 - It is necessary to check the number of parameters and its types
+        // because it may exist methods with the same names but different parameters.
+        if (methodParameters.size() == otherParameters.size()) {
+          int index = 0;
+          for (ITypeBinding currentParameter : methodParameters) {
+            ITypeBinding otherTypeBinding = otherParameters.get(index++).resolveTypeBinding();
+
+            // 07 - Verify if all the parameters are the ones expected.
+            if ((otherTypeBinding == null) || (!currentParameter.getQualifiedName().equals(otherTypeBinding.getQualifiedName()))) {
+              return false;
+            }
+          }
+
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 }
