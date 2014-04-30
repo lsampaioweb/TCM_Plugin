@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.NumberLiteral;
@@ -165,26 +166,49 @@ public class SecurityMisconfigurationVerifier extends Verifier {
     MethodDeclaration methodDeclaration = getCallGraph().getMethod(getCurrentResource(), expr);
 
     if (null != methodDeclaration) {
-      Block block = methodDeclaration.getBody();
+      checkBlock(vp, rules, methodDeclaration.getBody(), depth);
+    }
+  }
 
-      List<?> statements = block.statements();
-      for (Object object : statements) {
-        Statement statement = (Statement) object;
-        checkStatement(vp, rules, statement, depth);
-      }
+  private void checkBlock(VulnerabilityPath vp, List<Integer> rules, Block block, int depth) {
+    List<?> statements = block.statements();
+    for (Object object : statements) {
+      checkStatement(vp, rules, (Statement) object, depth);
     }
   }
 
   private void checkStatement(VulnerabilityPath vp, List<Integer> rules, Statement statement, int depth) {
     if (statement.getNodeType() == ASTNode.RETURN_STATEMENT) {
-      ReturnStatement a = (ReturnStatement) statement;
-      Expression expr = a.getExpression();
+      ReturnStatement rs = (ReturnStatement) statement;
+      Expression expr = rs.getExpression();
       checkExpression(vp.addNodeToPath(expr), rules, expr, depth);
+    }
 
-      PluginLogger.logInfo("Return Statement - " + statement);
+    // To avoid infinitive loop, this check is necessary.
+    if (Constants.MAXIMUM_DEPTH == depth) {
+      return;
+    }
+
+    if (statement.getNodeType() == ASTNode.IF_STATEMENT) {
+      IfStatement is = (IfStatement) statement;
+      Statement thenStat = is.getThenStatement();
+      Statement ElseStat = is.getElseStatement();
+
+      checkIfStatementOrBlock(vp, rules, thenStat, depth);
+      checkIfStatementOrBlock(vp, rules, ElseStat, depth);
+    }
+  }
+
+  private void checkIfStatementOrBlock(VulnerabilityPath vp, List<Integer> rules, Statement statement, int depth) {
+    if (null == statement) {
+      return;
+    }
+
+    if (statement.getNodeType() == ASTNode.BLOCK) {
+      checkBlock(vp, rules, (Block) statement, ++depth);
     }
     else if (statement.getNodeType() == ASTNode.IF_STATEMENT) {
-      PluginLogger.logInfo("If Statement - " + statement);
+      checkStatement(vp, rules, statement, ++depth);
     }
   }
 
