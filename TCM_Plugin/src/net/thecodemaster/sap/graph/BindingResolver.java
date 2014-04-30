@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Statement;
 
 /**
@@ -42,7 +43,7 @@ public class BindingResolver {
    * @return the name of this method, or the declared name of this constructor's declaring class.
    */
   public static String getName(IMethodBinding methodBinding) {
-    return methodBinding.getName();
+    return (null != methodBinding) ? methodBinding.getName() : null;
   }
 
   /**
@@ -139,11 +140,13 @@ public class BindingResolver {
    */
   @SuppressWarnings("unchecked")
   public static List<Expression> getParameterTypes(List<?> arguments) {
+    List<Expression> expressions = Creator.newList();
+
     if (null != arguments) {
-      return (List<Expression>) arguments;
+      expressions = (List<Expression>) arguments;
     }
 
-    return Creator.newList();
+    return expressions;
   }
 
   public static CompilationUnit findParentCompilationUnit(ASTNode node) {
@@ -155,6 +158,23 @@ public class BindingResolver {
       node = node.getParent();
     }
     return node;
+  }
+
+  /**
+   * Gets the surrounding {@link Statement} of this a {@link SimpleName} ast
+   * node.
+   * 
+   * @param reference
+   *          any {@link SimpleName}
+   * @return the surrounding {@link Statement} as found in the AST
+   *         parent-child hierarchy
+   */
+  public static Statement getParentStatement(SimpleName reference) {
+    ASTNode node = reference;
+    while (!(node instanceof Statement)) {
+      node = node.getParent();
+    }
+    return (Statement) node;
   }
 
   /**

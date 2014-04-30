@@ -39,7 +39,7 @@ public class VariableBindingManager {
     if (!isAlreadyReferenced()) {
       // first reference -> store the statement that contains the
       // reference directly
-      firstReference = getParentStatement(reference);
+      firstReference = BindingResolver.getParentStatement(reference);
     }
     else {
       // it's not the first declaration
@@ -109,23 +109,6 @@ public class VariableBindingManager {
     // If it doesn't, reference neither is element of firstReferenceBlock
     // nor of a sub-block of firstReferenceBlock.
     return false;
-  }
-
-  /**
-   * Gets the surrounding {@link Statement} of this a {@link SimpleName} ast
-   * node.
-   * 
-   * @param reference
-   *          any {@link SimpleName}
-   * @return the surrounding {@link Statement} as found in the AST
-   *         parent-child hierarchy
-   */
-  private Statement getParentStatement(SimpleName reference) {
-    ASTNode node = reference;
-    while (!(node instanceof Statement)) {
-      node = node.getParent();
-    }
-    return (Statement) node;
   }
 
   /**

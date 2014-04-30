@@ -2,6 +2,7 @@ package net.thecodemaster.sap.graph;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.thecodemaster.sap.utils.Creator;
 
@@ -103,4 +104,21 @@ public class CallGraph {
     return listVariables;
   }
 
+  public MethodDeclaration getMethod(IResource resource, Expression expr) {
+    Map<MethodDeclaration, List<Expression>> mapMethods = getMethods(resource);
+
+    Set<MethodDeclaration> methods = mapMethods.keySet();
+
+    for (MethodDeclaration methodDeclaration : methods) {
+      // 01 - Get the method name.
+      String methodName = BindingResolver.getName(expr);
+      String methodName2 = BindingResolver.getName(methodDeclaration.resolveBinding());
+
+      if (methodName.equals(methodName2)) {
+        return methodDeclaration;
+      }
+    }
+
+    return null;
+  }
 }

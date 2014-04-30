@@ -13,6 +13,14 @@
   }
 
   private void validateNode(MethodInvocation node, ExitPoint exitPoint) {
+  
+      // MethodInvocation methodInvocation = (MethodInvocation) expr;
+    // Expression expression = methodInvocation.getExpression();
+    // IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
+    // ITypeBinding returnTypeBinding = methodBinding.getReturnType();
+    // String qualifiedName = methodInvocation.getName().getIdentifier();
+    // ITypeBinding type = methodBinding.getDeclaringClass();
+  
     Map<Argument, List<Integer>> expectedArguments = exitPoint.getArguments();
     List<Expression> receivedArguments = Convert.fromListObjectToListExpression(node.arguments());
 

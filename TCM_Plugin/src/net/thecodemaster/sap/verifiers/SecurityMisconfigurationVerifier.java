@@ -7,16 +7,21 @@ import net.thecodemaster.sap.constants.Constants;
 import net.thecodemaster.sap.graph.BindingResolver;
 import net.thecodemaster.sap.graph.Parameter;
 import net.thecodemaster.sap.graph.VariableBindingManager;
+import net.thecodemaster.sap.graph.VulnerabilityPath;
 import net.thecodemaster.sap.loggers.PluginLogger;
 import net.thecodemaster.sap.points.ExitPoint;
 import net.thecodemaster.sap.ui.l10n.Messages;
 
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.NumberLiteral;
+import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.StringLiteral;
 
 /**
@@ -46,66 +51,69 @@ public class SecurityMisconfigurationVerifier extends Verifier {
 
     int index = 0;
     int depth = 0;
+    Expression expr;
+    VulnerabilityPath vp;
     for (List<Integer> rules : expectedParameters.values()) {
       // If the rules are null, it means the expected parameter can be anything. (We do not care for it).
       if (null != rules) {
-        checkParameters(rules, receivedParameters.get(index), depth);
+        expr = receivedParameters.get(index);
+        vp = new VulnerabilityPath(expr);
+
+        checkExpression(vp, rules, expr, depth);
+        if (!vp.isEmpty()) {
+          showVulnerability(vp);
+        }
       }
       index++;
     }
   }
 
-  private boolean checkParameters(List<Integer> rules, Expression parameter, int depth) {
-    // 01 - If the parameter matches the rules (Easy case), the parameter is okay.
-    if (!matchRules(rules, parameter)) {
+  private void checkExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
+    // 01 - If the parameter matches the rules (Easy case), the parameter is okay, otherwise we need to check for more things.
+    if (!matchRules(rules, expr)) {
 
       // To avoid infinitive loop, this check is necessary.
       if (Constants.MAXIMUM_DEPTH == depth) {
-        return true;
+        return;
       }
 
       // 02 - We need to check the type of the parameter and deal with it accordingly to its type.
-      switch (parameter.getNodeType()) {
+      switch (expr.getNodeType()) {
         case ASTNode.STRING_LITERAL:
         case ASTNode.NUMBER_LITERAL:
-          checkLiteral(parameter);
+          checkLiteral(vp, expr);
           break;
         case ASTNode.INFIX_EXPRESSION:
-          return checkInfixExpression(rules, parameter, ++depth);
+          checkInfixExpression(vp, rules, expr, ++depth);
+          break;
         case ASTNode.SIMPLE_NAME:
-          return checkSimpleName(rules, parameter, ++depth);
+          checkSimpleName(vp, rules, expr, ++depth);
+          break;
         case ASTNode.METHOD_INVOCATION:
-          return checkMethodInvocation(rules, parameter, ++depth);
-        case ASTNode.METHOD_DECLARATION:
-          return checkMethodDeclaration(rules, parameter, ++depth);
+          checkMethodInvocation(vp, rules, expr, ++depth);
+          break;
         default:
-          PluginLogger.logError("Default Node Type: " + parameter.getNodeType() + " - " + parameter, null);
-          return false;
+          PluginLogger.logError("Default Node Type: " + expr.getNodeType() + " - " + expr, null);
       }
     }
-
-    return true;
   }
 
-  private boolean checkLiteral(Expression expr) {
+  private void checkLiteral(VulnerabilityPath vp, Expression expr) {
     String message = null;
     switch (expr.getNodeType()) {
       case ASTNode.STRING_LITERAL:
-        message = getMessageLiteral(((StringLiteral) expr).getEscapedValue());
+        message = getMessageLiteral(((StringLiteral) expr).getLiteralValue());
         break;
       case ASTNode.NUMBER_LITERAL:
         message = getMessageLiteral(((NumberLiteral) expr).getToken());
         break;
     }
 
-    // 01 - Inform the reporter about the problem.
-    foundVulnerability(expr, message);
-
-    // 02 - Return false to inform whoever called this method that we have a vulnerability.
-    return false;
+    // 01 - Informs that this node is a vulnerability.
+    vp.foundVulnerability(expr, message);
   }
 
-  private boolean checkInfixExpression(List<Integer> rules, Expression expr, int depth) {
+  private void checkInfixExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
     InfixExpression parameter = (InfixExpression) expr;
 
     // 01 - Get the elements from the operation.
@@ -114,21 +122,15 @@ public class SecurityMisconfigurationVerifier extends Verifier {
     List<Expression> extendedOperands = BindingResolver.getParameterTypes(parameter.extendedOperands());
 
     // 02 - Check each element.
-    checkParameters(rules, leftOperand, depth);
-    checkParameters(rules, rightOperand, depth);
+    checkExpression(vp.addNodeToPath(leftOperand), rules, leftOperand, depth);
+    checkExpression(vp.addNodeToPath(rightOperand), rules, rightOperand, depth);
 
     for (Expression expression : extendedOperands) {
-      checkParameters(rules, expression, depth);
+      checkExpression(vp.addNodeToPath(expression), rules, expression, depth);
     }
-
-    // 01 - Inform the reporter about the problem.
-    // foundVulnerability(expr, "checkInfixExpression");
-
-    // 02 - Return false to inform whoever called this method that we have a vulnerability.
-    return false;
   }
 
-  private boolean checkSimpleName(List<Integer> rules, Expression expr, int depth) {
+  private void checkSimpleName(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
     IBinding binding = ((SimpleName) expr).resolveBinding();
 
     // 01 - Try to retrieve the variable from the list of variables.
@@ -136,25 +138,52 @@ public class SecurityMisconfigurationVerifier extends Verifier {
     if (null != manager) {
 
       // 02 - This is the case where we have to go deeper into the variable's path.
-      checkParameters(rules, manager.getInitializer(), depth);
+      Expression initializer = manager.getInitializer();
+      checkExpression(vp.addNodeToPath(initializer), rules, initializer, depth);
     }
-
-    return false;
   }
 
-  private boolean checkMethodInvocation(List<Integer> rules, Expression expr, int depth) {
-    PluginLogger.logInfo("Node Type: " + expr.getNodeType() + " - " + expr);
+  private void checkMethodInvocation(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
+    // 01 - Check if this method is a Sanitization-Point.
 
-    return false;
+    // 02 - Check if this method is a Entry-Point.
+
+    // 03 - Follow the data flow of this method and try to identify what is the return from it.
+
+    // Get the implementation of this method. If the return is NULL it means this is a library that the developer
+    // do not own the source code.
+    MethodDeclaration methodDeclaration = getCallGraph().getMethod(getCurrentResource(), expr);
+
+    if (null != methodDeclaration) {
+      Block block = methodDeclaration.getBody();
+
+      List<?> statements = block.statements();
+      for (Object object : statements) {
+        Statement statement = (Statement) object;
+        checkStatement(vp, rules, statement, depth);
+      }
+
+    }
   }
 
-  private boolean checkMethodDeclaration(List<Integer> rules, Expression expr, int depth) {
-    PluginLogger.logInfo("Node Type: " + expr.getNodeType() + " - " + expr);
+  private void checkStatement(VulnerabilityPath vp, List<Integer> rules, Statement statement, int depth) {
+    if (statement.getNodeType() == ASTNode.RETURN_STATEMENT) {
+      ReturnStatement a = (ReturnStatement) statement;
+      Expression expr = a.getExpression();
+      checkExpression(vp.addNodeToPath(expr), rules, expr, depth);
 
-    return false;
+      PluginLogger.logInfo("Return Statement - " + statement);
+    }
+    else if (statement.getNodeType() == ASTNode.IF_STATEMENT) {
+      PluginLogger.logInfo("If Statement - " + statement);
+    }
   }
 
   private String getMessageLiteral(String value) {
-    return String.format(Messages.SecurityMisconfigurationVerifier.LITERAL, getVerifierName(), value);
+    return String.format(Messages.SecurityMisconfigurationVerifier.LITERAL, value);
+  }
+
+  private void showVulnerability(VulnerabilityPath vp) {
+    PluginLogger.logInfo("VulnerabilityPath: " + vp.toString());
   }
 }

@@ -159,7 +159,7 @@ public abstract class Verifier {
     this.currentResource = currentResource;
   }
 
-  private IResource getCurrentResource() {
+  protected IResource getCurrentResource() {
     return currentResource;
   }
 
