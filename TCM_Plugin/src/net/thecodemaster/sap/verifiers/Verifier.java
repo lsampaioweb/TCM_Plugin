@@ -3,9 +3,13 @@ package net.thecodemaster.sap.verifiers;
 import java.util.List;
 import java.util.Map;
 
+import net.thecodemaster.sap.constants.Constants;
 import net.thecodemaster.sap.graph.BindingResolver;
 import net.thecodemaster.sap.graph.CallGraph;
 import net.thecodemaster.sap.graph.Parameter;
+import net.thecodemaster.sap.graph.VariableBindingManager;
+import net.thecodemaster.sap.graph.VulnerabilityPath;
+import net.thecodemaster.sap.loggers.PluginLogger;
 import net.thecodemaster.sap.points.AbstractPoint;
 import net.thecodemaster.sap.points.EntryPoint;
 import net.thecodemaster.sap.points.ExitPoint;
@@ -13,9 +17,19 @@ import net.thecodemaster.sap.reporters.Reporter;
 import net.thecodemaster.sap.xmlloaders.ExitPointLoader;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IfStatement;
+import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.NumberLiteral;
+import org.eclipse.jdt.core.dom.ReturnStatement;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.StringLiteral;
 
 /**
  * @author Luciano Sampaio
@@ -62,11 +76,49 @@ public abstract class Verifier {
     entryPoints = listEntryPoints;
   }
 
+  protected abstract String getMessageLiteral(String value);
+
+  private String getVerifierName() {
+    return verifierName;
+  }
+
+  private int getVerifierId() {
+    return verifierId;
+  }
+
+  private void setCurrentResource(IResource currentResource) {
+    this.currentResource = currentResource;
+  }
+
+  private IResource getCurrentResource() {
+    return currentResource;
+  }
+
+  protected CallGraph getCallGraph() {
+    return callGraph;
+  }
+
+  protected Reporter getReporter() {
+    return reporter;
+  }
+
+  protected static List<ExitPoint> getExitPoints() {
+    return exitPoints;
+  }
+
+  protected static void loadExitPoints(int verifierId) {
+    exitPoints = (new ExitPointLoader(verifierId)).load();
+  }
+
+  protected static List<EntryPoint> getEntryPoints() {
+    return entryPoints;
+  }
+
   public void run(List<IResource> resources, CallGraph callGraph, Reporter reporter) {
     this.callGraph = callGraph;
     this.reporter = reporter;
 
-    setSubTask(verifierName);
+    setSubTask(getVerifierName());
 
     // Perform the verifications on the resources.
     run(resources);
@@ -75,12 +127,12 @@ public abstract class Verifier {
   protected void run(List<IResource> resources) {
     // 01 - Run the vulnerability detection on all the provided resources.
     for (IResource resource : resources) {
-      if (callGraph.containsFile(resource)) {
+      if (getCallGraph().containsFile(resource)) {
         // 02 - Delete any old markers of this resource.
         getReporter().clearProblems(resource);
 
         // 03 - Get the list of methods in the current resource.
-        Map<MethodDeclaration, List<Expression>> methods = callGraph.getMethods(resource);
+        Map<MethodDeclaration, List<Expression>> methods = getCallGraph().getMethods(resource);
 
         // 04 - Get all the method invocations of each method declaration.
         for (List<Expression> invocations : methods.values()) {
@@ -101,6 +153,32 @@ public abstract class Verifier {
 
         }
       }
+    }
+  }
+
+  protected void run(Expression method, ExitPoint exitPoint) {
+    // 01 - Get the expected parameters of the ExitPoint method.
+    Map<Parameter, List<Integer>> expectedParameters = exitPoint.getParameters();
+
+    // 02 - Get the parameters (received) from the current method.
+    List<Expression> receivedParameters = BindingResolver.getParameterTypes(method);
+
+    int index = 0;
+    int depth = 0;
+    Expression expr;
+    VulnerabilityPath vp;
+    for (List<Integer> rules : expectedParameters.values()) {
+      // If the rules are null, it means the expected parameter can be anything. (We do not care for it).
+      if (null != rules) {
+        expr = receivedParameters.get(index);
+        vp = new VulnerabilityPath(expr);
+
+        checkExpression(vp, rules, expr, depth);
+        if (!vp.isEmpty()) {
+          showVulnerability(vp);
+        }
+      }
+      index++;
     }
   }
 
@@ -172,6 +250,10 @@ public abstract class Verifier {
     return false;
   }
 
+  protected boolean isMethodASanitizationPoint(Expression method) {
+    return false;
+  }
+
   private boolean methodsHaveSameNameAndPackage(AbstractPoint abstractPoint, Expression method) {
     // 01 - Get the method name.
     String methodName = BindingResolver.getName(method);
@@ -192,48 +274,6 @@ public abstract class Verifier {
     return false;
   }
 
-  protected boolean isMethodASanitizationPoint(Expression method) {
-    return false;
-  }
-
-  protected String getVerifierName() {
-    return verifierName;
-  }
-
-  private int getVerifierId() {
-    return verifierId;
-  }
-
-  private void setCurrentResource(IResource currentResource) {
-    this.currentResource = currentResource;
-  }
-
-  protected IResource getCurrentResource() {
-    return currentResource;
-  }
-
-  protected CallGraph getCallGraph() {
-    return callGraph;
-  }
-
-  protected Reporter getReporter() {
-    return reporter;
-  }
-
-  protected static List<ExitPoint> getExitPoints() {
-    return exitPoints;
-  }
-
-  protected static void loadExitPoints(int verifierId) {
-    exitPoints = (new ExitPointLoader(verifierId)).load();
-  }
-
-  protected static List<EntryPoint> getEntryPoints() {
-    return entryPoints;
-  }
-
-  protected abstract void run(Expression method, ExitPoint exitPoint);
-
   /**
    * Notifies that a subtask of the main task is beginning.
    * 
@@ -242,6 +282,36 @@ public abstract class Verifier {
   protected void setSubTask(String taskName) {
     if ((null != getReporter()) && (null != getReporter().getProgressMonitor())) {
       getReporter().getProgressMonitor().subTask(taskName);
+    }
+  }
+
+  protected void checkExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
+    // 01 - If the parameter matches the rules (Easy case), the parameter is okay, otherwise we need to check for more things.
+    if (!matchRules(rules, expr)) {
+
+      // To avoid infinitive loop, this check is necessary.
+      if (Constants.MAXIMUM_DEPTH == depth) {
+        return;
+      }
+
+      // 02 - We need to check the type of the parameter and deal with it accordingly to its type.
+      switch (expr.getNodeType()) {
+        case ASTNode.STRING_LITERAL:
+        case ASTNode.NUMBER_LITERAL:
+          checkLiteral(vp, expr);
+          break;
+        case ASTNode.INFIX_EXPRESSION:
+          checkInfixExpression(vp, rules, expr, ++depth);
+          break;
+        case ASTNode.SIMPLE_NAME:
+          checkSimpleName(vp, rules, expr, ++depth);
+          break;
+        case ASTNode.METHOD_INVOCATION:
+          checkMethodInvocation(vp, rules, expr, ++depth);
+          break;
+        default:
+          PluginLogger.logError("Default Node Type: " + expr.getNodeType() + " - " + expr, null);
+      }
     }
   }
 
@@ -260,8 +330,124 @@ public abstract class Verifier {
     return false;
   }
 
+  protected void checkLiteral(VulnerabilityPath vp, Expression expr) {
+    String message = null;
+    switch (expr.getNodeType()) {
+      case ASTNode.STRING_LITERAL:
+        message = getMessageLiteral(((StringLiteral) expr).getLiteralValue());
+        break;
+      case ASTNode.NUMBER_LITERAL:
+        message = getMessageLiteral(((NumberLiteral) expr).getToken());
+        break;
+    }
+
+    // 01 - Informs that this node is a vulnerability.
+    vp.foundVulnerability(expr, message);
+  }
+
+  protected void checkInfixExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
+    InfixExpression parameter = (InfixExpression) expr;
+
+    // 01 - Get the elements from the operation.
+    Expression leftOperand = parameter.getLeftOperand();
+    Expression rightOperand = parameter.getRightOperand();
+    List<Expression> extendedOperands = BindingResolver.getParameterTypes(parameter.extendedOperands());
+
+    // 02 - Check each element.
+    checkExpression(vp.addNodeToPath(leftOperand), rules, leftOperand, depth);
+    checkExpression(vp.addNodeToPath(rightOperand), rules, rightOperand, depth);
+
+    for (Expression expression : extendedOperands) {
+      checkExpression(vp.addNodeToPath(expression), rules, expression, depth);
+    }
+  }
+
+  protected void checkSimpleName(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
+    IBinding binding = ((SimpleName) expr).resolveBinding();
+
+    // 01 - Try to retrieve the variable from the list of variables.
+    VariableBindingManager manager = getCallGraph().getlistVariables().get(binding);
+    if (null != manager) {
+
+      // 02 - This is the case where we have to go deeper into the variable's path.
+      Expression initializer = manager.getInitializer();
+      checkExpression(vp.addNodeToPath(initializer), rules, initializer, depth);
+    }
+  }
+
+  protected void checkMethodInvocation(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
+    // 01 - Check if this method is a Sanitization-Point.
+    if (isMethodASanitizationPoint(expr)) {
+      // If a sanitization method is being invoked, then we do not have a vulnerability.
+      return;
+    }
+
+    // 02 - Check if this method is a Entry-Point.
+    if (isMethodAnEntryPoint(expr)) {
+      // If a entry point method is being invoked, then we DO have a vulnerability.
+      vp.foundVulnerability(expr, "Method is an EntryPoint");
+      return;
+    }
+
+    // 03 - Follow the data flow of this method and try to identify what is the return from it.
+
+    // Get the implementation of this method. If the return is NULL it means this is a library that the developer
+    // does not own the source code.
+    MethodDeclaration methodDeclaration = getCallGraph().getMethod(getCurrentResource(), expr);
+
+    if (null != methodDeclaration) {
+      checkBlock(vp, rules, methodDeclaration.getBody(), depth);
+    }
+  }
+
+  protected void checkBlock(VulnerabilityPath vp, List<Integer> rules, Block block, int depth) {
+    List<?> statements = block.statements();
+    for (Object object : statements) {
+      checkStatement(vp, rules, (Statement) object, depth);
+    }
+  }
+
+  protected void checkStatement(VulnerabilityPath vp, List<Integer> rules, Statement statement, int depth) {
+    if (statement.getNodeType() == ASTNode.RETURN_STATEMENT) {
+      ReturnStatement rs = (ReturnStatement) statement;
+      Expression expr = rs.getExpression();
+      checkExpression(vp.addNodeToPath(expr), rules, expr, depth);
+    }
+
+    // To avoid infinitive loop, this check is necessary.
+    if (Constants.MAXIMUM_DEPTH == depth) {
+      return;
+    }
+
+    if (statement.getNodeType() == ASTNode.IF_STATEMENT) {
+      IfStatement is = (IfStatement) statement;
+      Statement thenStat = is.getThenStatement();
+      Statement ElseStat = is.getElseStatement();
+
+      checkIfStatementOrBlock(vp, rules, thenStat, depth);
+      checkIfStatementOrBlock(vp, rules, ElseStat, depth);
+    }
+  }
+
+  protected void checkIfStatementOrBlock(VulnerabilityPath vp, List<Integer> rules, Statement statement, int depth) {
+    if (null == statement) {
+      return;
+    }
+
+    if (statement.getNodeType() == ASTNode.BLOCK) {
+      checkBlock(vp, rules, (Block) statement, ++depth);
+    }
+    else if (statement.getNodeType() == ASTNode.IF_STATEMENT) {
+      checkStatement(vp, rules, statement, ++depth);
+    }
+  }
+
   protected void foundVulnerability(Expression expr, String message) {
     getReporter().addProblem(getVerifierId(), getCurrentResource(), expr, message);
+  }
+
+  protected void showVulnerability(VulnerabilityPath vp) {
+    PluginLogger.logInfo("VulnerabilityPath: " + vp.toString());
   }
 
 }
