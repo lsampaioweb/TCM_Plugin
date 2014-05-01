@@ -19,15 +19,13 @@
 08.1.2 - FTP.
 08.1.3 - Email.
 
-08 - Implement the verifiers.
-08.1 - SecurityMisconfigurationVerifier.
-08.2 - CookiePoisoningVerifier.
-08.3 - SQLInjectionVerifier.
-08.4 - XSSVerifier.
-08.5 - NameConventionVerifier.
+09 - Implement the verifiers.
+09.1 - SecurityMisconfigurationVerifier.
+09.2 - CookiePoisoningVerifier.
+09.3 - SQLInjectionVerifier.
+09.4 - XSSVerifier.
 
-XX - Create a hidden file that will be used by our plug-in.
+10 - Create our own view.
 
-XX - Check for infinitive loop.
 XX - Check for cases where the class A invokes method C from class B, but the developer is working on class A so the class B will 
 not be verified, but it can be a case where the vulnerability happens when something is introduced in class A.
