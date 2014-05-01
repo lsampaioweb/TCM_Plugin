@@ -11,17 +11,22 @@ import net.thecodemaster.sap.ui.l10n.Messages;
  */
 public class SQLInjectionVerifier extends Verifier {
 
-  public SQLInjectionVerifier(List<EntryPoint> entryPoints) {
-    super(Messages.Plugin.SQL_INJECTION_VERIFIER_NAME, Constants.Plugin.SQL_INJECTION_VERIFIER_ID, entryPoints);
-  }
+	public SQLInjectionVerifier(List<EntryPoint> entryPoints) {
+		super(Messages.Plugin.SQL_INJECTION_VERIFIER_NAME, Constants.Plugin.SQL_INJECTION_VERIFIER_ID, entryPoints);
+	}
 
-  @Override
-  protected String getMessageLiteral(String value) {
-    return "";
-  }
+	@Override
+	protected String getMessageLiteral(String value) {
+		return "";
+	}
 
-  @Override
-  protected String getMessageEntryPoint(String value) {
-    return "";
-  }
+	@Override
+	protected String getMessageNullLiteral() {
+		return "";
+	}
+
+	@Override
+	protected String getMessageEntryPoint(String value) {
+		return "";
+	}
 }

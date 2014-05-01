@@ -11,23 +11,28 @@ import net.thecodemaster.sap.ui.l10n.Messages;
  */
 public class XSSVerifier extends Verifier {
 
-  static {
-    // 01 - Loads all the ExitPoints of this verifier.
-    loadExitPoints(Constants.Plugin.XSS_VERIFIER_ID);
-  }
+	static {
+		// 01 - Loads all the ExitPoints of this verifier.
+		loadExitPoints(Constants.Plugin.XSS_VERIFIER_ID);
+	}
 
-  public XSSVerifier(List<EntryPoint> entryPoints) {
-    super(Messages.Plugin.XSS_VERIFIER_NAME, Constants.Plugin.XSS_VERIFIER_ID, entryPoints);
-  }
+	public XSSVerifier(List<EntryPoint> entryPoints) {
+		super(Messages.Plugin.XSS_VERIFIER_NAME, Constants.Plugin.XSS_VERIFIER_ID, entryPoints);
+	}
 
-  @Override
-  protected String getMessageLiteral(String value) {
-    return "";
-  }
+	@Override
+	protected String getMessageLiteral(String value) {
+		return "";
+	}
 
-  @Override
-  protected String getMessageEntryPoint(String value) {
-    return "";
-  }
+	@Override
+	protected String getMessageNullLiteral() {
+		return "";
+	}
+
+	@Override
+	protected String getMessageEntryPoint(String value) {
+		return "";
+	}
 
 }
