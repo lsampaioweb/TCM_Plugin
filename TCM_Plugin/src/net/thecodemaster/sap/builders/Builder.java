@@ -1,10 +1,12 @@
 package net.thecodemaster.sap.builders;
 
+import java.util.List;
 import java.util.Map;
 
 import net.thecodemaster.sap.constants.Constants;
 import net.thecodemaster.sap.loggers.PluginLogger;
 import net.thecodemaster.sap.ui.l10n.Messages;
+import net.thecodemaster.sap.utils.Creator;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -16,79 +18,93 @@ import org.eclipse.core.runtime.jobs.Job;
 
 public class Builder extends IncrementalProjectBuilder {
 
-  /**
-   * This mutex rule will guarantee that only one job will be running at any given time.
-   */
-  private static MutexRule rule         = new MutexRule();
-  private static boolean   isFirstBuild = true;
-  private BuilderJob       jobProject;
-  private BuilderJob       jobDelta;
+	/**
+	 * This mutex rule will guarantee that only one job will be running at any given time.
+	 */
+	private static MutexRule		rule	= new MutexRule();
+	/**
+	 * A list with all the projects that were full built. This is important because sometimes Eclipse might call
+	 * IncrementalBuild on a project that was not first full built. We need this information for the CallGraph.
+	 */
+	private static List<IProject>	fullBuiltProjects;
+	private BuilderJob				jobProject;
+	private BuilderJob				jobDelta;
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
-    try {
-      if (kind == FULL_BUILD) {
-        fullBuild(monitor);
-      }
-      else if (kind == CLEAN_BUILD) {
-        clean(monitor);
-      }
-      else {
-        IResourceDelta delta = getDelta(getProject());
-        if (null == delta) {
-          fullBuild(monitor);
-        }
-        else {
-          incrementalBuild(delta, monitor);
-        }
-      }
-    }
-    catch (CoreException e) {
-      PluginLogger.logError(e);
-    }
+	static {
+		fullBuiltProjects = Creator.newList();
+	}
 
-    return null;
-  }
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected IProject[] build(int kind, Map<String, String> args, IProgressMonitor monitor) throws CoreException {
+		try {
+			if (kind == FULL_BUILD) {
+				fullBuild(monitor);
+			} else if (kind == CLEAN_BUILD) {
+				clean(monitor);
+			} else {
+				IResourceDelta delta = getDelta(getProject());
+				if (null == delta) {
+					fullBuild(monitor);
+				} else {
+					incrementalBuild(delta, monitor);
+				}
+			}
+		} catch (CoreException e) {
+			PluginLogger.logError(e);
+		}
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected void clean(IProgressMonitor monitor) throws CoreException {
-    // Delete markers set and files created.
-    getProject().deleteMarkers(Constants.MARKER_ID, true, IResource.DEPTH_INFINITE);
-  }
+		return null;
+	}
 
-  protected void fullBuild(final IProgressMonitor monitor) {
-    isFirstBuild = false;
-    cancelIfNotRunning(jobProject);
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	protected void clean(IProgressMonitor monitor) throws CoreException {
+		// Delete markers set and files created.
+		getProject().deleteMarkers(Constants.MARKER_ID, true, IResource.DEPTH_INFINITE);
+	}
 
-    jobProject = new BuilderJob(Messages.Plugin.JOB, getProject());
-    jobProject.setRule(rule);
-    jobProject.run();
-  }
+	protected void fullBuild(final IProgressMonitor monitor) {
+		addProjectToFullBuiltList(getProject());
 
-  protected void incrementalBuild(IResourceDelta delta, IProgressMonitor monitor) {
-    cancelIfNotRunning(jobDelta);
+		cancelIfNotRunning(jobProject);
 
-    if (!isFirstBuild) {
-      jobDelta = new BuilderJob(Messages.Plugin.JOB, delta);
-      jobDelta.setRule(rule);
-      jobDelta.run();
-    }
-    else {
-      // Sometimes Eclipse invokes the incremental build without ever invoked the full build,
-      // but we need at least one full build to create the full CallGraph. After this first time we're OK.
-      fullBuild(monitor);
-    }
-  }
+		jobProject = new BuilderJob(Messages.Plugin.JOB, getProject());
+		jobProject.setRule(rule);
+		jobProject.run();
+	}
 
-  private void cancelIfNotRunning(BuilderJob job) {
-    if ((null != job) && (job.getState() != Job.RUNNING)) {
-      job.cancel();
-    }
-  }
+	protected void incrementalBuild(IResourceDelta delta, IProgressMonitor monitor) {
+		if (wasProjectFullBuilt(getProject())) {
+			cancelIfNotRunning(jobDelta);
+
+			jobDelta = new BuilderJob(Messages.Plugin.JOB, delta);
+			jobDelta.setRule(rule);
+			jobDelta.run();
+		} else {
+			// Sometimes Eclipse invokes the incremental build without ever invoked the full build,
+			// but we need at least one full build to create the full CallGraph. After this first time we're OK.
+			fullBuild(monitor);
+		}
+	}
+
+	private void addProjectToFullBuiltList(IProject project) {
+		if (!fullBuiltProjects.contains(project)) {
+			fullBuiltProjects.add(project);
+		}
+	}
+
+	private boolean wasProjectFullBuilt(IProject project) {
+		return fullBuiltProjects.contains(project);
+	}
+
+	private void cancelIfNotRunning(BuilderJob job) {
+		if ((null != job) && (job.getState() != Job.RUNNING)) {
+			job.cancel();
+		}
+	}
 }
