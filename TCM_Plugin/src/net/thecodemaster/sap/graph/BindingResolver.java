@@ -114,6 +114,17 @@ public class BindingResolver {
 		return qualifiedName;
 	}
 
+	public static String getFullName(Expression expr) {
+		// Cases:
+		// 01 - getPassword();
+		// 02 - request.getParameter("password");
+		if (expr.getNodeType() == ASTNode.METHOD_INVOCATION) {
+			return ((MethodInvocation) expr).toString();
+		}
+
+		return null;
+	}
+
 	public static String getName(Expression expr) {
 		if (expr.getNodeType() == ASTNode.METHOD_INVOCATION) {
 			return getName(((MethodInvocation) expr).resolveMethodBinding());

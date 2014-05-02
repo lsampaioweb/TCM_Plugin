@@ -15,7 +15,7 @@
 
 08 - Create the heuristics.
 08.1 - Security Misconfiguration.
-08.1.1 - DriverManager.getConnection.
+08.1.1 + DriverManager.getConnection.
 08.1.2 - FTP.
 08.1.3 - Email.
 

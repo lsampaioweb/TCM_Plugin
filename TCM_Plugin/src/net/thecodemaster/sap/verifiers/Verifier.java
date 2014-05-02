@@ -15,12 +15,14 @@ import net.thecodemaster.sap.points.AbstractPoint;
 import net.thecodemaster.sap.points.EntryPoint;
 import net.thecodemaster.sap.points.ExitPoint;
 import net.thecodemaster.sap.reporters.Reporter;
+import net.thecodemaster.sap.utils.Creator;
 import net.thecodemaster.sap.xmlloaders.ExitPointLoader;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CatchClause;
+import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ForStatement;
@@ -84,6 +86,10 @@ public abstract class Verifier {
 		this.verifierName = name;
 		this.verifierId = id;
 		entryPoints = listEntryPoints;
+	}
+
+	protected void clearListEntryPoints() {
+		entryPoints = Creator.newList();
 	}
 
 	protected abstract String getMessageLiteral(String value);
@@ -153,7 +159,7 @@ public abstract class Verifier {
 
 					// 05 - Iterate over all method invocations to verify if it is a ExitPoint.
 					for (Expression method : invocations) {
-						ExitPoint exitPoint = isMethodAnExitPoint(method);
+						ExitPoint exitPoint = getExitPointIfMethodIsOne(method);
 
 						if (null != exitPoint) {
 							// 06 - Some methods will need to have access to the resource that is currently being analyzed.
@@ -200,7 +206,7 @@ public abstract class Verifier {
 	 * @param method
 	 * @return An ExitPoint object if this node belongs to the list, otherwise null.
 	 */
-	protected ExitPoint isMethodAnExitPoint(Expression method) {
+	protected ExitPoint getExitPointIfMethodIsOne(Expression method) {
 		for (ExitPoint currentExitPoint : getExitPoints()) {
 			if (methodsHaveSameNameAndPackage(currentExitPoint, method)) {
 				// 05 - Get the expected arguments of this method.
@@ -323,6 +329,9 @@ public abstract class Verifier {
 				case ASTNode.INFIX_EXPRESSION:
 					checkInfixExpression(vp, rules, expr, ++depth);
 					break;
+				case ASTNode.CONDITIONAL_EXPRESSION:
+					checkConditionExpression(vp, rules, expr, ++depth);
+					break;
 				case ASTNode.SIMPLE_NAME:
 					checkSimpleName(vp, rules, expr, ++depth);
 					break;
@@ -385,6 +394,18 @@ public abstract class Verifier {
 		}
 	}
 
+	protected void checkConditionExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
+		ConditionalExpression parameter = (ConditionalExpression) expr;
+
+		// 01 - Get the elements from the operation.
+		Expression thenExpression = parameter.getThenExpression();
+		Expression elseExpression = parameter.getElseExpression();
+
+		// 02 - Check each element.
+		checkExpression(vp.addNodeToPath(thenExpression), rules, thenExpression, depth);
+		checkExpression(vp.addNodeToPath(elseExpression), rules, elseExpression, depth);
+	}
+
 	protected void checkSimpleName(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
 		SimpleName simpleName = (SimpleName) expr;
 		IBinding binding = simpleName.resolveBinding();
@@ -408,7 +429,7 @@ public abstract class Verifier {
 				Map<MethodDeclaration, List<Expression>> invokers = getCallGraph().getInvokers(methodDeclaration);
 
 				if (null != invokers) {
-					// 07 - Iterate over all the methods that invoked this method.
+					// 07 - Iterate over all the methods that invokes this method.
 					for (Entry<MethodDeclaration, List<Expression>> current : invokers.entrySet()) {
 						List<Expression> currentInvocations = current.getValue();
 
@@ -439,7 +460,7 @@ public abstract class Verifier {
 
 		// 02 - Check if this method is a Entry-Point.
 		if (isMethodAnEntryPoint(expr)) {
-			String message = getMessageEntryPoint(BindingResolver.getName(expr));
+			String message = getMessageEntryPoint(BindingResolver.getFullName(expr));
 
 			// If a entry point method is being invoked, then we DO have a vulnerability.
 			vp.foundVulnerability(expr, message);
@@ -454,6 +475,8 @@ public abstract class Verifier {
 
 		if (null != methodDeclaration) {
 			checkBlock(vp, rules, methodDeclaration.getBody(), depth);
+		} else {
+			System.out.println("Method:" + expr);
 		}
 	}
 
@@ -471,7 +494,7 @@ public abstract class Verifier {
 		} else if (Constants.MAXIMUM_DEPTH == depth) {
 			// To avoid infinitive loop, this check is necessary.
 			// Informs that we can no longer investigate because it looks like we are in an infinitive loop.
-			// TODO - vp.foundInfinitiveLoop(statement);
+			vp.foundInfinitiveLoop(statement);
 
 			return;
 		} else {
@@ -524,8 +547,7 @@ public abstract class Verifier {
 			case ASTNode.BLOCK:
 				checkBlock(vp, rules, (Block) statement, ++depth);
 				break;
-			case ASTNode.RETURN_STATEMENT:
-			case ASTNode.IF_STATEMENT:
+			default:
 				checkStatement(vp, rules, statement, ++depth);
 				break;
 		}

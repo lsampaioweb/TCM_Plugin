@@ -19,6 +19,7 @@ public class SecurityMisconfigurationVerifier extends Verifier {
 	public SecurityMisconfigurationVerifier(List<EntryPoint> entryPoints) {
 		super(Messages.Plugin.SECURITY_MISCONFIGURATION_VERIFIER_NAME,
 				Constants.Plugin.SECURITY_MISCONFIGURATION_VERIFIER_ID, entryPoints);
+		clearListEntryPoints();
 	}
 
 	@Override
