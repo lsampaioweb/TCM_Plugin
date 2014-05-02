@@ -2,6 +2,7 @@ package net.thecodemaster.sap.verifiers;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import net.thecodemaster.sap.constants.Constants;
 import net.thecodemaster.sap.graph.BindingResolver;
@@ -174,7 +175,7 @@ public abstract class Verifier {
 		Map<Parameter, List<Integer>> expectedParameters = exitPoint.getParameters();
 
 		// 02 - Get the parameters (received) from the current method.
-		List<Expression> receivedParameters = BindingResolver.getParameterTypes(method);
+		List<Expression> receivedParameters = BindingResolver.getParameters(method);
 
 		int index = 0;
 		int depth = 0;
@@ -206,7 +207,7 @@ public abstract class Verifier {
 				Map<Parameter, List<Integer>> expectedParameters = currentExitPoint.getParameters();
 
 				// 06 - Get the received parameters of the current method.
-				List<Expression> receivedParameters = BindingResolver.getParameterTypes(method);
+				List<Expression> receivedParameters = BindingResolver.getParameters(method);
 
 				// 07 - It is necessary to check the number of parameters and its types
 				// because it may exist methods with the same names but different parameters.
@@ -240,7 +241,7 @@ public abstract class Verifier {
 				List<String> expectedParameters = currentEntryPoint.getParameters();
 
 				// 06 - Get the received parameters of the current method.
-				List<Expression> receivedParameters = BindingResolver.getParameterTypes(method);
+				List<Expression> receivedParameters = BindingResolver.getParameters(method);
 
 				// 07 - It is necessary to check the number of parameters and its types
 				// because it may exist methods with the same names but different parameters.
@@ -373,7 +374,7 @@ public abstract class Verifier {
 		// 01 - Get the elements from the operation.
 		Expression leftOperand = parameter.getLeftOperand();
 		Expression rightOperand = parameter.getRightOperand();
-		List<Expression> extendedOperands = BindingResolver.getParameterTypes(parameter.extendedOperands());
+		List<Expression> extendedOperands = BindingResolver.getParameters(parameter.extendedOperands());
 
 		// 02 - Check each element.
 		checkExpression(vp.addNodeToPath(leftOperand), rules, leftOperand, depth);
@@ -385,7 +386,8 @@ public abstract class Verifier {
 	}
 
 	protected void checkSimpleName(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
-		IBinding binding = ((SimpleName) expr).resolveBinding();
+		SimpleName simpleName = (SimpleName) expr;
+		IBinding binding = simpleName.resolveBinding();
 
 		// 01 - Try to retrieve the variable from the list of variables.
 		VariableBindingManager manager = getCallGraph().getlistVariables().get(binding);
@@ -394,6 +396,36 @@ public abstract class Verifier {
 			// 02 - This is the case where we have to go deeper into the variable's path.
 			Expression initializer = manager.getInitializer();
 			checkExpression(vp.addNodeToPath(initializer), rules, initializer, depth);
+		} else {
+			// This is the case where the variable is an argument of the method.
+			// 04 - Get the method signature that is using this parameter.
+			MethodDeclaration methodDeclaration = BindingResolver.getParentMethodDeclaration(simpleName);
+
+			// 05 - Get the index position where this parameter appear.
+			int parameterIndex = BindingResolver.getParameterIndex(methodDeclaration, simpleName);
+
+			// 06 - Get the list of methods that invokes this method.
+			Map<MethodDeclaration, List<Expression>> invokers = getCallGraph().getInvokers(methodDeclaration);
+
+			if (null != invokers) {
+				// 07 - Iterate over all the methods that invoked this method.
+				for (Entry<MethodDeclaration, List<Expression>> current : invokers.entrySet()) {
+					List<Expression> currentInvocations = current.getValue();
+
+					// 08 - Care only about the invocations to this method.
+					for (Expression expression : currentInvocations) {
+						if (BindingResolver.areMethodsEqual(methodDeclaration, expression)) {
+							// 09 - Get the parameter at the index position.
+							Expression parameter = BindingResolver.getParameterAtIndex(expression, parameterIndex);
+
+							// 10 - Run detection on this parameter.
+							checkExpression(vp.addNodeToPath(parameter), rules, parameter, depth);
+						}
+					}
+
+				}
+			}
+
 		}
 	}
 
