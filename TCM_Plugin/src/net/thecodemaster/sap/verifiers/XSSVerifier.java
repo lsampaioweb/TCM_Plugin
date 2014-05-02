@@ -32,7 +32,7 @@ public class XSSVerifier extends Verifier {
 
 	@Override
 	protected String getMessageEntryPoint(String value) {
-		return "";
+		return String.format(Messages.SecurityVulnerabilitiesVerifier.ENTRY_POINT_METHOD, value);
 	}
 
 }

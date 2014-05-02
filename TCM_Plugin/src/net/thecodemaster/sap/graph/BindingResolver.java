@@ -3,6 +3,9 @@ package net.thecodemaster.sap.graph;
 import java.util.Arrays;
 import java.util.List;
 
+import net.thecodemaster.sap.constants.Constants;
+import net.thecodemaster.sap.points.AbstractPoint;
+import net.thecodemaster.sap.utils.Convert;
 import net.thecodemaster.sap.utils.Creator;
 
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -280,9 +283,9 @@ public class BindingResolver {
 					for (ITypeBinding currentParameter : methodParameters) {
 						ITypeBinding otherTypeBinding = otherParameters.get(index++).resolveTypeBinding();
 
-						// 07 - Verify if all the parameters are the ones expected.
-						if ((otherTypeBinding == null)
-								|| (!currentParameter.getQualifiedName().equals(otherTypeBinding.getQualifiedName()))) {
+						// 07 - Verify if all the parameters are the ones expected. However, there is a case
+						// where an Object is expected, and any type is accepted.
+						if (!BindingResolver.parametersHaveSameType(currentParameter.getQualifiedName(), otherTypeBinding)) {
 							return false;
 						}
 					}
@@ -290,6 +293,49 @@ public class BindingResolver {
 					return true;
 				}
 			}
+		}
+
+		return false;
+	}
+
+	public static boolean methodsHaveSameNameAndPackage(AbstractPoint abstractPoint, Expression method) {
+		// 01 - Get the method name.
+		String methodName = BindingResolver.getName(method);
+
+		// 02 - Verify if this method is in the list of ExitPoints.
+		if (abstractPoint.getMethodName().equals(methodName)) {
+
+			// 03 - Get the qualified name (Package + Class) of this method.
+			String qualifiedName = BindingResolver.getQualifiedName(method);
+
+			// 04 - Verify if this is really the method we were looking for.
+			// Method names can repeat in other classes.
+			if (null != qualifiedName) {
+				return qualifiedName.matches(abstractPoint.getQualifiedName());
+			}
+		}
+
+		return false;
+	}
+
+	public static boolean parametersHaveSameType(String parameter, ITypeBinding other) {
+		if (parameter.equals(Constants.Plugin.OBJECT)) {
+			return true;
+		}
+
+		if (other == null) {
+			return false;
+		}
+
+		if (parameter.equals(other.getQualifiedName())) {
+			return true;
+		}
+
+		// These are the special (WRAPPER) cases.
+		// boolean, byte, char, short, int, long, float, and double
+		String newName = Convert.fromPrimitiveNameToWrapperClass(other.getQualifiedName());
+		if (parameter.equals(newName)) {
+			return true;
 		}
 
 		return false;

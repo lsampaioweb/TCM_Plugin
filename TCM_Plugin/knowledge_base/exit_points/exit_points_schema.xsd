@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="qualified">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified" attributeFormDefault="qualified">
 
 	<!-- The definition of simple elements. -->
 	<xs:element type="xs:string" name="qualifiedname" />
 	<xs:element type="xs:string" name="methodname" />
 
 	<!-- The definition of attributes. -->
+	<xs:attribute name="id">
+		<xs:simpleType>
+			<xs:restriction base="xs:string">
+				<xs:pattern value="([0-9]+)" />
+			</xs:restriction>
+		</xs:simpleType>
+	</xs:attribute>
 	<xs:attribute name="type">
 		<xs:simpleType>
 			<xs:restriction base="xs:string">
@@ -36,6 +44,7 @@
 				<xs:element ref="methodname" />
 				<xs:element ref="parameters" maxOccurs="unbounded" />
 			</xs:sequence>
+			<xs:attribute ref="id" use="required" />
 		</xs:complexType>
 	</xs:element>
 

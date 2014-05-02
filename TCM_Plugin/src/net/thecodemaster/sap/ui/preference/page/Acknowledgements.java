@@ -33,7 +33,7 @@ public class Acknowledgements extends AbstracPreferencePage {
   @Override
   public void init(IWorkbench workbench) {
     noDefaultAndApplyButton();
-    setDescription(Messages.Acknowledgements.DESCRIPTION);
+    setDescription(Messages.AcknowledgementsPrefPage.DESCRIPTION);
   }
 
   @Override
@@ -45,34 +45,34 @@ public class Acknowledgements extends AbstracPreferencePage {
 
     // Group authors and its children.
     Group groupAuthors = new Group(top, SWT.NONE);
-    groupAuthors.setText(Messages.Acknowledgements.LABEL_GROUP_AUTHORS);
+    groupAuthors.setText(Messages.AcknowledgementsPrefPage.LABEL_GROUP_AUTHORS);
     groupAuthors.setLayout(new GridLayout());
     groupAuthors.setLayoutData(getGroupGridData());
 
     Label labelAuthors1 = new Label(groupAuthors, SWT.NONE);
-    labelAuthors1.setText(Messages.Acknowledgements.AUTHOR_1);
+    labelAuthors1.setText(Messages.AcknowledgementsPrefPage.AUTHOR_1);
     labelAuthors1.setLayoutData(getLabelGridData());
 
     // Group contributors and its children.
     Group groupContributors = new Group(top, SWT.NONE);
-    groupContributors.setText(Messages.Acknowledgements.LABEL_GROUP_CONTRIBUTORS);
+    groupContributors.setText(Messages.AcknowledgementsPrefPage.LABEL_GROUP_CONTRIBUTORS);
     groupContributors.setLayout(new GridLayout(2, true));
     groupContributors.setLayoutData(getGroupGridData());
 
     Label labelContributors1 = new Label(groupContributors, SWT.NONE);
-    labelContributors1.setText(Messages.Acknowledgements.CONTRIBUTORS_1);
+    labelContributors1.setText(Messages.AcknowledgementsPrefPage.CONTRIBUTORS_1);
     labelContributors1.setLayoutData(getLabelGridData());
 
     Label labelContributors2 = new Label(groupContributors, SWT.NONE);
-    labelContributors2.setText(Messages.Acknowledgements.CONTRIBUTORS_2);
+    labelContributors2.setText(Messages.AcknowledgementsPrefPage.CONTRIBUTORS_2);
     labelContributors2.setLayoutData(getLabelGridData());
 
     // Link to the thecodemaster.net web site.
     Link linkTCM = new Link(top, SWT.NONE);
-    linkTCM.setText(getLinkHTML(Messages.Acknowledgements.URL_THECODEMASTER));
+    linkTCM.setText(getLinkHTML(Messages.AcknowledgementsPrefPage.URL_THECODEMASTER));
     linkTCM.setLayoutData(getLabelGridData());
     // Register listener for the selection event
-    linkTCM.addSelectionListener(onClickOpenURL(Messages.Acknowledgements.URL_THECODEMASTER));
+    linkTCM.addSelectionListener(onClickOpenURL(Messages.AcknowledgementsPrefPage.URL_THECODEMASTER));
 
     return top;
   }

@@ -26,154 +26,150 @@ import org.eclipse.ui.IWorkbench;
 
 public class SecurityVulnerabilities extends AbstracPreferencePage {
 
-  private Table              projectsList;
-  private BooleanFieldEditor ckbtnSQLInjection;
-  private BooleanFieldEditor ckbtnCookiePoisoning;
-  private BooleanFieldEditor ckbtnCrossSiteScripting;
-  private BooleanFieldEditor ckbtnSecurityMisconfiguration;
+	private Table								projectsList;
+	private BooleanFieldEditor	ckbtnCookiePoisoning;
+	private BooleanFieldEditor	ckbtnCrossSiteScripting;
+	private BooleanFieldEditor	ckbtnSecurityMisconfiguration;
+	private BooleanFieldEditor	ckbtnSQLInjection;
 
-  public SecurityVulnerabilities() {
-  }
+	public SecurityVulnerabilities() {
+	}
 
-  public SecurityVulnerabilities(String title) {
-    super(title);
-  }
+	public SecurityVulnerabilities(String title) {
+		super(title);
+	}
 
-  public SecurityVulnerabilities(String title, ImageDescriptor image) {
-    super(title, image);
-  }
+	public SecurityVulnerabilities(String title, ImageDescriptor image) {
+		super(title, image);
+	}
 
-  @Override
-  public void init(IWorkbench workbench) {
-    setPreferenceStore(Activator.getDefault().getPreferenceStore());
-  }
+	@Override
+	public void init(IWorkbench workbench) {
+		setPreferenceStore(Activator.getDefault().getPreferenceStore());
+	}
 
-  @Override
-  protected Control createContents(Composite parent) {
-    Composite composite = createComposite(parent);
+	@Override
+	protected Control createContents(Composite parent) {
+		Composite composite = createComposite(parent);
 
-    createSecurityVulnerabilityOptions(composite);
-    createMonitoredProjectsSelection(composite);
+		createSecurityVulnerabilityOptions(composite);
+		createMonitoredProjectsSelection(composite);
 
-    return composite;
-  }
+		return composite;
+	}
 
-  protected Composite createComposite(Composite parent) {
-    Composite composite = new Composite(parent, SWT.NULL);
+	protected Composite createComposite(Composite parent) {
+		Composite composite = new Composite(parent, SWT.NULL);
 
-    GridLayout layout = new GridLayout();
-    layout.marginWidth = 0;
-    layout.marginHeight = 0;
-    composite.setLayout(layout);
+		GridLayout layout = new GridLayout();
+		layout.marginWidth = 0;
+		layout.marginHeight = 0;
+		composite.setLayout(layout);
 
-    GridData data =
-      new GridData(GridData.FILL_BOTH | GridData.VERTICAL_ALIGN_FILL | GridData.HORIZONTAL_ALIGN_FILL);
-    composite.setLayoutData(data);
-    composite.setFont(parent.getFont());
+		GridData data = new GridData(GridData.FILL_BOTH | GridData.VERTICAL_ALIGN_FILL | GridData.HORIZONTAL_ALIGN_FILL);
+		composite.setLayoutData(data);
+		composite.setFont(parent.getFont());
 
-    return composite;
-  }
+		return composite;
+	}
 
-  private void createSecurityVulnerabilityOptions(Composite composite) {
-    // Group output option and its children.
-    Group groupSecurityVulnerabilities = new Group(composite, SWT.NONE);
-    groupSecurityVulnerabilities.setLayout(new GridLayout());
-    groupSecurityVulnerabilities.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
-    groupSecurityVulnerabilities.setText(Messages.SecurityVulnerabilities.LABEL_SECURITY_VULNERABILITIES);
+	private void createSecurityVulnerabilityOptions(Composite composite) {
+		// Group output option and its children.
+		Group groupSecurityVulnerabilities = new Group(composite, SWT.NONE);
+		groupSecurityVulnerabilities.setLayout(new GridLayout());
+		groupSecurityVulnerabilities.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, false));
+		groupSecurityVulnerabilities.setText(Messages.SecurityVulnerabilitiesPrefPage.LABEL_SECURITY_VULNERABILITIES);
 
-    // The security vulnerabilities that will be detected in the source code.
-    ckbtnSQLInjection =
-      createBooleanField(Constants.SecurityVulnerabilities.FIELD_SQL_INJECTION,
-        Messages.SecurityVulnerabilities.LABEL_SQL_INJECTION, groupSecurityVulnerabilities);
-    ckbtnCookiePoisoning =
-      createBooleanField(Constants.SecurityVulnerabilities.FIELD_COOKIE_POISONING,
-        Messages.SecurityVulnerabilities.LABEL_COOKIE_POISONING, groupSecurityVulnerabilities);
-    ckbtnCrossSiteScripting =
-      createBooleanField(Constants.SecurityVulnerabilities.FIELD_CROSS_SITE_SCRIPTING,
-        Messages.SecurityVulnerabilities.LABEL_CROSS_SITE_SCRIPTING, groupSecurityVulnerabilities);
-    ckbtnSecurityMisconfiguration =
-      createBooleanField(Constants.SecurityVulnerabilities.FIELD_SECURITY_MISCONFIGURATION,
-        Messages.SecurityVulnerabilities.LABEL_SECURITY_MISCONFIGURATION, groupSecurityVulnerabilities);
-  }
+		// The security vulnerabilities that will be detected in the source code.
+		ckbtnCookiePoisoning = createBooleanField(Constants.SecurityVulnerabilities.FIELD_COOKIE_POISONING,
+				Messages.SecurityVulnerabilitiesPrefPage.LABEL_COOKIE_POISONING, groupSecurityVulnerabilities);
+		ckbtnCrossSiteScripting = createBooleanField(Constants.SecurityVulnerabilities.FIELD_CROSS_SITE_SCRIPTING,
+				Messages.SecurityVulnerabilitiesPrefPage.LABEL_CROSS_SITE_SCRIPTING, groupSecurityVulnerabilities);
+		ckbtnSecurityMisconfiguration = createBooleanField(
+				Constants.SecurityVulnerabilities.FIELD_SECURITY_MISCONFIGURATION,
+				Messages.SecurityVulnerabilitiesPrefPage.LABEL_SECURITY_MISCONFIGURATION, groupSecurityVulnerabilities);
+		ckbtnSQLInjection = createBooleanField(Constants.SecurityVulnerabilities.FIELD_SQL_INJECTION,
+				Messages.SecurityVulnerabilitiesPrefPage.LABEL_SQL_INJECTION, groupSecurityVulnerabilities);
+	}
 
-  private void createMonitoredProjectsSelection(Composite composite) {
-    Label label = new Label(composite, SWT.NONE);
-    label.setText(Messages.SecurityVulnerabilities.LABEL_MONITORED_PROJECTS);
-    label.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+	private void createMonitoredProjectsSelection(Composite composite) {
+		Label label = new Label(composite, SWT.NONE);
+		label.setText(Messages.SecurityVulnerabilitiesPrefPage.LABEL_MONITORED_PROJECTS);
+		label.setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
 
-    projectsList = new Table(composite, SWT.BORDER | SWT.CHECK | SWT.H_SCROLL | SWT.V_SCROLL);
-    projectsList.setFont(composite.getFont());
-    projectsList.setLayoutData(new GridData(GridData.FILL_BOTH));
+		projectsList = new Table(composite, SWT.BORDER | SWT.CHECK | SWT.H_SCROLL | SWT.V_SCROLL);
+		projectsList.setFont(composite.getFont());
+		projectsList.setLayoutData(new GridData(GridData.FILL_BOTH));
 
-    populateProjectsList();
-  }
+		populateProjectsList();
+	}
 
-  private void populateProjectsList() {
-    // The collection of projects which exist under this workspace.
-    List<IProject> projects = getListOfProjectsInWorkspace();
+	private void populateProjectsList() {
+		// The collection of projects which exist under this workspace.
+		List<IProject> projects = getListOfProjectsInWorkspace();
 
-    // The collection of projects that are being monitored by our plug-in.
-    List<IProject> monitoredProjects = getListOfMonitoredProjects();
+		// The collection of projects that are being monitored by our plug-in.
+		List<IProject> monitoredProjects = getListOfMonitoredProjects();
 
-    for (IProject project : projects) {
-      TableItem item = new TableItem(projectsList, SWT.NONE);
+		for (IProject project : projects) {
+			TableItem item = new TableItem(projectsList, SWT.NONE);
 
-      item.setText(project.getName());
-      item.setData(project.getName());
-      // If the current project is inside the list of monitored projects, then this project should be checked.
-      item.setChecked(monitoredProjects.contains(project));
-    }
-  }
+			item.setText(project.getName());
+			item.setData(project.getName());
+			// If the current project is inside the list of monitored projects, then this project should be checked.
+			item.setChecked(monitoredProjects.contains(project));
+		}
+	}
 
-  @Override
-  public void performDefaults() {
-    IPreferenceStore store = getPreferenceStore();
+	@Override
+	public void performDefaults() {
+		IPreferenceStore store = getPreferenceStore();
 
-    store.setDefault(Constants.SecurityVulnerabilities.FIELD_SQL_INJECTION, true);
-    store.setDefault(Constants.SecurityVulnerabilities.FIELD_COOKIE_POISONING, true);
-    store.setDefault(Constants.SecurityVulnerabilities.FIELD_CROSS_SITE_SCRIPTING, true);
-    store.setDefault(Constants.SecurityVulnerabilities.FIELD_SECURITY_MISCONFIGURATION, true);
+		store.setDefault(Constants.SecurityVulnerabilities.FIELD_COOKIE_POISONING, true);
+		store.setDefault(Constants.SecurityVulnerabilities.FIELD_CROSS_SITE_SCRIPTING, true);
+		store.setDefault(Constants.SecurityVulnerabilities.FIELD_SECURITY_MISCONFIGURATION, true);
+		store.setDefault(Constants.SecurityVulnerabilities.FIELD_SQL_INJECTION, true);
 
-    loadDefaultValue(ckbtnSQLInjection);
-    loadDefaultValue(ckbtnCookiePoisoning);
-    loadDefaultValue(ckbtnCrossSiteScripting);
-    loadDefaultValue(ckbtnSecurityMisconfiguration);
+		loadDefaultValue(ckbtnCookiePoisoning);
+		loadDefaultValue(ckbtnCrossSiteScripting);
+		loadDefaultValue(ckbtnSecurityMisconfiguration);
+		loadDefaultValue(ckbtnSQLInjection);
 
-    if (null != projectsList) {
-      // It will iterate over all the projects in the workspace and check it, so the plug-in will scan the
-      // project.
-      TableItem items[] = projectsList.getItems();
-      for (TableItem item : items) {
-        item.setChecked(true);
-      }
-    }
+		if (null != projectsList) {
+			// It will iterate over all the projects in the workspace and check it, so the plug-in will scan the
+			// project.
+			TableItem items[] = projectsList.getItems();
+			for (TableItem item : items) {
+				item.setChecked(true);
+			}
+		}
 
-    super.performDefaults();
-  }
+		super.performDefaults();
+	}
 
-  @Override
-  public boolean performOk() {
-    // Save (store) the content chosen by the developer back to the eclipse's preferences.
-    storeValue(ckbtnSQLInjection);
-    storeValue(ckbtnCookiePoisoning);
-    storeValue(ckbtnCrossSiteScripting);
-    storeValue(ckbtnSecurityMisconfiguration);
+	@Override
+	public boolean performOk() {
+		// Save (store) the content chosen by the developer back to the eclipse's preferences.
+		storeValue(ckbtnCookiePoisoning);
+		storeValue(ckbtnCrossSiteScripting);
+		storeValue(ckbtnSecurityMisconfiguration);
+		storeValue(ckbtnSQLInjection);
 
-    // The list with the projects to be monitored.
-    List<IProject> selectedProjects = Creator.newList();
+		// The list with the projects to be monitored.
+		List<IProject> selectedProjects = Creator.newList();
 
-    // Iterate over the list of selected projects and if they are checked, add them to the list.
-    TableItem items[] = projectsList.getItems();
-    IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-    for (TableItem item : items) {
-      if (item.getChecked()) {
-        selectedProjects.add(root.getProject((String) item.getData()));
-      }
-    }
+		// Iterate over the list of selected projects and if they are checked, add them to the list.
+		TableItem items[] = projectsList.getItems();
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		for (TableItem item : items) {
+			if (item.getChecked()) {
+				selectedProjects.add(root.getProject((String) item.getData()));
+			}
+		}
 
-    // Save the list back to the preference store.
-    setProjectsToListOfMonitoredProjects(selectedProjects);
+		// Save the list back to the preference store.
+		setProjectsToListOfMonitoredProjects(selectedProjects);
 
-    return super.performOk();
-  }
+		return super.performOk();
+	}
 }

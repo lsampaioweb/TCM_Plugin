@@ -18,12 +18,12 @@ public class SecurityMisconfigurationResolution implements IMarkerResolution2 {
 
   @Override
   public String getLabel() {
-    return Messages.SecurityMisconfigurationVerifier.LABEL_RESOLUTION;
+    return Messages.SecurityVulnerabilitiesVerifier.LABEL_RESOLUTION;
   }
 
   @Override
   public String getDescription() {
-    return Messages.SecurityMisconfigurationVerifier.DESCRIPTION_RESOLUTION;
+    return Messages.SecurityVulnerabilitiesVerifier.DESCRIPTION_RESOLUTION;
   }
 
   @Override

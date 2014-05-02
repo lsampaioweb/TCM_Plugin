@@ -9,8 +9,8 @@ import org.eclipse.osgi.util.NLS;
  */
 public abstract class Messages extends NLS {
 
-	public static abstract class Acknowledgements {
-		private static final String	BUNDLE_NAME	= Constants.PACKAGE_L10N_MESSAGES + ".acknowledgements";	//$NON-NLS-1$
+	public static abstract class AcknowledgementsPrefPage {
+		private static final String	BUNDLE_NAME	= Constants.PACKAGE_L10N_MESSAGES + ".acknowledgements_pref_page";	//$NON-NLS-1$
 		public static String				DESCRIPTION;
 
 		public static String				LABEL_GROUP_AUTHORS;
@@ -24,12 +24,12 @@ public abstract class Messages extends NLS {
 
 		static {
 			// Initialize resource bundle.
-			NLS.initializeMessages(BUNDLE_NAME, Acknowledgements.class);
+			NLS.initializeMessages(BUNDLE_NAME, AcknowledgementsPrefPage.class);
 		}
 	}
 
-	public static abstract class SecurityVulnerabilities {
-		private static final String	BUNDLE_NAME	= Constants.PACKAGE_L10N_MESSAGES + ".security_vulnerabilities";	//$NON-NLS-1$
+	public static abstract class SecurityVulnerabilitiesPrefPage {
+		private static final String	BUNDLE_NAME	= Constants.PACKAGE_L10N_MESSAGES + ".security_vulnerabilities_pref_page";	//$NON-NLS-1$
 		public static String				LABEL_SECURITY_VULNERABILITIES;
 		public static String				LABEL_SQL_INJECTION;
 		public static String				LABEL_COOKIE_POISONING;
@@ -39,12 +39,12 @@ public abstract class Messages extends NLS {
 
 		static {
 			// Initialize resource bundle.
-			NLS.initializeMessages(BUNDLE_NAME, SecurityVulnerabilities.class);
+			NLS.initializeMessages(BUNDLE_NAME, SecurityVulnerabilitiesPrefPage.class);
 		}
 	}
 
-	public static abstract class Settings {
-		private static final String	BUNDLE_NAME	= Constants.PACKAGE_L10N_MESSAGES + ".settings";	//$NON-NLS-1$
+	public static abstract class SettingsPrefPage {
+		private static final String	BUNDLE_NAME	= Constants.PACKAGE_L10N_MESSAGES + ".settings_pref_page";	//$NON-NLS-1$
 		public static String				DESCRIPTION;
 		public static String				LABEL_RUN_MODE;
 
@@ -64,7 +64,7 @@ public abstract class Messages extends NLS {
 
 		static {
 			// Initialize resource bundle.
-			NLS.initializeMessages(BUNDLE_NAME, Settings.class);
+			NLS.initializeMessages(BUNDLE_NAME, SettingsPrefPage.class);
 		}
 	}
 
@@ -84,8 +84,8 @@ public abstract class Messages extends NLS {
 		}
 	}
 
-	public static abstract class SecurityMisconfigurationVerifier {
-		private static final String	BUNDLE_NAME	= Constants.PACKAGE_L10N_MESSAGES + ".security_misconfiguration_verifier";	//$NON-NLS-1$
+	public static abstract class SecurityVulnerabilitiesVerifier {
+		private static final String	BUNDLE_NAME	= Constants.PACKAGE_L10N_MESSAGES + ".security_vulnerabilities_verifier"; //$NON-NLS-1$
 
 		public static String				LITERAL;
 		public static String				NULL_LITERAL;
@@ -95,7 +95,7 @@ public abstract class Messages extends NLS {
 
 		static {
 			// Initialize resource bundle.
-			NLS.initializeMessages(BUNDLE_NAME, SecurityMisconfigurationVerifier.class);
+			NLS.initializeMessages(BUNDLE_NAME, SecurityVulnerabilitiesVerifier.class);
 		}
 	}
 

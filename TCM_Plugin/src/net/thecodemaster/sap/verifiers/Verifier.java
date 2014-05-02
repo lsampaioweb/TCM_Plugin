@@ -11,7 +11,6 @@ import net.thecodemaster.sap.graph.Parameter;
 import net.thecodemaster.sap.graph.VariableBindingManager;
 import net.thecodemaster.sap.graph.VulnerabilityPath;
 import net.thecodemaster.sap.loggers.PluginLogger;
-import net.thecodemaster.sap.points.AbstractPoint;
 import net.thecodemaster.sap.points.EntryPoint;
 import net.thecodemaster.sap.points.ExitPoint;
 import net.thecodemaster.sap.reporters.Reporter;
@@ -98,7 +97,7 @@ public abstract class Verifier {
 
 	protected abstract String getMessageEntryPoint(String value);
 
-	private String getVerifierName() {
+	public String getName() {
 		return verifierName;
 	}
 
@@ -123,6 +122,10 @@ public abstract class Verifier {
 	}
 
 	protected static List<ExitPoint> getExitPoints() {
+		if (null == exitPoints) {
+			exitPoints = Creator.newList();
+		}
+
 		return exitPoints;
 	}
 
@@ -138,7 +141,7 @@ public abstract class Verifier {
 		this.callGraph = callGraph;
 		this.reporter = reporter;
 
-		setSubTask(getVerifierName());
+		setSubTask(getName());
 
 		// Perform the verifications on the resources.
 		run(resources);
@@ -208,7 +211,7 @@ public abstract class Verifier {
 	 */
 	protected ExitPoint getExitPointIfMethodIsOne(Expression method) {
 		for (ExitPoint currentExitPoint : getExitPoints()) {
-			if (methodsHaveSameNameAndPackage(currentExitPoint, method)) {
+			if (BindingResolver.methodsHaveSameNameAndPackage(currentExitPoint, method)) {
 				// 05 - Get the expected arguments of this method.
 				Map<Parameter, List<Integer>> expectedParameters = currentExitPoint.getParameters();
 
@@ -223,8 +226,9 @@ public abstract class Verifier {
 					for (Parameter expectedParameter : expectedParameters.keySet()) {
 						ITypeBinding typeBinding = receivedParameters.get(index++).resolveTypeBinding();
 
-						// Verify if all the parameters are the ones expected.
-						if ((typeBinding == null) || (!expectedParameter.getQualifiedName().equals(typeBinding.getQualifiedName()))) {
+						// Verify if all the parameters are the ones expected. However, there is a case
+						// where an Object is expected, and any type is accepted.
+						if (!BindingResolver.parametersHaveSameType(expectedParameter.getQualifiedName(), typeBinding)) {
 							isMethodAnExitPoint = false;
 							break;
 						}
@@ -242,7 +246,7 @@ public abstract class Verifier {
 
 	protected boolean isMethodAnEntryPoint(Expression method) {
 		for (EntryPoint currentEntryPoint : getEntryPoints()) {
-			if (methodsHaveSameNameAndPackage(currentEntryPoint, method)) {
+			if (BindingResolver.methodsHaveSameNameAndPackage(currentEntryPoint, method)) {
 				// 05 - Get the expected arguments of this method.
 				List<String> expectedParameters = currentEntryPoint.getParameters();
 
@@ -257,7 +261,7 @@ public abstract class Verifier {
 						ITypeBinding typeBinding = receivedParameters.get(index++).resolveTypeBinding();
 
 						// Verify if all the parameters are the ones expected.
-						if ((typeBinding == null) || (!expectedParameter.equals(typeBinding.getQualifiedName()))) {
+						if (!BindingResolver.parametersHaveSameType(expectedParameter, typeBinding)) {
 							return false;
 						}
 					}
@@ -271,26 +275,6 @@ public abstract class Verifier {
 	}
 
 	protected boolean isMethodASanitizationPoint(Expression method) {
-		return false;
-	}
-
-	private boolean methodsHaveSameNameAndPackage(AbstractPoint abstractPoint, Expression method) {
-		// 01 - Get the method name.
-		String methodName = BindingResolver.getName(method);
-
-		// 02 - Verify if this method is in the list of ExitPoints.
-		if (abstractPoint.getMethodName().equals(methodName)) {
-
-			// 03 - Get the qualified name (Package + Class) of this method.
-			String qualifiedName = BindingResolver.getQualifiedName(method);
-
-			// 04 - Verify if this is really the method we were looking for.
-			// Method names can repeat in other classes.
-			if (null != qualifiedName) {
-				return qualifiedName.matches(abstractPoint.getQualifiedName());
-			}
-		}
-
 		return false;
 	}
 
@@ -329,6 +313,9 @@ public abstract class Verifier {
 				case ASTNode.INFIX_EXPRESSION:
 					checkInfixExpression(vp, rules, expr, ++depth);
 					break;
+				// case ASTNode.PREFIX_EXPRESSION:
+				// TODO.
+				// break;
 				case ASTNode.CONDITIONAL_EXPRESSION:
 					checkConditionExpression(vp, rules, expr, ++depth);
 					break;
