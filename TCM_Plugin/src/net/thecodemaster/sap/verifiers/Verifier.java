@@ -403,26 +403,27 @@ public abstract class Verifier {
 
 			// 05 - Get the index position where this parameter appear.
 			int parameterIndex = BindingResolver.getParameterIndex(methodDeclaration, simpleName);
+			if (parameterIndex >= 0) {
+				// 06 - Get the list of methods that invokes this method.
+				Map<MethodDeclaration, List<Expression>> invokers = getCallGraph().getInvokers(methodDeclaration);
 
-			// 06 - Get the list of methods that invokes this method.
-			Map<MethodDeclaration, List<Expression>> invokers = getCallGraph().getInvokers(methodDeclaration);
+				if (null != invokers) {
+					// 07 - Iterate over all the methods that invoked this method.
+					for (Entry<MethodDeclaration, List<Expression>> current : invokers.entrySet()) {
+						List<Expression> currentInvocations = current.getValue();
 
-			if (null != invokers) {
-				// 07 - Iterate over all the methods that invoked this method.
-				for (Entry<MethodDeclaration, List<Expression>> current : invokers.entrySet()) {
-					List<Expression> currentInvocations = current.getValue();
+						// 08 - Care only about the invocations to this method.
+						for (Expression expression : currentInvocations) {
+							if (BindingResolver.areMethodsEqual(methodDeclaration, expression)) {
+								// 09 - Get the parameter at the index position.
+								Expression parameter = BindingResolver.getParameterAtIndex(expression, parameterIndex);
 
-					// 08 - Care only about the invocations to this method.
-					for (Expression expression : currentInvocations) {
-						if (BindingResolver.areMethodsEqual(methodDeclaration, expression)) {
-							// 09 - Get the parameter at the index position.
-							Expression parameter = BindingResolver.getParameterAtIndex(expression, parameterIndex);
-
-							// 10 - Run detection on this parameter.
-							checkExpression(vp.addNodeToPath(parameter), rules, parameter, depth);
+								// 10 - Run detection on this parameter.
+								checkExpression(vp.addNodeToPath(parameter), rules, parameter, depth);
+							}
 						}
-					}
 
+					}
 				}
 			}
 
