@@ -15,18 +15,4 @@ public class SQLInjectionVerifier extends Verifier {
 		super(Messages.Plugin.SQL_INJECTION_VERIFIER_NAME, Constants.Plugin.SQL_INJECTION_VERIFIER_ID, entryPoints);
 	}
 
-	@Override
-	protected String getMessageLiteral(String value) {
-		return "";
-	}
-
-	@Override
-	protected String getMessageNullLiteral() {
-		return "";
-	}
-
-	@Override
-	protected String getMessageEntryPoint(String value) {
-		return "";
-	}
 }

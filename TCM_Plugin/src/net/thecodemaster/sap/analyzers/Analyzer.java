@@ -12,6 +12,7 @@ import net.thecodemaster.sap.verifiers.Verifier;
 import net.thecodemaster.sap.xmlloaders.EntryPointLoader;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
  * @author Luciano Sampaio
@@ -33,9 +34,11 @@ public abstract class Analyzer {
 
 	public void run(List<IResource> resources, CallGraph callGraph, Reporter reporter) {
 		for (Verifier verifier : getVerifiers()) {
-			Timer timer = (new Timer("01.2.1 - Verifier: " + verifier.getName())).start();
-			verifier.run(resources, callGraph, reporter);
-			PluginLogger.logInfo(timer.stop().toString());
+			if (!userCanceledProcess(reporter)) {
+				Timer timer = (new Timer("01.2.1 - Verifier: " + verifier.getName())).start();
+				verifier.run(resources, callGraph, reporter);
+				PluginLogger.logInfo(timer.stop().toString());
+			}
 		}
 	}
 
@@ -44,11 +47,28 @@ public abstract class Analyzer {
 	}
 
 	protected static List<EntryPoint> getEntryPoints() {
+		if (null == entryPoints) {
+			// Loads all the EntryPoints.
+			loadEntryPoints();
+		}
+
 		return entryPoints;
 	}
 
 	protected static void loadEntryPoints() {
 		entryPoints = (new EntryPointLoader()).load();
+	}
+
+	/**
+	 * Returns whether cancellation of current operation has been requested
+	 * 
+	 * @param reporter
+	 * @return true if cancellation has been requested, and false otherwise.
+	 */
+	private boolean userCanceledProcess(Reporter reporter) {
+		IProgressMonitor monitor = reporter.getProgressMonitor();
+
+		return ((null != monitor) && (monitor.isCanceled()));
 	}
 
 }

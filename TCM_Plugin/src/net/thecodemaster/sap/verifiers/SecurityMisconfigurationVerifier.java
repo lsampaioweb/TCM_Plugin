@@ -1,9 +1,6 @@
 package net.thecodemaster.sap.verifiers;
 
-import java.util.List;
-
 import net.thecodemaster.sap.constants.Constants;
-import net.thecodemaster.sap.points.EntryPoint;
 import net.thecodemaster.sap.ui.l10n.Messages;
 
 /**
@@ -11,15 +8,9 @@ import net.thecodemaster.sap.ui.l10n.Messages;
  */
 public class SecurityMisconfigurationVerifier extends Verifier {
 
-	static {
-		// 01 - Loads all the ExitPoints of this verifier.
-		loadExitPoints(Constants.Plugin.SECURITY_MISCONFIGURATION_VERIFIER_ID);
-	}
-
-	public SecurityMisconfigurationVerifier(List<EntryPoint> entryPoints) {
+	public SecurityMisconfigurationVerifier() {
 		super(Messages.Plugin.SECURITY_MISCONFIGURATION_VERIFIER_NAME,
-				Constants.Plugin.SECURITY_MISCONFIGURATION_VERIFIER_ID, entryPoints);
-		clearListEntryPoints();
+				Constants.Plugin.SECURITY_MISCONFIGURATION_VERIFIER_ID);
 	}
 
 	@Override

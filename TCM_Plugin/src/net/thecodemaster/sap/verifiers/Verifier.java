@@ -78,24 +78,24 @@ public abstract class Verifier {
 	 *          The name of the verifier.
 	 * @param id
 	 *          The id of the verifier.
+	 */
+	public Verifier(String name, int id) {
+		this.verifierName = name;
+		this.verifierId = id;
+	}
+
+	/**
+	 * @param name
+	 *          The name of the verifier.
+	 * @param id
+	 *          The id of the verifier.
 	 * @param listEntryPoints
 	 *          List with all the EntryPoints methods.
 	 */
 	public Verifier(String name, int id, List<EntryPoint> listEntryPoints) {
-		this.verifierName = name;
-		this.verifierId = id;
+		this(name, id);
 		entryPoints = listEntryPoints;
 	}
-
-	protected void clearListEntryPoints() {
-		entryPoints = Creator.newList();
-	}
-
-	protected abstract String getMessageLiteral(String value);
-
-	protected abstract String getMessageNullLiteral();
-
-	protected abstract String getMessageEntryPoint(String value);
 
 	public String getName() {
 		return verifierName;
@@ -121,19 +121,24 @@ public abstract class Verifier {
 		return reporter;
 	}
 
-	protected static List<ExitPoint> getExitPoints() {
+	protected List<ExitPoint> getExitPoints() {
 		if (null == exitPoints) {
-			exitPoints = Creator.newList();
+			// Loads all the ExitPoints of this verifier.
+			loadExitPoints();
 		}
 
 		return exitPoints;
 	}
 
-	protected static void loadExitPoints(int verifierId) {
-		exitPoints = (new ExitPointLoader(verifierId)).load();
+	protected void loadExitPoints() {
+		exitPoints = (new ExitPointLoader(getVerifierId())).load();
 	}
 
 	protected static List<EntryPoint> getEntryPoints() {
+		if (null == entryPoints) {
+			entryPoints = Creator.newList();
+		}
+
 		return entryPoints;
 	}
 
@@ -288,6 +293,18 @@ public abstract class Verifier {
 		if ((null != getReporter()) && (null != getReporter().getProgressMonitor())) {
 			getReporter().getProgressMonitor().subTask(taskName);
 		}
+	}
+
+	protected String getMessageLiteral(String value) {
+		return null;
+	}
+
+	protected String getMessageEntryPoint(String value) {
+		return null;
+	}
+
+	protected String getMessageNullLiteral() {
+		return null;
 	}
 
 	protected void checkExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
