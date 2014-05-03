@@ -261,17 +261,21 @@ public abstract class Verifier {
 				// 07 - It is necessary to check the number of parameters and its types
 				// because it may exist methods with the same names but different parameters.
 				if (expectedParameters.size() == receivedParameters.size()) {
+					boolean isMethodAnEntryPoint = true;
 					int index = 0;
 					for (String expectedParameter : expectedParameters) {
 						ITypeBinding typeBinding = receivedParameters.get(index++).resolveTypeBinding();
 
 						// Verify if all the parameters are the ones expected.
 						if (!BindingResolver.parametersHaveSameType(expectedParameter, typeBinding)) {
-							return false;
+							isMethodAnEntryPoint = false;
+							break;
 						}
 					}
 
-					return true;
+					if (isMethodAnEntryPoint) {
+						return true;
+					}
 				}
 			}
 		}
@@ -480,6 +484,8 @@ public abstract class Verifier {
 		if (null != methodDeclaration) {
 			checkBlock(vp, rules, methodDeclaration.getBody(), depth);
 		} else {
+			// Special cases:
+			// "url".toString();
 			System.out.println("Method:" + expr);
 		}
 	}

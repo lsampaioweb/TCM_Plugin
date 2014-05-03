@@ -59,10 +59,12 @@ public abstract class Constants {
 		public static final String	ENTRY_POINT_FILE																		= Folder.ENTRY_POINTS
 																																												+ "entry_points.xml";
 
-		public static final String	COOKIE_POISONING_VERIFIER_EXIT_POINT_FILE						= Folder.EXIT_POINTS + "";
+		public static final String	COOKIE_POISONING_VERIFIER_EXIT_POINT_FILE						= Folder.EXIT_POINTS
+																																												+ "cookie_poisoning_verifier.xml";
 		public static final String	SECURITY_MISCONFIGURATION_VERIFIER_EXIT_POINT_FILE	= Folder.EXIT_POINTS
 																																												+ "security_misconfiguration_verifier.xml";
-		public static final String	SQL_INJECTION_VERIFIER_EXIT_POINT_FILE							= Folder.EXIT_POINTS + "";
+		public static final String	SQL_INJECTION_VERIFIER_EXIT_POINT_FILE							= Folder.EXIT_POINTS
+																																												+ "sql_injection_verifier.xml";
 		public static final String	XSS_VERIFIER_EXIT_POINT_FILE												= Folder.EXIT_POINTS
 																																												+ "xss_verifier.xml";
 

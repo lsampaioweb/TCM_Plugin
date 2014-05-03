@@ -65,7 +65,7 @@ public class Reporter {
 
 	private boolean clearMarkers(IResource resource) {
 		try {
-			resource.deleteMarkers(Constants.MARKER_ID, false, IResource.DEPTH_INFINITE);
+			resource.deleteMarkers(Constants.MARKER_ID, true, IResource.DEPTH_INFINITE);
 			return true;
 		} catch (CoreException e) {
 			PluginLogger.logError(e);

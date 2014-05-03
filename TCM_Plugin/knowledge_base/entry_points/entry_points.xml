@@ -152,4 +152,15 @@
 		<qualifiedname>javax.servlet.ServletConfig</qualifiedname>
 		<methodname>getInitParameterNames</methodname>
 	</entrypoint>
+	<!-- java.sql.ResultSet -->
+	<entrypoint id="36">
+		<qualifiedname>java.sql.ResultSet</qualifiedname>
+		<methodname>getString</methodname>
+		<parameters type="java.lang.String" />
+	</entrypoint>
+	<entrypoint id="37">
+		<qualifiedname>java.sql.ResultSet</qualifiedname>
+		<methodname>getString</methodname>
+		<parameters type="java.lang.Integer" />
+	</entrypoint>
 </entrypoints>
