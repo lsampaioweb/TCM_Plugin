@@ -1,16 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <entrypoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:noNamespaceSchemaLocation="entry_points_schema.xsd">
-	<!-- Most uses methods -->
-	<entrypoint id="05">
-		<qualifiedname>javax.servlet.(http.Http)?ServletRequest</qualifiedname>
-		<methodname>getParameter</methodname>
-		<parameters type="java.lang.String" />
-	</entrypoint>
-	<entrypoint id="23">
-		<qualifiedname>javax.servlet.(http.Http)?ServletRequest</qualifiedname>
-		<methodname>getQueryString</methodname>
-	</entrypoint>
 	<!-- javax.servlet.ServletRequest -->
 	<entrypoint id="01">
 		<qualifiedname>javax.servlet.(http.Http)?ServletRequest</qualifiedname>
@@ -28,6 +18,11 @@
 	<entrypoint id="04">
 		<qualifiedname>javax.servlet.(http.Http)?ServletRequest</qualifiedname>
 		<methodname>getContentType</methodname>
+	</entrypoint>
+	<entrypoint id="05">
+		<qualifiedname>javax.servlet.(http.Http)?ServletRequest</qualifiedname>
+		<methodname>getParameter</methodname>
+		<parameters type="java.lang.String" />
 	</entrypoint>
 	<entrypoint id="06">
 		<qualifiedname>javax.servlet.(http.Http)?ServletRequest</qualifiedname>
@@ -100,6 +95,10 @@
 	<entrypoint id="22">
 		<qualifiedname>javax.servlet.(http.Http)?ServletRequest</qualifiedname>
 		<methodname>getContextPath</methodname>
+	</entrypoint>
+	<entrypoint id="23">
+		<qualifiedname>javax.servlet.(http.Http)?ServletRequest</qualifiedname>
+		<methodname>getQueryString</methodname>
 	</entrypoint>
 	<entrypoint id="24">
 		<qualifiedname>javax.servlet.(http.Http)?ServletRequest</qualifiedname>

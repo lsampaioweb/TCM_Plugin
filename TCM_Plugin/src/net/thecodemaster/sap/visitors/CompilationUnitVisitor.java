@@ -127,8 +127,8 @@ public class CompilationUnitVisitor extends ASTVisitor {
 		if (node.getLeftHandSide().getNodeType() == ASTNode.SIMPLE_NAME) {
 			IBinding binding = ((SimpleName) node.getLeftHandSide()).resolveBinding();
 			if (callGraph.getlistVariables().containsKey(binding)) {
-				// It contains the key -> it is an assignment of a local variable.
 
+				// It contains the key -> it is an assignment of a local variable.
 				VariableBindingManager manager = callGraph.getlistVariables().get(binding);
 				manager.variableInitialized(node.getRightHandSide());
 			}
@@ -148,8 +148,9 @@ public class CompilationUnitVisitor extends ASTVisitor {
 	@Override
 	public boolean visit(SimpleName node) {
 		IBinding binding = node.resolveBinding();
-		if (callGraph.getlistVariables().containsKey(binding)) {
-			VariableBindingManager manager = callGraph.getlistVariables().get(binding);
+
+		VariableBindingManager manager = callGraph.getlistVariables().get(binding);
+		if (null != manager) {
 			manager.variableRefereneced(node);
 		}
 

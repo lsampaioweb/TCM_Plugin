@@ -247,7 +247,8 @@ public class BindingResolver {
 	 */
 	public static Statement getParentStatement(SimpleName reference) {
 		ASTNode node = reference;
-		while (!(node instanceof Statement)) {
+
+		while ((node != null) && (!(node instanceof Statement))) {
 			node = node.getParent();
 		}
 		return (Statement) node;

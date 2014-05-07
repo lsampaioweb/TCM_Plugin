@@ -23,7 +23,8 @@
 09.1 - SecurityMisconfigurationVerifier.
 09.2 - CookiePoisoningVerifier.
 09.3 - SQLInjectionVerifier.
-09.4 - XSSVerifier.
+09.4 - UnvalidatedRedirectingVerifier.
+09.5 - XSSVerifier.
 
 10 - Create our own view.
 
