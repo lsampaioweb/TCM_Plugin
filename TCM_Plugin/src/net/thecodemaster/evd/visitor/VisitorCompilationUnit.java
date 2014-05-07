@@ -24,12 +24,12 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 /**
  * @author Luciano Sampaio
  */
-public class CompilationUnitVisitor extends ASTVisitor {
+public class VisitorCompilationUnit extends ASTVisitor {
 
 	private final Stack<MethodDeclaration>	methodStack;
 	private final CallGraph									callGraph;
 
-	public CompilationUnitVisitor(CallGraph callGraph) {
+	public VisitorCompilationUnit(CallGraph callGraph) {
 		methodStack = new Stack<MethodDeclaration>();
 
 		this.callGraph = callGraph;

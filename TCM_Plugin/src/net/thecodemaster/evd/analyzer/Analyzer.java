@@ -9,7 +9,7 @@ import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.point.EntryPoint;
 import net.thecodemaster.evd.reporter.Reporter;
 import net.thecodemaster.evd.verifier.Verifier;
-import net.thecodemaster.evd.xmlloader.EntryPointLoader;
+import net.thecodemaster.evd.xmlloader.LoaderEntryPoint;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -56,7 +56,7 @@ public abstract class Analyzer {
 	}
 
 	protected static void loadEntryPoints() {
-		entryPoints = (new EntryPointLoader()).load();
+		entryPoints = (new LoaderEntryPoint()).load();
 	}
 
 	/**

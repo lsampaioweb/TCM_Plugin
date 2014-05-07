@@ -6,10 +6,10 @@ import net.thecodemaster.evd.ui.l10n.Messages;
 /**
  * @author Luciano Sampaio
  */
-public class SecurityMisconfigurationVerifier extends Verifier {
+public class VerifierSecurityMisconfiguration extends Verifier {
 
-	public SecurityMisconfigurationVerifier() {
-		super(Messages.Plugin.NAME_VERIFIER_SECURITY_MISCONFIGURATION, Constant.ID_VERIFIER_SECURITY_MISCONFIGURATION);
+	public VerifierSecurityMisconfiguration() {
+		super(Messages.Plugin.VERIFIER_NAME_SECURITY_MISCONFIGURATION, Constant.ID_VERIFIER_SECURITY_MISCONFIGURATION);
 	}
 
 	@Override

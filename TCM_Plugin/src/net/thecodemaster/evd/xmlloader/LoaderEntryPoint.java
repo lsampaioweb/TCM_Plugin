@@ -14,7 +14,7 @@ import org.w3c.dom.NodeList;
 /**
  * @author Luciano Sampaio
  */
-public class EntryPointLoader extends XMLLoader {
+public class LoaderEntryPoint extends LoaderXML {
 
 	@Override
 	protected String getFilePath() {

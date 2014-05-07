@@ -5,8 +5,8 @@ import java.util.List;
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.helper.Creator;
-import net.thecodemaster.evd.helper.Timer;
 import net.thecodemaster.evd.helper.HelperProjects;
+import net.thecodemaster.evd.helper.Timer;
 import net.thecodemaster.evd.logger.PluginLogger;
 
 import org.eclipse.core.resources.IFile;
@@ -25,7 +25,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 /**
  * @author Luciano Sampaio
  */
-public class CallGraphVisitor implements IResourceVisitor, IResourceDeltaVisitor {
+public class VisitorCallGraph implements IResourceVisitor, IResourceDeltaVisitor {
 
 	/**
 	 * The resource types that should be trigger the call graph visitor.
@@ -35,7 +35,7 @@ public class CallGraphVisitor implements IResourceVisitor, IResourceDeltaVisitor
 
 	private final CallGraph				callGraph;
 
-	public CallGraphVisitor(CallGraph callGraph) {
+	public VisitorCallGraph(CallGraph callGraph) {
 		this.callGraph = callGraph;
 		updatedResources = Creator.newList();
 	}
@@ -94,7 +94,7 @@ public class CallGraphVisitor implements IResourceVisitor, IResourceDeltaVisitor
 
 				// Add a new empty branch.
 				callGraph.addFile(resource);
-				CompilationUnitVisitor cuVisitor = new CompilationUnitVisitor(callGraph);
+				VisitorCompilationUnit cuVisitor = new VisitorCompilationUnit(callGraph);
 				cUnit.accept(cuVisitor);
 				PluginLogger.logInfo(timer.stop().toString());
 
@@ -119,12 +119,9 @@ public class CallGraphVisitor implements IResourceVisitor, IResourceDeltaVisitor
 				resourceTypes = HelperProjects.getResourceTypesToPerformDetection();
 			}
 
-			for (String resourceType : resourceTypes) {
-				if (resource.getFileExtension().equalsIgnoreCase(resourceType)) {
-					return true;
-				}
-			}
+			return resourceTypes.contains(resource.getFileExtension().toLowerCase());
 		}
+
 		// If it reaches this point, it means that the detection should not be performed in this resource.
 		return false;
 	}

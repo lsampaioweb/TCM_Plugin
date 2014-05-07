@@ -28,7 +28,7 @@ import org.xml.sax.SAXException;
 /**
  * @author Luciano Sampaio
  */
-public abstract class XMLLoader {
+public abstract class LoaderXML {
 
   public <T extends AbstractPoint> List<T> load() {
     String file = getFilePath();
@@ -70,15 +70,15 @@ public abstract class XMLLoader {
     }
     catch (ParserConfigurationException e) {
       realException = e;
-      errorMessage = Messages.Error.PARSING_XML_FILE;
+      errorMessage = Messages.Error.FILE_XML_PARSING_FAIL;
     }
     catch (SAXException e) {
       realException = e;
-      errorMessage = Messages.Error.PARSING_XML_FILE;
+      errorMessage = Messages.Error.FILE_XML_PARSING_FAIL;
     }
     catch (IOException e) {
       realException = e;
-      errorMessage = Messages.Error.READING_XML_FILE;
+      errorMessage = Messages.Error.FILE_XML_READING_FAIL;
     }
 
     if (errorMessage != null) {

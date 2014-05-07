@@ -9,10 +9,10 @@ import net.thecodemaster.evd.ui.l10n.Messages;
 /**
  * @author Luciano Sampaio
  */
-public class CrossSiteScriptingVerifier extends Verifier {
+public class VerifierCrossSiteScripting extends Verifier {
 
-	public CrossSiteScriptingVerifier(List<EntryPoint> entryPoints) {
-		super(Messages.Plugin.NAME_VERIFIER_CROSS_SITE_SCRIPTING, Constant.ID_VERIFIER_CROSS_SITE_SCRIPTING, entryPoints);
+	public VerifierCrossSiteScripting(List<EntryPoint> entryPoints) {
+		super(Messages.Plugin.VERIFIER_NAME_CROSS_SITE_SCRIPTING, Constant.ID_VERIFIER_CROSS_SITE_SCRIPTING, entryPoints);
 	}
 
 	@Override

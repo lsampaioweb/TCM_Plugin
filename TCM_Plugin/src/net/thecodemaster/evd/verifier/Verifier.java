@@ -15,7 +15,7 @@ import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.point.EntryPoint;
 import net.thecodemaster.evd.point.ExitPoint;
 import net.thecodemaster.evd.reporter.Reporter;
-import net.thecodemaster.evd.xmlloader.ExitPointLoader;
+import net.thecodemaster.evd.xmlloader.LoaderExitPoint;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -131,7 +131,7 @@ public abstract class Verifier {
 	}
 
 	protected void loadExitPoints() {
-		exitPoints = (new ExitPointLoader(getVerifierId())).load();
+		exitPoints = (new LoaderExitPoint(getVerifierId())).load();
 	}
 
 	protected static List<EntryPoint> getEntryPoints() {

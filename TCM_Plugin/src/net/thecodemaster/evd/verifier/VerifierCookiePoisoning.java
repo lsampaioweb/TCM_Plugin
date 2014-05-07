@@ -9,10 +9,10 @@ import net.thecodemaster.evd.ui.l10n.Messages;
 /**
  * @author Luciano Sampaio
  */
-public class CookiePoisoningVerifier extends Verifier {
+public class VerifierCookiePoisoning extends Verifier {
 
-	public CookiePoisoningVerifier(List<EntryPoint> entryPoints) {
-		super(Messages.Plugin.NAME_VERIFIER_COOKIE_POISONING, Constant.ID_VERIFIER_COOKIE_POISONING, entryPoints);
+	public VerifierCookiePoisoning(List<EntryPoint> entryPoints) {
+		super(Messages.Plugin.VERIFIER_NAME_COOKIE_POISONING, Constant.ID_VERIFIER_COOKIE_POISONING, entryPoints);
 	}
 
 }

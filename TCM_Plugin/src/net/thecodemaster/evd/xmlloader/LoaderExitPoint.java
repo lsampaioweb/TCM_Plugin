@@ -16,11 +16,11 @@ import org.w3c.dom.NodeList;
 /**
  * @author Luciano Sampaio
  */
-public class ExitPointLoader extends XMLLoader {
+public class LoaderExitPoint extends LoaderXML {
 
 	private final int	fileId;
 
-	public ExitPointLoader(int fileId) {
+	public LoaderExitPoint(int fileId) {
 		this.fileId = fileId;
 	}
 

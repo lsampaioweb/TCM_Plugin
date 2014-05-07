@@ -9,7 +9,7 @@ import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.helper.Timer;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.ui.l10n.Messages;
-import net.thecodemaster.evd.visitor.CallGraphVisitor;
+import net.thecodemaster.evd.visitor.VisitorCallGraph;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -25,8 +25,8 @@ import org.eclipse.core.runtime.jobs.Job;
  */
 public class BuilderJob extends Job {
 
-	private IProject						project;
-	private IResourceDelta					delta;
+	private IProject												project;
+	private IResourceDelta									delta;
 
 	/**
 	 * This object contains all the methods, variables and their interactions, on the project that is being analyzed. At
@@ -83,12 +83,11 @@ public class BuilderJob extends Job {
 			CallGraph callGraph = getCallGraph();
 			if (null == callGraph) {
 				String projectName = (null != project) ? project.getName() : "";
-				PluginLogger.logError(String.format(Messages.Error.CALL_GRAPH_DOES_NOT_CONTAIN_PROJECT, projectName),
-						null);
+				PluginLogger.logError(String.format(Messages.Error.CALL_GRAPH_DOES_NOT_CONTAIN_PROJECT, projectName), null);
 			} else {
 				monitor.beginTask(Messages.Plugin.TASK, IProgressMonitor.UNKNOWN);
 
-				CallGraphVisitor callGraphVisitor = new CallGraphVisitor(callGraph);
+				VisitorCallGraph callGraphVisitor = new VisitorCallGraph(callGraph);
 				List<IResource> updatedResources = Creator.newList();
 
 				if (null != delta) {
@@ -118,7 +117,7 @@ public class BuilderJob extends Job {
 			PluginLogger.logError(e);
 			return e.getStatus();
 		} finally {
-			if (monitor != null) {
+			if (null != monitor) {
 				monitor.done();
 			}
 		}

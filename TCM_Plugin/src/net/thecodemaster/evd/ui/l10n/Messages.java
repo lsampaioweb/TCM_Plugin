@@ -73,10 +73,10 @@ public abstract class Messages extends NLS {
 		public static String				JOB;
 		public static String				TASK;
 
-		public static String				NAME_VERIFIER_SECURITY_MISCONFIGURATION;
-		public static String				NAME_VERIFIER_COOKIE_POISONING;
-		public static String				NAME_VERIFIER_SQL_INJECTION;
-		public static String				NAME_VERIFIER_CROSS_SITE_SCRIPTING;
+		public static String				VERIFIER_NAME_SECURITY_MISCONFIGURATION;
+		public static String				VERIFIER_NAME_COOKIE_POISONING;
+		public static String				VERIFIER_NAME_SQL_INJECTION;
+		public static String				VERIFIER_NAME_CROSS_SITE_SCRIPTING;
 
 		static {
 			// Initialize resource bundle.
@@ -103,8 +103,8 @@ public abstract class Messages extends NLS {
 		private static final String	BUNDLE_NAME	= Constant.Package.L10N_MESSAGES + ".error";	//$NON-NLS-1$
 
 		public static String				FILE_NOT_FOUND;
-		public static String				PARSING_XML_FILE;
-		public static String				READING_XML_FILE;
+		public static String				FILE_XML_PARSING_FAIL;
+		public static String				FILE_XML_READING_FAIL;
 		public static String				CALL_GRAPH_DOES_NOT_CONTAIN_PROJECT;
 
 		static {
