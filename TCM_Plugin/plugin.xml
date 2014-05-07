@@ -4,14 +4,14 @@
    <extension
          point="org.eclipse.ui.views">
       <category
-            id="net.thecodemaster.sap.ui.view.category"
+            id="NET.THECODEMASTER.EVD.UI.VIEW.CATEGORY"
             name="%view.category.name">
       </category>
       <view
-            category="net.thecodemaster.sap.ui.view.category"
-            class="net.thecodemaster.sap.ui.views.ViewSecurityVulnerabilities"
-            icon="icons/SecurityVulnerability.png"
-            id="net.thecodemaster.sap.ui.view"
+            category="NET.THECODEMASTER.EVD.UI.VIEW.CATEGORY"
+            class="net.thecodemaster.evd.ui.view.ViewSecurityVulnerabilities"
+            icon="icon/View.png"
+            id="NET.THECODEMASTER.EVD.UI.VIEW"
             name="%view.name"
             restorable="true">
       </view>
@@ -21,7 +21,7 @@
       <perspectiveExtension
             targetID="org.eclipse.jdt.ui.JavaPerspective">
          <view
-               id="net.thecodemaster.sap.ui.view"
+               id="NET.THECODEMASTER.EVD.UI.VIEW"
                minimized="false"
                ratio="0.5"
                relationship="bottom"
@@ -30,40 +30,40 @@
       </perspectiveExtension>
    </extension>
    <extension
-         id="TheCodeMasterSecurityAnalyzerPlugin"
+         id="NET.THECODEMASTER.EVD.UI.PREFERENCES"
          point="org.eclipse.core.runtime.preferences">
       <initializer
-            class="net.thecodemaster.sap.ui.preference.PreferenceInitializer">
+            class="net.thecodemaster.evd.ui.preference.page.PreferenceInitializer">
       </initializer>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            class="net.thecodemaster.sap.ui.preference.page.Acknowledgements"
-            id="net.thecodemaster.sap.ui.preference.page.acknowledgements"
+            class="net.thecodemaster.evd.ui.preference.page.Acknowledgements"
+            id="NET.THECODEMASTER.EVD.UI.PREFERENCE.PAGE.ACKNOWLEDGEMENTS"
             name="%preference.page.acknowledgements">
          <keywordReference
-               id="net.thecodemaster.sap.ui.keywords">
+               id="NET.THECODEMASTER.EVD.UI.KEYWORDS">
          </keywordReference>
       </page>
       <page
-            category="net.thecodemaster.sap.ui.preference.page.acknowledgements"
-            class="net.thecodemaster.sap.ui.preference.page.Settings"
-            id="net.thecodemaster.sap.ui.preference.page.settings"
+            category="NET.THECODEMASTER.EVD.UI.PREFERENCE.PAGE.ACKNOWLEDGEMENTS"
+            class="net.thecodemaster.evd.ui.preference.page.Settings"
+            id="NET.THECODEMASTER.EVD.UI.PREFERENCE.PAGE.SETTINGS"
             name="%preference.page.settings">
       </page>
       <page
-            category="net.thecodemaster.sap.ui.preference.page.acknowledgements"
-            class="net.thecodemaster.sap.ui.preference.page.SecurityVulnerabilities"
-            id="net.thecodemaster.sap.ui.preference.page.security_vulnerabilities"
+            category="NET.THECODEMASTER.EVD.UI.PREFERENCE.PAGE.ACKNOWLEDGEMENTS"
+            class="net.thecodemaster.evd.ui.preference.page.SecurityVulnerabilities"
+            id="NET.THECODEMASTER.EVD.UI.PREFERENCE.PAGE.SECURITY_VULNERABILITIES"
             name="%preference.page.security_vulnerabilities">
       </page>
    </extension>
    <extension
          point="org.eclipse.ui.keywords">
       <keyword
-            id="net.thecodemaster.sap.ui.keywords"
-            label="%preference.page.tcmsap.keyword">
+            id="NET.THECODEMASTER.EVD.UI.KEYWORDS"
+            label="%preference.page.tcm_evd.keyword">
       </keyword>
    </extension>
    <extension
@@ -72,8 +72,9 @@
             allPopups="false"
             locationURI="popup:org.eclipse.ui.popup.any?before=additions">
          <menu
-               id="net.thecodemaster.sap.ui.menu.root"
-               label="%menu.tcmsap">
+               icon="icon/Menu.png"
+               id="NET.THECODEMASTER.EVD.UI.MENU.ROOT"
+               label="%menu.tcm_evd">
             <visibleWhen
                   checkEnabled="false">
                <with
@@ -93,7 +94,7 @@
                </with>
             </visibleWhen>
             <command
-                  commandId="net.thecodemaster.sap.ui.command.enable_plugin"
+                  commandId="net.thecodemaster.evd.ui.command.enable_plugin"
                   label="%menu.enable_plugin.label"
                   style="push"
                   tooltip="%menu.enable_plugin.tooltip">
@@ -103,13 +104,13 @@
                         variable="selection">
                      <test
                            forcePluginActivation="true"
-                           property="net.thecodemaster.sap.ui.propertytester.isEnabled">
+                           property="net.thecodemaster.evd.ui.propertytester.isEnabled">
                      </test>
                   </with>
                </visibleWhen>
             </command>
             <command
-                  commandId="net.thecodemaster.sap.ui.command.disable_plugin"
+                  commandId="net.thecodemaster.evd.ui.command.disable_plugin"
                   label="%menu.disable_plugin.label"
                   style="push"
                   tooltip="%menu.disable_plugin.tooltip">
@@ -119,13 +120,13 @@
                         variable="selection">
                      <test
                            forcePluginActivation="true"
-                           property="net.thecodemaster.sap.ui.propertytester.isDisabled">
+                           property="net.thecodemaster.evd.ui.propertytester.isDisabled">
                      </test>
                   </with>
                </visibleWhen>
             </command>
             <command
-                  commandId="net.thecodemaster.sap.ui.command.open_settings"
+                  commandId="net.thecodemaster.evd.ui.command.open_settings"
                   label="%menu.open_settings.label"
                   style="push"
                   tooltip="%menu.open_settings.tooltip">
@@ -136,57 +137,57 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="net.thecodemaster.sap.ui.commands.EnableScanOnProject"
-            id="net.thecodemaster.sap.ui.command.enable_plugin"
+            defaultHandler="net.thecodemaster.evd.ui.command.EnableScanOnProject"
+            id="net.thecodemaster.evd.ui.command.enable_plugin"
             name="%menu.enable_plugin.label">
       </command>
       <command
-            defaultHandler="net.thecodemaster.sap.ui.commands.DisableScanOnProject"
-            id="net.thecodemaster.sap.ui.command.disable_plugin"
+            defaultHandler="net.thecodemaster.evd.ui.command.DisableScanOnProject"
+            id="net.thecodemaster.evd.ui.command.disable_plugin"
             name="%menu.disable_plugin.label">
       </command>
       <command
-            defaultHandler="net.thecodemaster.sap.ui.commands.OpenSettingsPreferencePage"
-            id="net.thecodemaster.sap.ui.command.open_settings"
+            defaultHandler="net.thecodemaster.evd.ui.command.OpenSettingsPreferencePage"
+            id="net.thecodemaster.evd.ui.command.open_settings"
             name="%menu.open_settings.label">
       </command>
    </extension>
    <extension
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester
-            class="net.thecodemaster.sap.ui.propertytester.EnableDisableMenu"
-            id="net.thecodemaster.sap.ui.propertytester.EnableDisableMenu"
-            namespace="net.thecodemaster.sap.ui.propertytester"
+            class="net.thecodemaster.evd.ui.propertytester.EnableDisableMenu"
+            id="NET.THECODEMASTER.EVD.UI.PROPERTYTESTER.ENABLEDISABLEMENU"
+            namespace="net.thecodemaster.evd.ui.propertytester"
             properties="isEnabled, isDisabled"
             type="org.eclipse.jface.viewers.ISelection">
       </propertyTester>
    </extension>
    <extension
-         id="Builder"
-         name="TCMSA Builder"
+         id="TCM_EVD_BUILDER"
+         name="TCM_EVD Builder"
          point="org.eclipse.core.resources.builders">
       <builder
             hasNature="true">
          <run
-               class="net.thecodemaster.sap.builders.Builder">
+               class="net.thecodemaster.evd.builder.IncrementalBuilder">
          </run>
       </builder>
    </extension>
    <extension
-         id="Nature"
-         name="TCMSA Nature"
+         id="TCM_EVD_NATURE"
+         name="TCM_EVD Nature"
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run
-               class="net.thecodemaster.sap.natures.Nature">
+               class="net.thecodemaster.evd.nature.Nature">
          </run>
       </runtime>
       <builder
-            id="TheCodeMasterSecurityAnalyzerPlugin.Builder">
+            id="TheCodeMasterEarlyVulnerabilityDetector.TCM_EVD_BUILDER">
       </builder>
    </extension>
    <extension
-         id="TCMSAMarker"
+         id="TCM_EVD_MARKER"
          name="Security Vulnerability"
          point="org.eclipse.core.resources.markers">
       <persistent
@@ -196,44 +197,44 @@
             type="org.eclipse.core.resources.problemmarker">
       </super>
       <attribute
-            name="TCMSA_TYPE_SECURITY_VULNERABILITY">
+            name="TCM_EVD_TYPE_SECURITY_VULNERABILITY">
       </attribute>
    </extension>
    <extension
-         id="TCMSAMarkerResolution"
+         id="TCM_EVD_MARKER_RESOLUTION"
          point="org.eclipse.ui.ide.markerResolution">
       <markerResolutionGenerator
-            class="net.thecodemaster.sap.markers.SecurityVulnerabilitiesResolutionGenerator"
-            markerType="TheCodeMasterSecurityAnalyzerPlugin.TCMSAMarker">
+            class="net.thecodemaster.evd.marker.SecurityVulnerabilityResolutionGenerator"
+            markerType="TheCodeMasterEarlyVulnerabilityDetector.TCM_EVD_MARKER">
       </markerResolutionGenerator>
    </extension>
    <extension
-         id="TCMSAMarkerAnnotation"
+         id="TCM_EVD_MARKER_ANNOTATION"
          point="org.eclipse.ui.editors.annotationTypes">
       <type
             markerSeverity="1"
-            markerType="TheCodeMasterSecurityAnalyzerPlugin.TCMSAMarker"
-            name="TheCodeMasterSecurityAnalyzerPlugin.TCMSAMarkerAnnotation">
+            markerType="TheCodeMasterEarlyVulnerabilityDetector.TCM_EVD_MARKER"
+            name="TheCodeMasterEarlyVulnerabilityDetector.TCM_EVD_MARKER_ANNOTATION">
       </type>
    </extension>
    <extension
-         id="TCMSAMarkerAnnotationSpecification"
+         id="TCM_EVD_MARKER_ANNOTATION_SPECIFICATION"
          point="org.eclipse.ui.editors.markerAnnotationSpecification">
       <specification
-			annotationType="TheCodeMasterSecurityAnalyzerPlugin.TCMSAMarkerAnnotation"
+			annotationType="TheCodeMasterEarlyVulnerabilityDetector.TCM_EVD_MARKER_ANNOTATION"
 			colorPreferenceKey="org.eclipse.viatra2.slice.color" colorPreferenceValue="243,199,64"
 			contributesToHeader="false" highlightPreferenceKey="org.eclipse.viatra2.slice.highlight"
-			highlightPreferenceValue="true" icon="icons/SecurityVulnerability.png"
+			highlightPreferenceValue="true" icon="icons/Warning.png"
 			includeOnPreferencePage="true" isGoToNextNavigationTarget="true"
-			isGoToNextNavigationTargetKey="TCMSAIsGoToNextNavigationTarget"
+			isGoToNextNavigationTargetKey="TCM_EVD_IsGoToNextNavigationTarget"
 			isGoToPreviousNavigationTarget="true"
-			isGoToPreviousNavigationTargetKey="TCMSAIsGoToPreviousNavigationTarget"
-			label="TCM Security Analyzer Warnings" overviewRulerPreferenceKey="org.eclipse.viatra2.slice.overview"
+			isGoToPreviousNavigationTargetKey="TCM_EVD_IsGoToPreviousNavigationTarget"
+			label="TCM Early Vulnerability Detector Warnings" overviewRulerPreferenceKey="org.eclipse.viatra2.slice.overview"
 			overviewRulerPreferenceValue="true" presentationLayer="0"
-			quickFixIcon="icons/SecurityVulnerability.png" showInNextPrevDropdownToolbarAction="true"
-			showInNextPrevDropdownToolbarActionKey="TCMSAShowInNextPrevDropdownToolbarAction"
+			quickFixIcon="icons/QuickFix.png" showInNextPrevDropdownToolbarAction="true"
+			showInNextPrevDropdownToolbarActionKey="TCM_EVD_ShowInNextPrevDropdownToolbarAction"
 			symbolicIcon="warning" textPreferenceKey="org.eclipse.viatra2.slice.text"
-			textPreferenceValue="true" textStylePreferenceKey="TCMSATextStylePreference"
+			textPreferenceValue="true" textStylePreferenceKey="TCM_EVD_TextStylePreference"
 			textStylePreferenceValue="PROBLEM_UNDERLINE" verticalRulerPreferenceKey="org.eclipse.viatra2.slice.ruler"
 			verticalRulerPreferenceValue="true">
 		</specification>
