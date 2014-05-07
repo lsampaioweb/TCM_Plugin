@@ -3,8 +3,11 @@ package net.thecodemaster.evd.verifier;
 import java.util.List;
 
 import net.thecodemaster.evd.constant.Constant;
+import net.thecodemaster.evd.graph.VulnerabilityPath;
 import net.thecodemaster.evd.point.EntryPoint;
 import net.thecodemaster.evd.ui.l10n.Messages;
+
+import org.eclipse.jdt.core.dom.Expression;
 
 /**
  * @author Luciano Sampaio
@@ -16,8 +19,9 @@ public class VerifierSQLInjection extends Verifier {
 	}
 
 	@Override
-	protected String getMessageEntryPoint(String value) {
-		return String.format(Messages.VerifierSecurityVulnerability.ENTRY_POINT_METHOD, value);
+	protected void checkInfixExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
+		// 01 - Informs that this node is a vulnerability.
+		vp.foundVulnerability(expr, "SQL concatenation");
 	}
 
 }

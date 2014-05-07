@@ -32,14 +32,16 @@ public abstract class Analyzer {
 		verifiers = Creator.newList();
 	}
 
-	public void run(List<IResource> resources, CallGraph callGraph, Reporter reporter) {
-		for (Verifier verifier : getVerifiers()) {
-			if (!userCanceledProcess(reporter)) {
-				Timer timer = (new Timer("01.2.1 - Verifier: " + verifier.getName())).start();
-				verifier.run(resources, callGraph, reporter);
-				PluginLogger.logInfo(timer.stop().toString());
-			}
-		}
+	/**
+	 * Returns whether cancellation of current operation has been requested
+	 * 
+	 * @param reporter
+	 * @return true if cancellation has been requested, and false otherwise.
+	 */
+	private boolean userCanceledProcess(Reporter reporter) {
+		IProgressMonitor monitor = reporter.getProgressMonitor();
+
+		return ((null != monitor) && (monitor.isCanceled()));
 	}
 
 	protected List<Verifier> getVerifiers() {
@@ -59,16 +61,14 @@ public abstract class Analyzer {
 		entryPoints = (new LoaderEntryPoint()).load();
 	}
 
-	/**
-	 * Returns whether cancellation of current operation has been requested
-	 * 
-	 * @param reporter
-	 * @return true if cancellation has been requested, and false otherwise.
-	 */
-	private boolean userCanceledProcess(Reporter reporter) {
-		IProgressMonitor monitor = reporter.getProgressMonitor();
-
-		return ((null != monitor) && (monitor.isCanceled()));
+	public void run(List<IResource> resources, CallGraph callGraph, Reporter reporter) {
+		for (Verifier verifier : getVerifiers()) {
+			if (!userCanceledProcess(reporter)) {
+				Timer timer = (new Timer("01.2.1 - Verifier: " + verifier.getName())).start();
+				verifier.run(resources, callGraph, reporter);
+				PluginLogger.logInfo(timer.stop().toString());
+			}
+		}
 	}
 
 }

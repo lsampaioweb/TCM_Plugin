@@ -1,7 +1,13 @@
 package net.thecodemaster.evd.verifier;
 
 import net.thecodemaster.evd.constant.Constant;
+import net.thecodemaster.evd.graph.VulnerabilityPath;
 import net.thecodemaster.evd.ui.l10n.Messages;
+
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.NumberLiteral;
+import org.eclipse.jdt.core.dom.StringLiteral;
 
 /**
  * @author Luciano Sampaio
@@ -23,8 +29,22 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 	}
 
 	@Override
-	protected String getMessageEntryPoint(String value) {
-		return String.format(Messages.VerifierSecurityVulnerability.ENTRY_POINT_METHOD, value);
+	protected void checkLiteral(VulnerabilityPath vp, Expression expr) {
+		String message = null;
+		switch (expr.getNodeType()) {
+			case ASTNode.STRING_LITERAL:
+				message = getMessageLiteral(((StringLiteral) expr).getLiteralValue());
+				break;
+			case ASTNode.NUMBER_LITERAL:
+				message = getMessageLiteral(((NumberLiteral) expr).getToken());
+				break;
+			case ASTNode.NULL_LITERAL:
+				message = getMessageNullLiteral();
+				break;
+		}
+
+		// 01 - Informs that this node is a vulnerability.
+		vp.foundVulnerability(expr, message);
 	}
 
 }

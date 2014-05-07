@@ -1,5 +1,6 @@
 package net.thecodemaster.evd.reporter;
 
+import java.util.List;
 import java.util.Map;
 
 import net.thecodemaster.evd.constant.Constant;
@@ -39,7 +40,13 @@ public class Reporter {
 		this.progressMonitor = progressMonitor;
 	}
 
-	public void clearProblems(IResource resource) {
+	public void clearOldProblems(List<IResource> resources) {
+		for (IResource resource : resources) {
+			clearOldProblems(resource);
+		}
+	}
+
+	private void clearOldProblems(IResource resource) {
 		if (problemView) {
 			clearMarkers(resource);
 		}

@@ -85,6 +85,9 @@ public class Manager {
 	}
 
 	public void run(List<IResource> resources, CallGraph callGraph) {
+		// 01 - Any Analyzer or its verifiers can add markers, so we first need to clean the old values.
+		reporter.clearOldProblems(resources);
+
 		for (Analyzer analyzer : analyzers) {
 			analyzer.run(resources, callGraph, reporter);
 		}

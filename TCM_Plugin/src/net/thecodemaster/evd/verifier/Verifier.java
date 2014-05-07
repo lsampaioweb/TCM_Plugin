@@ -15,6 +15,7 @@ import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.point.EntryPoint;
 import net.thecodemaster.evd.point.ExitPoint;
 import net.thecodemaster.evd.reporter.Reporter;
+import net.thecodemaster.evd.ui.l10n.Messages;
 import net.thecodemaster.evd.xmlloader.LoaderExitPoint;
 
 import org.eclipse.core.resources.IResource;
@@ -30,11 +31,9 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Statement;
-import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
@@ -156,21 +155,19 @@ public abstract class Verifier {
 		// 01 - Run the vulnerability detection on all the provided resources.
 		for (IResource resource : resources) {
 			if (getCallGraph().containsFile(resource)) {
-				// 02 - Delete any old markers of this resource.
-				getReporter().clearProblems(resource);
 
-				// 03 - Get the list of methods in the current resource.
+				// 02 - Get the list of methods in the current resource.
 				Map<MethodDeclaration, List<Expression>> methods = getCallGraph().getMethods(resource);
 
-				// 04 - Get all the method invocations of each method declaration.
+				// 03 - Get all the method invocations of each method declaration.
 				for (List<Expression> invocations : methods.values()) {
 
-					// 05 - Iterate over all method invocations to verify if it is a ExitPoint.
+					// 04 - Iterate over all method invocations to verify if it is a ExitPoint.
 					for (Expression method : invocations) {
 						ExitPoint exitPoint = getExitPointIfMethodIsOne(method);
 
 						if (null != exitPoint) {
-							// 06 - Some methods will need to have access to the resource that is currently being analyzed.
+							// 05 - Some methods will need to have access to the resource that is currently being analyzed.
 							// but we do not want to pass it to all these methods as a parameter.
 							setCurrentResource(resource);
 
@@ -303,12 +300,12 @@ public abstract class Verifier {
 		return null;
 	}
 
-	protected String getMessageEntryPoint(String value) {
+	protected String getMessageNullLiteral() {
 		return null;
 	}
 
-	protected String getMessageNullLiteral() {
-		return null;
+	protected String getMessageEntryPoint(String value) {
+		return String.format(Messages.VerifierSecurityVulnerability.ENTRY_POINT_METHOD, value);
 	}
 
 	protected void checkExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
@@ -334,9 +331,9 @@ public abstract class Verifier {
 				case ASTNode.INFIX_EXPRESSION:
 					checkInfixExpression(vp, rules, expr, ++depth);
 					break;
-				// case ASTNode.PREFIX_EXPRESSION:
-				// TODO.
-				// break;
+				case ASTNode.PREFIX_EXPRESSION:
+					checkPrefixExpression(vp, rules, expr, ++depth);
+					break;
 				case ASTNode.CONDITIONAL_EXPRESSION:
 					checkConditionExpression(vp, rules, expr, ++depth);
 					break;
@@ -368,21 +365,6 @@ public abstract class Verifier {
 	}
 
 	protected void checkLiteral(VulnerabilityPath vp, Expression expr) {
-		String message = null;
-		switch (expr.getNodeType()) {
-			case ASTNode.STRING_LITERAL:
-				message = getMessageLiteral(((StringLiteral) expr).getLiteralValue());
-				break;
-			case ASTNode.NUMBER_LITERAL:
-				message = getMessageLiteral(((NumberLiteral) expr).getToken());
-				break;
-			case ASTNode.NULL_LITERAL:
-				message = getMessageNullLiteral();
-				break;
-		}
-
-		// 01 - Informs that this node is a vulnerability.
-		vp.foundVulnerability(expr, message);
 	}
 
 	protected void checkInfixExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
@@ -400,6 +382,10 @@ public abstract class Verifier {
 		for (Expression expression : extendedOperands) {
 			checkExpression(vp.addNodeToPath(expression), rules, expression, depth);
 		}
+	}
+
+	protected void checkPrefixExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
+		PluginLogger.logInfo("checkPrefixExpression");
 	}
 
 	protected void checkConditionExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
