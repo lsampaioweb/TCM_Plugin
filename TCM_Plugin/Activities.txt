@@ -30,3 +30,7 @@
 
 XX - Check for cases where the class A invokes method C from class B, but the developer is working on class A so the class B will 
 not be verified, but it can be a case where the vulnerability happens when something is introduced in class A.
+XX - Add comments to classes.
+XX - Make methods private.
+XX - Sort methods by visibility.
+XX - Remove LIST from variable names, they should be named: parameters instead of listParameters.

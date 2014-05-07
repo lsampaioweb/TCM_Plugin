@@ -1,10 +1,5 @@
 Instruction for the current project.
 
--- Add comments to classes.
--- Make methods private.
--- Sort methods by visibility.
--- Remove LIST from variable names, they should be named: parameters instead of listParameters.
-
 Full name: 
   TheCodeMaster Early Vulnerability Detector Plug-in.
 Acronym: 
@@ -22,14 +17,13 @@ Packages' Names:
   04 - net.thecodemaster.evd.l10n
   05 - net.thecodemaster.evd...
 
-
 Eclipse Ids:
   Should all be capitalized.
   TCM_EVD_AAA....
 
 Comment:
 @Author: Luciano Sampaio
-@Date: 2014-05-20
+@Date: 2014-03-01
 @Version: 01
 
 Order of variables:

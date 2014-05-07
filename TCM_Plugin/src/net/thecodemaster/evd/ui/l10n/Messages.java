@@ -10,7 +10,7 @@ import org.eclipse.osgi.util.NLS;
 public abstract class Messages extends NLS {
 
 	public static abstract class PrefPageAcknowledgements {
-		private static final String	BUNDLE_NAME	= Constant.PACKAGE_L10N_MESSAGES + ".pref_page_acknowledgements"; //$NON-NLS-1$
+		private static final String	BUNDLE_NAME	= Constant.Package.L10N_MESSAGES + ".pref_page_acknowledgements"; //$NON-NLS-1$
 		public static String				DESCRIPTION;
 
 		public static String				LABEL_GROUP_AUTHORS;
@@ -28,8 +28,8 @@ public abstract class Messages extends NLS {
 		}
 	}
 
-	public static abstract class PrefPageSecurityVulnerabilities {
-		private static final String	BUNDLE_NAME	= Constant.PACKAGE_L10N_MESSAGES + ".pref_page_security_vulnerabilities"; //$NON-NLS-1$
+	public static abstract class PrefPageSecurityVulnerability {
+		private static final String	BUNDLE_NAME	= Constant.Package.L10N_MESSAGES + ".pref_page_security_vulnerability"; //$NON-NLS-1$
 		public static String				LABEL_COOKIE_POISONING;
 		public static String				LABEL_CROSS_SITE_SCRIPTING;
 		public static String				LABEL_SECURITY_VULNERABILITIES;
@@ -39,12 +39,12 @@ public abstract class Messages extends NLS {
 
 		static {
 			// Initialize resource bundle.
-			NLS.initializeMessages(BUNDLE_NAME, PrefPageSecurityVulnerabilities.class);
+			NLS.initializeMessages(BUNDLE_NAME, PrefPageSecurityVulnerability.class);
 		}
 	}
 
 	public static abstract class PrefPageSettings {
-		private static final String	BUNDLE_NAME	= Constant.PACKAGE_L10N_MESSAGES + ".pref_page_settings"; //$NON-NLS-1$
+		private static final String	BUNDLE_NAME	= Constant.Package.L10N_MESSAGES + ".pref_page_settings"; //$NON-NLS-1$
 		public static String				DESCRIPTION;
 		public static String				LABEL_RUN_MODE;
 
@@ -69,7 +69,7 @@ public abstract class Messages extends NLS {
 	}
 
 	public static abstract class Plugin {
-		private static final String	BUNDLE_NAME	= Constant.PACKAGE_L10N_MESSAGES + ".plugin"; //$NON-NLS-1$
+		private static final String	BUNDLE_NAME	= Constant.Package.L10N_MESSAGES + ".plugin"; //$NON-NLS-1$
 		public static String				JOB;
 		public static String				TASK;
 
@@ -84,8 +84,8 @@ public abstract class Messages extends NLS {
 		}
 	}
 
-	public static abstract class SecurityVulnerabilitiesVerifier {
-		private static final String	BUNDLE_NAME	= Constant.PACKAGE_L10N_MESSAGES + ".security_vulnerabilities_verifier";	//$NON-NLS-1$
+	public static abstract class VerifierSecurityVulnerability {
+		private static final String	BUNDLE_NAME	= Constant.Package.L10N_MESSAGES + ".verifier_security_vulnerability";	//$NON-NLS-1$
 
 		public static String				LITERAL;
 		public static String				NULL_LITERAL;
@@ -95,12 +95,12 @@ public abstract class Messages extends NLS {
 
 		static {
 			// Initialize resource bundle.
-			NLS.initializeMessages(BUNDLE_NAME, SecurityVulnerabilitiesVerifier.class);
+			NLS.initializeMessages(BUNDLE_NAME, VerifierSecurityVulnerability.class);
 		}
 	}
 
 	public static abstract class Error {
-		private static final String	BUNDLE_NAME	= Constant.PACKAGE_L10N_MESSAGES + ".error";	//$NON-NLS-1$
+		private static final String	BUNDLE_NAME	= Constant.Package.L10N_MESSAGES + ".error";	//$NON-NLS-1$
 
 		public static String				FILE_NOT_FOUND;
 		public static String				PARSING_XML_FILE;

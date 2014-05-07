@@ -17,7 +17,7 @@ public class CrossSiteScriptingVerifier extends Verifier {
 
 	@Override
 	protected String getMessageEntryPoint(String value) {
-		return String.format(Messages.SecurityVulnerabilitiesVerifier.ENTRY_POINT_METHOD, value);
+		return String.format(Messages.VerifierSecurityVulnerability.ENTRY_POINT_METHOD, value);
 	}
 
 }

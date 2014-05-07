@@ -11,7 +11,7 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
   @Override
   public void initializeDefaultPreferences() {
-    SecurityVulnerabilities securityVulnerabilitiesPage = new SecurityVulnerabilities();
+    SecurityVulnerability securityVulnerabilitiesPage = new SecurityVulnerability();
     securityVulnerabilitiesPage.performDefaults();
 
     Settings settingsPage = new Settings();

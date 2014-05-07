@@ -54,7 +54,7 @@
       </page>
       <page
             category="NET.THECODEMASTER.EVD.UI.PREFERENCE.PAGE.ACKNOWLEDGEMENTS"
-            class="net.thecodemaster.evd.ui.preference.page.SecurityVulnerabilities"
+            class="net.thecodemaster.evd.ui.preference.page.SecurityVulnerability"
             id="NET.THECODEMASTER.EVD.UI.PREFERENCE.PAGE.SECURITY_VULNERABILITIES"
             name="%preference.page.security_vulnerabilities">
       </page>
@@ -183,7 +183,7 @@
          </run>
       </runtime>
       <builder
-            id="TheCodeMasterEarlyVulnerabilityDetector.TCM_EVD_BUILDER">
+            id="THE_CODE_MASTER_EARLY_VULNERABILITY_DETECTOR.TCM_EVD_BUILDER">
       </builder>
    </extension>
    <extension
@@ -205,7 +205,7 @@
          point="org.eclipse.ui.ide.markerResolution">
       <markerResolutionGenerator
             class="net.thecodemaster.evd.marker.SecurityVulnerabilityResolutionGenerator"
-            markerType="TheCodeMasterEarlyVulnerabilityDetector.TCM_EVD_MARKER">
+            markerType="THE_CODE_MASTER_EARLY_VULNERABILITY_DETECTOR.TCM_EVD_MARKER">
       </markerResolutionGenerator>
    </extension>
    <extension
@@ -213,15 +213,15 @@
          point="org.eclipse.ui.editors.annotationTypes">
       <type
             markerSeverity="1"
-            markerType="TheCodeMasterEarlyVulnerabilityDetector.TCM_EVD_MARKER"
-            name="TheCodeMasterEarlyVulnerabilityDetector.TCM_EVD_MARKER_ANNOTATION">
+            markerType="THE_CODE_MASTER_EARLY_VULNERABILITY_DETECTOR.TCM_EVD_MARKER"
+            name="THE_CODE_MASTER_EARLY_VULNERABILITY_DETECTOR.TCM_EVD_MARKER_ANNOTATION">
       </type>
    </extension>
    <extension
          id="TCM_EVD_MARKER_ANNOTATION_SPECIFICATION"
          point="org.eclipse.ui.editors.markerAnnotationSpecification">
       <specification
-			annotationType="TheCodeMasterEarlyVulnerabilityDetector.TCM_EVD_MARKER_ANNOTATION"
+			annotationType="THE_CODE_MASTER_EARLY_VULNERABILITY_DETECTOR.TCM_EVD_MARKER_ANNOTATION"
 			colorPreferenceKey="org.eclipse.viatra2.slice.color" colorPreferenceValue="243,199,64"
 			contributesToHeader="false" highlightPreferenceKey="org.eclipse.viatra2.slice.highlight"
 			highlightPreferenceValue="true" icon="icons/Warning.png"

@@ -16,8 +16,6 @@ public abstract class Constant {
 
 	public static final String	SEPARATOR															= ";";
 	public static final String	RESOURCE_TYPE_TO_PERFORM_DETECTION		= "java" + SEPARATOR + "jsp";
-	public static final String	PACKAGE_UI														= "net.thecodemaster.evd.ui";
-	public static final String	PACKAGE_L10N_MESSAGES									= PACKAGE_UI + ".l10n.messages";
 	public static final int			MAXIMUM_DEPTH													= 10;
 	public static final int			ID_VERIFIER_COOKIE_POISONING					= 1;
 	public static final int			ID_VERIFIER_CROSS_SITE_SCRIPTING			= 2;
@@ -26,24 +24,9 @@ public abstract class Constant {
 
 	public static final String	OBJECT																= "java.lang.Object";
 
-	public abstract class PrefPageSecurityVulnerability {
-		public static final String	FIELD_COOKIE_POISONING					= Activator.ID_PLUGIN + ".CookiePoisoning";
-		public static final String	FIELD_CROSS_SITE_SCRIPTING			= Activator.ID_PLUGIN + ".CrossSiteScripting";
-		public static final String	FIELD_SECURITY_MISCONFIGURATION	= Activator.ID_PLUGIN + ".SecurityMisconfiguration";
-		public static final String	FIELD_SQL_INJECTION							= Activator.ID_PLUGIN + ".SQLInjection";
-		public static final String	FIELD_UNVALIDATED_REDIRECTING		= Activator.ID_PLUGIN + ".UnvalidatedRedirecting";
-
-		public static final String	FIELD_MONITORED_PROJECTS				= Activator.ID_PLUGIN + ".MonitoredProjects";
-	}
-
-	public abstract class PrefPageSettings {
-		public static final String	ID_PAGE											= PACKAGE_UI + ".PREFERENCE.PAGE.SETTINGS";
-
-		public static final String	FIELD_RUN_MODE							= Activator.ID_PLUGIN + ".RunMode";
-
-		public static final String	FIELD_OUTPUT_PROBLEMS_VIEW	= Activator.ID_PLUGIN + ".ProblemsView";
-		public static final String	FIELD_OUTPUT_TEXT_FILE			= Activator.ID_PLUGIN + ".TextFile";
-		public static final String	FIELD_OUTPUT_XML_FILE				= Activator.ID_PLUGIN + ".XmlFile";
+	public abstract class Package {
+		public static final String	UI						= "net.thecodemaster.evd.ui";
+		public static final String	L10N_MESSAGES	= UI + ".l10n.message";
 	}
 
 	public abstract class Folder {
@@ -65,6 +48,26 @@ public abstract class Constant {
 
 	public abstract class Icons {
 		public static final String	SECURITY_VULNERABILITY	= Folder.ICON + "SecurityVulnerability.png";
+	}
+
+	public abstract class PrefPageSecurityVulnerability {
+		public static final String	FIELD_COOKIE_POISONING					= Activator.ID_PLUGIN + ".CookiePoisoning";
+		public static final String	FIELD_CROSS_SITE_SCRIPTING			= Activator.ID_PLUGIN + ".CrossSiteScripting";
+		public static final String	FIELD_SECURITY_MISCONFIGURATION	= Activator.ID_PLUGIN + ".SecurityMisconfiguration";
+		public static final String	FIELD_SQL_INJECTION							= Activator.ID_PLUGIN + ".SQLInjection";
+		public static final String	FIELD_UNVALIDATED_REDIRECTING		= Activator.ID_PLUGIN + ".UnvalidatedRedirecting";
+
+		public static final String	FIELD_MONITORED_PROJECTS				= Activator.ID_PLUGIN + ".MonitoredProjects";
+	}
+
+	public abstract class PrefPageSettings {
+		public static final String	ID_PAGE											= Package.UI + ".PREFERENCE.PAGE.SETTINGS";
+
+		public static final String	FIELD_RUN_MODE							= Activator.ID_PLUGIN + ".RunMode";
+
+		public static final String	FIELD_OUTPUT_PROBLEMS_VIEW	= Activator.ID_PLUGIN + ".ProblemsView";
+		public static final String	FIELD_OUTPUT_TEXT_FILE			= Activator.ID_PLUGIN + ".TextFile";
+		public static final String	FIELD_OUTPUT_XML_FILE				= Activator.ID_PLUGIN + ".XmlFile";
 	}
 
 	public abstract class Marker {
