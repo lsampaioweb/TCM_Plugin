@@ -9,6 +9,7 @@ import net.thecodemaster.evd.Activator;
  */
 public abstract class Constant {
 
+	public static final boolean	IS_DEBUGGING													= true;
 	public static final String	JDT_NATURE														= "org.eclipse.jdt.core.javanature";
 	public static final String	ID_NATURE															= Activator.ID_PLUGIN + ".TCM_EVD_NATURE";
 	public static final String	ID_BUILDER														= Activator.ID_PLUGIN + ".TCM_EVD_BUILDER";

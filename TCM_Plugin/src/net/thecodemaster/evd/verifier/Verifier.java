@@ -64,9 +64,9 @@ public abstract class Verifier {
 	 */
 	private Reporter								reporter;
 	/**
-	 * List with all the ExitPoints of this verifier (shared among other instances of this verifier).
+	 * List with all the ExitPoints of this verifier.
 	 */
-	private static List<ExitPoint>	exitPoints;
+	private List<ExitPoint>					exitPoints;
 	/**
 	 * List with all the EntryPoints (shared among other instances of the verifiers).
 	 */
