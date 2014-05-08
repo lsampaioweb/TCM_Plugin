@@ -77,7 +77,7 @@ public class LoaderExitPoint extends LoaderXML {
 							String type = getAttributeValueFromElement(elementParameter, Constant.XMLLoader.TAG_PARAMETERS_TYPE);
 							String rules = getAttributeValueFromElement(elementParameter, Constant.XMLLoader.TAG_PARAMETERS_RULES);
 
-							params.put(new Parameter(type), getListFromRules(rules));
+							params.put(new Parameter(type, ""), getListFromRules(rules));
 						}
 					}
 					exitPoint.setParameters(params);

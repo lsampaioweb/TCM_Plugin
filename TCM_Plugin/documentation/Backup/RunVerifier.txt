@@ -1,7 +1,7 @@
 @Override
   protected void run() {
     for (MethodInvocation node : getListMethodInvocations().values()) {
-      PluginLogger.logInfo("run - " + node);
+      PluginLogger.logIfDebugging("run - " + node);
       // Verify if the current method belongs to the list of ExitPoints.
       ExitPoint exitPoint = isMethodAnExitPoint(node);
 
@@ -46,13 +46,13 @@
 
         if (argument.getNodeType() == ASTNode.SIMPLE_NAME) {
           IBinding binding = ((SimpleName) argument).resolveBinding();
-          PluginLogger.logInfo(argument);
+          PluginLogger.logIfDebugging(argument);
           for (IVariableBinding vBinding : getLocalVariables().keySet()) {
-            PluginLogger.logInfo(vBinding);
+            PluginLogger.logIfDebugging(vBinding);
           }
 
           if (getLocalVariables().containsKey(binding)) {
-            PluginLogger.logInfo("1");
+            PluginLogger.logIfDebugging("1");
             VariableBindingManager manager = getLocalVariables().get(binding);
 
             // 02 - This is the case where we have to go deeper into the argument's path.
@@ -62,7 +62,7 @@
         else if (argument.getNodeType() == ASTNode.METHOD_INVOCATION) {
           IMethodBinding binding = ((MethodInvocation) argument).resolveMethodBinding();
           if (getListMethodDeclarations().containsKey(binding)) {
-            PluginLogger.logInfo("METHOD_DECLARATION - " + argument);
+            PluginLogger.logIfDebugging("METHOD_DECLARATION - " + argument);
 
             MethodDeclaration method2 = getListMethodDeclarations().get(binding);
 
@@ -71,7 +71,7 @@
             List<?> statements = block.statements();
             for (Object object : statements) {
               Statement statement = (Statement) object;
-              PluginLogger.logInfo("statement - " + statement);
+              PluginLogger.logIfDebugging("statement - " + statement);
             }
 
             validadeArgumentPath(rules, block);
@@ -86,7 +86,7 @@
     for (Integer astNodeValue : rules) {
       if (argument.getNodeType() == astNodeValue) {
         // TODO - We found a vulnerability.
-        PluginLogger.logInfo("We have a vulnerability: " + argument);
+        PluginLogger.logIfDebugging("We have a vulnerability: " + argument);
         return true;
       }
     }

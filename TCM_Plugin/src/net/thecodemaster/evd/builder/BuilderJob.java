@@ -21,7 +21,12 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 
 /**
- * @author Luciano Sampaio
+ * This class will perform its operations in a different(new) thread from the UI Thread. So the user will not be
+ * blocked.
+ * 
+ * @Author: Luciano Sampaio
+ * @Date: 2014-05-07
+ * @Version: 01
  */
 public class BuilderJob extends Job {
 
@@ -30,7 +35,7 @@ public class BuilderJob extends Job {
 
 	/**
 	 * This object contains all the methods, variables and their interactions, on the project that is being analyzed. At
-	 * any given time, we should only have on call graph of the code per project.
+	 * any given time, we should only have one call graph per project.
 	 */
 	private static Map<IProject, CallGraph>	mapCallGraphs;
 
@@ -55,12 +60,23 @@ public class BuilderJob extends Job {
 		this.delta = delta;
 	}
 
+	/**
+	 * Add the project to the list of call graphs.
+	 * 
+	 * @param project
+	 *          The project that will be added to the list.
+	 */
 	private void addProjectToList(IProject project) {
 		if (!mapCallGraphs.containsKey(project)) {
 			mapCallGraphs.put(project, new CallGraph());
 		}
 	}
 
+	/**
+	 * Returns the call graph of the current project.
+	 * 
+	 * @return The call graph of the current project.
+	 */
 	private CallGraph getCallGraph() {
 		if (null != delta) {
 			return mapCallGraphs.get(delta.getResource().getProject());
@@ -80,6 +96,7 @@ public class BuilderJob extends Job {
 	protected IStatus run(IProgressMonitor monitor) {
 		Timer timerCP = (new Timer("01 - Complete Process: ")).start();
 		try {
+			// 01 - Get the CallGraph instance for this project.
 			CallGraph callGraph = getCallGraph();
 			if (null == callGraph) {
 				String projectName = (null != project) ? project.getName() : "";
@@ -87,27 +104,30 @@ public class BuilderJob extends Job {
 			} else {
 				monitor.beginTask(Messages.Plugin.TASK, IProgressMonitor.UNKNOWN);
 
-				VisitorCallGraph callGraphVisitor = new VisitorCallGraph(callGraph);
-				List<IResource> updatedResources = Creator.newList();
+				VisitorCallGraph visitorCallGraph = new VisitorCallGraph(callGraph);
+				List<IResource> resourcesUpdated = Creator.newList();
 
 				if (null != delta) {
 					Timer timerD = (new Timer("01.1 - Call Graph Delta: ")).start();
-					updatedResources = callGraphVisitor.run(delta);
-					PluginLogger.logInfo(timerD.stop().toString());
+					// 02 - Use the VISITOR pattern to create/populate the call graph.
+					resourcesUpdated = visitorCallGraph.run(delta);
+					PluginLogger.logIfDebugging(timerD.stop().toString());
 				}
 
 				if (null != project) {
 					Timer timerP = (new Timer("01.1 - Call Graph Project: ")).start();
-					updatedResources = callGraphVisitor.run(project);
-					PluginLogger.logInfo(timerP.stop().toString());
+					// 02 - Use the VISITOR pattern to create/populate the call graph.
+					resourcesUpdated = visitorCallGraph.run(project);
+					PluginLogger.logIfDebugging(timerP.stop().toString());
 				}
 
 				if ((null != monitor) && (!monitor.isCanceled())) {
-					Timer timerPV = (new Timer("01.2 - Plugin verifications: ")).start();
+					Timer timerPV = (new Timer("01.2 - Plug-in verifications: ")).start();
+					// 03 - Perform the plug-in's verifications.
 					Manager manager = Manager.getInstance();
 					manager.setProgressMonitor(monitor);
-					manager.run(updatedResources, callGraph);
-					PluginLogger.logInfo(timerPV.stop().toString());
+					manager.run(resourcesUpdated, callGraph);
+					PluginLogger.logIfDebugging(timerPV.stop().toString());
 				} else {
 					// The user canceled the operation.
 					return Status.CANCEL_STATUS;
@@ -122,7 +142,7 @@ public class BuilderJob extends Job {
 			}
 		}
 
-		PluginLogger.logInfo(timerCP.stop().toString());
+		PluginLogger.logIfDebugging(timerCP.stop().toString());
 		return Status.OK_STATUS;
 	}
 }

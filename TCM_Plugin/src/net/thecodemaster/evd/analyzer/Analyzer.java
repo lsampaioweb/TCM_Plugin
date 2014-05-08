@@ -66,7 +66,7 @@ public abstract class Analyzer {
 			if (!userCanceledProcess(reporter)) {
 				Timer timer = (new Timer("01.2.1 - Verifier: " + verifier.getName())).start();
 				verifier.run(resources, callGraph, reporter);
-				PluginLogger.logInfo(timer.stop().toString());
+				PluginLogger.logIfDebugging(timer.stop().toString());
 			}
 		}
 	}

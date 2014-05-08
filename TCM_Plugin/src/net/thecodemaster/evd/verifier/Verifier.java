@@ -154,7 +154,7 @@ public abstract class Verifier {
 	protected void run(List<IResource> resources) {
 		// 01 - Run the vulnerability detection on all the provided resources.
 		for (IResource resource : resources) {
-			if (getCallGraph().containsFile(resource)) {
+			if (getCallGraph().contains(resource)) {
 
 				// 02 - Get the list of methods in the current resource.
 				Map<MethodDeclaration, List<Expression>> methods = getCallGraph().getMethods(resource);
@@ -230,7 +230,7 @@ public abstract class Verifier {
 
 						// Verify if all the parameters are the ones expected. However, there is a case
 						// where an Object is expected, and any type is accepted.
-						if (!BindingResolver.parametersHaveSameType(expectedParameter.getQualifiedName(), typeBinding)) {
+						if (!BindingResolver.parametersHaveSameType(expectedParameter.getType(), typeBinding)) {
 							isMethodAnExitPoint = false;
 							break;
 						}
@@ -385,7 +385,7 @@ public abstract class Verifier {
 	}
 
 	protected void checkPrefixExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
-		PluginLogger.logInfo("checkPrefixExpression");
+		PluginLogger.logIfDebugging("checkPrefixExpression");
 	}
 
 	protected void checkConditionExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {

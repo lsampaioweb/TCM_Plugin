@@ -15,56 +15,54 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
  * This object contains all the methods, variables and their interactions, on the project that is being analyzed. At any
  * given time, we should only have on call graph of the code.
  * 
- * @author Luciano Sampaio
+ * @Author: Luciano Sampaio
+ * @Date: 2014-05-07
+ * @Version: 01
  */
 public class CallGraph {
 
 	/**
-	 * The file means the current branch that is being analyzed.
+	 * The current file that is being analyzed.
 	 */
-	private String																											currentFile;
+	private IResource																												currentResource;
 
 	/**
 	 * List with all the declared methods of the analyzed code.
 	 */
-	private final Map<String, Map<MethodDeclaration, List<Expression>>>	methodsPerFile;
+	private final Map<IResource, Map<MethodDeclaration, List<Expression>>>	methodsPerFile;
 
 	/**
 	 * List with all the declared variables of the analyzed code.
 	 */
-	private final Map<IVariableBinding, VariableBindingManager>					listVariables;
+	private final Map<IVariableBinding, VariableBindingManager>							listVariables;
 
 	public CallGraph() {
 		methodsPerFile = Creator.newMap();
 		listVariables = Creator.newMap();
 	}
 
-	private String getResourceName(IResource resource) {
-		return resource.getProjectRelativePath().toOSString();
+	public void setCurrentResource(IResource resource) {
+		this.currentResource = resource;
 	}
 
-	public void addFile(IResource resource) {
-		this.currentFile = getResourceName(resource);
+	public boolean contains(IResource resource) {
+		return methodsPerFile.containsKey(resource);
 	}
 
-	public boolean containsFile(IResource resource) {
-		return methodsPerFile.containsKey(getResourceName(resource));
-	}
-
-	public boolean removeFile(IResource resource) {
-		return (null != methodsPerFile.remove(getResourceName(resource)));
+	public boolean remove(IResource resource) {
+		return (null != methodsPerFile.remove(resource));
 	}
 
 	public void addMethod(MethodDeclaration method) {
 		// 01 - Check if the current file is already in the list.
-		if (!methodsPerFile.containsKey(currentFile)) {
+		if (!methodsPerFile.containsKey(currentResource)) {
 			Map<MethodDeclaration, List<Expression>> methods = Creator.newMap();
 
-			methodsPerFile.put(currentFile, methods);
+			methodsPerFile.put(currentResource, methods);
 		}
 
 		// 02 - Get the list of methods in the current file.
-		Map<MethodDeclaration, List<Expression>> methods = getMethods(currentFile);
+		Map<MethodDeclaration, List<Expression>> methods = getMethods(currentResource);
 
 		if (!methods.containsKey(method)) {
 			List<Expression> invocations = Creator.newList();
@@ -76,7 +74,7 @@ public class CallGraph {
 
 	public void addInvokes(MethodDeclaration caller, Expression callee) {
 		// 01 - Get the list of methods in the current file.
-		Map<MethodDeclaration, List<Expression>> methods = getMethods(currentFile);
+		Map<MethodDeclaration, List<Expression>> methods = getMethods(currentResource);
 
 		if (null == methods) {
 			return;
@@ -93,15 +91,7 @@ public class CallGraph {
 	}
 
 	public Map<MethodDeclaration, List<Expression>> getMethods(IResource resource) {
-		return getMethods(getResourceName(resource));
-	}
-
-	private Map<MethodDeclaration, List<Expression>> getMethods(String file) {
-		return methodsPerFile.get(file);
-	}
-
-	public Map<IVariableBinding, VariableBindingManager> getlistVariables() {
-		return listVariables;
+		return methodsPerFile.get(resource);
 	}
 
 	public MethodDeclaration getMethod(IResource resource, Expression expr) {
@@ -116,7 +106,7 @@ public class CallGraph {
 
 		// 04 - If it reaches this point, it means that this method was not implemented into this resource.
 		// We now have to try to find its implementation in other resources of this project.
-		for (Entry<String, Map<MethodDeclaration, List<Expression>>> entry : methodsPerFile.entrySet()) {
+		for (Entry<IResource, Map<MethodDeclaration, List<Expression>>> entry : methodsPerFile.entrySet()) {
 			method = getMethod(entry.getValue(), expr);
 
 			// 05 - If method is different from null, it means we found it.
@@ -159,6 +149,10 @@ public class CallGraph {
 		}
 
 		return invokers;
+	}
+
+	public Map<IVariableBinding, VariableBindingManager> getlistVariables() {
+		return listVariables;
 	}
 
 }

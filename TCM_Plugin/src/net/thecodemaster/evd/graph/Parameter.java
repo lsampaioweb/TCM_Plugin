@@ -5,14 +5,25 @@ package net.thecodemaster.evd.graph;
  */
 public class Parameter {
 
-  private String qualifiedName;
+	private final String	type;
+	private final String	name;
 
-  public Parameter(String qualifiedName) {
-    this.qualifiedName = qualifiedName;
-  }
+	public Parameter(String type, String name) {
+		this.type = type;
+		this.name = name;
+	}
 
-  public String getQualifiedName() {
-    return qualifiedName;
-  }
+	public String getType() {
+		return type;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("%s %s ", getType(), getName());
+	}
 
 }
