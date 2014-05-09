@@ -12,7 +12,7 @@ import net.thecodemaster.evd.ui.l10n.Messages;
 public class VerifierCrossSiteScripting extends Verifier {
 
 	public VerifierCrossSiteScripting(List<EntryPoint> entryPoints) {
-		super(Messages.Plugin.VERIFIER_NAME_CROSS_SITE_SCRIPTING, Constant.ID_VERIFIER_CROSS_SITE_SCRIPTING, entryPoints);
+		super(Messages.Plugin.VERIFIER_NAME_CROSS_SITE_SCRIPTING, Constant.VERIFIER_ID_CROSS_SITE_SCRIPTING, entryPoints);
 	}
 
 	@Override

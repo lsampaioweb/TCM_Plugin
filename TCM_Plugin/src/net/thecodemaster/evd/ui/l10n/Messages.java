@@ -30,11 +30,15 @@ public abstract class Messages extends NLS {
 
 	public static abstract class PrefPageSecurityVulnerability {
 		private static final String	BUNDLE_NAME	= Constant.Package.L10N_MESSAGES + ".pref_page_security_vulnerability"; //$NON-NLS-1$
+
+		public static String				LABEL_SECURITY_VULNERABILITIES;
+
 		public static String				LABEL_COOKIE_POISONING;
 		public static String				LABEL_CROSS_SITE_SCRIPTING;
-		public static String				LABEL_SECURITY_VULNERABILITIES;
-		public static String				LABEL_SQL_INJECTION;
 		public static String				LABEL_SECURITY_MISCONFIGURATION;
+		public static String				LABEL_SQL_INJECTION;
+		public static String				LABEL_UNVALIDATED_REDIRECTING;
+
 		public static String				LABEL_MONITORED_PROJECTS;
 
 		static {
@@ -77,6 +81,7 @@ public abstract class Messages extends NLS {
 		public static String				VERIFIER_NAME_COOKIE_POISONING;
 		public static String				VERIFIER_NAME_SQL_INJECTION;
 		public static String				VERIFIER_NAME_CROSS_SITE_SCRIPTING;
+		public static String				VERIFIER_NAME_UNVALIDATED_REDIRECTING;
 
 		static {
 			// Initialize resource bundle.

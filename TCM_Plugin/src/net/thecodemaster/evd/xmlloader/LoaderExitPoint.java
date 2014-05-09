@@ -6,6 +6,7 @@ import java.util.Map;
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.Parameter;
 import net.thecodemaster.evd.helper.Creator;
+import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.point.ExitPoint;
 
 import org.w3c.dom.Document;
@@ -27,13 +28,13 @@ public class LoaderExitPoint extends LoaderXML {
 	@Override
 	protected String getFilePath() {
 		switch (fileId) {
-			case Constant.ID_VERIFIER_COOKIE_POISONING:
+			case Constant.VERIFIER_ID_COOKIE_POISONING:
 				return Constant.File.FILE_EXIT_POINT_COOKIE_POISONING;
-			case Constant.ID_VERIFIER_SECURITY_MISCONFIGURATION:
+			case Constant.VERIFIER_ID_SECURITY_MISCONFIGURATION:
 				return Constant.File.FILE_EXIT_POINT_SECURITY_MISCONFIGURATION;
-			case Constant.ID_VERIFIER_SQL_INJECTION:
+			case Constant.VERIFIER_ID_SQL_INJECTION:
 				return Constant.File.FILE_EXIT_POINT_SQL_INJECTION;
-			case Constant.ID_VERIFIER_CROSS_SITE_SCRIPTING:
+			case Constant.VERIFIER_ID_CROSS_SITE_SCRIPTING:
 				return Constant.File.FILE_EXIT_POINT_CROSS_SITE_SCRIPTING;
 			default:
 				return null;
@@ -77,7 +78,7 @@ public class LoaderExitPoint extends LoaderXML {
 							String type = getAttributeValueFromElement(elementParameter, Constant.XMLLoader.TAG_PARAMETERS_TYPE);
 							String rules = getAttributeValueFromElement(elementParameter, Constant.XMLLoader.TAG_PARAMETERS_RULES);
 
-							params.put(new Parameter(type, ""), getListFromRules(rules));
+							params.put(new Parameter(type), getListFromRules(rules));
 						}
 					}
 					exitPoint.setParameters(params);
@@ -99,20 +100,25 @@ public class LoaderExitPoint extends LoaderXML {
 		if (null != rules) {
 			String[] elements = rules.split(Constant.SEPARATOR);
 
-			for (String element : elements) {
-				int intValue = Integer.valueOf(element);
+			try {
+				for (String element : elements) {
+					int intValue = Integer.valueOf(element);
 
-				if (intValue == -1) {
-					return null; // Anything is valid.
-				} else if (intValue == 0) {
-					return Creator.newList(); // Only sanitized values are valid.
-				} else {
-					if (null == listRules) {
-						listRules = Creator.newList();
+					if (intValue == -1) {
+						return null; // Anything is valid.
+					} else if (intValue == 0) {
+						return Creator.newList(); // Only sanitized values are valid.
+					} else {
+						if (null == listRules) {
+							listRules = Creator.newList();
+						}
+						listRules.add(intValue); // These are the accepted values.
 					}
-					listRules.add(intValue); // These are the accepted values.
 				}
+			} catch (NumberFormatException e) {
+				PluginLogger.logError(e);
 			}
+
 		}
 
 		return listRules;

@@ -33,7 +33,7 @@ public class PluginLogger {
 	}
 
 	private static IStatus createStatus(int severity, int code, String message, Throwable exception) {
-		return new Status(severity, Activator.ID_PLUGIN, code, message, exception);
+		return new Status(severity, Activator.PLUGIN_ID, code, message, exception);
 	}
 
 	private static void log(IStatus status) {

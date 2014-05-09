@@ -89,7 +89,7 @@ public abstract class LoaderXML {
   }
 
   private InputStream getInputStream(String file) {
-    Bundle bundle = Platform.getBundle(Activator.ID_PLUGIN);
+    Bundle bundle = Platform.getBundle(Activator.PLUGIN_ID);
     Path path = new Path(file);
     try {
       URL fileURL = FileLocator.find(bundle, path, null);

@@ -35,13 +35,12 @@ public class VariableBindingManager {
 	 */
 	public void variableRefereneced(SimpleName reference) {
 		if (!isAlreadyReferenced()) {
-			// first reference -> store the statement that contains the
-			// reference directly
+			// First reference -> store the statement that contains the reference directly.
 			firstReference = BindingResolver.getParentStatement(reference);
 		} else {
-			// it's not the first declaration
+			// It's not the first declaration.
 			while (!isReferenceWhithinScope(reference)) {
-				// but it's referenced from a different block
+				// But it's referenced from a different block.
 				moveFirstReferenceOneBlockLevelUp();
 				// move first reference statement up in the block hierarchy
 				// until the new first reference and the currently focused
@@ -58,7 +57,7 @@ public class VariableBindingManager {
 	 */
 	public void variableInitialized(Expression initializer) {
 		if (!isAlreadyReferenced()) {
-			// only save if variable has not been referenced yet
+			// Only save if variable has not been referenced yet.
 			this.initializer = initializer;
 		}
 	}

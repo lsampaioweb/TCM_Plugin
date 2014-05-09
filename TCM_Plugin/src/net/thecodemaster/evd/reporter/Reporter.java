@@ -72,7 +72,7 @@ public class Reporter {
 
 	private boolean clearMarkers(IResource resource) {
 		try {
-			resource.deleteMarkers(Constant.ID_MARKER, true, IResource.DEPTH_INFINITE);
+			resource.deleteMarkers(Constant.MARKER_ID, true, IResource.DEPTH_INFINITE);
 			return true;
 		} catch (CoreException e) {
 			PluginLogger.logError(e);
@@ -102,7 +102,7 @@ public class Reporter {
 			markerAttributes.put(IMarker.CHAR_START, startPosition);
 			markerAttributes.put(IMarker.CHAR_END, endPosition);
 
-			IMarker marker = resource.createMarker(Constant.ID_MARKER);
+			IMarker marker = resource.createMarker(Constant.MARKER_ID);
 			marker.setAttributes(markerAttributes);
 		} catch (CoreException e) {
 			PluginLogger.logError(e);

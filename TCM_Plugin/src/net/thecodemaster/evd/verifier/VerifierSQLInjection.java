@@ -15,11 +15,17 @@ import org.eclipse.jdt.core.dom.Expression;
 public class VerifierSQLInjection extends Verifier {
 
 	public VerifierSQLInjection(List<EntryPoint> entryPoints) {
-		super(Messages.Plugin.VERIFIER_NAME_SQL_INJECTION, Constant.ID_VERIFIER_SQL_INJECTION, entryPoints);
+		super(Messages.Plugin.VERIFIER_NAME_SQL_INJECTION, Constant.VERIFIER_ID_SQL_INJECTION, entryPoints);
 	}
 
 	@Override
 	protected void checkInfixExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
+		// 01 - Informs that this node is a vulnerability.
+		vp.foundVulnerability(expr, "SQL concatenation");
+	}
+
+	@Override
+	protected void checkPrefixExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
 		// 01 - Informs that this node is a vulnerability.
 		vp.foundVulnerability(expr, "SQL concatenation");
 	}

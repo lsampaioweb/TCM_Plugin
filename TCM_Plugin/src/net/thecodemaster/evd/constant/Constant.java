@@ -11,19 +11,22 @@ public abstract class Constant {
 
 	public static final boolean	IS_DEBUGGING													= true;
 	public static final String	JDT_NATURE														= "org.eclipse.jdt.core.javanature";
-	public static final String	ID_NATURE															= Activator.ID_PLUGIN + ".TCM_EVD_NATURE";
-	public static final String	ID_BUILDER														= Activator.ID_PLUGIN + ".TCM_EVD_BUILDER";
-	public static final String	ID_MARKER															= Activator.ID_PLUGIN + ".TCM_EVD_MARKER";
+	public static final String	NATURE_ID															= Activator.PLUGIN_ID + ".TCM_EVD_NATURE";
+	public static final String	BUILDER_ID														= Activator.PLUGIN_ID + ".TCM_EVD_BUILDER";
+	public static final String	MARKER_ID															= Activator.PLUGIN_ID + ".TCM_EVD_MARKER";
+
+	public static final int			VERIFIER_ID_COOKIE_POISONING					= 1;
+	public static final int			VERIFIER_ID_CROSS_SITE_SCRIPTING			= 2;
+	public static final int			VERIFIER_ID_SECURITY_MISCONFIGURATION	= 3;
+	public static final int			VERIFIER_ID_SQL_INJECTION							= 4;
+	public static final int			VERIFIER_ID_UNVALIDATED_REDIRECTING		= 5;
 
 	public static final String	SEPARATOR															= ";";
 	public static final String	RESOURCE_TYPE_TO_PERFORM_DETECTION		= "java" + SEPARATOR + "jsp";
 	public static final int			MAXIMUM_DEPTH													= 10;
-	public static final int			ID_VERIFIER_COOKIE_POISONING					= 1;
-	public static final int			ID_VERIFIER_CROSS_SITE_SCRIPTING			= 2;
-	public static final int			ID_VERIFIER_SECURITY_MISCONFIGURATION	= 3;
-	public static final int			ID_VERIFIER_SQL_INJECTION							= 4;
 
 	public static final String	OBJECT																= "java.lang.Object";
+	public static final int			LITERAL																= 1;
 
 	public abstract class Package {
 		public static final String	UI						= "net.thecodemaster.evd.ui";
@@ -52,23 +55,23 @@ public abstract class Constant {
 	}
 
 	public abstract class PrefPageSecurityVulnerability {
-		public static final String	FIELD_COOKIE_POISONING					= Activator.ID_PLUGIN + ".CookiePoisoning";
-		public static final String	FIELD_CROSS_SITE_SCRIPTING			= Activator.ID_PLUGIN + ".CrossSiteScripting";
-		public static final String	FIELD_SECURITY_MISCONFIGURATION	= Activator.ID_PLUGIN + ".SecurityMisconfiguration";
-		public static final String	FIELD_SQL_INJECTION							= Activator.ID_PLUGIN + ".SQLInjection";
-		public static final String	FIELD_UNVALIDATED_REDIRECTING		= Activator.ID_PLUGIN + ".UnvalidatedRedirecting";
+		public static final String	FIELD_COOKIE_POISONING					= Activator.PLUGIN_ID + ".CookiePoisoning";
+		public static final String	FIELD_CROSS_SITE_SCRIPTING			= Activator.PLUGIN_ID + ".CrossSiteScripting";
+		public static final String	FIELD_SECURITY_MISCONFIGURATION	= Activator.PLUGIN_ID + ".SecurityMisconfiguration";
+		public static final String	FIELD_SQL_INJECTION							= Activator.PLUGIN_ID + ".SQLInjection";
+		public static final String	FIELD_UNVALIDATED_REDIRECTING		= Activator.PLUGIN_ID + ".UnvalidatedRedirecting";
 
-		public static final String	FIELD_MONITORED_PROJECTS				= Activator.ID_PLUGIN + ".MonitoredProjects";
+		public static final String	FIELD_MONITORED_PROJECTS				= Activator.PLUGIN_ID + ".MonitoredProjects";
 	}
 
 	public abstract class PrefPageSettings {
 		public static final String	ID_PAGE											= Package.UI + ".PREFERENCE.PAGE.SETTINGS";
 
-		public static final String	FIELD_RUN_MODE							= Activator.ID_PLUGIN + ".RunMode";
+		public static final String	FIELD_RUN_MODE							= Activator.PLUGIN_ID + ".RunMode";
 
-		public static final String	FIELD_OUTPUT_PROBLEMS_VIEW	= Activator.ID_PLUGIN + ".ProblemsView";
-		public static final String	FIELD_OUTPUT_TEXT_FILE			= Activator.ID_PLUGIN + ".TextFile";
-		public static final String	FIELD_OUTPUT_XML_FILE				= Activator.ID_PLUGIN + ".XmlFile";
+		public static final String	FIELD_OUTPUT_PROBLEMS_VIEW	= Activator.PLUGIN_ID + ".ProblemsView";
+		public static final String	FIELD_OUTPUT_TEXT_FILE			= Activator.PLUGIN_ID + ".TextFile";
+		public static final String	FIELD_OUTPUT_XML_FILE				= Activator.PLUGIN_ID + ".XmlFile";
 	}
 
 	public abstract class Marker {

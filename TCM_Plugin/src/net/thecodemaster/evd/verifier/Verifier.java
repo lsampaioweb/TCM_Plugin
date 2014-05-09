@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Statement;
@@ -46,11 +47,11 @@ public abstract class Verifier {
 	/**
 	 * The name of the current verifier.
 	 */
-	private final String						verifierName;
+	private final String						name;
 	/**
 	 * The id of the current verifier.
 	 */
-	private final int								verifierId;
+	private final int								id;
 	/**
 	 * The current resource that is being analyzed.
 	 */
@@ -77,31 +78,22 @@ public abstract class Verifier {
 	 *          The name of the verifier.
 	 * @param id
 	 *          The id of the verifier.
-	 */
-	public Verifier(String name, int id) {
-		this.verifierName = name;
-		this.verifierId = id;
-	}
-
-	/**
-	 * @param name
-	 *          The name of the verifier.
-	 * @param id
-	 *          The id of the verifier.
 	 * @param listEntryPoints
 	 *          List with all the EntryPoints methods.
 	 */
 	public Verifier(String name, int id, List<EntryPoint> listEntryPoints) {
-		this(name, id);
+		this.name = name;
+		this.id = id;
+
 		entryPoints = listEntryPoints;
 	}
 
 	public String getName() {
-		return verifierName;
+		return name;
 	}
 
-	private int getVerifierId() {
-		return verifierId;
+	private int getId() {
+		return id;
 	}
 
 	private void setCurrentResource(IResource currentResource) {
@@ -130,7 +122,7 @@ public abstract class Verifier {
 	}
 
 	protected void loadExitPoints() {
-		exitPoints = (new LoaderExitPoint(getVerifierId())).load();
+		exitPoints = (new LoaderExitPoint(getId())).load();
 	}
 
 	protected static List<EntryPoint> getEntryPoints() {
@@ -139,6 +131,38 @@ public abstract class Verifier {
 		}
 
 		return entryPoints;
+	}
+
+	/**
+	 * Notifies that a subtask of the main task is beginning.
+	 * 
+	 * @param taskName
+	 *          The text that will be displayed to the user.
+	 */
+	protected void setSubTask(String taskName) {
+		if ((null != getReporter()) && (null != getReporter().getProgressMonitor())) {
+			getReporter().getProgressMonitor().subTask(taskName);
+		}
+	}
+
+	protected String getMessageLiteral(String value) {
+		return null;
+	}
+
+	protected String getMessageLiteral(char value) {
+		return null;
+	}
+
+	protected String getMessageNullLiteral() {
+		return null;
+	}
+
+	protected String getMessageEntryPoint(String value) {
+		return String.format(Messages.VerifierSecurityVulnerability.ENTRY_POINT_METHOD, value);
+	}
+
+	protected void reportVulnerability(VulnerabilityPath vp) {
+		getReporter().addProblem(getId(), getCurrentResource(), vp);
 	}
 
 	public void run(List<IResource> resources, CallGraph callGraph, Reporter reporter) {
@@ -284,30 +308,6 @@ public abstract class Verifier {
 		return false;
 	}
 
-	/**
-	 * Notifies that a subtask of the main task is beginning.
-	 * 
-	 * @param taskName
-	 *          The text that will be displayed to the user.
-	 */
-	protected void setSubTask(String taskName) {
-		if ((null != getReporter()) && (null != getReporter().getProgressMonitor())) {
-			getReporter().getProgressMonitor().subTask(taskName);
-		}
-	}
-
-	protected String getMessageLiteral(String value) {
-		return null;
-	}
-
-	protected String getMessageNullLiteral() {
-		return null;
-	}
-
-	protected String getMessageEntryPoint(String value) {
-		return String.format(Messages.VerifierSecurityVulnerability.ENTRY_POINT_METHOD, value);
-	}
-
 	protected void checkExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
 		// 01 - If the parameter matches the rules (Easy case), the parameter is okay, otherwise we need to check for more
 		// things.
@@ -324,6 +324,7 @@ public abstract class Verifier {
 			// 02 - We need to check the type of the parameter and deal with it accordingly to its type.
 			switch (expr.getNodeType()) {
 				case ASTNode.STRING_LITERAL:
+				case ASTNode.CHARACTER_LITERAL:
 				case ASTNode.NUMBER_LITERAL:
 				case ASTNode.NULL_LITERAL:
 					checkLiteral(vp, expr);
@@ -355,8 +356,19 @@ public abstract class Verifier {
 			return true;
 		}
 
+		// -1 Anything is valid.
+		// 0 Only sanitized values are valid.
+		// 1 LITERAL and sanitized values are valid.
 		for (Integer astNodeValue : rules) {
-			if (astNodeValue == parameter.getNodeType()) {
+			if (astNodeValue == Constant.LITERAL) {
+				switch (parameter.getNodeType()) {
+					case ASTNode.STRING_LITERAL:
+					case ASTNode.CHARACTER_LITERAL:
+					case ASTNode.NUMBER_LITERAL:
+					case ASTNode.NULL_LITERAL:
+						return true;
+				}
+			} else if (astNodeValue == parameter.getNodeType()) {
 				return true;
 			}
 		}
@@ -385,7 +397,12 @@ public abstract class Verifier {
 	}
 
 	protected void checkPrefixExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
-		PluginLogger.logIfDebugging("checkPrefixExpression");
+		PrefixExpression parameter = (PrefixExpression) expr;
+		// 01 - Get the elements from the operation.
+		Expression operand = parameter.getOperand();
+
+		// 02 - Check each element.
+		checkExpression(vp.addNodeToPath(operand), rules, operand, depth);
 	}
 
 	protected void checkConditionExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
@@ -472,6 +489,7 @@ public abstract class Verifier {
 		} else {
 			// TODO - Special cases:
 			// "url".toString();
+			vp.foundVulnerability(expr, "We fear what we do not understand!");
 			System.out.println("Method:" + expr);
 		}
 	}
@@ -547,10 +565,6 @@ public abstract class Verifier {
 				checkStatement(vp, rules, statement, ++depth);
 				break;
 		}
-	}
-
-	protected void reportVulnerability(VulnerabilityPath vp) {
-		getReporter().addProblem(getVerifierId(), getCurrentResource(), vp);
 	}
 
 }

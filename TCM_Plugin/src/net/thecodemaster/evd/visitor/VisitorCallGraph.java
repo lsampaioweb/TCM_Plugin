@@ -108,7 +108,7 @@ public class VisitorCallGraph implements IResourceVisitor, IResourceDeltaVisitor
 		switch (delta.getKind()) {
 			case IResourceDelta.REMOVED:
 				// Delete old markers set and files created.
-				resource.deleteMarkers(Constant.ID_MARKER, true, IResource.DEPTH_INFINITE);
+				resource.deleteMarkers(Constant.MARKER_ID, true, IResource.DEPTH_INFINITE);
 				break;
 			case IResourceDelta.ADDED:
 			case IResourceDelta.CHANGED:

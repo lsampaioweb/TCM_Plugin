@@ -57,11 +57,13 @@ public class Manager {
 		boolean securityMisconfiguration = store
 				.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_SECURITY_MISCONFIGURATION);
 		boolean sqlInjection = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_SQL_INJECTION);
+		boolean unvalidatedRedirecting = store
+				.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_UNVALIDATED_REDIRECTING);
 
 		// If at least one was selected, the analyzer is added to the list.
-		if (cookiePoisoning || crossSiteScripting || securityMisconfiguration || sqlInjection) {
+		if (cookiePoisoning || crossSiteScripting || securityMisconfiguration || sqlInjection || unvalidatedRedirecting) {
 			addAnalyzer(new AnalyzerSecurityVulnerability(cookiePoisoning, crossSiteScripting, securityMisconfiguration,
-					sqlInjection));
+					sqlInjection, unvalidatedRedirecting));
 		}
 	}
 

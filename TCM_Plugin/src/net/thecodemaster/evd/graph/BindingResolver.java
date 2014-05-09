@@ -335,11 +335,7 @@ public class BindingResolver {
 		// These are the special (WRAPPER) cases.
 		// boolean, byte, char, short, int, long, float, and double
 		String newName = Convert.fromPrimitiveNameToWrapperClass(other.getQualifiedName());
-		if (parameter.equals(newName)) {
-			return true;
-		}
-
-		return false;
+		return (parameter.equals(newName));
 	}
 
 }

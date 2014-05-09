@@ -109,7 +109,7 @@ public class IncrementalBuilder extends IncrementalProjectBuilder {
 	@Override
 	protected void clean(IProgressMonitor monitor) throws CoreException {
 		// Delete markers set and files created.
-		getProject().deleteMarkers(Constant.ID_MARKER, true, IResource.DEPTH_INFINITE);
+		getProject().deleteMarkers(Constant.MARKER_ID, true, IResource.DEPTH_INFINITE);
 	}
 
 	protected void fullBuild(final IProgressMonitor monitor) {

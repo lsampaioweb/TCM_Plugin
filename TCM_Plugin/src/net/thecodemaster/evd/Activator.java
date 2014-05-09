@@ -16,7 +16,7 @@ import org.osgi.framework.BundleContext;
 public class Activator extends AbstractUIPlugin {
 
 	// The plug-in ID.
-	public static final String	ID_PLUGIN	= "THE_CODE_MASTER_EARLY_VULNERABILITY_DETECTOR"; //$NON-NLS-1$
+	public static final String	PLUGIN_ID	= "THE_CODE_MASTER_EARLY_VULNERABILITY_DETECTOR"; //$NON-NLS-1$
 
 	// The shared instance.
 	private static Activator		plugin;
@@ -64,7 +64,7 @@ public class Activator extends AbstractUIPlugin {
 	 * @return the image descriptor
 	 */
 	public static ImageDescriptor getImageDescriptor(String path) {
-		return imageDescriptorFromPlugin(ID_PLUGIN, path);
+		return imageDescriptorFromPlugin(PLUGIN_ID, path);
 	}
 
 }
