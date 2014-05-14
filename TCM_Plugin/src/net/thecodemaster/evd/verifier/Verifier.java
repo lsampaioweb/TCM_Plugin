@@ -2,7 +2,6 @@ package net.thecodemaster.evd.verifier;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.BindingResolver;
@@ -441,8 +440,7 @@ public abstract class Verifier {
 
 				if (null != invokers) {
 					// 07 - Iterate over all the methods that invokes this method.
-					for (Entry<MethodDeclaration, List<Expression>> current : invokers.entrySet()) {
-						List<Expression> currentInvocations = current.getValue();
+					for (List<Expression> currentInvocations : invokers.values()) {
 
 						// 08 - Care only about the invocations to this method.
 						for (Expression expression : currentInvocations) {
@@ -488,9 +486,16 @@ public abstract class Verifier {
 			checkBlock(vp, rules, methodDeclaration.getBody(), depth);
 		} else {
 			// TODO - Special cases:
-			// "url".toString();
+			// "url".toString(); variable.toLowerCase();
+			// MethodInvocation methodInvocation = (MethodInvocation) expr;
+			// Expression optionalExpression = methodInvocation.getExpression();
+			//
+			// if (null != optionalExpression) {
+			// checkExpression(vp.addNodeToPath(optionalExpression), rules, optionalExpression, depth);
+			// } else {
 			vp.foundVulnerability(expr, "We fear what we do not understand!");
 			System.out.println("Method:" + expr);
+			// }
 		}
 	}
 

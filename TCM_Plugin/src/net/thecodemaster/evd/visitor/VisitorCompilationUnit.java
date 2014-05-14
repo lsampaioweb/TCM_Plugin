@@ -75,6 +75,11 @@ public class VisitorCompilationUnit extends ASTVisitor {
 		}
 	}
 
+	@Override
+	public boolean visit(FieldDeclaration node) {
+		return addVariableToList(node.fragments());
+	}
+
 	/**
 	 * Looks for local variable declarations. For every occurrence of a local variable, a {@link VariableBindingManager}
 	 * is created and stored in listVariables map.
@@ -86,11 +91,6 @@ public class VisitorCompilationUnit extends ASTVisitor {
 	 */
 	@Override
 	public boolean visit(VariableDeclarationStatement node) {
-		return addVariableToList(node.fragments());
-	}
-
-	@Override
-	public boolean visit(FieldDeclaration node) {
 		return addVariableToList(node.fragments());
 	}
 

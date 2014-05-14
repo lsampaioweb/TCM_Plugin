@@ -30,96 +30,91 @@ import org.xml.sax.SAXException;
  */
 public abstract class LoaderXML {
 
-  public <T extends AbstractPoint> List<T> load() {
-    String file = getFilePath();
-    if (fileExists(file)) {
-      return load(file);
-    }
-    else {
-      PluginLogger.logError(new FileNotFoundException(String.format(Messages.Error.FILE_NOT_FOUND, file)));
-    }
+	public <T extends AbstractPoint> List<T> load() {
+		String file = getFilePath();
+		if (fileExists(file)) {
+			return load(file);
+		} else {
+			PluginLogger.logError(new FileNotFoundException(String.format(Messages.Error.FILE_NOT_FOUND, file)));
+		}
 
-    return Creator.newList();
-  }
+		return Creator.newList();
+	}
 
-  protected abstract String getFilePath();
+	protected abstract String getFilePath();
 
-  protected abstract <T extends AbstractPoint> List<T> load(String file);
+	protected abstract <T extends AbstractPoint> List<T> load(String file);
 
-  protected boolean fileExists(String file) {
-    return (getInputStream(file) != null);
-  }
+	protected boolean fileExists(String file) {
+		return (getInputStream(file) != null);
+	}
 
-  protected Document getDocument(String file) {
-    Document document = null;
-    Exception realException = null;
-    String errorMessage = null;
-    try {
-      // Create a DocumentBuilderFactory
-      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+	protected Document getDocument(String file) {
+		Document document = null;
+		Exception realException = null;
+		String errorMessage = null;
+		try {
+			// Create a DocumentBuilderFactory
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
-      // It is the DocumentBuilder instance that is the DOM parser.
-      // Using this DOM parser you can parse XML files into DOM objects
-      DocumentBuilder db = dbf.newDocumentBuilder();
+			// It is the DocumentBuilder instance that is the DOM parser.
+			// Using this DOM parser you can parse XML files into DOM objects
+			DocumentBuilder db = dbf.newDocumentBuilder();
 
-      // Parse the input file to get a Document object
-      document = db.parse(getInputStream(file));
+			// Parse the input file to get a Document object
+			document = db.parse(getInputStream(file));
 
-      // Puts all Text nodes in the full depth of the sub-tree underneath this Node.
-      document.getDocumentElement().normalize();
-    }
-    catch (ParserConfigurationException e) {
-      realException = e;
-      errorMessage = Messages.Error.FILE_XML_PARSING_FAIL;
-    }
-    catch (SAXException e) {
-      realException = e;
-      errorMessage = Messages.Error.FILE_XML_PARSING_FAIL;
-    }
-    catch (IOException e) {
-      realException = e;
-      errorMessage = Messages.Error.FILE_XML_READING_FAIL;
-    }
+			// Puts all Text nodes in the full depth of the sub-tree underneath this Node.
+			document.getDocumentElement().normalize();
+		} catch (ParserConfigurationException e) {
+			realException = e;
+			errorMessage = Messages.Error.FILE_XML_PARSING_FAIL;
+		} catch (SAXException e) {
+			realException = e;
+			errorMessage = Messages.Error.FILE_XML_PARSING_FAIL;
+		} catch (IOException e) {
+			realException = e;
+			errorMessage = Messages.Error.FILE_XML_READING_FAIL;
+		}
 
-    if (errorMessage != null) {
-      PluginLogger.logError(String.format(errorMessage, file), realException);
-    }
+		if (errorMessage != null) {
+			PluginLogger.logError(String.format(errorMessage, file), realException);
+		}
 
-    return document;
-  }
+		return document;
+	}
 
-  private InputStream getInputStream(String file) {
-    Bundle bundle = Platform.getBundle(Activator.PLUGIN_ID);
-    Path path = new Path(file);
-    try {
-      URL fileURL = FileLocator.find(bundle, path, null);
-      if (null != fileURL) {
-        return fileURL.openStream();
-      }
-    }
-    catch (IOException e) {
-      PluginLogger.logError(e);
-    }
+	private InputStream getInputStream(String file) {
+		try {
+			Bundle bundle = Platform.getBundle(Activator.PLUGIN_ID);
+			Path path = new Path(file);
+			URL fileURL = FileLocator.find(bundle, path, null);
+			if (null != fileURL) {
+				return fileURL.openStream();
+			}
+		} catch (IOException e) {
+			PluginLogger.logError(e);
+		}
 
-    return null;
-  }
+		return null;
+	}
 
-  protected String getAttributeValueFromElement(Element element, String AttributeName) {
-    String attr = element.getAttribute(AttributeName);
+	protected String getAttributeValueFromElement(Element element, String AttributeName) {
+		String attr = element.getAttribute(AttributeName);
 
-    return ("".equals(attr)) ? null : attr;
-  }
+		return ("".equals(attr)) ? null : attr;
+	}
 
-  protected String getTagValueFromElement(Element element, String sTag) {
-    Node node = getNodeByTagNameAndIndex(element, sTag, 0);
+	protected String getTagValueFromElement(Element element, String sTag) {
+		Node node = getNodeByTagNameAndIndex(element, sTag, 0);
 
-    return (null == node) ? null : node.getNodeValue();
-  }
+		return (null == node) ? null : node.getNodeValue();
+	}
 
-  private Node getNodeByTagNameAndIndex(Element element, String sTag, int index) {
-    Node child = element.getElementsByTagName(sTag).item(0);
+	private Node getNodeByTagNameAndIndex(Element element, String sTag, int index) {
+		Node child = element.getElementsByTagName(sTag).item(0);
 
-    return (null == child) ? null : child.getChildNodes().item(index);
-  }
+		return (null == child) ? null : child.getChildNodes().item(index);
+	}
 
 }

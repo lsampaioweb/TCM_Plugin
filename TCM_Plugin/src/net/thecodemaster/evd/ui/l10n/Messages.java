@@ -111,6 +111,7 @@ public abstract class Messages extends NLS {
 		public static String				FILE_XML_PARSING_FAIL;
 		public static String				FILE_XML_READING_FAIL;
 		public static String				CALL_GRAPH_DOES_NOT_CONTAIN_PROJECT;
+		public static String				FILE_EXIT_POINT_NOT_FOUND;
 
 		static {
 			// Initialize resource bundle.

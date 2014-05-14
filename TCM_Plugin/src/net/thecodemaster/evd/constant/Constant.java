@@ -48,6 +48,8 @@ public abstract class Constant {
 		public static final String	FILE_EXIT_POINT_SECURITY_MISCONFIGURATION	= Folder.EXIT_POINT
 																																							+ "security_misconfiguration.xml";
 		public static final String	FILE_EXIT_POINT_SQL_INJECTION							= Folder.EXIT_POINT + "sql_injection.xml";
+		public static final String	FILE_EXIT_POINT_UNVALIDATED_REDIRECTING		= Folder.EXIT_POINT
+																																							+ "unvalidated_redirecting.xml";
 	}
 
 	public abstract class Icons {
