@@ -77,7 +77,9 @@ public class VisitorCompilationUnit extends ASTVisitor {
 
 	@Override
 	public boolean visit(FieldDeclaration node) {
+
 		return addVariableToList(node.fragments());
+		// return super.visit(node);
 	}
 
 	/**
@@ -92,6 +94,7 @@ public class VisitorCompilationUnit extends ASTVisitor {
 	@Override
 	public boolean visit(VariableDeclarationStatement node) {
 		return addVariableToList(node.fragments());
+		// return super.visit(node);
 	}
 
 	private boolean addVariableToList(List<?> fragments) {
@@ -105,10 +108,10 @@ public class VisitorCompilationUnit extends ASTVisitor {
 			// Creates the manager of the fragment.
 			VariableBindingManager manager = new VariableBindingManager(fragment);
 
-			callGraph.getlistVariables().put(binding, manager);
-
 			// The first assignment is the initializer.
 			manager.variableInitialized(fragment.getInitializer());
+
+			callGraph.getlistVariables().put(binding, manager);
 		}
 
 		return false; // Prevents that SimpleName is interpreted as reference.
@@ -124,6 +127,7 @@ public class VisitorCompilationUnit extends ASTVisitor {
 	 */
 	@Override
 	public boolean visit(Assignment node) {
+
 		if (node.getLeftHandSide().getNodeType() == ASTNode.SIMPLE_NAME) {
 			IBinding binding = ((SimpleName) node.getLeftHandSide()).resolveBinding();
 			if (callGraph.getlistVariables().containsKey(binding)) {
@@ -135,6 +139,7 @@ public class VisitorCompilationUnit extends ASTVisitor {
 		}
 
 		return false; // Prevents that SimpleName is interpreted as reference.
+		// return super.visit(node);
 	}
 
 	/**
@@ -154,7 +159,7 @@ public class VisitorCompilationUnit extends ASTVisitor {
 			manager.variableRefereneced(node);
 		}
 
-		return true;
+		return super.visit(node);
 	}
 
 }
