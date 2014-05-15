@@ -8,6 +8,7 @@
             name="%view.category.name">
       </category>
       <view
+            allowMultiple="false"
             category="NET.THECODEMASTER.EVD.UI.VIEW.CATEGORY"
             class="net.thecodemaster.evd.ui.view.ViewSecurityVulnerabilities"
             icon="icon/View.png"

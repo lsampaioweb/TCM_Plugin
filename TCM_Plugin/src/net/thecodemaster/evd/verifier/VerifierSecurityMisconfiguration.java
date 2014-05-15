@@ -23,17 +23,14 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 				entryPoints);
 	}
 
-	@Override
 	protected String getMessageLiteral(String value) {
 		return String.format(Messages.VerifierSecurityVulnerability.LITERAL, value);
 	}
 
-	@Override
 	protected String getMessageLiteral(char value) {
 		return String.format(Messages.VerifierSecurityVulnerability.LITERAL, value);
 	}
 
-	@Override
 	protected String getMessageNullLiteral() {
 		return String.format(Messages.VerifierSecurityVulnerability.NULL_LITERAL);
 	}

@@ -144,18 +144,6 @@ public abstract class Verifier {
 		}
 	}
 
-	protected String getMessageLiteral(String value) {
-		return null;
-	}
-
-	protected String getMessageLiteral(char value) {
-		return null;
-	}
-
-	protected String getMessageNullLiteral() {
-		return null;
-	}
-
 	protected String getMessageEntryPoint(String value) {
 		return String.format(Messages.VerifierSecurityVulnerability.ENTRY_POINT_METHOD, value);
 	}

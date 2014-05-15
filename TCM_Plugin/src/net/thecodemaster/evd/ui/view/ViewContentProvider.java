@@ -1,6 +1,6 @@
 package net.thecodemaster.evd.ui.view;
 
-import org.eclipse.jface.viewers.IStructuredContentProvider;
+import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
 
 /**
@@ -8,9 +8,26 @@ import org.eclipse.jface.viewers.Viewer;
  * or simply return objects as-is. These objects may be sensitive to the current input of the view, or ignore it and
  * always show the same content (like Task List, for example).
  */
-class ViewContentProvider implements IStructuredContentProvider {
+class ViewContentProvider implements ITreeContentProvider {
+
 	@Override
-	public void inputChanged(Viewer v, Object oldInput, Object newInput) {
+	public boolean hasChildren(Object element) {
+		return false;
+	}
+
+	@Override
+	public Object[] getChildren(Object parentElement) {
+		return new Object[0];
+	}
+
+	@Override
+	public Object getParent(Object element) {
+		return null;
+	}
+
+	@Override
+	public Object[] getElements(Object element) {
+		return getChildren(element);
 	}
 
 	@Override
@@ -18,7 +35,7 @@ class ViewContentProvider implements IStructuredContentProvider {
 	}
 
 	@Override
-	public Object[] getElements(Object parent) {
-		return new String[] { "One", "Two", "Three" };
+	public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 	}
+
 }

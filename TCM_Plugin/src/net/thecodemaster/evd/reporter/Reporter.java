@@ -82,14 +82,12 @@ public class Reporter {
 
 	private void addMarker(int typeVulnerability, IResource resource, VulnerabilityPath vp) {
 		try {
-			Map<String, Object> markerAttributes = Creator.newMap();
-
 			Expression expr = vp.getRoot();
-			String message = vp.getMessage();
+
+			Map<String, Object> markerAttributes = Creator.newMap();
 
 			markerAttributes.put(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
 			markerAttributes.put(Constant.Marker.TYPE_SECURITY_VULNERABILITY, typeVulnerability);
-			markerAttributes.put(IMarker.MESSAGE, message);
 
 			// Get the Compilation Unit of this resource.
 			CompilationUnit cUnit = BindingResolver.findParentCompilationUnit(expr);
@@ -102,8 +100,15 @@ public class Reporter {
 			markerAttributes.put(IMarker.CHAR_START, startPosition);
 			markerAttributes.put(IMarker.CHAR_END, endPosition);
 
+			String message = vp.getMessage();
+			markerAttributes.put(IMarker.MESSAGE, message);
+
 			IMarker marker = resource.createMarker(Constant.MARKER_ID);
 			marker.setAttributes(markerAttributes);
+
+			// ViewSecurityVulnerabilities view = new ViewSecurityVulnerabilities();
+			// view.add();
+
 		} catch (CoreException e) {
 			PluginLogger.logError(e);
 		}

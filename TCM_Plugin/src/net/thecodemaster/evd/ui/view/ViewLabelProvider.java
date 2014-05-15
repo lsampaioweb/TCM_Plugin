@@ -1,24 +1,39 @@
 package net.thecodemaster.evd.ui.view;
 
+import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
-import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.ui.ISharedImages;
-import org.eclipse.ui.PlatformUI;
 
-class ViewLabelProvider extends LabelProvider implements ITableLabelProvider {
+class ViewLabelProvider implements ITableLabelProvider {
+
 	@Override
-	public String getColumnText(Object obj, int index) {
-		return getText(obj);
+	public Image getColumnImage(Object element, int columnIndex) {
+		return null;
 	}
 
 	@Override
-	public Image getColumnImage(Object obj, int index) {
-		return getImage(obj);
+	public String getColumnText(Object element, int columnIndex) {
+		switch (columnIndex) {
+			case 0:
+				return element.toString();
+		}
+		return null;
 	}
 
 	@Override
-	public Image getImage(Object obj) {
-		return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_ELEMENT);
+	public boolean isLabelProperty(Object element, String property) {
+		return false;
+	}
+
+	@Override
+	public void addListener(ILabelProviderListener listener) {
+	}
+
+	@Override
+	public void removeListener(ILabelProviderListener listener) {
+	}
+
+	@Override
+	public void dispose() {
 	}
 }

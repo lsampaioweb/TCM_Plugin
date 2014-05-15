@@ -19,14 +19,16 @@
 08.1.2 - FTP.
 08.1.3 - Email.
 
-09 - Implement the verifiers.
-09.1 - SecurityMisconfigurationVerifier.
-09.2 - CookiePoisoningVerifier.
-09.3 - SQLInjectionVerifier.
-09.4 - UnvalidatedRedirectingVerifier.
-09.5 - XSSVerifier.
+09 + Implement the verifiers.
+09.1 + VerifierCookiePoisoning.
+09.2 + VerifierCrossSiteScripting.
+09.3 + VerifierSecurityMisconfiguration.
+09.4 + VerifierSQLInjection.
+09.5 + VerifierUnvalidatedRedirecting.
 
 10 - Create our own view.
+11 - Handle unknown methods. // "url".toString();
+12 - Make assignments method call work.
 
 XX - Check for cases where the class A invokes method C from class B, but the developer is working on class A so the class B will 
 not be verified, but it can be a case where the vulnerability happens when something is introduced in class A.
