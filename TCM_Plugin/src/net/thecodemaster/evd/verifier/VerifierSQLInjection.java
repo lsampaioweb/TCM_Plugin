@@ -21,13 +21,13 @@ public class VerifierSQLInjection extends Verifier {
 	@Override
 	protected void checkInfixExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
 		// 01 - Informs that this node is a vulnerability.
-		vp.foundVulnerability(expr, "SQL concatenation");
+		vp.isVulnerable(expr, "SQL concatenation");
 	}
 
 	@Override
 	protected void checkPrefixExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
 		// 01 - Informs that this node is a vulnerability.
-		vp.foundVulnerability(expr, "SQL concatenation");
+		vp.isVulnerable(expr, "SQL concatenation");
 	}
 
 }

@@ -54,7 +54,7 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 		}
 
 		// 01 - Informs that this node is a vulnerability.
-		vp.foundVulnerability(expr, message);
+		vp.isVulnerable(expr, message);
 	}
 
 }

@@ -460,7 +460,7 @@ public abstract class Verifier {
 			String message = getMessageEntryPoint(BindingResolver.getFullName(expr));
 
 			// If a entry point method is being invoked, then we DO have a vulnerability.
-			vp.foundVulnerability(expr, message);
+			vp.isVulnerable(expr, message);
 			return;
 		}
 
@@ -481,7 +481,7 @@ public abstract class Verifier {
 			// if (null != optionalExpression) {
 			// checkExpression(vp.addNodeToPath(optionalExpression), rules, optionalExpression, depth);
 			// } else {
-			vp.foundVulnerability(expr, "We fear what we do not understand!");
+			vp.isVulnerable(expr, "We fear what we do not understand!");
 			System.out.println("Method:" + expr);
 			// }
 		}
