@@ -11,21 +11,21 @@ import org.eclipse.jdt.core.dom.Statement;
 /**
  * @author Luciano Sampaio
  */
-public class VulnerabilityPath {
+public class DataFlow {
 
 	private final Expression										root;
-	private VulnerabilityPath										parent;
-	private final List<VulnerabilityPath>				children;
+	private DataFlow										parent;
+	private final List<DataFlow>				children;
 	private String															message;
 
-	private final List<List<VulnerabilityPath>>	allVulnerablePaths;
+	private final List<List<DataFlow>>	allVulnerablePaths;
 
-	private VulnerabilityPath(Expression root, VulnerabilityPath parent) {
+	private DataFlow(Expression root, DataFlow parent) {
 		this(root);
 		this.parent = parent;
 	}
 
-	public VulnerabilityPath(Expression root) {
+	public DataFlow(Expression root) {
 		this.root = root;
 		children = Creator.newList();
 		allVulnerablePaths = Creator.newList();
@@ -39,12 +39,12 @@ public class VulnerabilityPath {
 		return message;
 	}
 
-	public List<List<VulnerabilityPath>> getAllVulnerablePaths() {
+	public List<List<DataFlow>> getAllVulnerablePaths() {
 		return allVulnerablePaths;
 	}
 
-	public VulnerabilityPath addNodeToPath(Expression node) {
-		VulnerabilityPath nvp = new VulnerabilityPath(node, this);
+	public DataFlow addNodeToPath(Expression node) {
+		DataFlow nvp = new DataFlow(node, this);
 		children.add(nvp);
 
 		return nvp;
@@ -59,8 +59,8 @@ public class VulnerabilityPath {
 	/**
 	 * This method set the foundVulnerability to true on the parent's path.
 	 */
-	private void isVulnerable(List<VulnerabilityPath> childrenList) {
-		List<VulnerabilityPath> currentList = Creator.newList();
+	private void isVulnerable(List<DataFlow> childrenList) {
+		List<DataFlow> currentList = Creator.newList();
 		currentList.add(this);
 		if (null != childrenList) {
 			currentList.addAll(childrenList);
@@ -114,7 +114,7 @@ public class VulnerabilityPath {
 			return false;
 		}
 
-		VulnerabilityPath other = (VulnerabilityPath) obj;
+		DataFlow other = (DataFlow) obj;
 		if (!getRoot().equals(other.getRoot())) {
 			return false;
 		}

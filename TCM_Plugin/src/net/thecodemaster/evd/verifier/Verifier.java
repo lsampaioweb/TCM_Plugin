@@ -6,9 +6,9 @@ import java.util.Map;
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.BindingResolver;
 import net.thecodemaster.evd.graph.CallGraph;
+import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.graph.Parameter;
 import net.thecodemaster.evd.graph.VariableBindingManager;
-import net.thecodemaster.evd.graph.VulnerabilityPath;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.point.EntryPoint;
@@ -148,8 +148,8 @@ public abstract class Verifier {
 		return String.format(Messages.VerifierSecurityVulnerability.ENTRY_POINT_METHOD, value);
 	}
 
-	protected void reportVulnerability(VulnerabilityPath vp) {
-		getReporter().addProblem(getId(), getCurrentResource(), vp);
+	protected void reportVulnerability(DataFlow df) {
+		getReporter().addProblem(getId(), getCurrentResource(), df);
 	}
 
 	public void run(List<IResource> resources, CallGraph callGraph, Reporter reporter) {
@@ -202,16 +202,16 @@ public abstract class Verifier {
 		int index = 0;
 		int depth = 0;
 		Expression expr;
-		VulnerabilityPath vp;
+		DataFlow df;
 		for (List<Integer> rules : expectedParameters.values()) {
 			// If the rules are null, it means the expected parameter can be anything. (We do not care for it).
 			if (null != rules) {
 				expr = receivedParameters.get(index);
-				vp = new VulnerabilityPath(expr);
+				df = new DataFlow(expr);
 
-				checkExpression(vp, rules, expr, depth);
-				if (!vp.isEmpty()) {
-					reportVulnerability(vp);
+				checkExpression(df, rules, expr, depth);
+				if (!df.isEmpty()) {
+					reportVulnerability(df);
 				}
 			}
 			index++;
@@ -295,7 +295,7 @@ public abstract class Verifier {
 		return false;
 	}
 
-	protected void checkExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
+	protected void checkExpression(DataFlow df, List<Integer> rules, Expression expr, int depth) {
 		// 01 - If the parameter matches the rules (Easy case), the parameter is okay, otherwise we need to check for more
 		// things.
 		if (!matchRules(rules, expr)) {
@@ -303,7 +303,7 @@ public abstract class Verifier {
 			// To avoid infinitive loop, this check is necessary.
 			if (Constant.MAXIMUM_DEPTH == depth) {
 				// Informs that we can no longer investigate because it looks like we are in an infinitive loop.
-				vp.foundInfinitiveLoop(expr);
+				df.foundInfinitiveLoop(expr);
 
 				return;
 			}
@@ -314,22 +314,22 @@ public abstract class Verifier {
 				case ASTNode.CHARACTER_LITERAL:
 				case ASTNode.NUMBER_LITERAL:
 				case ASTNode.NULL_LITERAL:
-					checkLiteral(vp, expr);
+					checkLiteral(df, expr);
 					break;
 				case ASTNode.INFIX_EXPRESSION:
-					checkInfixExpression(vp, rules, expr, ++depth);
+					checkInfixExpression(df, rules, expr, ++depth);
 					break;
 				case ASTNode.PREFIX_EXPRESSION:
-					checkPrefixExpression(vp, rules, expr, ++depth);
+					checkPrefixExpression(df, rules, expr, ++depth);
 					break;
 				case ASTNode.CONDITIONAL_EXPRESSION:
-					checkConditionExpression(vp, rules, expr, ++depth);
+					checkConditionExpression(df, rules, expr, ++depth);
 					break;
 				case ASTNode.SIMPLE_NAME:
-					checkSimpleName(vp, rules, expr, ++depth);
+					checkSimpleName(df, rules, expr, ++depth);
 					break;
 				case ASTNode.METHOD_INVOCATION:
-					checkMethodInvocation(vp, rules, expr, ++depth);
+					checkMethodInvocation(df, rules, expr, ++depth);
 					break;
 				default:
 					PluginLogger.logError("Default Node Type: " + expr.getNodeType() + " - " + expr, null);
@@ -363,10 +363,10 @@ public abstract class Verifier {
 		return false;
 	}
 
-	protected void checkLiteral(VulnerabilityPath vp, Expression expr) {
+	protected void checkLiteral(DataFlow df, Expression expr) {
 	}
 
-	protected void checkInfixExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
+	protected void checkInfixExpression(DataFlow df, List<Integer> rules, Expression expr, int depth) {
 		InfixExpression parameter = (InfixExpression) expr;
 
 		// 01 - Get the elements from the operation.
@@ -375,24 +375,24 @@ public abstract class Verifier {
 		List<Expression> extendedOperands = BindingResolver.getParameters(parameter.extendedOperands());
 
 		// 02 - Check each element.
-		checkExpression(vp.addNodeToPath(leftOperand), rules, leftOperand, depth);
-		checkExpression(vp.addNodeToPath(rightOperand), rules, rightOperand, depth);
+		checkExpression(df.addNodeToPath(leftOperand), rules, leftOperand, depth);
+		checkExpression(df.addNodeToPath(rightOperand), rules, rightOperand, depth);
 
 		for (Expression expression : extendedOperands) {
-			checkExpression(vp.addNodeToPath(expression), rules, expression, depth);
+			checkExpression(df.addNodeToPath(expression), rules, expression, depth);
 		}
 	}
 
-	protected void checkPrefixExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
+	protected void checkPrefixExpression(DataFlow df, List<Integer> rules, Expression expr, int depth) {
 		PrefixExpression parameter = (PrefixExpression) expr;
 		// 01 - Get the elements from the operation.
 		Expression operand = parameter.getOperand();
 
 		// 02 - Check each element.
-		checkExpression(vp.addNodeToPath(operand), rules, operand, depth);
+		checkExpression(df.addNodeToPath(operand), rules, operand, depth);
 	}
 
-	protected void checkConditionExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
+	protected void checkConditionExpression(DataFlow df, List<Integer> rules, Expression expr, int depth) {
 		ConditionalExpression parameter = (ConditionalExpression) expr;
 
 		// 01 - Get the elements from the operation.
@@ -400,11 +400,11 @@ public abstract class Verifier {
 		Expression elseExpression = parameter.getElseExpression();
 
 		// 02 - Check each element.
-		checkExpression(vp.addNodeToPath(thenExpression), rules, thenExpression, depth);
-		checkExpression(vp.addNodeToPath(elseExpression), rules, elseExpression, depth);
+		checkExpression(df.addNodeToPath(thenExpression), rules, thenExpression, depth);
+		checkExpression(df.addNodeToPath(elseExpression), rules, elseExpression, depth);
 	}
 
-	protected void checkSimpleName(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
+	protected void checkSimpleName(DataFlow df, List<Integer> rules, Expression expr, int depth) {
 		SimpleName simpleName = (SimpleName) expr;
 		IBinding binding = simpleName.resolveBinding();
 
@@ -414,7 +414,7 @@ public abstract class Verifier {
 
 			// 02 - This is the case where we have to go deeper into the variable's path.
 			Expression initializer = manager.getInitializer();
-			checkExpression(vp.addNodeToPath(initializer), rules, initializer, depth);
+			checkExpression(df.addNodeToPath(initializer), rules, initializer, depth);
 		} else {
 			// This is the case where the variable is an argument of the method.
 			// 04 - Get the method signature that is using this parameter.
@@ -437,7 +437,7 @@ public abstract class Verifier {
 								Expression parameter = BindingResolver.getParameterAtIndex(expression, parameterIndex);
 
 								// 10 - Run detection on this parameter.
-								checkExpression(vp.addNodeToPath(parameter), rules, parameter, depth);
+								checkExpression(df.addNodeToPath(parameter), rules, parameter, depth);
 							}
 						}
 
@@ -448,7 +448,7 @@ public abstract class Verifier {
 		}
 	}
 
-	protected void checkMethodInvocation(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
+	protected void checkMethodInvocation(DataFlow df, List<Integer> rules, Expression expr, int depth) {
 		// 01 - Check if this method is a Sanitization-Point.
 		if (isMethodASanitizationPoint(expr)) {
 			// If a sanitization method is being invoked, then we do not have a vulnerability.
@@ -460,7 +460,7 @@ public abstract class Verifier {
 			String message = getMessageEntryPoint(BindingResolver.getFullName(expr));
 
 			// If a entry point method is being invoked, then we DO have a vulnerability.
-			vp.isVulnerable(expr, message);
+			df.isVulnerable(expr, message);
 			return;
 		}
 
@@ -471,7 +471,7 @@ public abstract class Verifier {
 		MethodDeclaration methodDeclaration = getCallGraph().getMethod(getCurrentResource(), expr);
 
 		if (null != methodDeclaration) {
-			checkBlock(vp, rules, methodDeclaration.getBody(), depth);
+			checkBlock(df, rules, methodDeclaration.getBody(), depth);
 		} else {
 			// TODO - Special cases:
 			// "url".toString(); variable.toLowerCase();
@@ -481,81 +481,81 @@ public abstract class Verifier {
 			// if (null != optionalExpression) {
 			// checkExpression(vp.addNodeToPath(optionalExpression), rules, optionalExpression, depth);
 			// } else {
-			vp.isVulnerable(expr, "We fear what we do not understand!");
+			df.isVulnerable(expr, "We fear what we do not understand!");
 			System.out.println("Method:" + expr);
 			// }
 		}
 	}
 
-	protected void checkBlock(VulnerabilityPath vp, List<Integer> rules, Block block, int depth) {
+	protected void checkBlock(DataFlow df, List<Integer> rules, Block block, int depth) {
 		List<?> statements = block.statements();
 		for (Object object : statements) {
-			checkStatement(vp, rules, (Statement) object, depth);
+			checkStatement(df, rules, (Statement) object, depth);
 		}
 	}
 
-	protected void checkStatement(VulnerabilityPath vp, List<Integer> rules, Statement statement, int depth) {
+	protected void checkStatement(DataFlow df, List<Integer> rules, Statement statement, int depth) {
 		if (statement.getNodeType() == ASTNode.RETURN_STATEMENT) {
 			Expression expr = ((ReturnStatement) statement).getExpression();
-			checkExpression(vp.addNodeToPath(expr), rules, expr, depth);
+			checkExpression(df.addNodeToPath(expr), rules, expr, depth);
 		} else if (Constant.MAXIMUM_DEPTH == depth) {
 			// To avoid infinitive loop, this check is necessary.
 			// Informs that we can no longer investigate because it looks like we are in an infinitive loop.
-			vp.foundInfinitiveLoop(statement);
+			df.foundInfinitiveLoop(statement);
 
 			return;
 		} else {
 			switch (statement.getNodeType()) {
 				case ASTNode.FOR_STATEMENT:
-					checkIfBlockOrStatement(vp, rules, ((ForStatement) statement).getBody(), depth);
+					checkIfBlockOrStatement(df, rules, ((ForStatement) statement).getBody(), depth);
 					break;
 				case ASTNode.WHILE_STATEMENT:
-					checkIfBlockOrStatement(vp, rules, ((WhileStatement) statement).getBody(), depth);
+					checkIfBlockOrStatement(df, rules, ((WhileStatement) statement).getBody(), depth);
 					break;
 				case ASTNode.DO_STATEMENT:
-					checkIfBlockOrStatement(vp, rules, ((DoStatement) statement).getBody(), depth);
+					checkIfBlockOrStatement(df, rules, ((DoStatement) statement).getBody(), depth);
 					break;
 				case ASTNode.IF_STATEMENT:
 					IfStatement is = (IfStatement) statement;
 
-					checkIfBlockOrStatement(vp, rules, is.getThenStatement(), depth);
-					checkIfBlockOrStatement(vp, rules, is.getElseStatement(), depth);
+					checkIfBlockOrStatement(df, rules, is.getThenStatement(), depth);
+					checkIfBlockOrStatement(df, rules, is.getElseStatement(), depth);
 					break;
 				case ASTNode.TRY_STATEMENT:
 					TryStatement tryStatement = (TryStatement) statement;
 
-					checkIfBlockOrStatement(vp, rules, tryStatement.getBody(), depth);
+					checkIfBlockOrStatement(df, rules, tryStatement.getBody(), depth);
 
 					List<?> listCatches = tryStatement.catchClauses();
 					for (Object catchClause : listCatches) {
-						checkIfBlockOrStatement(vp, rules, ((CatchClause) catchClause).getBody(), depth);
+						checkIfBlockOrStatement(df, rules, ((CatchClause) catchClause).getBody(), depth);
 					}
 
-					checkIfBlockOrStatement(vp, rules, tryStatement.getFinally(), depth);
+					checkIfBlockOrStatement(df, rules, tryStatement.getFinally(), depth);
 					break;
 				case ASTNode.SWITCH_STATEMENT:
 					SwitchStatement switchStatement = (SwitchStatement) statement;
 
 					List<?> switchStatements = switchStatement.statements();
 					for (Object switchCases : switchStatements) {
-						checkIfBlockOrStatement(vp, rules, (Statement) switchCases, depth);
+						checkIfBlockOrStatement(df, rules, (Statement) switchCases, depth);
 					}
 					break;
 			}
 		}
 	}
 
-	protected void checkIfBlockOrStatement(VulnerabilityPath vp, List<Integer> rules, Statement statement, int depth) {
+	protected void checkIfBlockOrStatement(DataFlow df, List<Integer> rules, Statement statement, int depth) {
 		if (null == statement) {
 			return;
 		}
 
 		switch (statement.getNodeType()) {
 			case ASTNode.BLOCK:
-				checkBlock(vp, rules, (Block) statement, ++depth);
+				checkBlock(df, rules, (Block) statement, ++depth);
 				break;
 			default:
-				checkStatement(vp, rules, statement, ++depth);
+				checkStatement(df, rules, statement, ++depth);
 				break;
 		}
 	}

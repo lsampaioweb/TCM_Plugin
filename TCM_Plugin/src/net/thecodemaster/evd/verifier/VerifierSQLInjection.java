@@ -3,7 +3,7 @@ package net.thecodemaster.evd.verifier;
 import java.util.List;
 
 import net.thecodemaster.evd.constant.Constant;
-import net.thecodemaster.evd.graph.VulnerabilityPath;
+import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.point.EntryPoint;
 import net.thecodemaster.evd.ui.l10n.Messages;
 
@@ -19,15 +19,15 @@ public class VerifierSQLInjection extends Verifier {
 	}
 
 	@Override
-	protected void checkInfixExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
+	protected void checkInfixExpression(DataFlow df, List<Integer> rules, Expression expr, int depth) {
 		// 01 - Informs that this node is a vulnerability.
-		vp.isVulnerable(expr, "SQL concatenation");
+		df.isVulnerable(expr, "SQL concatenation");
 	}
 
 	@Override
-	protected void checkPrefixExpression(VulnerabilityPath vp, List<Integer> rules, Expression expr, int depth) {
+	protected void checkPrefixExpression(DataFlow df, List<Integer> rules, Expression expr, int depth) {
 		// 01 - Informs that this node is a vulnerability.
-		vp.isVulnerable(expr, "SQL concatenation");
+		df.isVulnerable(expr, "SQL concatenation");
 	}
 
 }

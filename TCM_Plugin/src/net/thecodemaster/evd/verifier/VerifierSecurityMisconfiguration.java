@@ -3,7 +3,7 @@ package net.thecodemaster.evd.verifier;
 import java.util.List;
 
 import net.thecodemaster.evd.constant.Constant;
-import net.thecodemaster.evd.graph.VulnerabilityPath;
+import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.point.EntryPoint;
 import net.thecodemaster.evd.ui.l10n.Messages;
 
@@ -36,7 +36,7 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 	}
 
 	@Override
-	protected void checkLiteral(VulnerabilityPath vp, Expression expr) {
+	protected void checkLiteral(DataFlow df, Expression expr) {
 		String message = null;
 		switch (expr.getNodeType()) {
 			case ASTNode.STRING_LITERAL:
@@ -54,7 +54,7 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 		}
 
 		// 01 - Informs that this node is a vulnerability.
-		vp.isVulnerable(expr, message);
+		df.isVulnerable(expr, message);
 	}
 
 }
