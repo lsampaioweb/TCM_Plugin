@@ -5,7 +5,7 @@ import java.util.List;
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.point.EntryPoint;
-import net.thecodemaster.evd.ui.l10n.Messages;
+import net.thecodemaster.evd.ui.l10n.Message;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
@@ -19,20 +19,20 @@ import org.eclipse.jdt.core.dom.StringLiteral;
 public class VerifierSecurityMisconfiguration extends Verifier {
 
 	public VerifierSecurityMisconfiguration(List<EntryPoint> entryPoints) {
-		super(Messages.Plugin.VERIFIER_NAME_SECURITY_MISCONFIGURATION, Constant.VERIFIER_ID_SECURITY_MISCONFIGURATION,
+		super(Message.Plugin.VERIFIER_NAME_SECURITY_MISCONFIGURATION, Constant.VERIFIER_ID_SECURITY_MISCONFIGURATION,
 				entryPoints);
 	}
 
 	protected String getMessageLiteral(String value) {
-		return String.format(Messages.VerifierSecurityVulnerability.LITERAL, value);
+		return String.format(Message.VerifierSecurityVulnerability.LITERAL, value);
 	}
 
 	protected String getMessageLiteral(char value) {
-		return String.format(Messages.VerifierSecurityVulnerability.LITERAL, value);
+		return String.format(Message.VerifierSecurityVulnerability.LITERAL, value);
 	}
 
 	protected String getMessageNullLiteral() {
-		return String.format(Messages.VerifierSecurityVulnerability.NULL_LITERAL);
+		return String.format(Message.VerifierSecurityVulnerability.NULL_LITERAL);
 	}
 
 	@Override

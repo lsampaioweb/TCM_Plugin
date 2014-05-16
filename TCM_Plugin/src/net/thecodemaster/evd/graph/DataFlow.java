@@ -74,11 +74,11 @@ public class DataFlow {
 
 	}
 
-	public void foundInfinitiveLoop(Expression expr) {
+	public void isInfinitiveLoop(Expression expr) {
 		PluginLogger.logIfDebugging("Found an Infinitive Loop at expression: " + expr);
 	}
 
-	public void foundInfinitiveLoop(Statement statement) {
+	public void isInfinitiveLoop(Statement statement) {
 		PluginLogger.logIfDebugging("Found an Infinitive Loop at statement: " + statement);
 	}
 

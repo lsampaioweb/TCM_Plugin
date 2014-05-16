@@ -2,6 +2,7 @@ package net.thecodemaster.evd.reporter;
 
 import java.util.List;
 
+import net.thecodemaster.evd.Activator;
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.logger.PluginLogger;
@@ -10,6 +11,8 @@ import net.thecodemaster.evd.ui.view.ViewSecurityVulnerabilities;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
 
 /**
  * @author Luciano Sampaio
@@ -75,9 +78,30 @@ public class Reporter {
 		}
 	}
 
-	private void addMarker(int typeVulnerability, IResource resource, DataFlow df) {
+	private void addMarker(final int typeVulnerability, final IResource resource, final DataFlow df) {
+		// Update the user interface asynchronously.
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				ViewSecurityVulnerabilities view = (ViewSecurityVulnerabilities) Activator.getDefault().findView(
+						Constant.VIEW_ID);
+				if (null == view) {
+					view = createView();
+				}
+
+				view.add(typeVulnerability, resource, df);
+			}
+		});
+	}
+
+	private ViewSecurityVulnerabilities createView() {
 		ViewSecurityVulnerabilities view = new ViewSecurityVulnerabilities();
-		view.add(typeVulnerability, resource, df);
+
+		view = new ViewSecurityVulnerabilities();
+		view.createPartControl(new Shell(Display.getDefault()));
+		view.showView();
+
+		return view;
 	}
 
 }

@@ -14,7 +14,7 @@ import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.point.EntryPoint;
 import net.thecodemaster.evd.point.ExitPoint;
 import net.thecodemaster.evd.reporter.Reporter;
-import net.thecodemaster.evd.ui.l10n.Messages;
+import net.thecodemaster.evd.ui.l10n.Message;
 import net.thecodemaster.evd.xmlloader.LoaderExitPoint;
 
 import org.eclipse.core.resources.IResource;
@@ -145,7 +145,7 @@ public abstract class Verifier {
 	}
 
 	protected String getMessageEntryPoint(String value) {
-		return String.format(Messages.VerifierSecurityVulnerability.ENTRY_POINT_METHOD, value);
+		return String.format(Message.VerifierSecurityVulnerability.ENTRY_POINT_METHOD, value);
 	}
 
 	protected void reportVulnerability(DataFlow df) {
@@ -303,7 +303,7 @@ public abstract class Verifier {
 			// To avoid infinitive loop, this check is necessary.
 			if (Constant.MAXIMUM_DEPTH == depth) {
 				// Informs that we can no longer investigate because it looks like we are in an infinitive loop.
-				df.foundInfinitiveLoop(expr);
+				df.isInfinitiveLoop(expr);
 
 				return;
 			}
@@ -501,7 +501,7 @@ public abstract class Verifier {
 		} else if (Constant.MAXIMUM_DEPTH == depth) {
 			// To avoid infinitive loop, this check is necessary.
 			// Informs that we can no longer investigate because it looks like we are in an infinitive loop.
-			df.foundInfinitiveLoop(statement);
+			df.isInfinitiveLoop(statement);
 
 			return;
 		} else {

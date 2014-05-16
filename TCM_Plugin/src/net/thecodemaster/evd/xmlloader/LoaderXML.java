@@ -14,7 +14,7 @@ import net.thecodemaster.evd.Activator;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.point.AbstractPoint;
-import net.thecodemaster.evd.ui.l10n.Messages;
+import net.thecodemaster.evd.ui.l10n.Message;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
@@ -35,7 +35,7 @@ public abstract class LoaderXML {
 		if (fileExists(file)) {
 			return load(file);
 		} else {
-			PluginLogger.logError(new FileNotFoundException(String.format(Messages.Error.FILE_NOT_FOUND, file)));
+			PluginLogger.logError(new FileNotFoundException(String.format(Message.Error.FILE_NOT_FOUND, file)));
 		}
 
 		return Creator.newList();
@@ -68,13 +68,13 @@ public abstract class LoaderXML {
 			document.getDocumentElement().normalize();
 		} catch (ParserConfigurationException e) {
 			realException = e;
-			errorMessage = Messages.Error.FILE_XML_PARSING_FAIL;
+			errorMessage = Message.Error.FILE_XML_PARSING_FAIL;
 		} catch (SAXException e) {
 			realException = e;
-			errorMessage = Messages.Error.FILE_XML_PARSING_FAIL;
+			errorMessage = Message.Error.FILE_XML_PARSING_FAIL;
 		} catch (IOException e) {
 			realException = e;
-			errorMessage = Messages.Error.FILE_XML_READING_FAIL;
+			errorMessage = Message.Error.FILE_XML_READING_FAIL;
 		}
 
 		if (errorMessage != null) {

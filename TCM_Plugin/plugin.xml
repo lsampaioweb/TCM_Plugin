@@ -4,15 +4,15 @@
    <extension
          point="org.eclipse.ui.views">
       <category
-            id="NET.THECODEMASTER.EVD.UI.VIEW.CATEGORY"
+            id="THE_CODE_MASTER_EARLY_VULNERABILITY_DETECTOR.TCM_EVD_VIEW_CATEGORY"
             name="%view.category.name">
       </category>
       <view
             allowMultiple="false"
-            category="NET.THECODEMASTER.EVD.UI.VIEW.CATEGORY"
+            category="THE_CODE_MASTER_EARLY_VULNERABILITY_DETECTOR.TCM_EVD_VIEW_CATEGORY"
             class="net.thecodemaster.evd.ui.view.ViewSecurityVulnerabilities"
             icon="icon/View.png"
-            id="NET.THECODEMASTER.EVD.UI.VIEW"
+            id="THE_CODE_MASTER_EARLY_VULNERABILITY_DETECTOR.TCM_EVD_VIEW"
             name="%view.name"
             restorable="true">
       </view>
@@ -22,7 +22,7 @@
       <perspectiveExtension
             targetID="org.eclipse.jdt.ui.JavaPerspective">
          <view
-               id="NET.THECODEMASTER.EVD.UI.VIEW"
+               id="THE_CODE_MASTER_EARLY_VULNERABILITY_DETECTOR.TCM_EVD_VIEW"
                minimized="false"
                ratio="0.5"
                relationship="bottom"

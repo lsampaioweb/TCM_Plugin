@@ -2,7 +2,7 @@ package net.thecodemaster.evd.marker;
 
 import net.thecodemaster.evd.Activator;
 import net.thecodemaster.evd.constant.Constant;
-import net.thecodemaster.evd.ui.l10n.Messages;
+import net.thecodemaster.evd.ui.l10n.Message;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.swt.graphics.Image;
@@ -18,12 +18,12 @@ public class SecurityMisconfigurationResolution implements IMarkerResolution2 {
 
   @Override
   public String getLabel() {
-    return Messages.VerifierSecurityVulnerability.LABEL_RESOLUTION;
+    return Message.VerifierSecurityVulnerability.LABEL_RESOLUTION;
   }
 
   @Override
   public String getDescription() {
-    return Messages.VerifierSecurityVulnerability.DESCRIPTION_RESOLUTION;
+    return Message.VerifierSecurityVulnerability.DESCRIPTION_RESOLUTION;
   }
 
   @Override

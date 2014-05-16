@@ -5,7 +5,7 @@ import java.util.List;
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.point.EntryPoint;
-import net.thecodemaster.evd.ui.l10n.Messages;
+import net.thecodemaster.evd.ui.l10n.Message;
 
 import org.eclipse.jdt.core.dom.Expression;
 
@@ -15,7 +15,7 @@ import org.eclipse.jdt.core.dom.Expression;
 public class VerifierSQLInjection extends Verifier {
 
 	public VerifierSQLInjection(List<EntryPoint> entryPoints) {
-		super(Messages.Plugin.VERIFIER_NAME_SQL_INJECTION, Constant.VERIFIER_ID_SQL_INJECTION, entryPoints);
+		super(Message.Plugin.VERIFIER_NAME_SQL_INJECTION, Constant.VERIFIER_ID_SQL_INJECTION, entryPoints);
 	}
 
 	@Override

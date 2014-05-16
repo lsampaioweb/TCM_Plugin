@@ -6,7 +6,7 @@ import java.util.Map;
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.logger.PluginLogger;
-import net.thecodemaster.evd.ui.l10n.Messages;
+import net.thecodemaster.evd.ui.l10n.Message;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -117,7 +117,7 @@ public class IncrementalBuilder extends IncrementalProjectBuilder {
 
 		cancelIfNotRunning(jobProject);
 
-		jobProject = new BuilderJob(Messages.Plugin.JOB, getProject());
+		jobProject = new BuilderJob(Message.Plugin.JOB, getProject());
 		jobProject.setRule(rule);
 		jobProject.run();
 	}
@@ -126,7 +126,7 @@ public class IncrementalBuilder extends IncrementalProjectBuilder {
 		if (wasProjectFullBuilt(getProject())) {
 			cancelIfNotRunning(jobDelta);
 
-			jobDelta = new BuilderJob(Messages.Plugin.JOB, delta);
+			jobDelta = new BuilderJob(Message.Plugin.JOB, delta);
 			jobDelta.setRule(rule);
 			jobDelta.run();
 		} else {

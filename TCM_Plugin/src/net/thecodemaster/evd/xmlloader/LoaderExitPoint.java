@@ -8,7 +8,7 @@ import net.thecodemaster.evd.graph.Parameter;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.point.ExitPoint;
-import net.thecodemaster.evd.ui.l10n.Messages;
+import net.thecodemaster.evd.ui.l10n.Message;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -40,7 +40,7 @@ public class LoaderExitPoint extends LoaderXML {
 			case Constant.VERIFIER_ID_UNVALIDATED_REDIRECTING:
 				return Constant.File.FILE_EXIT_POINT_UNVALIDATED_REDIRECTING;
 			default:
-				String errorMessage = String.format(Messages.Error.FILE_EXIT_POINT_NOT_FOUND, fileId);
+				String errorMessage = String.format(Message.Error.FILE_EXIT_POINT_NOT_FOUND, fileId);
 				PluginLogger.logError(errorMessage, null);
 				return null;
 		}

@@ -3,6 +3,11 @@ package net.thecodemaster.evd;
 import net.thecodemaster.evd.constant.Constant;
 
 import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
@@ -65,6 +70,52 @@ public class Activator extends AbstractUIPlugin {
 	 */
 	public static ImageDescriptor getImageDescriptor(String path) {
 		return imageDescriptorFromPlugin(PLUGIN_ID, path);
+	}
+
+	public IWorkbenchWindow getActiveWorkbenchWindow() {
+		IWorkbenchWindow win = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+
+		if (null != win) {
+			return win;
+		}
+
+		if (null != Display.getCurrent()) {
+			return getWorkbench().getActiveWorkbenchWindow();
+		}
+
+		return getWorkbench().getActiveWorkbenchWindow();
+	}
+
+	/**
+	 * Returns the view in this page with the specified id. There is at most one view in the page with the specified id.
+	 * 
+	 * @param: viewId the id of the view extension to use.
+	 * @return: the view, or null if none is found.
+	 */
+	public IViewPart findView(final String viewId) {
+		return getActiveWorkbenchWindow().getActivePage().findView(viewId);
+	}
+
+	/**
+	 * Shows a view in this page with the given id and secondary id. The behavior of this method varies based on the
+	 * supplied mode. If VIEW_ACTIVATE is supplied, the view is given focus. If VIEW_VISIBLE is supplied, then it is made
+	 * visible but not given focus. Finally, if VIEW_CREATE is supplied the view is created and will only be made visible
+	 * if it is not created in a folder that already contains visible views. This allows multiple instances of a
+	 * particular view to be created. They are disambiguated using the secondary id. If a secondary id is given, the view
+	 * must allow multiple instances by having specified allowMultiple="true" in its extension.
+	 * 
+	 * @param viewId
+	 *          viewId the id of the view extension to use.
+	 * @param secondaryId
+	 *          the secondary id to use, or null for no secondary id.
+	 * @param viewVisible
+	 *          the activation mode. Must be VIEW_ACTIVATE, VIEW_VISIBLE or VIEW_CREATE.
+	 * @return: a view.
+	 * @throws PartInitException
+	 *           if the view could not be initialized.
+	 */
+	public IViewPart showView(String viewId, String secondaryId, int viewVisible) throws PartInitException {
+		return getActiveWorkbenchWindow().getActivePage().showView(viewId, secondaryId, viewVisible);
 	}
 
 }

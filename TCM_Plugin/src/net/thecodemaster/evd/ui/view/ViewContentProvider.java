@@ -12,11 +12,16 @@ class ViewContentProvider implements ITreeContentProvider {
 
 	@Override
 	public boolean hasChildren(Object element) {
-		return false;
+		return getChildren(element).length > 0;
 	}
 
 	@Override
 	public Object[] getChildren(Object parentElement) {
+		if (parentElement instanceof ViewDataModel) {
+			ViewDataModel vdm = (ViewDataModel) parentElement;
+
+			return vdm.getChildren().toArray();
+		}
 		return new Object[0];
 	}
 

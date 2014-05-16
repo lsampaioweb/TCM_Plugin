@@ -8,7 +8,7 @@ import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.helper.Timer;
 import net.thecodemaster.evd.logger.PluginLogger;
-import net.thecodemaster.evd.ui.l10n.Messages;
+import net.thecodemaster.evd.ui.l10n.Message;
 import net.thecodemaster.evd.visitor.VisitorCallGraph;
 
 import org.eclipse.core.resources.IProject;
@@ -100,9 +100,9 @@ public class BuilderJob extends Job {
 			CallGraph callGraph = getCallGraph();
 			if (null == callGraph) {
 				String projectName = (null != project) ? project.getName() : "";
-				PluginLogger.logError(String.format(Messages.Error.CALL_GRAPH_DOES_NOT_CONTAIN_PROJECT, projectName), null);
+				PluginLogger.logError(String.format(Message.Error.CALL_GRAPH_DOES_NOT_CONTAIN_PROJECT, projectName), null);
 			} else {
-				monitor.beginTask(Messages.Plugin.TASK, IProgressMonitor.UNKNOWN);
+				monitor.beginTask(Message.Plugin.TASK, IProgressMonitor.UNKNOWN);
 
 				VisitorCallGraph visitorCallGraph = new VisitorCallGraph(callGraph);
 				List<IResource> resourcesUpdated = Creator.newList();
@@ -136,6 +136,9 @@ public class BuilderJob extends Job {
 		} catch (CoreException e) {
 			PluginLogger.logError(e);
 			return e.getStatus();
+		} catch (Exception e) {
+			PluginLogger.logError(e);
+			return Status.CANCEL_STATUS;
 		} finally {
 			if (null != monitor) {
 				monitor.done();

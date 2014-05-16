@@ -4,7 +4,7 @@ import java.util.List;
 
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.point.EntryPoint;
-import net.thecodemaster.evd.ui.l10n.Messages;
+import net.thecodemaster.evd.ui.l10n.Message;
 
 /**
  * @author Luciano Sampaio
@@ -12,12 +12,12 @@ import net.thecodemaster.evd.ui.l10n.Messages;
 public class VerifierCrossSiteScripting extends Verifier {
 
 	public VerifierCrossSiteScripting(List<EntryPoint> entryPoints) {
-		super(Messages.Plugin.VERIFIER_NAME_CROSS_SITE_SCRIPTING, Constant.VERIFIER_ID_CROSS_SITE_SCRIPTING, entryPoints);
+		super(Message.Plugin.VERIFIER_NAME_CROSS_SITE_SCRIPTING, Constant.VERIFIER_ID_CROSS_SITE_SCRIPTING, entryPoints);
 	}
 
 	@Override
 	protected String getMessageEntryPoint(String value) {
-		return String.format(Messages.VerifierSecurityVulnerability.ENTRY_POINT_METHOD, value);
+		return String.format(Message.VerifierSecurityVulnerability.ENTRY_POINT_METHOD, value);
 	}
 
 }

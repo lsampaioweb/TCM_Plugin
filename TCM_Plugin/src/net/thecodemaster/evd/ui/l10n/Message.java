@@ -7,7 +7,7 @@ import org.eclipse.osgi.util.NLS;
 /**
  * @author Luciano Sampaio
  */
-public abstract class Messages extends NLS {
+public abstract class Message extends NLS {
 
 	public static abstract class PrefPageAcknowledgements {
 		private static final String	BUNDLE_NAME	= Constant.Package.L10N_MESSAGES + ".pref_page_acknowledgements"; //$NON-NLS-1$
@@ -116,6 +116,21 @@ public abstract class Messages extends NLS {
 		static {
 			// Initialize resource bundle.
 			NLS.initializeMessages(BUNDLE_NAME, Error.class);
+		}
+	}
+
+	public static abstract class View {
+		private static final String	BUNDLE_NAME	= Constant.Package.L10N_MESSAGES + ".view"; //$NON-NLS-1$
+
+		public static String				DESCRIPTION;
+		public static String				VULNERABILITY;
+		public static String				LOCATION;
+		public static String				RESOURCE;
+		public static String				PATH;
+
+		static {
+			// Initialize resource bundle.
+			NLS.initializeMessages(BUNDLE_NAME, View.class);
 		}
 	}
 

@@ -2,7 +2,7 @@ package net.thecodemaster.evd.ui.preference.page;
 
 import net.thecodemaster.evd.Activator;
 import net.thecodemaster.evd.constant.Constant;
-import net.thecodemaster.evd.ui.l10n.Messages;
+import net.thecodemaster.evd.ui.l10n.Message;
 
 import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -40,7 +40,7 @@ public class Settings extends AbstracPreferencePage {
 	@Override
 	public void init(IWorkbench workbench) {
 		setPreferenceStore(Activator.getDefault().getPreferenceStore());
-		setDescription(Messages.PrefPageSettings.DESCRIPTION);
+		setDescription(Message.PrefPageSettings.DESCRIPTION);
 	}
 
 	@Override
@@ -54,13 +54,13 @@ public class Settings extends AbstracPreferencePage {
 		top.setLayout(new GridLayout());
 
 		String[][] data = new String[][] {
-				{ Messages.PrefPageSettings.LABEL_RUN_AUTOMATICALLY, Messages.PrefPageSettings.VALUE_RUN_AUTOMATICALLY },
-				{ Messages.PrefPageSettings.LABEL_RUN_ON_SAVE, Messages.PrefPageSettings.VALUE_RUN_ON_SAVE },
-				{ Messages.PrefPageSettings.LABEL_RUN_MANUALLY, Messages.PrefPageSettings.VALUE_RUN_MANUALLY } };
+				{ Message.PrefPageSettings.LABEL_RUN_AUTOMATICALLY, Message.PrefPageSettings.VALUE_RUN_AUTOMATICALLY },
+				{ Message.PrefPageSettings.LABEL_RUN_ON_SAVE, Message.PrefPageSettings.VALUE_RUN_ON_SAVE },
+				{ Message.PrefPageSettings.LABEL_RUN_MANUALLY, Message.PrefPageSettings.VALUE_RUN_MANUALLY } };
 
 		// Group run mode and its children.
 		rbtnRunMode = new RadioGroupFieldEditor(Constant.PrefPageSettings.FIELD_RUN_MODE,
-				Messages.PrefPageSettings.LABEL_RUN_MODE, 3, data, top, true);
+				Message.PrefPageSettings.LABEL_RUN_MODE, 3, data, top, true);
 		rbtnRunMode.setPreferenceStore(getPreferenceStore());
 		rbtnRunMode.load();
 
@@ -68,15 +68,15 @@ public class Settings extends AbstracPreferencePage {
 		Group groupOutput = new Group(top, SWT.NONE);
 		groupOutput.setLayout(new GridLayout());
 		groupOutput.setLayoutData(new GridData(GridData.FILL, GridData.CENTER, true, false));
-		groupOutput.setText(Messages.PrefPageSettings.LABEL_OUTPUT);
+		groupOutput.setText(Message.PrefPageSettings.LABEL_OUTPUT);
 
 		// The output options where the warnings of security vulnerabilities will be displayed.
 		ckbtnProblemView = createBooleanField(Constant.PrefPageSettings.FIELD_OUTPUT_PROBLEMS_VIEW,
-				Messages.PrefPageSettings.LABEL_OUTPUT_PROBLEMS_VIEW, groupOutput);
+				Message.PrefPageSettings.LABEL_OUTPUT_PROBLEMS_VIEW, groupOutput);
 		ckbtnTextFile = createBooleanField(Constant.PrefPageSettings.FIELD_OUTPUT_TEXT_FILE,
-				Messages.PrefPageSettings.LABEL_OUTPUT_TEXT_FILE, groupOutput);
+				Message.PrefPageSettings.LABEL_OUTPUT_TEXT_FILE, groupOutput);
 		ckbtnXmlFile = createBooleanField(Constant.PrefPageSettings.FIELD_OUTPUT_XML_FILE,
-				Messages.PrefPageSettings.LABEL_OUTPUT_XML_FILE, groupOutput);
+				Message.PrefPageSettings.LABEL_OUTPUT_XML_FILE, groupOutput);
 
 		return top;
 	}
@@ -85,7 +85,7 @@ public class Settings extends AbstracPreferencePage {
 	public void performDefaults() {
 		IPreferenceStore store = getPreferenceStore();
 		// Save the default values into the preference file.
-		store.setDefault(Constant.PrefPageSettings.FIELD_RUN_MODE, Messages.PrefPageSettings.VALUE_RUN_AUTOMATICALLY);
+		store.setDefault(Constant.PrefPageSettings.FIELD_RUN_MODE, Message.PrefPageSettings.VALUE_RUN_AUTOMATICALLY);
 
 		store.setDefault(Constant.PrefPageSettings.FIELD_OUTPUT_PROBLEMS_VIEW, true);
 		store.setDefault(Constant.PrefPageSettings.FIELD_OUTPUT_TEXT_FILE, false);
