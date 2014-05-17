@@ -29,7 +29,7 @@ import org.eclipse.ui.part.ViewPart;
 
 public class ViewSecurityVulnerabilities extends ViewPart {
 
-	private TreeViewer	viewer;
+	private static TreeViewer	viewer;
 
 	public void showView() {
 		try {
@@ -61,7 +61,7 @@ public class ViewSecurityVulnerabilities extends ViewPart {
 	private void createColumns(Tree tree) {
 		String[] titles = { Message.View.DESCRIPTION, Message.View.VULNERABILITY, Message.View.LOCATION,
 				Message.View.RESOURCE, Message.View.PATH };
-		int[] bounds = { 450, 150, 55, 200, 400 };
+		int[] bounds = { 450, 150, 55, 180, 1000 };
 
 		for (int i = 0; i < titles.length; i++) {
 			TreeColumn column = new TreeColumn(tree, SWT.NONE);
@@ -91,30 +91,46 @@ public class ViewSecurityVulnerabilities extends ViewPart {
 		viewer.getControl().setFocus();
 	}
 
-	public void add(int typeVulnerability, IResource resource, DataFlow df) {
+	public void add(int typeVulnerability, IResource resource, List<DataFlow> dataFlows) {
 		ViewDataModel rootVdm = new ViewDataModel();
 
-		Expression root = df.getRoot();
-		List<List<DataFlow>> allVulnerablePaths = df.getAllVulnerablePaths();
+		for (DataFlow df : dataFlows) {
+			ViewDataModel parent = null;
+			ViewDataModel currentVdm;
+			Expression root = df.getRoot();
+			List<List<DataFlow>> allVulnerablePaths = df.getAllVulnerablePaths();
 
-		if (allVulnerablePaths.size() > 1) {
-			String message = String.format("%s has %d vulnerabilities.", root.toString(), allVulnerablePaths.size());
-			add(rootVdm, typeVulnerability, resource, root, message, null);
-		}
+			if (allVulnerablePaths.size() > 1) {
+				String message = String.format("%s has %d vulnerabilities.", root.toString(), allVulnerablePaths.size());
 
-		for (List<DataFlow> listVulnerablePaths : allVulnerablePaths) {
-			DataFlow lastElement = listVulnerablePaths.get(listVulnerablePaths.size() - 1);
+				parent = add(typeVulnerability, resource, root, message, null);
+				if (null != parent) {
+					rootVdm.addChildren(parent);
+				}
+			}
 
-			String fullPath = getFullPath(listVulnerablePaths);
+			for (List<DataFlow> vulnerablePaths : allVulnerablePaths) {
+				// The last element is the element that have the vulnerability message.
+				DataFlow lastElement = vulnerablePaths.get(vulnerablePaths.size() - 1);
 
-			add(rootVdm, typeVulnerability, resource, lastElement.getRoot(), lastElement.getMessage(), fullPath);
+				// The path that lead to the vulnerability.
+				String fullPath = getFullPath(vulnerablePaths);
+
+				currentVdm = add(typeVulnerability, resource, lastElement.getRoot(), lastElement.getMessage(), fullPath);
+				if (null != currentVdm) {
+					if (null != parent) {
+						parent.addChildren(currentVdm);
+					} else {
+						rootVdm.addChildren(currentVdm);
+					}
+				}
+			}
 		}
 
 		addToView(rootVdm);
 	}
 
-	private void add(ViewDataModel rootVdm, int typeVulnerability, IResource resource, Expression expr, String message,
-			String fullPath) {
+	private ViewDataModel add(int typeVulnerability, IResource resource, Expression expr, String message, String fullPath) {
 		try {
 			Map<String, Object> markerAttributes = Creator.newMap();
 			markerAttributes.put(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
@@ -143,21 +159,19 @@ public class ViewSecurityVulnerabilities extends ViewPart {
 			vdm.setResource(resource);
 			vdm.setFullPath(fullPath);
 
-			rootVdm.addChildren(vdm);
+			return vdm;
 		} catch (CoreException e) {
 			PluginLogger.logError(e);
 		}
+		return null;
 	}
 
-	private void addToView(final ViewDataModel root) {
+	private void addToView(final ViewDataModel rootVdm) {
 		if (null == viewer) {
 			showView();
 		}
 
-		// viewer.add(root.getChildren().get(0), root.getChildren().toArray());
-		// viewer.refresh(root.getChildren().get(0));
-		// viewer.update(root, null);
-		viewer.setInput(root);
+		viewer.add(viewer.getInput(), rootVdm.getChildren().toArray());
 	}
 
 	public void gotoMarker(IMarker marker) {

@@ -13,11 +13,11 @@ import org.eclipse.jdt.core.dom.Statement;
  */
 public class DataFlow {
 
-	private final Expression										root;
+	private final Expression						root;
 	private DataFlow										parent;
-	private final List<DataFlow>				children;
-	private String															message;
+	private String											message;
 
+	private final List<DataFlow>				children;
 	private final List<List<DataFlow>>	allVulnerablePaths;
 
 	private DataFlow(Expression root, DataFlow parent) {
@@ -82,8 +82,8 @@ public class DataFlow {
 		PluginLogger.logIfDebugging("Found an Infinitive Loop at statement: " + statement);
 	}
 
-	public boolean isEmpty() {
-		return allVulnerablePaths.isEmpty();
+	public boolean isVulnerable() {
+		return !allVulnerablePaths.isEmpty();
 	}
 
 	@Override

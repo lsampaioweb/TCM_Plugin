@@ -10,6 +10,7 @@ import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.graph.Parameter;
 import net.thecodemaster.evd.graph.VariableBindingManager;
 import net.thecodemaster.evd.helper.Creator;
+import net.thecodemaster.evd.helper.Timer;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.point.EntryPoint;
 import net.thecodemaster.evd.point.ExitPoint;
@@ -148,8 +149,8 @@ public abstract class Verifier {
 		return String.format(Message.VerifierSecurityVulnerability.ENTRY_POINT_METHOD, value);
 	}
 
-	protected void reportVulnerability(DataFlow df) {
-		getReporter().addProblem(getId(), getCurrentResource(), df);
+	protected void reportVulnerability(List<DataFlow> dataFlows) {
+		getReporter().addProblem(getId(), getCurrentResource(), dataFlows);
 	}
 
 	public void run(List<IResource> resources, CallGraph callGraph, Reporter reporter) {
@@ -170,6 +171,7 @@ public abstract class Verifier {
 				// 02 - Get the list of methods in the current resource.
 				Map<MethodDeclaration, List<Expression>> methods = getCallGraph().getMethods(resource);
 
+				List<DataFlow> dataFlows = Creator.newList();
 				// 03 - Get all the method invocations of each method declaration.
 				for (List<Expression> invocations : methods.values()) {
 
@@ -183,16 +185,21 @@ public abstract class Verifier {
 							setCurrentResource(resource);
 
 							// 07 - This is an ExitPoint method and it needs to be verified.
-							run(method, exitPoint);
+							run(method, exitPoint, dataFlows);
 						}
 					}
 
+				}
+				if (dataFlows.size() > 0) {
+					Timer timer = (new Timer("01.2.1.1 - Reporting Vulnerabilities: " + dataFlows.size())).start();
+					reportVulnerability(dataFlows);
+					PluginLogger.logIfDebugging(timer.stop().toString());
 				}
 			}
 		}
 	}
 
-	protected void run(Expression method, ExitPoint exitPoint) {
+	protected void run(Expression method, ExitPoint exitPoint, List<DataFlow> dataFlows) {
 		// 01 - Get the expected parameters of the ExitPoint method.
 		Map<Parameter, List<Integer>> expectedParameters = exitPoint.getParameters();
 
@@ -210,8 +217,8 @@ public abstract class Verifier {
 				df = new DataFlow(expr);
 
 				checkExpression(df, rules, expr, depth);
-				if (!df.isEmpty()) {
-					reportVulnerability(df);
+				if (df.isVulnerable()) {
+					dataFlows.add(df);
 				}
 			}
 			index++;

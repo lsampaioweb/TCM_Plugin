@@ -12,7 +12,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
 
 /**
  * @author Luciano Sampaio
@@ -56,9 +55,9 @@ public class Reporter {
 		}
 	}
 
-	public void addProblem(int typeVulnerability, IResource resource, DataFlow df) {
+	public void addProblem(int typeVulnerability, IResource resource, List<DataFlow> dataFlows) {
 		if (problemView) {
-			addMarker(typeVulnerability, resource, df);
+			addMarker(typeVulnerability, resource, dataFlows);
 		}
 		if (textFile) {
 			// TODO
@@ -78,7 +77,7 @@ public class Reporter {
 		}
 	}
 
-	private void addMarker(final int typeVulnerability, final IResource resource, final DataFlow df) {
+	private void addMarker(final int typeVulnerability, final IResource resource, final List<DataFlow> dataFlows) {
 		// Update the user interface asynchronously.
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
@@ -89,7 +88,7 @@ public class Reporter {
 					view = createView();
 				}
 
-				view.add(typeVulnerability, resource, df);
+				view.add(typeVulnerability, resource, dataFlows);
 			}
 		});
 	}
@@ -98,7 +97,7 @@ public class Reporter {
 		ViewSecurityVulnerabilities view = new ViewSecurityVulnerabilities();
 
 		view = new ViewSecurityVulnerabilities();
-		view.createPartControl(new Shell(Display.getDefault()));
+		// view.createPartControl(new Shell(Display.getDefault()));
 		view.showView();
 
 		return view;
