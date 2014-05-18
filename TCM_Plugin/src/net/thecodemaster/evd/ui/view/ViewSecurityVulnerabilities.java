@@ -1,13 +1,7 @@
 package net.thecodemaster.evd.ui.view;
 
-import java.util.List;
-import java.util.Map;
-
 import net.thecodemaster.evd.Activator;
 import net.thecodemaster.evd.constant.Constant;
-import net.thecodemaster.evd.graph.BindingResolver;
-import net.thecodemaster.evd.graph.DataFlow;
-import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.ui.l10n.Message;
 
@@ -15,9 +9,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -38,8 +29,7 @@ import org.eclipse.ui.texteditor.ITextEditor;
 
 public class ViewSecurityVulnerabilities extends ViewPart {
 
-	private static TreeViewer			viewer;
-	private static ViewDataModel	rootVdm;
+	private static TreeViewer	viewer;
 
 	public void showView() {
 		try {
@@ -54,8 +44,6 @@ public class ViewSecurityVulnerabilities extends ViewPart {
 	 */
 	@Override
 	public void createPartControl(Composite parent) {
-		rootVdm = new ViewDataModel();
-
 		viewer = new TreeViewer(parent, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
 
 		ViewSorter sorter = new ViewSorter(viewer);
@@ -65,24 +53,9 @@ public class ViewSecurityVulnerabilities extends ViewPart {
 		viewer.setContentProvider(new ViewContentProvider());
 
 		viewer.setSorter(sorter);
-		viewer.setInput(rootVdm);
+		viewer.setInput(getViewSite());
 		// viewer.expandAll();
 		hookDoubleClick();
-	}
-
-	private void hookDoubleClick() {
-		viewer.addDoubleClickListener(new IDoubleClickListener() {
-			@Override
-			public void doubleClick(DoubleClickEvent event) {
-				IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
-				if (selection.isEmpty()) {
-					return;
-				}
-
-				ViewDataModel vdm = (ViewDataModel) selection.toList().get(0);
-				gotoMarker(vdm.getMarker());
-			}
-		});
 	}
 
 	/**
@@ -105,104 +78,19 @@ public class ViewSecurityVulnerabilities extends ViewPart {
 		tree.setLinesVisible(true);
 	}
 
-	private String getFullPath(List<DataFlow> listVulnerablePaths) {
-		String SEPARATOR = " - ";
-		StringBuilder fullPath = new StringBuilder();
-		for (DataFlow vulnerablePath : listVulnerablePaths) {
-			if (fullPath.length() != 0) {
-				fullPath.append(SEPARATOR);
-			}
-			fullPath.append(vulnerablePath.getRoot().toString());
-		}
-		return fullPath.toString();
-	}
-
-	@Override
-	public void setFocus() {
-		if (null != viewer) {
-			viewer.getControl().setFocus();
-		}
-	}
-
-	public void add(int typeVulnerability, IResource resource, DataFlow df) {
-		ViewDataModel parent = null;
-		ViewDataModel currentVdm;
-		Expression root = df.getRoot();
-		List<List<DataFlow>> allVulnerablePaths = df.getAllVulnerablePaths();
-
-		if (allVulnerablePaths.size() > 1) {
-			String message = String.format("%s has %d vulnerabilities.", root.toString(), allVulnerablePaths.size());
-
-			parent = add(typeVulnerability, resource, root, message, null);
-			if (null != parent) {
-				rootVdm.addChildren(parent);
-			}
-		}
-
-		for (List<DataFlow> vulnerablePaths : allVulnerablePaths) {
-			// The last element is the element that have the vulnerability message.
-			DataFlow lastElement = vulnerablePaths.get(vulnerablePaths.size() - 1);
-
-			// The path that lead to the vulnerability.
-			String fullPath = getFullPath(vulnerablePaths);
-
-			currentVdm = add(typeVulnerability, resource, lastElement.getRoot(), lastElement.getMessage(), fullPath);
-			if (null != currentVdm) {
-				if (null != parent) {
-					parent.addChildren(currentVdm);
-				} else {
-					rootVdm.addChildren(currentVdm);
+	private void hookDoubleClick() {
+		viewer.addDoubleClickListener(new IDoubleClickListener() {
+			@Override
+			public void doubleClick(DoubleClickEvent event) {
+				IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
+				if (selection.isEmpty()) {
+					return;
 				}
+
+				ViewDataModel vdm = (ViewDataModel) selection.toList().get(0);
+				gotoMarker(vdm.getMarker());
 			}
-		}
-
-		addToView(rootVdm);
-	}
-
-	private ViewDataModel add(int typeVulnerability, IResource resource, Expression expr, String message, String fullPath) {
-		try {
-			Map<String, Object> markerAttributes = Creator.newMap();
-			markerAttributes.put(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
-			markerAttributes.put(Constant.Marker.TYPE_SECURITY_VULNERABILITY, typeVulnerability);
-			markerAttributes.put(IMarker.MESSAGE, message);
-
-			// Get the Compilation Unit of this resource.
-			CompilationUnit cUnit = BindingResolver.findParentCompilationUnit(expr);
-
-			int startPosition = expr.getStartPosition();
-			int endPosition = startPosition + expr.getLength();
-			int lineNumber = cUnit.getLineNumber(startPosition);
-
-			markerAttributes.put(IMarker.LINE_NUMBER, lineNumber);
-			markerAttributes.put(IMarker.CHAR_START, startPosition);
-			markerAttributes.put(IMarker.CHAR_END, endPosition);
-
-			IMarker marker = resource.createMarker(Constant.MARKER_ID);
-			marker.setAttributes(markerAttributes);
-
-			ViewDataModel vdm = new ViewDataModel();
-			vdm.setExpr(expr);
-			vdm.setMessage(message);
-			vdm.setTypeVulnerability(typeVulnerability);
-			vdm.setLineNumber(lineNumber);
-			vdm.setResource(resource);
-			vdm.setFullPath(fullPath);
-			vdm.setMarker(marker);
-
-			return vdm;
-		} catch (CoreException e) {
-			PluginLogger.logError(e);
-		}
-		return null;
-	}
-
-	private void addToView(final ViewDataModel rootVdm) {
-		if (null == viewer) {
-			showView();
-		}
-
-		viewer.setInput(rootVdm);
-		// viewer.add(viewer.getInput(), rootVdm.getChildren().toArray());
+		});
 	}
 
 	private void gotoMarker(IMarker marker) {
@@ -222,7 +110,6 @@ public class ViewSecurityVulnerabilities extends ViewPart {
 
 			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(resource.getFullPath());
 			IEditorDescriptor desc = PlatformUI.getWorkbench().getEditorRegistry().getDefaultEditor(file.getName());
-
 			IEditorPart activeEditor = page.openEditor(new FileEditorInput(file), desc.getId());
 
 			return (ITextEditor) activeEditor.getAdapter(ITextEditor.class);
@@ -230,5 +117,20 @@ public class ViewSecurityVulnerabilities extends ViewPart {
 			PluginLogger.logError(e);
 		}
 		return null;
+	}
+
+	@Override
+	public void setFocus() {
+		if (null != viewer) {
+			viewer.getControl().setFocus();
+		}
+	}
+
+	public void addToView(final ViewDataModel rootVdm) {
+		if (null == viewer) {
+			showView();
+		}
+
+		viewer.setInput(rootVdm);
 	}
 }

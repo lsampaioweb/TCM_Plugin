@@ -3,7 +3,6 @@ package net.thecodemaster.evd;
 import net.thecodemaster.evd.constant.Constant;
 
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IViewPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
@@ -77,10 +76,6 @@ public class Activator extends AbstractUIPlugin {
 
 		if (null != win) {
 			return win;
-		}
-
-		if (null != Display.getCurrent()) {
-			return getWorkbench().getActiveWorkbenchWindow();
 		}
 
 		return getWorkbench().getActiveWorkbenchWindow();
