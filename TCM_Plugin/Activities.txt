@@ -26,7 +26,7 @@
 09.4 + VerifierSQLInjection.
 09.5 + VerifierUnvalidatedRedirecting.
 
-10 - Create our own view.
+10 + Create our own view.
 11 - Handle unknown methods. // "url".toString();
 12 - Make assignments method call work.
 

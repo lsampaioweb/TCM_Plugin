@@ -55,9 +55,9 @@ public class Reporter {
 		}
 	}
 
-	public void addProblem(int typeVulnerability, IResource resource, List<DataFlow> dataFlows) {
+	public void addProblem(int typeVulnerability, IResource resource, DataFlow dataFlow) {
 		if (problemView) {
-			addMarker(typeVulnerability, resource, dataFlows);
+			addMarker(typeVulnerability, resource, dataFlow);
 		}
 		if (textFile) {
 			// TODO
@@ -77,7 +77,7 @@ public class Reporter {
 		}
 	}
 
-	private void addMarker(final int typeVulnerability, final IResource resource, final List<DataFlow> dataFlows) {
+	private void addMarker(final int typeVulnerability, final IResource resource, final DataFlow dataFlow) {
 		// Update the user interface asynchronously.
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
@@ -88,7 +88,7 @@ public class Reporter {
 					view = createView();
 				}
 
-				view.add(typeVulnerability, resource, dataFlows);
+				view.add(typeVulnerability, resource, dataFlow);
 			}
 		});
 	}

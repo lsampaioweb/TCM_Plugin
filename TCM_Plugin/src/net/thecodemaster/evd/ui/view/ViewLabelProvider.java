@@ -33,13 +33,9 @@ class ViewLabelProvider implements ITableLabelProvider {
 			case 0:
 				return Activator.getImageDescriptor(Constant.Icons.SECURITY_VULNERABILITY).createImage();
 			case 1:
-				return null;
 			case 2:
-				return null;
 			case 3:
-				return null;
 			case 4:
-				return null;
 			default:
 				return null;
 		}

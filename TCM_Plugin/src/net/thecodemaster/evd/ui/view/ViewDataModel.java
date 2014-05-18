@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.thecodemaster.evd.helper.Creator;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.dom.Expression;
 
@@ -15,6 +16,7 @@ public class ViewDataModel {
 	private String										message;
 	private String										fullPath;
 	private int												lineNumber;
+	private IMarker										marker;
 
 	private final List<ViewDataModel>	children;
 
@@ -76,6 +78,14 @@ public class ViewDataModel {
 
 	public List<ViewDataModel> getChildren() {
 		return children;
+	}
+
+	public IMarker getMarker() {
+		return marker;
+	}
+
+	public void setMarker(IMarker marker) {
+		this.marker = marker;
 	}
 
 }
