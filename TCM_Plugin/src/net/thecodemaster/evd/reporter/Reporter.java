@@ -64,6 +64,8 @@ public class Reporter {
 		if (xmlFile) {
 			// TODO
 		}
+
+		clearViewDataModel(resource);
 	}
 
 	public void addProblem(int typeVulnerability, IResource resource, DataFlow dataFlow) {
@@ -86,6 +88,20 @@ public class Reporter {
 			PluginLogger.logError(e);
 			return false;
 		}
+	}
+
+	private void clearViewDataModel(IResource resource) {
+		List<ViewDataModel> vdmToRemove = Creator.newList();
+
+		// 01 - First we iterate over the list to see which elements will be removed.
+		for (ViewDataModel vdm : rootVdm.getChildren()) {
+			if (vdm.getResource().equals(resource)) {
+				vdmToRemove.add(vdm);
+			}
+		}
+
+		// 02 - Now we really remove them.
+		rootVdm.getChildren().removeAll(vdmToRemove);
 	}
 
 	private void addMarker(final int typeVulnerability, final IResource resource, final DataFlow dataFlow) {

@@ -88,4 +88,52 @@ public class ViewDataModel {
 		this.marker = marker;
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result *= prime + getTypeVulnerability();
+		result *= prime + getLineNumber();
+		result *= prime + getMessage().hashCode();
+		result *= prime + getResource().hashCode();
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @param obj
+	 *          Object
+	 * @return boolean
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (null == obj) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+
+		ViewDataModel other = (ViewDataModel) obj;
+		if (getTypeVulnerability() != other.getTypeVulnerability()) {
+			return false;
+		}
+		if (getLineNumber() != other.getLineNumber()) {
+			return false;
+		}
+		if (!getMessage().equals(other.getMessage())) {
+			return false;
+		}
+		if (!getResource().equals(other.getResource())) {
+			return false;
+		}
+
+		return true;
+	}
+
 }
