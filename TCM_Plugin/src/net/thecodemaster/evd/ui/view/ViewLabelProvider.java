@@ -30,12 +30,8 @@ class ViewLabelProvider implements ITableLabelProvider {
 	@Override
 	public Image getColumnImage(Object element, int columnIndex) {
 		switch (columnIndex) {
-			case 0:
-				return Activator.getImageDescriptor(Constant.Icons.SECURITY_VULNERABILITY).createImage();
-			case 1:
-			case 2:
 			case 3:
-			case 4:
+				return Activator.getImageDescriptor(Constant.Icons.SECURITY_VULNERABILITY).createImage();
 			default:
 				return null;
 		}
@@ -47,13 +43,13 @@ class ViewLabelProvider implements ITableLabelProvider {
 
 		switch (columnIndex) {
 			case 0:
-				return vdm.getMessage();
-			case 1:
-				return getTypeVulnerabilityName(vdm.getTypeVulnerability());
-			case 2:
-				return String.format("%d", vdm.getLineNumber());
-			case 3:
 				return vdm.getResource().getName();
+			case 1:
+				return String.format("%d", vdm.getLineNumber());
+			case 2:
+				return getTypeVulnerabilityName(vdm.getTypeVulnerability());
+			case 3:
+				return vdm.getMessage();
 			case 4:
 				return vdm.getFullPath();
 			default:

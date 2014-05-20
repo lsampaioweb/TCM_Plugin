@@ -10,6 +10,7 @@ import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.helper.HelperProjects;
 import net.thecodemaster.evd.logger.PluginLogger;
+import net.thecodemaster.evd.ui.l10n.Message;
 import net.thecodemaster.evd.ui.view.ViewDataModel;
 import net.thecodemaster.evd.ui.view.ViewSecurityVulnerabilities;
 
@@ -100,7 +101,9 @@ public class Reporter {
 
 	private static void clearMarkers(IResource resource) {
 		try {
-			resource.deleteMarkers(Constant.MARKER_ID, true, IResource.DEPTH_INFINITE);
+			if (resource.exists()) {
+				resource.deleteMarkers(Constant.MARKER_ID, true, IResource.DEPTH_INFINITE);
+			}
 		} catch (CoreException e) {
 			PluginLogger.logError(e);
 		}
@@ -120,8 +123,18 @@ public class Reporter {
 		rootVdm.getChildren().removeAll(vdmToRemove);
 	}
 
+	private ViewSecurityVulnerabilities createView() {
+		ViewSecurityVulnerabilities view = new ViewSecurityVulnerabilities();
+
+		view = new ViewSecurityVulnerabilities();
+		// view.createPartControl(new Shell(Display.getDefault()));
+		view.showView();
+
+		return view;
+	}
+
 	private void addMarker(final int typeVulnerability, final IResource resource, final DataFlow dataFlow) {
-		add(typeVulnerability, resource, dataFlow);
+		addToViewDataModel(typeVulnerability, resource, dataFlow);
 
 		// Update the user interface asynchronously.
 		Display.getDefault().asyncExec(new Runnable() {
@@ -138,39 +151,33 @@ public class Reporter {
 		});
 	}
 
-	private ViewSecurityVulnerabilities createView() {
-		ViewSecurityVulnerabilities view = new ViewSecurityVulnerabilities();
-
-		view = new ViewSecurityVulnerabilities();
-		// view.createPartControl(new Shell(Display.getDefault()));
-		view.showView();
-
-		return view;
-	}
-
-	public void add(int typeVulnerability, IResource resource, DataFlow df) {
+	public void addToViewDataModel(int typeVulnerability, IResource resource, DataFlow df) {
 		ViewDataModel parent = null;
 		ViewDataModel currentVdm;
-		Expression root = df.getRoot();
+		// Expression root = df.getRoot();
 		List<List<DataFlow>> allVulnerablePaths = df.getAllVulnerablePaths();
 
-		if (allVulnerablePaths.size() > 1) {
-			String message = String.format("%s has %d vulnerabilities.", root.toString(), allVulnerablePaths.size());
-
-			parent = add(typeVulnerability, resource, root, message, null);
-			if (null != parent) {
-				rootVdm.addChildren(parent);
-			}
-		}
-
 		for (List<DataFlow> vulnerablePaths : allVulnerablePaths) {
-			// The last element is the element that have the vulnerability message.
+			// The first element is where the vulnerability was exploited.
+			DataFlow firstElement = df;
+
+			// The last element is where the vulnerability entered into the application.
 			DataFlow lastElement = vulnerablePaths.get(vulnerablePaths.size() - 1);
 
 			// The path that lead to the vulnerability.
 			String fullPath = getFullPath(vulnerablePaths);
 
-			currentVdm = add(typeVulnerability, resource, lastElement.getRoot(), lastElement.getMessage(), fullPath);
+			if ((null == parent) && (firstElement != lastElement)) {
+				String message = getMessageByNumberOfVulnerablePaths(allVulnerablePaths, firstElement);
+
+				parent = createViewDataModelElement(typeVulnerability, resource, firstElement.getRoot(), message, null);
+				if (null != parent) {
+					rootVdm.addChildren(parent);
+				}
+			}
+
+			currentVdm = createViewDataModelElement(typeVulnerability, resource, lastElement.getRoot(),
+					lastElement.getMessage(), fullPath);
 			if (null != currentVdm) {
 				if (null != parent) {
 					parent.addChildren(currentVdm);
@@ -181,7 +188,20 @@ public class Reporter {
 		}
 	}
 
-	private ViewDataModel add(int typeVulnerability, IResource resource, Expression expr, String message, String fullPath) {
+	private String getMessageByNumberOfVulnerablePaths(List<List<DataFlow>> allVulnerablePaths, DataFlow firstElement) {
+		String messageTemplate = "";
+
+		if (allVulnerablePaths.size() > 1) {
+			messageTemplate = Message.View.MULTIPLE_VULNERABILITIES;
+		} else {
+			messageTemplate = Message.View.SINGLE_VULNERABILITY;
+		}
+
+		return String.format(messageTemplate, firstElement.getRoot().toString(), allVulnerablePaths.size());
+	}
+
+	private ViewDataModel createViewDataModelElement(int typeVulnerability, IResource resource, Expression expr,
+			String message, String fullPath) {
 		try {
 			Map<String, Object> markerAttributes = Creator.newMap();
 			markerAttributes.put(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
