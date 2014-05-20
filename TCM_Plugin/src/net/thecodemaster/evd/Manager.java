@@ -30,7 +30,7 @@ public class Manager {
 		analyzers = Creator.newList();
 	}
 
-	public static void resetManager() {
+	public static void reset() {
 		instance = null;
 	}
 
@@ -88,7 +88,7 @@ public class Manager {
 
 	public void run(List<IResource> resources, CallGraph callGraph) {
 		// 01 - Any Analyzer or its verifiers can add markers, so we first need to clean the old values.
-		reporter.clearOldProblems(resources);
+		Reporter.clearOldProblems(resources);
 
 		for (Analyzer analyzer : analyzers) {
 			analyzer.run(resources, callGraph, reporter);

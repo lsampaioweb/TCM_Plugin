@@ -5,12 +5,15 @@ import java.util.List;
 
 import net.thecodemaster.evd.Activator;
 import net.thecodemaster.evd.Manager;
+import net.thecodemaster.evd.builder.IncrementalBuilder;
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.nature.NatureHandler;
 
 import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -25,189 +28,214 @@ import org.eclipse.ui.handlers.HandlerUtil;
  */
 public abstract class HelperProjects {
 
-  /**
-   * Returns the collection of projects which exist under this root. <br/>
-   * This collection has only Java projects and which are accessible and opened.
-   * 
-   * @return An list of projects.
-   */
-  public static List<IProject> getProjectsInWorkspace() {
-    // Returns the collection of projects which exist under this root. The projects can be open or closed.
-    IProject[] allProjects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-    // This collection only has Java projects which are also accessible and opened.
-    List<IProject> javaProjects = Creator.newList(allProjects.length);
+	/**
+	 * The resource types that we want to visit.
+	 */
+	private static List<String>	resourceTypesWanted;
 
-    for (IProject project : allProjects) {
-      try {
-        if ((project.isAccessible()) && (project.isOpen()) && (project.isNatureEnabled(Constant.JDT_NATURE))) {
-          javaProjects.add(project);
-        }
-      }
-      catch (CoreException e) {
-        PluginLogger.logError(e);
-      }
-    }
+	/**
+	 * Returns the collection of projects which exist under this root. <br/>
+	 * This collection has only Java projects and which are accessible and opened.
+	 * 
+	 * @return An list of projects.
+	 */
+	public static List<IProject> getProjectsInWorkspace() {
+		// Returns the collection of projects which exist under this root. The projects can be open or closed.
+		IProject[] allProjects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		// This collection only has Java projects which are also accessible and opened.
+		List<IProject> javaProjects = Creator.newList(allProjects.length);
 
-    // Return the list of all projects in the current workspace.
-    return javaProjects;
-  }
+		for (IProject project : allProjects) {
+			try {
+				if ((project.isAccessible()) && (project.isOpen()) && (project.isNatureEnabled(Constant.JDT_NATURE))) {
+					javaProjects.add(project);
+				}
+			} catch (CoreException e) {
+				PluginLogger.logError(e);
+			}
+		}
 
-  /**
-   * Returns a collection containing the projects that are being monitored by our plug-in.
-   * 
-   * @return A collection of projects' names.
-   */
-  public static List<IProject> getMonitoredProjects() {
-    IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+		// Return the list of all projects in the current workspace.
+		return javaProjects;
+	}
 
-    // Get the list of monitored projects split by the SEPARATOR constant.
-    String storedMonitoredProjects =
-      store.getString(Constant.PrefPageSecurityVulnerability.FIELD_MONITORED_PROJECTS);
+	/**
+	 * Returns a collection containing the projects that are being monitored by our plug-in.
+	 * 
+	 * @return A collection of projects' names.
+	 */
+	public static List<IProject> getMonitoredProjects() {
+		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 
-    // Extract a collection (unique elements) from the string.
-    List<String> projectsNames = Convert.fromStringToList(storedMonitoredProjects, Constant.SEPARATOR);
+		// Get the list of monitored projects split by the SEPARATOR constant.
+		String storedMonitoredProjects = store.getString(Constant.PrefPageSecurityVulnerability.FIELD_MONITORED_PROJECTS);
 
-    // The list with the projects that are being monitored by our plug-in.
-    List<IProject> listMonitoredProjects = Creator.newList();
+		// Extract a collection (unique elements) from the string.
+		List<String> projectsNames = Convert.fromStringToList(storedMonitoredProjects, Constant.SEPARATOR);
 
-    IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-    for (String projectName : projectsNames) {
-      listMonitoredProjects.add(root.getProject(projectName));
-    }
+		// The list with the projects that are being monitored by our plug-in.
+		List<IProject> listMonitoredProjects = Creator.newList();
 
-    return listMonitoredProjects;
-  }
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		for (String projectName : projectsNames) {
+			listMonitoredProjects.add(root.getProject(projectName));
+		}
 
-  /**
-   * @param projects
-   */
-  public static void setProjectsToListOfMonitoredProjects(List<IProject> projects) {
-    // The collection of projects that are being monitored by our plug-in.
-    List<IProject> monitoredProjects = getMonitoredProjects();
+		return listMonitoredProjects;
+	}
 
-    IPreferenceStore store = Activator.getDefault().getPreferenceStore();
+	/**
+	 * @param projects
+	 */
+	public static void setProjectsToListOfMonitoredProjects(List<IProject> projects) {
+		// The collection of projects that are being monitored by our plug-in.
+		List<IProject> monitoredProjects = getMonitoredProjects();
 
-    StringBuilder projectsToSave = new StringBuilder();
-    for (IProject project : projects) {
-      projectsToSave.append(project.getName()).append(Constant.SEPARATOR);
-    }
+		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 
-    store.putValue(Constant.PrefPageSecurityVulnerability.FIELD_MONITORED_PROJECTS, projectsToSave.toString());
+		StringBuilder projectsToSave = new StringBuilder();
+		for (IProject project : projects) {
+			projectsToSave.append(project.getName()).append(Constant.SEPARATOR);
+		}
 
-    // Add or remove the nature to the each project.
-    updateNatureOnProjects(monitoredProjects, projects);
+		store.putValue(Constant.PrefPageSecurityVulnerability.FIELD_MONITORED_PROJECTS, projectsToSave.toString());
 
-    // Reset the list of analyzers from the Manager.
-    Manager.resetManager();
-  }
+		// Add or remove the nature to the each project.
+		updateNatureOnProjects(monitoredProjects, projects);
 
-  private static void updateNatureOnProjects(List<IProject> oldProjects, List<IProject> newProjects) {
-    // Create a difference from the old and the new list.
-    List<IProject> projectsToAdd = Creator.newList();
-    projectsToAdd.addAll(newProjects);
-    projectsToAdd.removeAll(oldProjects);
+		// Reset the state of the plug-in to its initial state.
+		IncrementalBuilder.reset();
+		Manager.reset();
+	}
 
-    List<IProject> projectsToRemove = Creator.newList();
-    projectsToRemove.addAll(oldProjects);
-    projectsToRemove.removeAll(newProjects);
+	private static void updateNatureOnProjects(List<IProject> oldProjects, List<IProject> newProjects) {
+		// Create a difference from the old and the new list.
+		List<IProject> projectsToAdd = Creator.newList();
+		projectsToAdd.addAll(newProjects);
+		projectsToAdd.removeAll(oldProjects);
 
-    try {
-      NatureHandler handler = new NatureHandler();
-      handler.add(projectsToAdd);
-      handler.remove(projectsToRemove);
-    }
-    catch (CoreException e) {
-      PluginLogger.logError(e);
-    }
-  }
+		List<IProject> projectsToRemove = Creator.newList();
+		projectsToRemove.addAll(oldProjects);
+		projectsToRemove.removeAll(newProjects);
 
-  /**
-   * @param projects
-   */
-  public static void addProjectsToListOfMonitoredProjects(List<IProject> projects) {
-    // If the collection is empty there is nothing to do.
-    if ((null != projects) && (!projects.isEmpty())) {
-      // The collection of projects that are being monitored by our plug-in.
-      List<IProject> monitoredProjects = getMonitoredProjects();
+		try {
+			NatureHandler handler = new NatureHandler();
+			handler.add(projectsToAdd);
+			handler.remove(projectsToRemove);
+		} catch (CoreException e) {
+			PluginLogger.logError(e);
+		}
+	}
 
-      // Adds the selected projects to the list of monitored projects.
-      // It should not allow repeated elements.
-      for (IProject project : projects) {
-        if (!monitoredProjects.contains(project)) {
-          monitoredProjects.add(project);
-        }
-      }
+	/**
+	 * @param projects
+	 */
+	public static void addProjectsToListOfMonitoredProjects(List<IProject> projects) {
+		// If the collection is empty there is nothing to do.
+		if ((null != projects) && (!projects.isEmpty())) {
+			// The collection of projects that are being monitored by our plug-in.
+			List<IProject> monitoredProjects = getMonitoredProjects();
 
-      // Save the list back to the preference store.
-      setProjectsToListOfMonitoredProjects(monitoredProjects);
-    }
-  }
+			// Adds the selected projects to the list of monitored projects.
+			// It should not allow repeated elements.
+			for (IProject project : projects) {
+				if (!monitoredProjects.contains(project)) {
+					monitoredProjects.add(project);
+				}
+			}
 
-  /**
-   * @param projects
-   */
-  public static void removeProjectsFromListOfMonitoredProjects(List<IProject> projects) {
-    // If the collection is empty there is nothing to do.
-    if ((null != projects) && (!projects.isEmpty())) {
-      // The collection of projects that are being monitored by our plug-in.
-      List<IProject> monitoredProjects = getMonitoredProjects();
+			// Save the list back to the preference store.
+			setProjectsToListOfMonitoredProjects(monitoredProjects);
+		}
+	}
 
-      // Removes the selected projects from the list of monitored projects.
-      for (IProject project : projects) {
-        monitoredProjects.remove(project);
-      }
+	/**
+	 * @param projects
+	 */
+	public static void removeProjectsFromListOfMonitoredProjects(List<IProject> projects) {
+		// If the collection is empty there is nothing to do.
+		if ((null != projects) && (!projects.isEmpty())) {
+			// The collection of projects that are being monitored by our plug-in.
+			List<IProject> monitoredProjects = getMonitoredProjects();
 
-      // Save the list back to the preference store.
-      setProjectsToListOfMonitoredProjects(monitoredProjects);
-    }
-  }
+			// Removes the selected projects from the list of monitored projects.
+			for (IProject project : projects) {
+				monitoredProjects.remove(project);
+			}
 
-  /**
-   * Get the list(unique elements) of selected projects by the developer. Even if he/she selected a file.
-   * 
-   * @param event The data object to pass to the command (and its handler) as it executes.
-   * @return A list(unique elements) of selected projects by the developer.
-   */
-  public static List<IProject> getSelectedProjects(ExecutionEvent event) {
-    IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
-    ISelection selection = window.getActivePage().getSelection();
+			// Save the list back to the preference store.
+			setProjectsToListOfMonitoredProjects(monitoredProjects);
+		}
+	}
 
-    return getSelectedProjects(selection);
-  }
+	/**
+	 * Get the list(unique elements) of selected projects by the developer. Even if he/she selected a file.
+	 * 
+	 * @param event
+	 *          The data object to pass to the command (and its handler) as it executes.
+	 * @return A list(unique elements) of selected projects by the developer.
+	 */
+	public static List<IProject> getSelectedProjects(ExecutionEvent event) {
+		IWorkbenchWindow window = HandlerUtil.getActiveWorkbenchWindow(event);
+		ISelection selection = window.getActivePage().getSelection();
 
-  /**
-   * Get the list(unique elements) of selected projects by the developer. Even if he/she selected a file.
-   * 
-   * @param selection The objection that contains the current selection.
-   * @return A list(unique elements) of selected projects by the developer.
-   */
-  public static List<IProject> getSelectedProjects(ISelection selection) {
-    List<IProject> projects = Creator.newList();
+		return getSelectedProjects(selection);
+	}
 
-    if (selection instanceof IStructuredSelection) {
-      for (Iterator<?> iter = ((IStructuredSelection) selection).iterator(); iter.hasNext();) {
-        // Translate the selected object into a project.
-        IProject project = Convert.fromResourceToProject(iter.next());
+	/**
+	 * Get the list(unique elements) of selected projects by the developer. Even if he/she selected a file.
+	 * 
+	 * @param selection
+	 *          The objection that contains the current selection.
+	 * @return A list(unique elements) of selected projects by the developer.
+	 */
+	public static List<IProject> getSelectedProjects(ISelection selection) {
+		List<IProject> projects = Creator.newList();
 
-        if ((null != project) && (!projects.contains(project))) {
-          projects.add(project);
-        }
-      }
-    }
+		if (selection instanceof IStructuredSelection) {
+			for (Iterator<?> iter = ((IStructuredSelection) selection).iterator(); iter.hasNext();) {
+				// Translate the selected object into a project.
+				IProject project = Convert.fromResourceToProject(iter.next());
 
-    return projects;
-  }
+				if ((null != project) && (!projects.contains(project))) {
+					projects.add(project);
+				}
+			}
+		}
 
-  /**
-   * Get the resource types that will be perform the early security vulnerability detection.
-   * 
-   * @return A list of resource types.
-   */
-  public static List<String> getResourceTypesToPerformDetection() {
-    List<String> resourceTypes =
-      Convert.fromStringToList(Constant.RESOURCE_TYPE_TO_PERFORM_DETECTION, Constant.SEPARATOR);
+		return projects;
+	}
 
-    return resourceTypes;
-  }
+	/**
+	 * Check if the detection should be performed in this resource or not.
+	 * 
+	 * @param resource
+	 *          The resource that will be tested.
+	 * @return True if the detection should be performed in this resource, otherwise false.
+	 */
+	public static boolean isToPerformDetection(IResource resource) {
+		if (resource instanceof IFile) {
+			if (null == resourceTypesWanted) {
+				resourceTypesWanted = getResourceTypesToPerformDetection();
+			}
+
+			return resourceTypesWanted.contains(resource.getFileExtension().toLowerCase());
+		}
+
+		// If it reaches this point, it means that the detection should not be performed in this resource.
+		return false;
+	}
+
+	/**
+	 * Get the resource types that will be perform the early security vulnerability detection.
+	 * 
+	 * @return A list of resource types.
+	 */
+	public static List<String> getResourceTypesToPerformDetection() {
+		List<String> resourceTypes = Convert.fromStringToList(Constant.RESOURCE_TYPE_TO_PERFORM_DETECTION,
+				Constant.SEPARATOR);
+
+		return resourceTypes;
+	}
 
 }

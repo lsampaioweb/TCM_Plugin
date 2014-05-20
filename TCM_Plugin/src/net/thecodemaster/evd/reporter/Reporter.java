@@ -8,11 +8,13 @@ import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.BindingResolver;
 import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.helper.Creator;
+import net.thecodemaster.evd.helper.HelperProjects;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.ui.view.ViewDataModel;
 import net.thecodemaster.evd.ui.view.ViewSecurityVulnerabilities;
 
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -26,16 +28,16 @@ import org.eclipse.swt.widgets.Display;
 public class Reporter {
 
 	private IProgressMonitor			progressMonitor;
-	private final boolean					problemView;
-	private final boolean					textFile;
-	private final boolean					xmlFile;
+	private static boolean				problemView;
+	private static boolean				textFile;
+	private static boolean				xmlFile;
 
 	private static ViewDataModel	rootVdm;
 
 	public Reporter(boolean problemView, boolean textFile, boolean xmlFile) {
-		this.problemView = problemView;
-		this.textFile = textFile;
-		this.xmlFile = xmlFile;
+		Reporter.problemView = problemView;
+		Reporter.textFile = textFile;
+		Reporter.xmlFile = xmlFile;
 
 		rootVdm = new ViewDataModel();
 	}
@@ -48,13 +50,29 @@ public class Reporter {
 		this.progressMonitor = progressMonitor;
 	}
 
-	public void clearOldProblems(List<IResource> resources) {
+	public static void clearOldProblems(IProject project) {
+		try {
+			List<IResource> resources = Creator.newList();
+
+			for (IResource resource : project.members()) {
+				if (HelperProjects.isToPerformDetection(resource)) {
+					resources.add(resource);
+				}
+			}
+
+			clearOldProblems(resources);
+		} catch (CoreException e) {
+			PluginLogger.logError(e);
+		}
+	}
+
+	public static void clearOldProblems(List<IResource> resources) {
 		for (IResource resource : resources) {
 			clearOldProblems(resource);
 		}
 	}
 
-	private void clearOldProblems(IResource resource) {
+	public static void clearOldProblems(IResource resource) {
 		if (problemView) {
 			clearMarkers(resource);
 		}
@@ -80,17 +98,15 @@ public class Reporter {
 		}
 	}
 
-	private boolean clearMarkers(IResource resource) {
+	private static void clearMarkers(IResource resource) {
 		try {
 			resource.deleteMarkers(Constant.MARKER_ID, true, IResource.DEPTH_INFINITE);
-			return true;
 		} catch (CoreException e) {
 			PluginLogger.logError(e);
-			return false;
 		}
 	}
 
-	private void clearViewDataModel(IResource resource) {
+	private static void clearViewDataModel(IResource resource) {
 		List<ViewDataModel> vdmToRemove = Creator.newList();
 
 		// 01 - First we iterate over the list to see which elements will be removed.

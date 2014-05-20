@@ -2,12 +2,12 @@ package net.thecodemaster.evd.visitor;
 
 import java.util.List;
 
-import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.helper.HelperProjects;
 import net.thecodemaster.evd.helper.Timer;
 import net.thecodemaster.evd.logger.PluginLogger;
+import net.thecodemaster.evd.reporter.Reporter;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -32,11 +32,6 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 public class VisitorCallGraph implements IResourceVisitor, IResourceDeltaVisitor {
 
 	/**
-	 * The resource types that we want to visit.
-	 */
-	private static List<String>		resourceTypesWanted;
-
-	/**
 	 * The resource files that were updated since the last build.
 	 */
 	private final List<IResource>	resourcesUpdated;
@@ -50,26 +45,6 @@ public class VisitorCallGraph implements IResourceVisitor, IResourceDeltaVisitor
 	public VisitorCallGraph(CallGraph callGraph) {
 		this.callGraph = callGraph;
 		resourcesUpdated = Creator.newList();
-	}
-
-	/**
-	 * Check if the detection should be performed in this resource or not.
-	 * 
-	 * @param resource
-	 *          The resource that will be tested.
-	 * @return True if the detection should be performed in this resource, otherwise false.
-	 */
-	private boolean isToPerformDetection(IResource resource) {
-		if (resource instanceof IFile) {
-			if (null == resourceTypesWanted) {
-				resourceTypesWanted = HelperProjects.getResourceTypesToPerformDetection();
-			}
-
-			return resourceTypesWanted.contains(resource.getFileExtension().toLowerCase());
-		}
-
-		// If it reaches this point, it means that the detection should not be performed in this resource.
-		return false;
 	}
 
 	/**
@@ -108,7 +83,7 @@ public class VisitorCallGraph implements IResourceVisitor, IResourceDeltaVisitor
 		switch (delta.getKind()) {
 			case IResourceDelta.REMOVED:
 				// Delete old markers set and files created.
-				resource.deleteMarkers(Constant.MARKER_ID, true, IResource.DEPTH_INFINITE);
+				Reporter.clearOldProblems(resource);
 				break;
 			case IResourceDelta.ADDED:
 			case IResourceDelta.CHANGED:
@@ -123,7 +98,7 @@ public class VisitorCallGraph implements IResourceVisitor, IResourceDeltaVisitor
 	 */
 	@Override
 	public boolean visit(IResource resource) throws CoreException {
-		if (isToPerformDetection(resource)) {
+		if (HelperProjects.isToPerformDetection(resource)) {
 			ICompilationUnit cu = JavaCore.createCompilationUnitFrom((IFile) resource);
 
 			if (cu.isStructureKnown()) {
@@ -140,8 +115,7 @@ public class VisitorCallGraph implements IResourceVisitor, IResourceDeltaVisitor
 
 				// Add a new empty branch.
 				callGraph.setCurrentResource(resource);
-				VisitorCompilationUnit cuVisitor = new VisitorCompilationUnit(callGraph);
-				cUnit.accept(cuVisitor);
+				cUnit.accept(new VisitorCompilationUnit(callGraph));
 				PluginLogger.logIfDebugging(timer.stop().toString());
 
 				// Add this resource to the list of updated resources.

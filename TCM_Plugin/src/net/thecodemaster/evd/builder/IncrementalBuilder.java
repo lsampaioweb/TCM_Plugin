@@ -3,13 +3,12 @@ package net.thecodemaster.evd.builder;
 import java.util.List;
 import java.util.Map;
 
-import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.logger.PluginLogger;
+import net.thecodemaster.evd.reporter.Reporter;
 import net.thecodemaster.evd.ui.l10n.Message;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
@@ -40,6 +39,10 @@ public class IncrementalBuilder extends IncrementalProjectBuilder {
 	private BuilderJob						jobDelta;
 
 	static {
+		reset();
+	}
+
+	public static void reset() {
 		fullBuiltProjects = Creator.newList();
 	}
 
@@ -109,7 +112,7 @@ public class IncrementalBuilder extends IncrementalProjectBuilder {
 	@Override
 	protected void clean(IProgressMonitor monitor) throws CoreException {
 		// Delete markers set and files created.
-		getProject().deleteMarkers(Constant.MARKER_ID, true, IResource.DEPTH_INFINITE);
+		Reporter.clearOldProblems(getProject());
 	}
 
 	protected void fullBuild(final IProgressMonitor monitor) {
