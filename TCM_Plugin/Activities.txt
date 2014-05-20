@@ -13,24 +13,20 @@
 06.3 + Inform the user which files are being processed.
 07 + Create the markers for the plug-in.
 
-08 - Create the heuristics.
-08.1 - Security Misconfiguration.
-08.1.1 + DriverManager.getConnection.
-08.1.2 - FTP.
-08.1.3 - Email.
+08 + Implement the verifiers.
+08.1 + VerifierCookiePoisoning.
+08.2 + VerifierCrossSiteScripting.
+08.3 + VerifierSecurityMisconfiguration.
+08.4 + VerifierSQLInjection.
+08.5 + VerifierUnvalidatedRedirecting.
 
-09 + Implement the verifiers.
-09.1 + VerifierCookiePoisoning.
-09.2 + VerifierCrossSiteScripting.
-09.3 + VerifierSecurityMisconfiguration.
-09.4 + VerifierSQLInjection.
-09.5 + VerifierUnvalidatedRedirecting.
-
-10 + Create our own view.
-11 - Handle unknown methods. // "url".toString();
-12 - Make assignments method call work.
-13 + Create GitHub repository: https://github.com/lsampaioweb/TCM_Plugin.git
-13.1 - Upload the source code.
+09 + Create our own view.
+10 + Create GitHub repository: https://github.com/lsampaioweb/TCM_Plugin.git
+10.1 + Upload the source code.
+11 - Make assignments method call work.
+12 - Handle unknown methods. // "url".toString();
+13 - Add Sanitization methods.
+14 - Add resolution to each vulnerability.
 
 XX - Check for cases where the class A invokes method C from class B, but the developer is working on class A so the class B will 
 not be verified, but it can be a case where the vulnerability happens when something is introduced in class A.
