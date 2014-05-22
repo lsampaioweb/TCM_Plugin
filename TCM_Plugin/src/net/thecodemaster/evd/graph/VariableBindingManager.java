@@ -1,143 +1,64 @@
 package net.thecodemaster.evd.graph;
 
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.Block;
+import java.util.List;
+
+import net.thecodemaster.evd.helper.Creator;
+
 import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.Statement;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.MethodInvocation;
 
 /**
  * @author Luciano Sampaio
  */
 public class VariableBindingManager {
-	private final VariableDeclarationFragment	variableDeclarationFragment;
 
-	private Statement													firstReference;
+	private IBinding											binding;
+	private Expression										initializer;
 
-	private Expression												initializer;
+	private VariableBindingManager				initializerReference;
+	private final List<MethodInvocation>	methods;
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param variableDeclarationFragment
-	 *          the variable declaration fragment of the variable this manager handles.
-	 */
-	public VariableBindingManager(VariableDeclarationFragment variableDeclarationFragment) {
-		this.variableDeclarationFragment = variableDeclarationFragment;
+	public VariableBindingManager(IBinding binding) {
+		this.setBinding(binding);
+
+		methods = Creator.newList();
 	}
 
-	/**
-	 * Has to be called for every reference to the variable handled by this instance.
-	 * 
-	 * @param reference
-	 *          the AST node that references the local variable
-	 */
-	public void variableRefereneced(SimpleName reference) {
-		if (!isAlreadyReferenced()) {
-			// First reference -> store the statement that contains the reference directly.
-			firstReference = BindingResolver.getParentStatement(reference);
-		} else {
-			// It's not the first declaration.
-			while (!isReferenceWhithinScope(reference)) {
-				// But it's referenced from a different block.
-				moveFirstReferenceOneBlockLevelUp();
-				// move first reference statement up in the block hierarchy
-				// until the new first reference and the currently focused
-				// reference appear within the same block.
-			}
-		}
+	public IBinding getBinding() {
+		return binding;
 	}
 
-	/**
-	 * Call this method to report an assignment of the variable
-	 * 
-	 * @param initializer
-	 *          the AST node that represents the value of the assignment
-	 */
-	public void variableInitialized(Expression initializer) {
-		if (!isAlreadyReferenced()) {
-			// Only save if variable has not been referenced yet.
-			this.initializer = initializer;
-		}
+	private void setBinding(IBinding binding) {
+		this.binding = binding;
 	}
 
-	/**
-	 * Sets the {@link #firstReference} one block level up. For example, suppose {@code System.out.println(x);} is the {
-	 * {@link #firstReference} statement.
-	 */
-	private void moveFirstReferenceOneBlockLevelUp() {
-		ASTNode node = BindingResolver.getParentBlock(firstReference);
-		while ((node != null) && (!(node.getParent() instanceof Block))) {
-			node = node.getParent();
-		}
-
-		firstReference = (Statement) node;
-	}
-
-	/**
-	 * Checks whether reference is within the same or within an underlying block like {@link #firstReference}.
-	 * 
-	 * @param reference
-	 *          the reference to be tested
-	 * @return {@code true}, if reference is within the same or underlying block. {@code false} otherwise.
-	 */
-	private boolean isReferenceWhithinScope(SimpleName reference) {
-		Block firstReferenceBlock = BindingResolver.getParentBlock(firstReference);
-		// get the block that contains the first reference statement
-
-		ASTNode node = reference;
-
-		// step down in the ast parent-child-node hierarchy. If
-		// reference figures within the same block or an underlying
-		// block of firstReferenceBlock, firstReferenceBlock has to
-		// appear some where while stepping down.
-		while (node != null) {
-			if (node == firstReferenceBlock) {
-				return true;
-			}
-
-			node = node.getParent();
-		}
-
-		// If it doesn't, reference neither is element of firstReferenceBlock
-		// nor of a sub-block of firstReferenceBlock.
-		return false;
-	}
-
-	/**
-	 * Tells us whether already a reference to the local variable has been recorded.
-	 * 
-	 * @return {@code true} if a reference has been recorded, {@code false} otherwise
-	 */
-	private boolean isAlreadyReferenced() {
-		return firstReference != null;
-	}
-
-	/**
-	 * Getter for the first reference {@link Statement}.
-	 * 
-	 * @return first reference {@link Statement}
-	 */
-	public Statement getFirstReference() {
-		return firstReference;
-	}
-
-	/**
-	 * Getter for the last initializer value, before the variable is referenced for the first time.
-	 * 
-	 * @return the value the variable has to be initialized with
-	 */
 	public Expression getInitializer() {
-		return initializer;
+		if (null != initializer) {
+			return initializer;
+		}
+
+		if (null != initializerReference) {
+			return initializerReference.getInitializer();
+		}
+
+		return null;
 	}
 
-	/**
-	 * Getter for the {@link VariableDeclarationFragment} provided as constructor parameter.
-	 * 
-	 * @return the {@link VariableDeclarationFragment} of the variable handled by this manager
-	 */
-	public VariableDeclarationFragment getVariableDeclarationFragment() {
-		return variableDeclarationFragment;
+	public void setInitializer(Expression initializer) {
+		this.initializer = initializer;
 	}
+
+	public void setInitializer(VariableBindingManager initializerReference) {
+		this.initializerReference = initializerReference;
+	}
+
+	public void addMethod(MethodInvocation method) {
+		getMethods().add(method);
+	}
+
+	public List<MethodInvocation> getMethods() {
+		return methods;
+	}
+
 }

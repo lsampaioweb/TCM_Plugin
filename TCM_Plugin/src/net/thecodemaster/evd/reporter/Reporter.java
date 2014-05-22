@@ -75,7 +75,7 @@ public class Reporter {
 
 	public static void clearOldProblems(IResource resource) {
 		if (problemView) {
-			clearMarkers(resource);
+			clearProblemsFromView(resource);
 		}
 		if (textFile) {
 			// TODO
@@ -83,13 +83,11 @@ public class Reporter {
 		if (xmlFile) {
 			// TODO
 		}
-
-		clearViewDataModel(resource);
 	}
 
 	public void addProblem(int typeVulnerability, IResource resource, DataFlow dataFlow) {
 		if (problemView) {
-			addMarker(typeVulnerability, resource, dataFlow);
+			addProblemToView(typeVulnerability, resource, dataFlow);
 		}
 		if (textFile) {
 			// TODO
@@ -99,11 +97,14 @@ public class Reporter {
 		}
 	}
 
-	private static void clearMarkers(IResource resource) {
+	private static void clearProblemsFromView(IResource resource) {
 		try {
+			// Clear the Markers.
 			if (resource.exists()) {
 				resource.deleteMarkers(Constant.MARKER_ID, true, IResource.DEPTH_INFINITE);
 			}
+
+			clearViewDataModel(resource);
 		} catch (CoreException e) {
 			PluginLogger.logError(e);
 		}
@@ -121,21 +122,10 @@ public class Reporter {
 
 		// 02 - Now we really remove them.
 		rootVdm.getChildren().removeAll(vdmToRemove);
+		updateView();
 	}
 
-	private ViewSecurityVulnerabilities createView() {
-		ViewSecurityVulnerabilities view = new ViewSecurityVulnerabilities();
-
-		view = new ViewSecurityVulnerabilities();
-		// view.createPartControl(new Shell(Display.getDefault()));
-		view.showView();
-
-		return view;
-	}
-
-	private void addMarker(final int typeVulnerability, final IResource resource, final DataFlow dataFlow) {
-		addToViewDataModel(typeVulnerability, resource, dataFlow);
-
+	private static void updateView() {
 		// Update the user interface asynchronously.
 		Display.getDefault().asyncExec(new Runnable() {
 			@Override
@@ -149,6 +139,22 @@ public class Reporter {
 				view.addToView(rootVdm);
 			}
 		});
+	}
+
+	private static ViewSecurityVulnerabilities createView() {
+		ViewSecurityVulnerabilities view = new ViewSecurityVulnerabilities();
+
+		view = new ViewSecurityVulnerabilities();
+		// view.createPartControl(new Shell(Display.getDefault()));
+		view.showView();
+
+		return view;
+	}
+
+	private void addProblemToView(final int typeVulnerability, final IResource resource, final DataFlow dataFlow) {
+		addToViewDataModel(typeVulnerability, resource, dataFlow);
+
+		updateView();
 	}
 
 	public void addToViewDataModel(int typeVulnerability, IResource resource, DataFlow df) {

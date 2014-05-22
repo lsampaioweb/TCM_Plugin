@@ -25,7 +25,6 @@ import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ForStatement;
-import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
@@ -406,10 +405,9 @@ public abstract class Verifier {
 
 	protected void checkSimpleName(DataFlow df, List<Integer> rules, Expression expr, int depth) {
 		SimpleName simpleName = (SimpleName) expr;
-		IBinding binding = simpleName.resolveBinding();
 
 		// 01 - Try to retrieve the variable from the list of variables.
-		VariableBindingManager manager = getCallGraph().getlistVariables().get(binding);
+		VariableBindingManager manager = getCallGraph().getVariableBinding(simpleName);
 		if (null != manager) {
 
 			// 02 - This is the case where we have to go deeper into the variable's path.

@@ -37,7 +37,8 @@ public class ViewSecurityVulnerabilities extends ViewPart {
 
 	public void showView() {
 		try {
-			Activator.getDefault().showView(Constant.VIEW_ID, null, IWorkbenchPage.VIEW_VISIBLE);
+			Activator.getDefault().showView(Constant.VIEW_ID, null, IWorkbenchPage.VIEW_CREATE);
+			// Activator.getDefault().showView(Constant.VIEW_ID, null, IWorkbenchPage.VIEW_VISIBLE);
 		} catch (PartInitException e) {
 			PluginLogger.logError(e);
 		}
