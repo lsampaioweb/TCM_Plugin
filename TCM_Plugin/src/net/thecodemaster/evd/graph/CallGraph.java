@@ -74,7 +74,7 @@ public class CallGraph {
 		}
 	}
 
-	public void addInvokes(MethodDeclaration caller, Expression callee) {
+	public void addMethodInvocation(MethodDeclaration caller, Expression callee) {
 		// 01 - Get the list of methods in the current file.
 		Map<MethodDeclaration, List<Expression>> methods = getMethods(currentResource);
 
@@ -219,24 +219,16 @@ public class CallGraph {
 		return null;
 	}
 
-	public VariableBindingManager getLastReference(IBinding binding) {
-		// 01 - Get the list of references of this variable.
-		List<VariableBindingManager> vbms = getVariableBindings(binding);
-
-		// 02 - Return the last element of the list.
-		return ((null != vbms) && (vbms.size() > 0)) ? vbms.get(vbms.size() - 1) : null;
-	}
-
 	public VariableBindingManager getVariableBinding(SimpleName simpleName) {
 		// 01 - Get the list of references of this variable.
 		List<VariableBindingManager> vbms = getVariableBindings(simpleName.resolveBinding());
 
 		if (null != vbms) {
 			// 02 - Convert the parent to a MethodInvocation object.
-			Expression expression = BindingResolver.getParentMethodInvocation(simpleName.getParent());
+			Expression expression = BindingResolver.getParentWhoHasAReference(simpleName);
 
 			for (VariableBindingManager variableBindingManager : vbms) {
-				for (Expression currentMethod : variableBindingManager.getExpressions()) {
+				for (Expression currentMethod : variableBindingManager.getReferences()) {
 					if (currentMethod == expression) {
 						return variableBindingManager;
 					}
@@ -245,6 +237,14 @@ public class CallGraph {
 		}
 
 		return null;
+	}
+
+	public VariableBindingManager getLastReference(IBinding binding) {
+		// 01 - Get the list of references of this variable.
+		List<VariableBindingManager> vbms = getVariableBindings(binding);
+
+		// 02 - Return the last element of the list.
+		return ((null != vbms) && (vbms.size() > 0)) ? vbms.get(vbms.size() - 1) : null;
 	}
 
 }

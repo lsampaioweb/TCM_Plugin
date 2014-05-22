@@ -9,7 +9,7 @@ import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.point.AbstractPoint;
 
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
@@ -17,11 +17,12 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 /**
  * @author Luciano Sampaio
@@ -32,7 +33,7 @@ public class BindingResolver {
 	}
 
 	private static ASTNode findAncestor(ASTNode node, int nodeType) {
-		while ((node != null) && (node.getNodeType() != nodeType)) {
+		while ((null != node) && (node.getNodeType() != nodeType)) {
 			node = node.getParent();
 		}
 		return node;
@@ -46,30 +47,35 @@ public class BindingResolver {
 		return (MethodDeclaration) findAncestor(node, ASTNode.METHOD_DECLARATION);
 	}
 
-	public static MethodInvocation getParentMethodInvocation(ASTNode node) {
-		return (MethodInvocation) findAncestor(node, ASTNode.METHOD_INVOCATION);
-	}
+	public static Expression getParentWhoHasAReference(ASTNode node) {
+		while (null != node) {
+			switch (node.getNodeType()) {
+				case ASTNode.METHOD_INVOCATION:
+				case ASTNode.CLASS_INSTANCE_CREATION:
+					return (Expression) node;
+				case ASTNode.VARIABLE_DECLARATION_FRAGMENT:
+					VariableDeclarationFragment vdf = (VariableDeclarationFragment) node;
+					return vdf.getName();
+				case ASTNode.ASSIGNMENT:
+					Assignment assignment = (Assignment) node;
+					return assignment.getLeftHandSide();
+			}
 
-	public static Block getParentBlock(ASTNode node) {
-		return (Block) findAncestor(node, ASTNode.BLOCK);
-	}
-
-	public static Statement getParentStatement(ASTNode node) {
-		while ((node != null) && (!(node instanceof Statement))) {
 			node = node.getParent();
 		}
-		return (Statement) node;
+
+		return null;
 	}
 
 	private static String getName(IBinding binding) {
 		return (null != binding) ? binding.getName() : null;
 	}
 
-	public static String getName(ASTNode node) {
+	private static String getName(ASTNode node) {
 		return getName(resolveBinding(node));
 	}
 
-	public static IMethodBinding resolveBinding(ASTNode node) {
+	private static IMethodBinding resolveBinding(ASTNode node) {
 		if (node.getNodeType() == ASTNode.METHOD_DECLARATION) {
 			return ((MethodDeclaration) node).resolveBinding();
 		} else if (node.getNodeType() == ASTNode.METHOD_INVOCATION) {
@@ -81,26 +87,10 @@ public class BindingResolver {
 		return null;
 	}
 
-	/**
-	 * Returns the type binding representing the class or interface that declares this method or constructor.
-	 * 
-	 * @param methodBinding
-	 * @return the binding of the class or interface that declares this method or constructor
-	 */
 	private static ITypeBinding getDeclaringClass(IMethodBinding methodBinding) {
 		return (null != methodBinding) ? methodBinding.getDeclaringClass() : null;
 	}
 
-	/**
-	 * Returns the binding for the package in which this type is declared. The package of a recovered type reference
-	 * binding is either the package of the enclosing type, or, if the type name is the name of a well-known type, the
-	 * package of the matching well-known type.
-	 * 
-	 * @param typeBinding
-	 * @return the binding for the package in which this class, interface, enum, or annotation type is declared, or null
-	 *         if this type binding represents a primitive type, an array type, the null type, a type variable, a wild
-	 *         card type, a capture binding.
-	 */
 	private static IPackageBinding getPackage(ITypeBinding typeBinding) {
 		return (null != typeBinding) ? typeBinding.getPackage() : null;
 	}
@@ -120,7 +110,7 @@ public class BindingResolver {
 		return qualifiedName;
 	}
 
-	public static String getQualifiedName(ASTNode node) {
+	private static String getQualifiedName(ASTNode node) {
 		return getQualifiedName(resolveBinding(node));
 	}
 
@@ -135,26 +125,53 @@ public class BindingResolver {
 		return null;
 	}
 
-	public static List<Expression> getParameters(Expression expr) {
-		if (expr.getNodeType() == ASTNode.METHOD_INVOCATION) {
-			return getParameters(((MethodInvocation) expr).arguments());
-		} else if (expr.getNodeType() == ASTNode.CLASS_INSTANCE_CREATION) {
-			return getParameters(((ClassInstanceCreation) expr).arguments());
+	/**
+	 * This method was created because the list returned from the arguments is not generic.
+	 * 
+	 * @param arguments
+	 *          The live ordered list of argument expressions in this method invocation expression.
+	 * @return List<Expression>
+	 */
+	@SuppressWarnings("unchecked")
+	private static List<Expression> getParameters(List<?> arguments) {
+		List<Expression> expressions = Creator.newList();
+
+		if (null != arguments) {
+			expressions = (List<Expression>) arguments;
 		}
 
-		return Creator.newList();
+		return expressions;
 	}
 
-	public static List<ITypeBinding> getParameterTypes(MethodDeclaration node) {
-		IMethodBinding methodBinding = resolveBinding(node);
+	public static List<Expression> getParameters(Expression expr) {
+		List<Expression> parameters = Creator.newList();
 
-		return (null != methodBinding) ? Arrays.asList(methodBinding.getParameterTypes()) : null;
+		if (expr.getNodeType() == ASTNode.METHOD_INVOCATION) {
+			parameters = getParameters(((MethodInvocation) expr).arguments());
+		} else if (expr.getNodeType() == ASTNode.CLASS_INSTANCE_CREATION) {
+			parameters = getParameters(((ClassInstanceCreation) expr).arguments());
+		} else if (expr.getNodeType() == ASTNode.INFIX_EXPRESSION) {
+			parameters = getParameters(((InfixExpression) expr).extendedOperands());
+		}
+
+		return parameters;
 	}
 
 	@SuppressWarnings("unchecked")
-	public static List<SingleVariableDeclaration> getParameters(MethodDeclaration node) {
+	private static List<SingleVariableDeclaration> getParameters(MethodDeclaration node) {
+		List<SingleVariableDeclaration> parameters = Creator.newList();
 
-		return (null != node) ? node.parameters() : null;
+		if ((null != node) && (null != node.parameters())) {
+			parameters = node.parameters();
+		}
+
+		return parameters;
+	}
+
+	private static List<ITypeBinding> getParameterTypes(MethodDeclaration node) {
+		IMethodBinding methodBinding = resolveBinding(node);
+
+		return (null != methodBinding) ? Arrays.asList(methodBinding.getParameterTypes()) : null;
 	}
 
 	public static int getParameterIndex(MethodDeclaration node, SimpleName parameterToSearch) {
@@ -172,38 +189,17 @@ public class BindingResolver {
 			}
 		}
 
-		return parameterIndex;
+		return -1;
 	}
 
 	public static Expression getParameterAtIndex(Expression expr, int parameterIndex) {
-		// TODO - add the case for class creation.
-		if (expr.getNodeType() == ASTNode.METHOD_INVOCATION) {
-			List<Expression> parameters = getParameters(((MethodInvocation) expr).arguments());
+		List<Expression> parameters = getParameters(expr);
 
-			if (parameterIndex < parameters.size()) {
-				return parameters.get(parameterIndex);
-			}
+		if (parameterIndex < parameters.size()) {
+			return parameters.get(parameterIndex);
 		}
 
 		return null;
-	}
-
-	/**
-	 * This method was created because the list returned from the arguments is not generic.
-	 * 
-	 * @param arguments
-	 *          The live ordered list of argument expressions in this method invocation expression.
-	 * @return List<Expression>
-	 */
-	@SuppressWarnings("unchecked")
-	public static List<Expression> getParameters(List<?> arguments) {
-		List<Expression> expressions = Creator.newList();
-
-		if (null != arguments) {
-			expressions = (List<Expression>) arguments;
-		}
-
-		return expressions;
 	}
 
 	public static boolean areMethodsEqual(MethodDeclaration method, Expression other) {

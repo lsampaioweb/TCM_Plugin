@@ -15,13 +15,12 @@ public class VariableBindingManager {
 	private IBinding								binding;
 	private Expression							initializer;
 
-	private VariableBindingManager	initializerReference;
-	private final List<Expression>	expressions;
+	private final List<Expression>	references;
 
 	public VariableBindingManager(IBinding binding) {
 		this.setBinding(binding);
 
-		expressions = Creator.newList();
+		references = Creator.newList();
 	}
 
 	public IBinding getBinding() {
@@ -33,31 +32,19 @@ public class VariableBindingManager {
 	}
 
 	public Expression getInitializer() {
-		if (null != initializer) {
-			return initializer;
-		}
-
-		if (null != initializerReference) {
-			return initializerReference.getInitializer();
-		}
-
-		return null;
+		return initializer;
 	}
 
 	public void setInitializer(Expression initializer) {
 		this.initializer = initializer;
 	}
 
-	public void setInitializer(VariableBindingManager initializerReference) {
-		this.initializerReference = initializerReference;
+	public void addReferences(Expression reference) {
+		getReferences().add(reference);
 	}
 
-	public void addMethod(Expression expression) {
-		getExpressions().add(expression);
-	}
-
-	public List<Expression> getExpressions() {
-		return expressions;
+	public List<Expression> getReferences() {
+		return references;
 	}
 
 	@Override

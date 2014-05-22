@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -75,7 +76,7 @@ public class VisitorCompilationUnit extends ASTVisitor {
 
 	private void addInvokes(Expression method) {
 		if ((null != method) && (!methodStack.isEmpty())) {
-			callGraph.addInvokes(methodStack.peek(), method);
+			callGraph.addMethodInvocation(methodStack.peek(), method);
 		}
 	}
 
@@ -84,23 +85,23 @@ public class VisitorCompilationUnit extends ASTVisitor {
 		for (Expression parameter : parameters) {
 			IBinding binding = null;
 
-			if (parameter.getNodeType() == ASTNode.SIMPLE_NAME) {
-				binding = ((SimpleName) parameter).resolveBinding();
-			} else if (parameter.getNodeType() == ASTNode.ASSIGNMENT) {
-				Assignment assignment = (Assignment) parameter;
+			switch (parameter.getNodeType()) {
+				case ASTNode.SIMPLE_NAME:
+					binding = ((SimpleName) parameter).resolveBinding();
+					break;
+				case ASTNode.ASSIGNMENT:
+					Assignment assignment = (Assignment) parameter;
 
-				if (assignment.getLeftHandSide().getNodeType() == ASTNode.SIMPLE_NAME) {
-					binding = ((SimpleName) assignment.getLeftHandSide()).resolveBinding();
+					if (assignment.getLeftHandSide().getNodeType() == ASTNode.SIMPLE_NAME) {
+						binding = ((SimpleName) assignment.getLeftHandSide()).resolveBinding();
 
-					addVariableToCallGraph(binding, assignment.getRightHandSide());
-				}
+						visit(assignment);
+					}
+					break;
 			}
 
 			if (null != binding) {
-				VariableBindingManager variableBinding = callGraph.getLastReference(binding);
-				if (null != variableBinding) {
-					variableBinding.addMethod(node);
-				}
+				addReference(node, binding);
 			}
 		}
 	}
@@ -121,7 +122,7 @@ public class VisitorCompilationUnit extends ASTVisitor {
 			// Example: "int x=0, y=0;" contains two VariableDeclarationFragments, "x=0" and "y=0"
 			VariableDeclarationFragment fragment = (VariableDeclarationFragment) iter.next();
 
-			addVariableToCallGraph(fragment.resolveBinding(), fragment.getInitializer());
+			addVariableToCallGraph(fragment.getName(), fragment.getInitializer());
 		}
 
 		return true;
@@ -130,25 +131,56 @@ public class VisitorCompilationUnit extends ASTVisitor {
 	@Override
 	public boolean visit(Assignment node) {
 		if (node.getLeftHandSide().getNodeType() == ASTNode.SIMPLE_NAME) {
-			IBinding binding = ((SimpleName) node.getLeftHandSide()).resolveBinding();
-
-			addVariableToCallGraph(binding, node.getRightHandSide());
+			addVariableToCallGraph((SimpleName) node.getLeftHandSide(), node.getRightHandSide());
 		}
 
 		return super.visit(node);
 	}
 
-	private void addVariableToCallGraph(IBinding binding, Expression initializer) {
+	private void addVariableToCallGraph(SimpleName simpleName, Expression initializer) {
+		IBinding binding = simpleName.resolveBinding();
+
 		VariableBindingManager variableBinding = new VariableBindingManager(binding);
 
-		if ((null != initializer) && (initializer.getNodeType() == ASTNode.SIMPLE_NAME)) {
-			IBinding bindingInitializer = ((SimpleName) initializer).resolveBinding();
-			variableBinding.setInitializer(callGraph.getLastReference(bindingInitializer));
-		} else {
-			variableBinding.setInitializer(initializer);
+		variableBinding.setInitializer(initializer);
+
+		if (null != initializer) {
+			switch (initializer.getNodeType()) {
+				case ASTNode.SIMPLE_NAME:
+					addReferenceSimpleName(simpleName, initializer);
+					break;
+				case ASTNode.INFIX_EXPRESSION:
+					addReferenceInfixExpression(simpleName, (InfixExpression) initializer);
+					break;
+			}
 		}
 
 		callGraph.addVariable(variableBinding);
+	}
+
+	private void addReference(Expression expression, IBinding binding) {
+		VariableBindingManager variableBindingInitializer = callGraph.getLastReference(binding);
+		if (null != variableBindingInitializer) {
+			variableBindingInitializer.addReferences(expression);
+		}
+	}
+
+	private void addReferenceSimpleName(SimpleName simpleName, Expression expression) {
+		if (expression.getNodeType() == ASTNode.SIMPLE_NAME) {
+			SimpleName initializer = (SimpleName) expression;
+			addReference(simpleName, initializer.resolveBinding());
+		}
+	}
+
+	private void addReferenceInfixExpression(SimpleName simpleName, InfixExpression initializer) {
+		addReferenceSimpleName(simpleName, initializer.getLeftOperand());
+		addReferenceSimpleName(simpleName, initializer.getRightOperand());
+
+		List<Expression> extendedOperands = BindingResolver.getParameters(initializer);
+
+		for (Expression expression : extendedOperands) {
+			addReferenceSimpleName(simpleName, expression);
+		}
 	}
 
 }

@@ -378,7 +378,7 @@ public abstract class Verifier {
 		// 01 - Get the elements from the operation.
 		Expression leftOperand = parameter.getLeftOperand();
 		Expression rightOperand = parameter.getRightOperand();
-		List<Expression> extendedOperands = BindingResolver.getParameters(parameter.extendedOperands());
+		List<Expression> extendedOperands = BindingResolver.getParameters(parameter);
 
 		// 02 - Check each element.
 		checkExpression(df.addNodeToPath(leftOperand), rules, leftOperand, depth);
