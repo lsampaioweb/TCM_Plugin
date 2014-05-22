@@ -10,7 +10,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.SimpleName;
 
 /**
@@ -175,7 +174,9 @@ public class CallGraph {
 
 		// 03 - Add the variable to the list.
 		List<VariableBindingManager> vbms = variableBindings.get(binding);
-		vbms.add(variableBinding);
+		if (!vbms.contains(variableBinding)) {
+			vbms.add(variableBinding);
+		}
 	}
 
 	private Map<IBinding, List<VariableBindingManager>> getVariables(IResource resource) {
@@ -230,13 +231,15 @@ public class CallGraph {
 		// 01 - Get the list of references of this variable.
 		List<VariableBindingManager> vbms = getVariableBindings(simpleName.resolveBinding());
 
-		// 02 - Convert the parent to a MethodInvocation object.
-		MethodInvocation method = (MethodInvocation) simpleName.getParent();
+		if (null != vbms) {
+			// 02 - Convert the parent to a MethodInvocation object.
+			Expression expression = BindingResolver.getParentMethodInvocation(simpleName.getParent());
 
-		for (VariableBindingManager variableBindingManager : vbms) {
-			for (MethodInvocation currentMethod : variableBindingManager.getMethods()) {
-				if (currentMethod == method) {
-					return variableBindingManager;
+			for (VariableBindingManager variableBindingManager : vbms) {
+				for (Expression currentMethod : variableBindingManager.getExpressions()) {
+					if (currentMethod == expression) {
+						return variableBindingManager;
+					}
 				}
 			}
 		}

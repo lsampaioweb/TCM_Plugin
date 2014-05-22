@@ -13,6 +13,7 @@ import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -30,50 +31,64 @@ public class BindingResolver {
 	private BindingResolver() {
 	}
 
+	private static ASTNode findAncestor(ASTNode node, int nodeType) {
+		while ((node != null) && (node.getNodeType() != nodeType)) {
+			node = node.getParent();
+		}
+		return node;
+	}
+
+	public static CompilationUnit getParentCompilationUnit(ASTNode node) {
+		return (CompilationUnit) findAncestor(node, ASTNode.COMPILATION_UNIT);
+	}
+
+	public static MethodDeclaration getParentMethodDeclaration(ASTNode node) {
+		return (MethodDeclaration) findAncestor(node, ASTNode.METHOD_DECLARATION);
+	}
+
+	public static MethodInvocation getParentMethodInvocation(ASTNode node) {
+		return (MethodInvocation) findAncestor(node, ASTNode.METHOD_INVOCATION);
+	}
+
+	public static Block getParentBlock(ASTNode node) {
+		return (Block) findAncestor(node, ASTNode.BLOCK);
+	}
+
+	public static Statement getParentStatement(ASTNode node) {
+		while ((node != null) && (!(node instanceof Statement))) {
+			node = node.getParent();
+		}
+		return (Statement) node;
+	}
+
+	private static String getName(IBinding binding) {
+		return (null != binding) ? binding.getName() : null;
+	}
+
+	public static String getName(ASTNode node) {
+		return getName(resolveBinding(node));
+	}
+
+	public static IMethodBinding resolveBinding(ASTNode node) {
+		if (node.getNodeType() == ASTNode.METHOD_DECLARATION) {
+			return ((MethodDeclaration) node).resolveBinding();
+		} else if (node.getNodeType() == ASTNode.METHOD_INVOCATION) {
+			return ((MethodInvocation) node).resolveMethodBinding();
+		} else if (node.getNodeType() == ASTNode.CLASS_INSTANCE_CREATION) {
+			return ((ClassInstanceCreation) node).resolveConstructorBinding();
+		}
+
+		return null;
+	}
+
 	/**
 	 * Returns the type binding representing the class or interface that declares this method or constructor.
 	 * 
 	 * @param methodBinding
 	 * @return the binding of the class or interface that declares this method or constructor
 	 */
-	public static ITypeBinding getDeclaringClass(IMethodBinding methodBinding) {
+	private static ITypeBinding getDeclaringClass(IMethodBinding methodBinding) {
 		return (null != methodBinding) ? methodBinding.getDeclaringClass() : null;
-	}
-
-	public static String getName(MethodDeclaration node) {
-		return getName(resolveBinding(node));
-	}
-
-	/**
-	 * Returns the name of the method declared in this binding. The method name is always a simple identifier. The name of
-	 * a constructor is always the same as the declared name of its declaring class.
-	 * 
-	 * @param methodBinding
-	 * @return the name of this method, or the declared name of this constructor's declaring class.
-	 */
-	public static String getName(IMethodBinding methodBinding) {
-		return (null != methodBinding) ? methodBinding.getName() : null;
-	}
-
-	/**
-	 * Returns the name of the package represented by this binding. For named packages, this is the fully qualified
-	 * package name (using "." for separators). For unnamed packages, this is an empty string.
-	 * 
-	 * @param pkg
-	 * @return the name of the package represented by this binding, or an empty string for an unnamed package.
-	 */
-	public static String getName(IPackageBinding pkg) {
-		return (null != pkg) ? pkg.getName() : null;
-	}
-
-	/**
-	 * Returns the unqualified name of the type represented by this binding if it has one.
-	 * 
-	 * @param typeBinding
-	 * @return the unqualified name of the type represented by this binding, or the empty string if it has none.
-	 */
-	public static String getName(ITypeBinding typeBinding) {
-		return (null != typeBinding) ? typeBinding.getName() : null;
 	}
 
 	/**
@@ -86,23 +101,11 @@ public class BindingResolver {
 	 *         if this type binding represents a primitive type, an array type, the null type, a type variable, a wild
 	 *         card type, a capture binding.
 	 */
-	public static IPackageBinding getPackage(ITypeBinding typeBinding) {
+	private static IPackageBinding getPackage(ITypeBinding typeBinding) {
 		return (null != typeBinding) ? typeBinding.getPackage() : null;
 	}
 
-	public static IMethodBinding resolveBinding(MethodDeclaration node) {
-		return (null != node) ? node.resolveBinding() : null;
-	}
-
-	public static IMethodBinding resolveMethodBinding(MethodInvocation node) {
-		return (null != node) ? node.resolveMethodBinding() : null;
-	}
-
-	public static IMethodBinding resolveConstructorBinding(ClassInstanceCreation node) {
-		return (null != node) ? node.resolveConstructorBinding() : null;
-	}
-
-	public static String getQualifiedName(IMethodBinding node) {
+	private static String getQualifiedName(IMethodBinding node) {
 		String qualifiedName = null;
 
 		ITypeBinding clazz = getDeclaringClass(node);
@@ -117,6 +120,10 @@ public class BindingResolver {
 		return qualifiedName;
 	}
 
+	public static String getQualifiedName(ASTNode node) {
+		return getQualifiedName(resolveBinding(node));
+	}
+
 	public static String getFullName(Expression expr) {
 		// Cases:
 		// 01 - getPassword();
@@ -128,25 +135,11 @@ public class BindingResolver {
 		return null;
 	}
 
-	public static String getName(Expression expr) {
-		if (expr.getNodeType() == ASTNode.METHOD_INVOCATION) {
-			return getName(((MethodInvocation) expr).resolveMethodBinding());
-		}
-
-		return null;
-	}
-
-	public static String getQualifiedName(Expression expr) {
-		if (expr.getNodeType() == ASTNode.METHOD_INVOCATION) {
-			return getQualifiedName(((MethodInvocation) expr).resolveMethodBinding());
-		}
-
-		return null;
-	}
-
 	public static List<Expression> getParameters(Expression expr) {
 		if (expr.getNodeType() == ASTNode.METHOD_INVOCATION) {
 			return getParameters(((MethodInvocation) expr).arguments());
+		} else if (expr.getNodeType() == ASTNode.CLASS_INSTANCE_CREATION) {
+			return getParameters(((ClassInstanceCreation) expr).arguments());
 		}
 
 		return Creator.newList();
@@ -183,6 +176,7 @@ public class BindingResolver {
 	}
 
 	public static Expression getParameterAtIndex(Expression expr, int parameterIndex) {
+		// TODO - add the case for class creation.
 		if (expr.getNodeType() == ASTNode.METHOD_INVOCATION) {
 			List<Expression> parameters = getParameters(((MethodInvocation) expr).arguments());
 
@@ -210,52 +204,6 @@ public class BindingResolver {
 		}
 
 		return expressions;
-	}
-
-	public static CompilationUnit findParentCompilationUnit(ASTNode node) {
-		return (CompilationUnit) findAncestor(node, ASTNode.COMPILATION_UNIT);
-	}
-
-	/**
-	 * Finds the parent {@link Block} of a {@link Statement}.
-	 * 
-	 * @param s
-	 *          the {@link Statement} to find the its parent {@link Block} for
-	 * @return the parent block of {@code s}
-	 */
-	public static Block getParentBlock(Statement node) {
-		return (Block) findAncestor(node, ASTNode.BLOCK);
-	}
-
-	public static MethodDeclaration getParentMethodDeclaration(ASTNode node) {
-		return (MethodDeclaration) findAncestor(node, ASTNode.METHOD_DECLARATION);
-	}
-
-	private static ASTNode findAncestor(ASTNode node, int nodeType) {
-		while ((node != null) && (node.getNodeType() != nodeType)) {
-			node = node.getParent();
-		}
-		return node;
-	}
-
-	/**
-	 * Gets the surrounding {@link Statement} of this a {@link SimpleName} ast node.
-	 * 
-	 * @param reference
-	 *          any {@link SimpleName}
-	 * @return the surrounding {@link Statement} as found in the AST parent-child hierarchy
-	 */
-	public static Statement getParentStatement(SimpleName reference) {
-		ASTNode node = reference;
-
-		while ((node != null) && (!(node instanceof Statement))) {
-			node = node.getParent();
-		}
-		return (Statement) node;
-	}
-
-	public static String getQualifiedName(MethodDeclaration node) {
-		return getQualifiedName(resolveBinding(node));
 	}
 
 	public static boolean areMethodsEqual(MethodDeclaration method, Expression other) {

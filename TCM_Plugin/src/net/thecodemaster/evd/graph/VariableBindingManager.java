@@ -6,23 +6,22 @@ import net.thecodemaster.evd.helper.Creator;
 
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.MethodInvocation;
 
 /**
  * @author Luciano Sampaio
  */
 public class VariableBindingManager {
 
-	private IBinding											binding;
-	private Expression										initializer;
+	private IBinding								binding;
+	private Expression							initializer;
 
-	private VariableBindingManager				initializerReference;
-	private final List<MethodInvocation>	methods;
+	private VariableBindingManager	initializerReference;
+	private final List<Expression>	expressions;
 
 	public VariableBindingManager(IBinding binding) {
 		this.setBinding(binding);
 
-		methods = Creator.newList();
+		expressions = Creator.newList();
 	}
 
 	public IBinding getBinding() {
@@ -53,12 +52,53 @@ public class VariableBindingManager {
 		this.initializerReference = initializerReference;
 	}
 
-	public void addMethod(MethodInvocation method) {
-		getMethods().add(method);
+	public void addMethod(Expression expression) {
+		getExpressions().add(expression);
 	}
 
-	public List<MethodInvocation> getMethods() {
-		return methods;
+	public List<Expression> getExpressions() {
+		return expressions;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result *= prime + getBinding().hashCode();
+		result *= prime + getInitializer().hashCode();
+		return result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @param obj
+	 *          Object
+	 * @return boolean
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+
+		if (null == obj) {
+			return false;
+		}
+
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+
+		VariableBindingManager other = (VariableBindingManager) obj;
+		if (getBinding() != other.getBinding()) {
+			return false;
+		}
+		if (getInitializer() != other.getInitializer()) {
+			return false;
+		}
+
+		return true;
 	}
 
 }

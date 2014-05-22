@@ -59,17 +59,7 @@ public class VisitorCompilationUnit extends ASTVisitor {
 	public boolean visit(MethodInvocation node) {
 		addInvokes(node);
 
-		List<Expression> parameters = BindingResolver.getParameters(node);
-		for (Expression expression : parameters) {
-			if (expression.getNodeType() == ASTNode.SIMPLE_NAME) {
-				IBinding binding = ((SimpleName) expression).resolveBinding();
-
-				VariableBindingManager variableBinding = callGraph.getLastReference(binding);
-				if (null != variableBinding) {
-					variableBinding.addMethod(node);
-				}
-			}
-		}
+		addMethodReferenceToVariable(node);
 
 		return super.visit(node);
 	}
@@ -78,12 +68,40 @@ public class VisitorCompilationUnit extends ASTVisitor {
 	public boolean visit(ClassInstanceCreation node) {
 		addInvokes(node);
 
+		addMethodReferenceToVariable(node);
+
 		return super.visit(node);
 	}
 
 	private void addInvokes(Expression method) {
 		if ((null != method) && (!methodStack.isEmpty())) {
 			callGraph.addInvokes(methodStack.peek(), method);
+		}
+	}
+
+	private void addMethodReferenceToVariable(Expression node) {
+		List<Expression> parameters = BindingResolver.getParameters(node);
+		for (Expression parameter : parameters) {
+			IBinding binding = null;
+
+			if (parameter.getNodeType() == ASTNode.SIMPLE_NAME) {
+				binding = ((SimpleName) parameter).resolveBinding();
+			} else if (parameter.getNodeType() == ASTNode.ASSIGNMENT) {
+				Assignment assignment = (Assignment) parameter;
+
+				if (assignment.getLeftHandSide().getNodeType() == ASTNode.SIMPLE_NAME) {
+					binding = ((SimpleName) assignment.getLeftHandSide()).resolveBinding();
+
+					addVariableToCallGraph(binding, assignment.getRightHandSide());
+				}
+			}
+
+			if (null != binding) {
+				VariableBindingManager variableBinding = callGraph.getLastReference(binding);
+				if (null != variableBinding) {
+					variableBinding.addMethod(node);
+				}
+			}
 		}
 	}
 
@@ -103,7 +121,7 @@ public class VisitorCompilationUnit extends ASTVisitor {
 			// Example: "int x=0, y=0;" contains two VariableDeclarationFragments, "x=0" and "y=0"
 			VariableDeclarationFragment fragment = (VariableDeclarationFragment) iter.next();
 
-			addVariableToCallBack(fragment.resolveBinding(), fragment.getInitializer());
+			addVariableToCallGraph(fragment.resolveBinding(), fragment.getInitializer());
 		}
 
 		return true;
@@ -114,16 +132,16 @@ public class VisitorCompilationUnit extends ASTVisitor {
 		if (node.getLeftHandSide().getNodeType() == ASTNode.SIMPLE_NAME) {
 			IBinding binding = ((SimpleName) node.getLeftHandSide()).resolveBinding();
 
-			addVariableToCallBack(binding, node.getRightHandSide());
+			addVariableToCallGraph(binding, node.getRightHandSide());
 		}
 
 		return super.visit(node);
 	}
 
-	private void addVariableToCallBack(IBinding binding, Expression initializer) {
+	private void addVariableToCallGraph(IBinding binding, Expression initializer) {
 		VariableBindingManager variableBinding = new VariableBindingManager(binding);
 
-		if (initializer.getNodeType() == ASTNode.SIMPLE_NAME) {
+		if ((null != initializer) && (initializer.getNodeType() == ASTNode.SIMPLE_NAME)) {
 			IBinding bindingInitializer = ((SimpleName) initializer).resolveBinding();
 			variableBinding.setInitializer(callGraph.getLastReference(bindingInitializer));
 		} else {

@@ -215,7 +215,7 @@ public class Reporter {
 			markerAttributes.put(IMarker.MESSAGE, message);
 
 			// Get the Compilation Unit of this resource.
-			CompilationUnit cUnit = BindingResolver.findParentCompilationUnit(expr);
+			CompilationUnit cUnit = BindingResolver.getParentCompilationUnit(expr);
 
 			int startPosition = expr.getStartPosition();
 			int endPosition = startPosition + expr.getLength();
