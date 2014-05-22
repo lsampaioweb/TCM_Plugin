@@ -187,23 +187,27 @@ public class CallGraph {
 		// 01 - Get the list of variables in the current file.
 		Map<IBinding, List<VariableBindingManager>> variableBindings = getVariables(currentResource);
 
-		// 02 - Get the list of references of this variable.
-		List<VariableBindingManager> vbms = variableBindings.get(binding);
+		if (null != variableBindings) {
+			// 02 - Get the list of references of this variable.
+			List<VariableBindingManager> vbms = variableBindings.get(binding);
 
-		// 03 - If the list is null, this variable belongs to another file.
-		if (null == vbms) {
-			for (Entry<IResource, Map<IBinding, List<VariableBindingManager>>> entry : variablesPerFile.entrySet()) {
-				vbms = getVariableBindings(entry.getValue(), binding);
+			// 03 - If the list is null, this variable belongs to another file.
+			if (null == vbms) {
+				for (Entry<IResource, Map<IBinding, List<VariableBindingManager>>> entry : variablesPerFile.entrySet()) {
+					vbms = getVariableBindings(entry.getValue(), binding);
 
-				// 04 - If the list is different from null, it means we found it.
-				if (null != vbms) {
-					break;
+					// 04 - If the list is different from null, it means we found it.
+					if (null != vbms) {
+						break;
+					}
 				}
 			}
+
+			// 05 - Return the last element of the list.
+			return vbms;
 		}
 
-		// 05 - Return the last element of the list.
-		return vbms;
+		return null;
 	}
 
 	private List<VariableBindingManager> getVariableBindings(Map<IBinding, List<VariableBindingManager>> mapVariables,

@@ -130,6 +130,9 @@ public abstract class Message extends NLS {
 		public static String				SINGLE_VULNERABILITY;
 		public static String				MULTIPLE_VULNERABILITIES;
 
+		public static String				SINGLE_TOTAL_NUMBER_OF_VULNERABILITIES;
+		public static String				MULTIPLE_TOTAL_NUMBER_OF_VULNERABILITIES;
+
 		static {
 			// Initialize resource bundle.
 			NLS.initializeMessages(BUNDLE_NAME, View.class);

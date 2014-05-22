@@ -159,6 +159,20 @@ public class ViewSecurityVulnerabilities extends ViewPart {
 		}
 
 		viewer.setInput(rootVdm);
+		updateTitle();
 		// viewer.expandAll();
+	}
+
+	private void updateTitle() {
+		int totalItems = viewer.getTree().getItems().length;
+
+		String messageTemplate = "";
+		if (totalItems == 1) {
+			messageTemplate = Message.View.SINGLE_TOTAL_NUMBER_OF_VULNERABILITIES;
+		} else {
+			messageTemplate = Message.View.MULTIPLE_TOTAL_NUMBER_OF_VULNERABILITIES;
+		}
+
+		setContentDescription(String.format(messageTemplate, totalItems));
 	}
 }

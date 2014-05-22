@@ -12,6 +12,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
+import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -83,26 +84,7 @@ public class VisitorCompilationUnit extends ASTVisitor {
 	private void addMethodReferenceToVariable(Expression node) {
 		List<Expression> parameters = BindingResolver.getParameters(node);
 		for (Expression parameter : parameters) {
-			IBinding binding = null;
-
-			switch (parameter.getNodeType()) {
-				case ASTNode.SIMPLE_NAME:
-					binding = ((SimpleName) parameter).resolveBinding();
-					break;
-				case ASTNode.ASSIGNMENT:
-					Assignment assignment = (Assignment) parameter;
-
-					if (assignment.getLeftHandSide().getNodeType() == ASTNode.SIMPLE_NAME) {
-						binding = ((SimpleName) assignment.getLeftHandSide()).resolveBinding();
-
-						visit(assignment);
-					}
-					break;
-			}
-
-			if (null != binding) {
-				addReference(node, binding);
-			}
+			checkInitializer(node, parameter);
 		}
 	}
 
@@ -144,16 +126,7 @@ public class VisitorCompilationUnit extends ASTVisitor {
 
 		variableBinding.setInitializer(initializer);
 
-		if (null != initializer) {
-			switch (initializer.getNodeType()) {
-				case ASTNode.SIMPLE_NAME:
-					addReferenceSimpleName(simpleName, initializer);
-					break;
-				case ASTNode.INFIX_EXPRESSION:
-					addReferenceInfixExpression(simpleName, (InfixExpression) initializer);
-					break;
-			}
-		}
+		checkInitializer(simpleName, initializer);
 
 		callGraph.addVariable(variableBinding);
 	}
@@ -165,22 +138,51 @@ public class VisitorCompilationUnit extends ASTVisitor {
 		}
 	}
 
-	private void addReferenceSimpleName(SimpleName simpleName, Expression expression) {
-		if (expression.getNodeType() == ASTNode.SIMPLE_NAME) {
-			SimpleName initializer = (SimpleName) expression;
-			addReference(simpleName, initializer.resolveBinding());
+	private void checkInitializer(Expression expression, Expression initializer) {
+		if (null != initializer) {
+			switch (initializer.getNodeType()) {
+				case ASTNode.SIMPLE_NAME:
+					addReferenceSimpleName(expression, (SimpleName) initializer);
+					break;
+				case ASTNode.INFIX_EXPRESSION:
+					addReferenceInfixExpression(expression, (InfixExpression) initializer);
+					break;
+				case ASTNode.CONDITIONAL_EXPRESSION:
+					addReferenceConditionalExpression(expression, (ConditionalExpression) initializer);
+					break;
+				case ASTNode.ASSIGNMENT:
+					addReferenceAssgnment(expression, (Assignment) initializer);
+					break;
+			}
 		}
 	}
 
-	private void addReferenceInfixExpression(SimpleName simpleName, InfixExpression initializer) {
-		addReferenceSimpleName(simpleName, initializer.getLeftOperand());
-		addReferenceSimpleName(simpleName, initializer.getRightOperand());
+	private void addReferenceSimpleName(Expression expression, SimpleName initializer) {
+		addReference(expression, initializer.resolveBinding());
+	}
+
+	private void addReferenceInfixExpression(Expression expression, InfixExpression initializer) {
+		checkInitializer(expression, initializer.getLeftOperand());
+		checkInitializer(expression, initializer.getRightOperand());
 
 		List<Expression> extendedOperands = BindingResolver.getParameters(initializer);
 
-		for (Expression expression : extendedOperands) {
-			addReferenceSimpleName(simpleName, expression);
+		for (Expression current : extendedOperands) {
+			checkInitializer(expression, current);
 		}
+	}
+
+	private void addReferenceConditionalExpression(Expression expression, ConditionalExpression initializer) {
+		checkInitializer(expression, initializer.getThenExpression());
+		checkInitializer(expression, initializer.getElseExpression());
+	}
+
+	private void addReferenceAssgnment(Expression expression, Assignment initializer) {
+		if (initializer.getLeftHandSide().getNodeType() == ASTNode.SIMPLE_NAME) {
+			checkInitializer(expression, initializer.getLeftHandSide());
+			checkInitializer(expression, initializer.getRightHandSide());
+		}
+
 	}
 
 }

@@ -331,11 +331,11 @@ public abstract class Verifier {
 				case ASTNode.METHOD_INVOCATION:
 					checkMethodInvocation(df, rules, expr, ++depth);
 					break;
-				case ASTNode.ASSIGNMENT:
-					checkAssignment(df, rules, expr, ++depth);
-					break;
 				case ASTNode.CLASS_INSTANCE_CREATION:
 					checkClassInstanceCreation(df, rules, expr, ++depth);
+					break;
+				case ASTNode.ASSIGNMENT:
+					checkAssignment(df, rules, expr, ++depth);
 					break;
 				default:
 					PluginLogger.logError("Default Node Type: " + expr.getNodeType() + " - " + expr, null);
@@ -492,18 +492,20 @@ public abstract class Verifier {
 		}
 	}
 
+	protected void checkClassInstanceCreation(DataFlow df, List<Integer> rules, Expression expr, int depth) {
+		// TODO - Test.
+	}
+
 	protected void checkAssignment(DataFlow df, List<Integer> rules, Expression expr, int depth) {
 		Assignment assignment = (Assignment) expr;
 
 		// 01 - Get the elements from the operation.
 		Expression leftHandSide = assignment.getLeftHandSide();
+		Expression rightHandSide = assignment.getRightHandSide();
 
 		// 02 - Check each element.
 		checkExpression(df.addNodeToPath(leftHandSide), rules, leftHandSide, depth);
-	}
-
-	protected void checkClassInstanceCreation(DataFlow df, List<Integer> rules, Expression expr, int depth) {
-
+		checkExpression(df.addNodeToPath(rightHandSide), rules, rightHandSide, depth);
 	}
 
 	protected void checkBlock(DataFlow df, List<Integer> rules, Block block, int depth) {

@@ -197,10 +197,10 @@ public class Reporter {
 	private String getMessageByNumberOfVulnerablePaths(List<List<DataFlow>> allVulnerablePaths, DataFlow firstElement) {
 		String messageTemplate = "";
 
-		if (allVulnerablePaths.size() > 1) {
-			messageTemplate = Message.View.MULTIPLE_VULNERABILITIES;
-		} else {
+		if (allVulnerablePaths.size() == 1) {
 			messageTemplate = Message.View.SINGLE_VULNERABILITY;
+		} else {
+			messageTemplate = Message.View.MULTIPLE_VULNERABILITIES;
 		}
 
 		return String.format(messageTemplate, firstElement.getRoot().toString(), allVulnerablePaths.size());
