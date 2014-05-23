@@ -5,7 +5,6 @@
 	<!-- 0 Only sanitized values are valid. -->
 	<!-- 1 LITERAL and sanitized values are valid. -->
 	<!-- X1;X2;... These are the accepted values. -->
-
 	<!-- javax.servlet.http.HttpServletResponse -->
 	<exitpoint id="01">
 		<qualifiedname>javax.servlet.(http.Http)?ServletResponse</qualifiedname>

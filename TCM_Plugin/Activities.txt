@@ -24,10 +24,10 @@
 10 + Create GitHub repository: https://github.com/lsampaioweb/TCM_Plugin.git
 10.1 + Upload the source code.
 11 + Make assignments method call work.
-12 - Handle unknown methods. // "url".toString();
-13 - Add Sanitization methods.
-14 - Add resolution to each vulnerability.
-15 - Add all entry and exit points found on the other tools.
+12 - Add all entry and exit points found on the other tools.
+13 - Handle unknown methods. // "url".toString();
+14 - Add Sanitization methods.
+15 - Add resolution to each vulnerability.
 
 XX - Check for cases where the class A invokes method C from class B, but the developer is working on class A so the class B will 
 not be verified, but it can be a case where the vulnerability happens when something is introduced in class A.

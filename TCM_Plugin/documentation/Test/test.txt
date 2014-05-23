@@ -1,2 +1,16 @@
-01 - VariableDeclararion.java           10
-02 - CollectionMethods.java             10
+-------------------------------------------
+01 - CookiePoisoning.java               11
+02 - CrossSiteScripting.java            57
+03 - SecurityMisconfiguration.java      30
+04 - SQLInjection.java                  12
+05 - UnvalidatedRedirecting.java        05
+06 - VariableDeclararion.java           11
+07 - VulnerabilityPathReporter.java     09
+-------------------------------------------
+Total: 11+57+30+12+5+11+9              135
+
+False Positive
+01 - VulnerabilityPathReporter.java
+
+False Negative
+01 - SecurityMisconfiguration.java                              

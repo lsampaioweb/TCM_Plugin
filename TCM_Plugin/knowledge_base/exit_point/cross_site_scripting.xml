@@ -66,9 +66,6 @@
 		<parameters type="java.lang.Object" rules="-1" />
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
-	<!-- <exitpoint id="12"> <qualifiedname>javax.servlet.(http.Http)?ServletResponse</qualifiedname> 
-		<methodname>sendRedirect</methodname> <parameters type="java.lang.String" 
-		rules="1" /> </exitpoint> -->
 	<exitpoint id="12">
 		<qualifiedname>javax.servlet.(http.Http)?ServletResponse</qualifiedname>
 		<methodname>setDateHeader</methodname>
