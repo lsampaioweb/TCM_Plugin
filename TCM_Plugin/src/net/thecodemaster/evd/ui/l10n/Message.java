@@ -33,8 +33,10 @@ public abstract class Message extends NLS {
 
 		public static String				LABEL_SECURITY_VULNERABILITIES;
 
+		public static String				LABEL_COMMAND_INJECTION;
 		public static String				LABEL_COOKIE_POISONING;
 		public static String				LABEL_CROSS_SITE_SCRIPTING;
+		public static String				LABEL_PATH_TRAVERSAL;
 		public static String				LABEL_SECURITY_MISCONFIGURATION;
 		public static String				LABEL_SQL_INJECTION;
 		public static String				LABEL_UNVALIDATED_REDIRECTING;
@@ -77,10 +79,12 @@ public abstract class Message extends NLS {
 		public static String				JOB;
 		public static String				TASK;
 
-		public static String				VERIFIER_NAME_SECURITY_MISCONFIGURATION;
+		public static String				VERIFIER_NAME_COMMAND_INJECTION;
 		public static String				VERIFIER_NAME_COOKIE_POISONING;
-		public static String				VERIFIER_NAME_SQL_INJECTION;
 		public static String				VERIFIER_NAME_CROSS_SITE_SCRIPTING;
+		public static String				VERIFIER_NAME_PATH_TRAVERSAL;
+		public static String				VERIFIER_NAME_SECURITY_MISCONFIGURATION;
+		public static String				VERIFIER_NAME_SQL_INJECTION;
 		public static String				VERIFIER_NAME_UNVALIDATED_REDIRECTING;
 
 		static {

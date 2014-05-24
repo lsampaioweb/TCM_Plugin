@@ -16,11 +16,13 @@ public abstract class Constant {
 	public static final String	MARKER_ID															= Activator.PLUGIN_ID + ".TCM_EVD_MARKER";
 	public static final String	VIEW_ID																= Activator.PLUGIN_ID + ".TCM_EVD_VIEW";
 
-	public static final int			VERIFIER_ID_COOKIE_POISONING					= 1;
-	public static final int			VERIFIER_ID_CROSS_SITE_SCRIPTING			= 2;
-	public static final int			VERIFIER_ID_SECURITY_MISCONFIGURATION	= 3;
-	public static final int			VERIFIER_ID_SQL_INJECTION							= 4;
-	public static final int			VERIFIER_ID_UNVALIDATED_REDIRECTING		= 5;
+	public static final int			VERIFIER_ID_COMMAND_INJECTION					= 1;
+	public static final int			VERIFIER_ID_COOKIE_POISONING					= 2;
+	public static final int			VERIFIER_ID_CROSS_SITE_SCRIPTING			= 3;
+	public static final int			VERIFIER_ID_PATH_TRAVERSAL						= 4;
+	public static final int			VERIFIER_ID_SECURITY_MISCONFIGURATION	= 5;
+	public static final int			VERIFIER_ID_SQL_INJECTION							= 6;
+	public static final int			VERIFIER_ID_UNVALIDATED_REDIRECTING		= 7;
 
 	public static final String	SEPARATOR															= ";";
 	public static final String	RESOURCE_TYPE_TO_PERFORM_DETECTION		= "java" + SEPARATOR + "jsp";
@@ -43,9 +45,11 @@ public abstract class Constant {
 
 	public abstract class File {
 		public static final String	FILE_ENTRY_POINT													= Folder.ENTRY_POINT + "entry_point.xml";
+		public static final String	FILE_EXIT_POINT_COMMAND_INJECTION					= Folder.EXIT_POINT + "command_injection.xml";
 		public static final String	FILE_EXIT_POINT_COOKIE_POISONING					= Folder.EXIT_POINT + "cookie_poisoning.xml";
 		public static final String	FILE_EXIT_POINT_CROSS_SITE_SCRIPTING			= Folder.EXIT_POINT
 																																							+ "cross_site_scripting.xml";
+		public static final String	FILE_EXIT_POINT_PATH_TRAVERSAL						= Folder.EXIT_POINT + "path_traversal.xml";
 		public static final String	FILE_EXIT_POINT_SECURITY_MISCONFIGURATION	= Folder.EXIT_POINT
 																																							+ "security_misconfiguration.xml";
 		public static final String	FILE_EXIT_POINT_SQL_INJECTION							= Folder.EXIT_POINT + "sql_injection.xml";
@@ -58,8 +62,10 @@ public abstract class Constant {
 	}
 
 	public abstract class PrefPageSecurityVulnerability {
+		public static final String	FIELD_COMMAND_INJECTION					= Activator.PLUGIN_ID + ".CommandInjection";
 		public static final String	FIELD_COOKIE_POISONING					= Activator.PLUGIN_ID + ".CookiePoisoning";
 		public static final String	FIELD_CROSS_SITE_SCRIPTING			= Activator.PLUGIN_ID + ".CrossSiteScripting";
+		public static final String	FIELD_PATH_TRAVERSAL						= Activator.PLUGIN_ID + ".PathTraversal";
 		public static final String	FIELD_SECURITY_MISCONFIGURATION	= Activator.PLUGIN_ID + ".SecurityMisconfiguration";
 		public static final String	FIELD_SQL_INJECTION							= Activator.PLUGIN_ID + ".SQLInjection";
 		public static final String	FIELD_UNVALIDATED_REDIRECTING		= Activator.PLUGIN_ID + ".UnvalidatedRedirecting";

@@ -12,14 +12,18 @@ class ViewLabelProvider implements ITableLabelProvider {
 
 	private String getTypeVulnerabilityName(int typeVulnerability) {
 		switch (typeVulnerability) {
+			case Constant.VERIFIER_ID_COMMAND_INJECTION:
+				return Message.Plugin.VERIFIER_NAME_COMMAND_INJECTION;
 			case Constant.VERIFIER_ID_COOKIE_POISONING:
 				return Message.Plugin.VERIFIER_NAME_COOKIE_POISONING;
+			case Constant.VERIFIER_ID_CROSS_SITE_SCRIPTING:
+				return Message.Plugin.VERIFIER_NAME_CROSS_SITE_SCRIPTING;
+			case Constant.VERIFIER_ID_PATH_TRAVERSAL:
+				return Message.Plugin.VERIFIER_NAME_PATH_TRAVERSAL;
 			case Constant.VERIFIER_ID_SECURITY_MISCONFIGURATION:
 				return Message.Plugin.VERIFIER_NAME_SECURITY_MISCONFIGURATION;
 			case Constant.VERIFIER_ID_SQL_INJECTION:
 				return Message.Plugin.VERIFIER_NAME_SQL_INJECTION;
-			case Constant.VERIFIER_ID_CROSS_SITE_SCRIPTING:
-				return Message.Plugin.VERIFIER_NAME_CROSS_SITE_SCRIPTING;
 			case Constant.VERIFIER_ID_UNVALIDATED_REDIRECTING:
 				return Message.Plugin.VERIFIER_NAME_UNVALIDATED_REDIRECTING;
 			default:

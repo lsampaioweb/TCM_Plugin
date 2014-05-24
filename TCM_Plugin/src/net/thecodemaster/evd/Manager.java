@@ -52,8 +52,10 @@ public class Manager {
 
 	private void addAnalyzers(IPreferenceStore store) {
 		// Get the options checked by the developer.
+		boolean commandInjection = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_COMMAND_INJECTION);
 		boolean cookiePoisoning = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_COOKIE_POISONING);
 		boolean crossSiteScripting = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_CROSS_SITE_SCRIPTING);
+		boolean pathTraversal = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_PATH_TRAVERSAL);
 		boolean securityMisconfiguration = store
 				.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_SECURITY_MISCONFIGURATION);
 		boolean sqlInjection = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_SQL_INJECTION);
@@ -61,9 +63,10 @@ public class Manager {
 				.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_UNVALIDATED_REDIRECTING);
 
 		// If at least one was selected, the analyzer is added to the list.
-		if (cookiePoisoning || crossSiteScripting || securityMisconfiguration || sqlInjection || unvalidatedRedirecting) {
-			addAnalyzer(new AnalyzerSecurityVulnerability(cookiePoisoning, crossSiteScripting, securityMisconfiguration,
-					sqlInjection, unvalidatedRedirecting));
+		if (commandInjection || cookiePoisoning || crossSiteScripting || pathTraversal || securityMisconfiguration
+				|| sqlInjection || unvalidatedRedirecting) {
+			addAnalyzer(new AnalyzerSecurityVulnerability(commandInjection, cookiePoisoning, crossSiteScripting,
+					pathTraversal, securityMisconfiguration, sqlInjection, unvalidatedRedirecting));
 		}
 	}
 

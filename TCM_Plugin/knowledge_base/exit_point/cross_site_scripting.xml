@@ -47,68 +47,90 @@
 		<methodname>println</methodname>
 		<parameters type="java.lang.Object" rules="1" />
 	</exitpoint>
-	<!-- javax.servlet.http.HttpServletRequest -->
+	<!-- javax.servlet.ServletOutputStream -->
 	<exitpoint id="09">
+		<qualifiedname>javax.servlet.ServletOutputStream</qualifiedname>
+		<methodname>print</methodname>
+		<parameters type="java.lang.String" rules="1" />
+	</exitpoint>
+	<exitpoint id="10">
+		<qualifiedname>javax.servlet.ServletOutputStream</qualifiedname>
+		<methodname>println</methodname>
+		<parameters type="java.lang.String" rules="1" />
+	</exitpoint>
+	<!-- javax.servlet.jsp.JspWriter -->
+	<exitpoint id="11">
+		<qualifiedname>javax.servlet.jsp.JspWriter</qualifiedname>
+		<methodname>print</methodname>
+		<parameters type="java.lang.String" rules="1" />
+	</exitpoint>
+	<exitpoint id="12">
+		<qualifiedname>javax.servlet.jsp.JspWriter</qualifiedname>
+		<methodname>println</methodname>
+		<parameters type="java.lang.String" rules="1" />
+	</exitpoint>
+	<!-- javax.servlet.http.HttpServletRequest -->
+	<exitpoint id="13">
 		<qualifiedname>javax.servlet.(http.Http)?ServletRequest</qualifiedname>
 		<methodname>setAttribute</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.Object" rules="1" />
 	</exitpoint>
-	<exitpoint id="10">
+	<exitpoint id="14">
 		<qualifiedname>javax.servlet.(http.Http)?ServletRequest</qualifiedname>
 		<methodname>setCharacterEncoding</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<!-- javax.servlet.http.HttpServletResponse -->
-	<exitpoint id="11">
+	<exitpoint id="15">
 		<qualifiedname>javax.servlet.(http.Http)?ServletResponse</qualifiedname>
 		<methodname>sendError</methodname>
 		<parameters type="java.lang.Object" rules="-1" />
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
-	<exitpoint id="12">
+	<exitpoint id="16">
 		<qualifiedname>javax.servlet.(http.Http)?ServletResponse</qualifiedname>
 		<methodname>setDateHeader</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.Object" rules="-1" />
 	</exitpoint>
-	<exitpoint id="13">
+	<exitpoint id="17">
 		<qualifiedname>javax.servlet.(http.Http)?ServletResponse</qualifiedname>
 		<methodname>addDateHeader</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.Object" rules="-1" />
 	</exitpoint>
-	<exitpoint id="14">
+	<exitpoint id="18">
 		<qualifiedname>javax.servlet.(http.Http)?ServletResponse</qualifiedname>
 		<methodname>setHeader</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
-	<exitpoint id="15">
+	<exitpoint id="19">
 		<qualifiedname>javax.servlet.(http.Http)?ServletResponse</qualifiedname>
 		<methodname>addHeader</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
-	<exitpoint id="16">
+	<exitpoint id="20">
 		<qualifiedname>javax.servlet.(http.Http)?ServletResponse</qualifiedname>
 		<methodname>setIntHeader</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.Object" rules="-1" />
 	</exitpoint>
-	<exitpoint id="17">
+	<exitpoint id="21">
 		<qualifiedname>javax.servlet.(http.Http)?ServletResponse</qualifiedname>
 		<methodname>addIntHeader</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.Object" rules="-1" />
 	</exitpoint>
 	<!-- javax.servlet.ServletResponse -->
-	<exitpoint id="18">
+	<exitpoint id="22">
 		<qualifiedname>javax.servlet.(http.Http)?ServletResponse</qualifiedname>
 		<methodname>setCharacterEncoding</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
-	<exitpoint id="19">
+	<exitpoint id="23">
 		<qualifiedname>javax.servlet.(http.Http)?ServletResponse</qualifiedname>
 		<methodname>setContentType</methodname>
 		<parameters type="java.lang.String" rules="1" />
