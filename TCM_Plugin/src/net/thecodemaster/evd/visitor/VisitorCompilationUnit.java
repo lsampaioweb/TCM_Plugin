@@ -8,7 +8,6 @@ import net.thecodemaster.evd.graph.BindingResolver;
 import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.VariableBindingManager;
 
-import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.Assignment;
@@ -25,7 +24,6 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
-import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
 /**
  * @author Luciano Sampaio
@@ -111,22 +109,23 @@ public class VisitorCompilationUnit extends ASTVisitor {
 			Expression rightHandSide = null;
 
 			if (node.getOperator().equals(Operator.PLUS_ASSIGN)) {
-				ASTRewrite rewriter = ASTRewrite.create(cUnit.getAST());
-				AST ast = rewriter.getAST();
-
-				InfixExpression expr = ast.newInfixExpression();
-
-				Expression left = (Expression) ASTNode.copySubtree(ast, node.getLeftHandSide());
-				Expression right = (Expression) ASTNode.copySubtree(ast, node.getRightHandSide());
-
-				// String message = "a";
-				// message += "b";
-				// Result: message = message + "b"
-				expr.setLeftOperand(left);
-				expr.setOperator(InfixExpression.Operator.PLUS);
-				expr.setRightOperand(right);
-
-				rightHandSide = expr;
+				// ASTRewrite rewriter = ASTRewrite.create(cUnit.getAST());
+				// AST ast = rewriter.getAST();
+				//
+				// InfixExpression expr = ast.newInfixExpression();
+				//
+				// Expression left = (Expression) ASTNode.copySubtree(ast, node.getLeftHandSide());
+				// Expression right = (Expression) ASTNode.copySubtree(ast, node.getRightHandSide());
+				//
+				// // String message = "a";
+				// // message += "b";
+				// // Result: message = message + "b"
+				// expr.setLeftOperand(left);
+				// expr.setOperator(InfixExpression.Operator.PLUS);
+				// expr.setRightOperand(right);
+				//
+				// rightHandSide = expr;
+				rightHandSide = node.getRightHandSide();
 			} else {
 				rightHandSide = node.getRightHandSide();
 			}
