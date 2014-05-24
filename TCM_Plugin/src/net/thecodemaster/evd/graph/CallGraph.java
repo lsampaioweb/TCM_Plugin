@@ -192,7 +192,7 @@ public class CallGraph {
 			List<VariableBindingManager> vbms = variableBindings.get(binding);
 
 			// 03 - If the list is null, this variable belongs to another file.
-			if (null == vbms) {
+			if ((null == vbms) && (null != binding)) {
 				for (Entry<IResource, Map<IBinding, List<VariableBindingManager>>> entry : variablesPerFile.entrySet()) {
 					vbms = getVariableBindings(entry.getValue(), binding);
 
@@ -228,16 +228,20 @@ public class CallGraph {
 		List<VariableBindingManager> vbms = getVariableBindings(simpleName.resolveBinding());
 
 		if (null != vbms) {
-			// 02 - Convert the parent to a MethodInvocation object.
+			// 02 - Get a parent expression which has a reference to this variable.
 			Expression expression = BindingResolver.getParentWhoHasAReference(simpleName);
-
-			for (VariableBindingManager variableBindingManager : vbms) {
-				for (Expression currentMethod : variableBindingManager.getReferences()) {
-					if (currentMethod == expression) {
-						return variableBindingManager;
+			if (null != expression) {
+				for (VariableBindingManager variableBindingManager : vbms) {
+					for (Expression currentMethod : variableBindingManager.getReferences()) {
+						if (currentMethod == expression) {
+							return variableBindingManager;
+						}
 					}
 				}
 			}
+
+			// 03 - Return the last element of the list.
+			return getLastReference(vbms);
 		}
 
 		return null;
@@ -248,6 +252,11 @@ public class CallGraph {
 		List<VariableBindingManager> vbms = getVariableBindings(binding);
 
 		// 02 - Return the last element of the list.
+		return getLastReference(vbms);
+	}
+
+	public VariableBindingManager getLastReference(List<VariableBindingManager> vbms) {
+		// 01 - Return the last element of the list.
 		return ((null != vbms) && (vbms.size() > 0)) ? vbms.get(vbms.size() - 1) : null;
 	}
 

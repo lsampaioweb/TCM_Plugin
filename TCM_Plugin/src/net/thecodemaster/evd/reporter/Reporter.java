@@ -214,12 +214,15 @@ public class Reporter {
 			markerAttributes.put(Constant.Marker.TYPE_SECURITY_VULNERABILITY, typeVulnerability);
 			markerAttributes.put(IMarker.MESSAGE, message);
 
-			// Get the Compilation Unit of this resource.
-			CompilationUnit cUnit = BindingResolver.getParentCompilationUnit(expr);
-
 			int startPosition = expr.getStartPosition();
 			int endPosition = startPosition + expr.getLength();
-			int lineNumber = cUnit.getLineNumber(startPosition);
+			int lineNumber = 0;
+
+			// Get the Compilation Unit of this resource.
+			CompilationUnit cUnit = BindingResolver.getParentCompilationUnit(expr);
+			if (null != cUnit) {
+				lineNumber = cUnit.getLineNumber(startPosition);
+			}
 
 			markerAttributes.put(IMarker.LINE_NUMBER, lineNumber);
 			markerAttributes.put(IMarker.CHAR_START, startPosition);

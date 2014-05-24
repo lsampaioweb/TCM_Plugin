@@ -190,4 +190,8 @@ public abstract class AbstracPreferencePage extends PreferencePage implements IW
 		HelperProjects.setProjectsToListOfMonitoredProjects(projects);
 	}
 
+	protected void resetPluginState() {
+		HelperProjects.resetPluginState();
+	}
+
 }

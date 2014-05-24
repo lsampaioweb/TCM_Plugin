@@ -159,40 +159,41 @@ public abstract class Verifier {
 		setSubTask(getName());
 
 		// Perform the verifications on the resources.
-		run(resources);
-	}
-
-	protected void run(List<IResource> resources) {
 		// 01 - Run the vulnerability detection on all the provided resources.
 		for (IResource resource : resources) {
-			if (getCallGraph().contains(resource)) {
+			performVerification(resource);
+		}
+	}
 
-				// 02 - Get the list of methods in the current resource.
-				Map<MethodDeclaration, List<Expression>> methods = getCallGraph().getMethods(resource);
+	protected void performVerification(IResource resource) {
+		// 01 - Run the vulnerability detection on the provided resource.
+		if (getCallGraph().contains(resource)) {
 
-				// 03 - Get all the method invocations of each method declaration.
-				for (List<Expression> invocations : methods.values()) {
+			// 02 - Get the list of methods in the current resource.
+			Map<MethodDeclaration, List<Expression>> methods = getCallGraph().getMethods(resource);
 
-					// 04 - Iterate over all method invocations to verify if it is a ExitPoint.
-					for (Expression method : invocations) {
-						ExitPoint exitPoint = getExitPointIfMethodIsOne(method);
+			// 03 - Get all the method invocations of each method declaration.
+			for (List<Expression> invocations : methods.values()) {
 
-						if (null != exitPoint) {
-							// 05 - Some methods will need to have access to the resource that is currently being analyzed.
-							// but we do not want to pass it to all these methods as a parameter.
-							setCurrentResource(resource);
+				// 04 - Iterate over all method invocations to verify if it is a ExitPoint.
+				for (Expression method : invocations) {
+					ExitPoint exitPoint = getExitPointIfMethodIsOne(method);
 
-							// 07 - This is an ExitPoint method and it needs to be verified.
-							run(method, exitPoint);
-						}
+					if (null != exitPoint) {
+						// 05 - Some methods will need to have access to the resource that is currently being analyzed.
+						// but we do not want to pass it to all these methods as a parameter.
+						setCurrentResource(resource);
+
+						// 07 - This is an ExitPoint method and it needs to be verified.
+						performVerification(method, exitPoint);
 					}
-
 				}
+
 			}
 		}
 	}
 
-	protected void run(Expression method, ExitPoint exitPoint) {
+	protected void performVerification(Expression method, ExitPoint exitPoint) {
 		// 01 - Get the expected parameters of the ExitPoint method.
 		Map<Parameter, List<Integer>> expectedParameters = exitPoint.getParameters();
 

@@ -110,6 +110,8 @@ public class Settings extends AbstracPreferencePage {
 		storeValue(ckbtnTextFile);
 		storeValue(ckbtnXmlFile);
 
+		resetPluginState();
+
 		return super.performOk();
 	}
 }

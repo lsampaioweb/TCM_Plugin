@@ -103,6 +103,10 @@ public abstract class HelperProjects {
 		// Add or remove the nature to the each project.
 		updateNatureOnProjects(monitoredProjects, projects);
 
+		resetPluginState();
+	}
+
+	public static void resetPluginState() {
 		// Reset the state of the plug-in to its initial state.
 		IncrementalBuilder.reset();
 		Manager.reset();
