@@ -111,23 +111,21 @@ public class VisitorCompilationUnit extends ASTVisitor {
 			Expression rightHandSide = null;
 
 			if (node.getOperator().equals(Operator.PLUS_ASSIGN)) {
-
 				ASTRewrite rewriter = ASTRewrite.create(cUnit.getAST());
-
 				AST ast = rewriter.getAST();
+
 				InfixExpression expr = ast.newInfixExpression();
 
 				Expression left = (Expression) ASTNode.copySubtree(ast, node.getLeftHandSide());
+				Expression right = (Expression) ASTNode.copySubtree(ast, node.getRightHandSide());
 
 				// String message = "a";
 				// message += "b";
 				// Result: message = message + "b"
 				expr.setLeftOperand(left);
 				expr.setOperator(InfixExpression.Operator.PLUS);
-				expr.setRightOperand((Expression) ASTNode.copySubtree(ast, node.getRightHandSide()));
+				expr.setRightOperand(right);
 
-				rewriter.replace(node.getRightHandSide(), expr, null);
-				// 02 - Put the values together.
 				rightHandSide = expr;
 			} else {
 				rightHandSide = node.getRightHandSide();
