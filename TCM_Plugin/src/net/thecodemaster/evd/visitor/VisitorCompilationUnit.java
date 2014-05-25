@@ -16,11 +16,13 @@ import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -102,40 +104,6 @@ public class VisitorCompilationUnit extends ASTVisitor {
 		return addVariableToList(node.fragments());
 	}
 
-	@Override
-	public boolean visit(Assignment node) {
-		if (node.getLeftHandSide().getNodeType() == ASTNode.SIMPLE_NAME) {
-			SimpleName leftHandSide = (SimpleName) node.getLeftHandSide();
-			Expression rightHandSide = null;
-
-			if (node.getOperator().equals(Operator.PLUS_ASSIGN)) {
-				// ASTRewrite rewriter = ASTRewrite.create(cUnit.getAST());
-				// AST ast = rewriter.getAST();
-				//
-				// InfixExpression expr = ast.newInfixExpression();
-				//
-				// Expression left = (Expression) ASTNode.copySubtree(ast, node.getLeftHandSide());
-				// Expression right = (Expression) ASTNode.copySubtree(ast, node.getRightHandSide());
-				//
-				// // String message = "a";
-				// // message += "b";
-				// // Result: message = message + "b"
-				// expr.setLeftOperand(left);
-				// expr.setOperator(InfixExpression.Operator.PLUS);
-				// expr.setRightOperand(right);
-				//
-				// rightHandSide = expr;
-				rightHandSide = node.getRightHandSide();
-			} else {
-				rightHandSide = node.getRightHandSide();
-			}
-
-			addVariableToCallGraph(leftHandSide, rightHandSide);
-		}
-
-		return super.visit(node);
-	}
-
 	private boolean addVariableToList(List<?> fragments) {
 		for (Iterator<?> iter = fragments.iterator(); iter.hasNext();) {
 			// VariableDeclarationFragment: is the plain variable declaration part.
@@ -148,16 +116,60 @@ public class VisitorCompilationUnit extends ASTVisitor {
 		return true;
 	}
 
-	private void addVariableToCallGraph(SimpleName simpleName, Expression initializer) {
-		IBinding binding = simpleName.resolveBinding();
+	@Override
+	public boolean visit(Assignment node) {
+		Expression leftHandSide = node.getLeftHandSide();
+		Expression rightHandSide = null;
 
-		VariableBindingManager variableBinding = new VariableBindingManager(binding);
+		if (node.getOperator().equals(Operator.PLUS_ASSIGN)) {
+			// ASTRewrite rewriter = ASTRewrite.create(cUnit.getAST());
+			// AST ast = rewriter.getAST();
+			//
+			// InfixExpression expr = ast.newInfixExpression();
+			//
+			// Expression left = (Expression) ASTNode.copySubtree(ast, node.getLeftHandSide());
+			// Expression right = (Expression) ASTNode.copySubtree(ast, node.getRightHandSide());
+			//
+			// // String message = "a";
+			// // message += "b";
+			// // Result: message = message + "b"
+			// expr.setLeftOperand(left);
+			// expr.setOperator(InfixExpression.Operator.PLUS);
+			// expr.setRightOperand(right);
+			//
+			// rightHandSide = expr;
+			rightHandSide = node.getRightHandSide();
+		} else {
+			rightHandSide = node.getRightHandSide();
+		}
 
-		variableBinding.setInitializer(initializer);
+		addVariableToCallGraph(leftHandSide, rightHandSide);
 
-		checkInitializer(simpleName, initializer);
+		return super.visit(node);
+	}
 
-		callGraph.addVariable(variableBinding);
+	private void addVariableToCallGraph(Expression expression, Expression initializer) {
+		IBinding binding = getBinding(expression);
+
+		if (null != binding) {
+			VariableBindingManager variableBinding = new VariableBindingManager(binding);
+			variableBinding.setInitializer(initializer);
+
+			checkInitializer(expression, initializer);
+
+			callGraph.addVariable(variableBinding);
+		}
+	}
+
+	private IBinding getBinding(Expression expression) {
+		switch (expression.getNodeType()) {
+			case ASTNode.SIMPLE_NAME:
+				return ((SimpleName) expression).resolveBinding();
+			case ASTNode.FIELD_ACCESS:
+				return ((FieldAccess) expression).resolveFieldBinding();
+			default:
+				return null;
+		}
 	}
 
 	private void checkInitializer(Expression expression, Expression initializer) {
@@ -165,6 +177,9 @@ public class VisitorCompilationUnit extends ASTVisitor {
 			switch (initializer.getNodeType()) {
 				case ASTNode.SIMPLE_NAME:
 					addReferenceSimpleName(expression, (SimpleName) initializer);
+					break;
+				case ASTNode.QUALIFIED_NAME:
+					addReferenceQualifiedName(expression, (QualifiedName) initializer);
 					break;
 				case ASTNode.ASSIGNMENT:
 					addReferenceAssgnment(expression, (Assignment) initializer);
@@ -187,6 +202,10 @@ public class VisitorCompilationUnit extends ASTVisitor {
 	}
 
 	private void addReferenceSimpleName(Expression expression, SimpleName initializer) {
+		addReference(expression, initializer.resolveBinding());
+	}
+
+	private void addReferenceQualifiedName(Expression expression, QualifiedName initializer) {
 		addReference(expression, initializer.resolveBinding());
 	}
 

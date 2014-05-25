@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.CatchClause;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.Expression;
@@ -32,6 +33,7 @@ import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.PrefixExpression;
+import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Statement;
@@ -331,14 +333,17 @@ public abstract class Verifier {
 				case ASTNode.SIMPLE_NAME:
 					checkSimpleName(df, rules, expr, ++depth);
 					break;
+				case ASTNode.QUALIFIED_NAME:
+					checkQualifiedName(df, rules, expr, ++depth);
+					break;
 				case ASTNode.METHOD_INVOCATION:
 					checkMethodInvocation(df, rules, expr, ++depth);
 					break;
-				case ASTNode.CLASS_INSTANCE_CREATION:
-					checkClassInstanceCreation(df, rules, expr, ++depth);
-					break;
 				case ASTNode.CAST_EXPRESSION:
 					checkCastExpression(df, rules, expr, ++depth);
+					break;
+				case ASTNode.CLASS_INSTANCE_CREATION:
+					checkClassInstanceCreation(df, rules, expr, ++depth);
 					break;
 				default:
 					PluginLogger.logError("Default Node Type: " + expr.getNodeType() + " - " + expr, null);
@@ -468,6 +473,13 @@ public abstract class Verifier {
 		}
 	}
 
+	protected void checkQualifiedName(DataFlow df, List<Integer> rules, Expression expr, int depth) {
+		QualifiedName qualifiedName = (QualifiedName) expr;
+		Expression name = qualifiedName.getName();
+
+		checkExpression(df.addNodeToPath(name), rules, name, depth);
+	}
+
 	protected void checkMethodInvocation(DataFlow df, List<Integer> rules, Expression expr, int depth) {
 		// 01 - Check if this method is a Sanitization-Point.
 		if (isMethodASanitizationPoint(expr)) {
@@ -507,15 +519,16 @@ public abstract class Verifier {
 		}
 	}
 
-	protected void checkClassInstanceCreation(DataFlow df, List<Integer> rules, Expression expr, int depth) {
-		// TODO - Test.
-	}
-
 	protected void checkCastExpression(DataFlow df, List<Integer> rules, Expression expr, int depth) {
 		CastExpression castExpression = (CastExpression) expr;
 		Expression expression = castExpression.getExpression();
 
 		checkExpression(df.addNodeToPath(expression), rules, expression, depth);
+	}
+
+	protected void checkClassInstanceCreation(DataFlow df, List<Integer> rules, Expression expr, int depth) {
+		// TODO - Test.
+		ClassInstanceCreation classInstanceCreation = (ClassInstanceCreation) expr;
 	}
 
 	protected void checkBlock(DataFlow df, List<Integer> rules, Block block, int depth) {

@@ -42,6 +42,10 @@ public class CallGraph {
 		variablesPerFile = Creator.newMap();
 	}
 
+	private IResource getCurrentResource() {
+		return currentResource;
+	}
+
 	public void setCurrentResource(IResource resource) {
 		this.currentResource = resource;
 	}
@@ -57,14 +61,14 @@ public class CallGraph {
 
 	public void addMethod(MethodDeclaration method) {
 		// 01 - Check if the current file is already in the list.
-		if (!methodsPerFile.containsKey(currentResource)) {
+		if (!methodsPerFile.containsKey(getCurrentResource())) {
 			Map<MethodDeclaration, List<Expression>> methods = Creator.newMap();
 
-			methodsPerFile.put(currentResource, methods);
+			methodsPerFile.put(getCurrentResource(), methods);
 		}
 
 		// 02 - Get the list of methods in the current file.
-		Map<MethodDeclaration, List<Expression>> methods = getMethods(currentResource);
+		Map<MethodDeclaration, List<Expression>> methods = getMethods(getCurrentResource());
 
 		if (!methods.containsKey(method)) {
 			List<Expression> invocations = Creator.newList();
@@ -76,7 +80,7 @@ public class CallGraph {
 
 	public void addMethodInvocation(MethodDeclaration caller, Expression callee) {
 		// 01 - Get the list of methods in the current file.
-		Map<MethodDeclaration, List<Expression>> methods = getMethods(currentResource);
+		Map<MethodDeclaration, List<Expression>> methods = getMethods(getCurrentResource());
 
 		if (null == methods) {
 			return;
@@ -155,14 +159,14 @@ public class CallGraph {
 
 	public void addVariable(VariableBindingManager variableBinding) {
 		// 01 - Check if the current file is already in the list.
-		if (!variablesPerFile.containsKey(currentResource)) {
+		if (!variablesPerFile.containsKey(getCurrentResource())) {
 			Map<IBinding, List<VariableBindingManager>> variableBindings = Creator.newMap();
 
-			variablesPerFile.put(currentResource, variableBindings);
+			variablesPerFile.put(getCurrentResource(), variableBindings);
 		}
 
 		// 02 - Get the list of variables in the current file.
-		Map<IBinding, List<VariableBindingManager>> variableBindings = getVariables(currentResource);
+		Map<IBinding, List<VariableBindingManager>> variableBindings = getVariables(getCurrentResource());
 
 		IBinding binding = variableBinding.getBinding();
 		if (!variableBindings.containsKey(binding)) {
@@ -185,7 +189,7 @@ public class CallGraph {
 
 	private List<VariableBindingManager> getVariableBindings(IBinding binding) {
 		// 01 - Get the list of variables in the current file.
-		Map<IBinding, List<VariableBindingManager>> variableBindings = getVariables(currentResource);
+		Map<IBinding, List<VariableBindingManager>> variableBindings = getVariables(getCurrentResource());
 
 		if (null != variableBindings) {
 			// 02 - Get the list of references of this variable.
@@ -215,7 +219,7 @@ public class CallGraph {
 		// 01 - Iterate through the list to verify if we have the implementation of this method in our list.
 		for (Entry<IBinding, List<VariableBindingManager>> entry : mapVariables.entrySet()) {
 			// 02 - Verify if these methods are the same.
-			if (entry.getKey() == binding) {
+			if (entry.getKey().equals(binding)) {
 				return entry.getValue();
 			}
 		}
