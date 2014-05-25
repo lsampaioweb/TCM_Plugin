@@ -16,6 +16,10 @@ public abstract class Constant {
 	public static final String	MARKER_ID															= Activator.PLUGIN_ID + ".TCM_EVD_MARKER";
 	public static final String	VIEW_ID																= Activator.PLUGIN_ID + ".TCM_EVD_VIEW";
 
+	public static final String	SEPARATOR															= ";";
+	public static final String	RESOURCE_TYPE_TO_PERFORM_DETECTION		= "java" + SEPARATOR + "jsp";
+	public static final int			MAXIMUM_VERIFICATION_DEPTH						= 15;
+
 	public static final int			VERIFIER_ID_COMMAND_INJECTION					= 1;
 	public static final int			VERIFIER_ID_COOKIE_POISONING					= 2;
 	public static final int			VERIFIER_ID_CROSS_SITE_SCRIPTING			= 3;
@@ -23,10 +27,6 @@ public abstract class Constant {
 	public static final int			VERIFIER_ID_SECURITY_MISCONFIGURATION	= 5;
 	public static final int			VERIFIER_ID_SQL_INJECTION							= 6;
 	public static final int			VERIFIER_ID_UNVALIDATED_REDIRECTING		= 7;
-
-	public static final String	SEPARATOR															= ";";
-	public static final String	RESOURCE_TYPE_TO_PERFORM_DETECTION		= "java" + SEPARATOR + "jsp";
-	public static final int			MAXIMUM_DEPTH													= 10;
 
 	public static final String	OBJECT																= "java.lang.Object";
 	public static final int			LITERAL																= 1;
@@ -45,6 +45,7 @@ public abstract class Constant {
 
 	public abstract class File {
 		public static final String	FILE_ENTRY_POINT													= Folder.ENTRY_POINT + "entry_point.xml";
+
 		public static final String	FILE_EXIT_POINT_COMMAND_INJECTION					= Folder.EXIT_POINT + "command_injection.xml";
 		public static final String	FILE_EXIT_POINT_COOKIE_POISONING					= Folder.EXIT_POINT + "cookie_poisoning.xml";
 		public static final String	FILE_EXIT_POINT_CROSS_SITE_SCRIPTING			= Folder.EXIT_POINT

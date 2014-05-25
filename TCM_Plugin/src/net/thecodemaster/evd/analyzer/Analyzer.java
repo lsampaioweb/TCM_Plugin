@@ -32,6 +32,10 @@ public abstract class Analyzer {
 		verifiers = Creator.newList();
 	}
 
+	protected List<Verifier> getVerifiers() {
+		return verifiers;
+	}
+
 	/**
 	 * Returns whether cancellation of current operation has been requested
 	 * 
@@ -42,10 +46,6 @@ public abstract class Analyzer {
 		IProgressMonitor monitor = reporter.getProgressMonitor();
 
 		return ((null != monitor) && (monitor.isCanceled()));
-	}
-
-	protected List<Verifier> getVerifiers() {
-		return verifiers;
 	}
 
 	protected static List<EntryPoint> getEntryPoints() {

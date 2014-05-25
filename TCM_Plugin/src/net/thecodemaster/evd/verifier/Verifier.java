@@ -21,6 +21,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.DoStatement;
@@ -60,7 +61,7 @@ public abstract class Verifier {
 	 */
 	private CallGraph								callGraph;
 	/**
-	 * The report object
+	 * The object that know how and where to report the found vulnerabilities.
 	 */
 	private Reporter								reporter;
 	/**
@@ -194,21 +195,19 @@ public abstract class Verifier {
 	}
 
 	protected void performVerification(Expression method, ExitPoint exitPoint) {
-		// 01 - Get the expected parameters of the ExitPoint method.
-		Map<Parameter, List<Integer>> expectedParameters = exitPoint.getParameters();
-
-		// 02 - Get the parameters (received) from the current method.
+		// 01 - Get the parameters (received) from the current method.
 		List<Expression> receivedParameters = BindingResolver.getParameters(method);
+
+		// 02 - Get the expected parameters of the ExitPoint method.
+		Map<Parameter, List<Integer>> expectedParameters = exitPoint.getParameters();
 
 		int index = 0;
 		int depth = 0;
-		Expression expr;
-		DataFlow df;
 		for (List<Integer> rules : expectedParameters.values()) {
 			// If the rules are null, it means the expected parameter can be anything. (We do not care for it).
 			if (null != rules) {
-				expr = receivedParameters.get(index);
-				df = new DataFlow(expr);
+				Expression expr = receivedParameters.get(index);
+				DataFlow df = new DataFlow(expr);
 
 				checkExpression(df, rules, expr, depth);
 				if (df.isVulnerable()) {
@@ -261,13 +260,13 @@ public abstract class Verifier {
 	protected boolean isMethodAnEntryPoint(Expression method) {
 		for (EntryPoint currentEntryPoint : getEntryPoints()) {
 			if (BindingResolver.methodsHaveSameNameAndPackage(currentEntryPoint, method)) {
-				// 05 - Get the expected arguments of this method.
+				// 01 - Get the expected arguments of this method.
 				List<String> expectedParameters = currentEntryPoint.getParameters();
 
-				// 06 - Get the received parameters of the current method.
+				// 02 - Get the received parameters of the current method.
 				List<Expression> receivedParameters = BindingResolver.getParameters(method);
 
-				// 07 - It is necessary to check the number of parameters and its types
+				// 03 - It is necessary to check the number of parameters and its types
 				// because it may exist methods with the same names but different parameters.
 				if (expectedParameters.size() == receivedParameters.size()) {
 					boolean isMethodAnEntryPoint = true;
@@ -302,7 +301,7 @@ public abstract class Verifier {
 		if (!matchRules(rules, expr)) {
 
 			// To avoid infinitive loop, this check is necessary.
-			if (Constant.MAXIMUM_DEPTH == depth) {
+			if (Constant.MAXIMUM_VERIFICATION_DEPTH == depth) {
 				// Informs that we can no longer investigate because it looks like we are in an infinitive loop.
 				df.isInfinitiveLoop(expr);
 
@@ -326,6 +325,9 @@ public abstract class Verifier {
 				case ASTNode.CONDITIONAL_EXPRESSION:
 					checkConditionExpression(df, rules, expr, ++depth);
 					break;
+				case ASTNode.ASSIGNMENT:
+					checkAssignment(df, rules, expr, ++depth);
+					break;
 				case ASTNode.SIMPLE_NAME:
 					checkSimpleName(df, rules, expr, ++depth);
 					break;
@@ -335,8 +337,8 @@ public abstract class Verifier {
 				case ASTNode.CLASS_INSTANCE_CREATION:
 					checkClassInstanceCreation(df, rules, expr, ++depth);
 					break;
-				case ASTNode.ASSIGNMENT:
-					checkAssignment(df, rules, expr, ++depth);
+				case ASTNode.CAST_EXPRESSION:
+					checkCastExpression(df, rules, expr, ++depth);
 					break;
 				default:
 					PluginLogger.logError("Default Node Type: " + expr.getNodeType() + " - " + expr, null);
@@ -409,6 +411,18 @@ public abstract class Verifier {
 		// 02 - Check each element.
 		checkExpression(df.addNodeToPath(thenExpression), rules, thenExpression, depth);
 		checkExpression(df.addNodeToPath(elseExpression), rules, elseExpression, depth);
+	}
+
+	protected void checkAssignment(DataFlow df, List<Integer> rules, Expression expr, int depth) {
+		Assignment assignment = (Assignment) expr;
+
+		// 01 - Get the elements from the operation.
+		Expression leftHandSide = assignment.getLeftHandSide();
+		Expression rightHandSide = assignment.getRightHandSide();
+
+		// 02 - Check each element.
+		checkExpression(df.addNodeToPath(leftHandSide), rules, leftHandSide, depth);
+		checkExpression(df.addNodeToPath(rightHandSide), rules, rightHandSide, depth);
 	}
 
 	protected void checkSimpleName(DataFlow df, List<Integer> rules, Expression expr, int depth) {
@@ -497,16 +511,11 @@ public abstract class Verifier {
 		// TODO - Test.
 	}
 
-	protected void checkAssignment(DataFlow df, List<Integer> rules, Expression expr, int depth) {
-		Assignment assignment = (Assignment) expr;
+	protected void checkCastExpression(DataFlow df, List<Integer> rules, Expression expr, int depth) {
+		CastExpression castExpression = (CastExpression) expr;
+		Expression expression = castExpression.getExpression();
 
-		// 01 - Get the elements from the operation.
-		Expression leftHandSide = assignment.getLeftHandSide();
-		Expression rightHandSide = assignment.getRightHandSide();
-
-		// 02 - Check each element.
-		checkExpression(df.addNodeToPath(leftHandSide), rules, leftHandSide, depth);
-		checkExpression(df.addNodeToPath(rightHandSide), rules, rightHandSide, depth);
+		checkExpression(df.addNodeToPath(expression), rules, expression, depth);
 	}
 
 	protected void checkBlock(DataFlow df, List<Integer> rules, Block block, int depth) {
@@ -520,7 +529,7 @@ public abstract class Verifier {
 		if (statement.getNodeType() == ASTNode.RETURN_STATEMENT) {
 			Expression expr = ((ReturnStatement) statement).getExpression();
 			checkExpression(df.addNodeToPath(expr), rules, expr, depth);
-		} else if (Constant.MAXIMUM_DEPTH == depth) {
+		} else if (Constant.MAXIMUM_VERIFICATION_DEPTH == depth) {
 			// To avoid infinitive loop, this check is necessary.
 			// Informs that we can no longer investigate because it looks like we are in an infinitive loop.
 			df.isInfinitiveLoop(statement);

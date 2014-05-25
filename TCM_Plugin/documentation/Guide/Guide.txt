@@ -38,3 +38,5 @@ Order of methods:
   private
   protected
   public
+  
+The scope of all the variables should always be the smallest it can be.

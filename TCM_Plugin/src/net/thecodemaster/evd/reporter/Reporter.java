@@ -1,7 +1,6 @@
 package net.thecodemaster.evd.reporter;
 
 import java.util.List;
-import java.util.Map;
 
 import net.thecodemaster.evd.Activator;
 import net.thecodemaster.evd.constant.Constant;
@@ -209,11 +208,6 @@ public class Reporter {
 	private ViewDataModel createViewDataModelElement(int typeVulnerability, IResource resource, Expression expr,
 			String message, String fullPath) {
 		try {
-			Map<String, Object> markerAttributes = Creator.newMap();
-			markerAttributes.put(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
-			markerAttributes.put(Constant.Marker.TYPE_SECURITY_VULNERABILITY, typeVulnerability);
-			markerAttributes.put(IMarker.MESSAGE, message);
-
 			int startPosition = expr.getStartPosition();
 			int endPosition = startPosition + expr.getLength();
 			int lineNumber = 0;
@@ -222,23 +216,25 @@ public class Reporter {
 			CompilationUnit cUnit = BindingResolver.getParentCompilationUnit(expr);
 			if (null != cUnit) {
 				lineNumber = cUnit.getLineNumber(startPosition);
+				resource = cUnit.getJavaElement().getCorrespondingResource();
 			}
 
-			markerAttributes.put(IMarker.LINE_NUMBER, lineNumber);
-			markerAttributes.put(IMarker.CHAR_START, startPosition);
-			markerAttributes.put(IMarker.CHAR_END, endPosition);
-
 			IMarker marker = resource.createMarker(Constant.MARKER_ID);
-			marker.setAttributes(markerAttributes);
+			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
+			marker.setAttribute(Constant.Marker.TYPE_SECURITY_VULNERABILITY, typeVulnerability);
+			marker.setAttribute(IMarker.MESSAGE, message);
+			marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
+			marker.setAttribute(IMarker.CHAR_START, startPosition);
+			marker.setAttribute(IMarker.CHAR_END, endPosition);
 
 			ViewDataModel vdm = new ViewDataModel();
+			vdm.setMarker(marker);
 			vdm.setExpr(expr);
-			vdm.setMessage(message);
 			vdm.setTypeVulnerability(typeVulnerability);
+			vdm.setMessage(message);
 			vdm.setLineNumber(lineNumber);
 			vdm.setResource(resource);
 			vdm.setFullPath(fullPath);
-			vdm.setMarker(marker);
 
 			return vdm;
 		} catch (CoreException e) {
