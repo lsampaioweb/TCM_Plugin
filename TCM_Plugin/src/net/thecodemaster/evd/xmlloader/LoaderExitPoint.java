@@ -107,7 +107,7 @@ public class LoaderExitPoint extends LoaderXML {
 		List<Integer> listRules = null;
 
 		if (null != rules) {
-			String[] elements = rules.split(Constant.SEPARATOR);
+			String[] elements = rules.split(Constant.SEPARATOR_RESOURCES_TYPE);
 
 			try {
 				for (String element : elements) {

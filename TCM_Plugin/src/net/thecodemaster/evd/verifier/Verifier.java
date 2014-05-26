@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.ReturnStatement;
@@ -347,6 +348,12 @@ public abstract class Verifier {
 				case ASTNode.CLASS_INSTANCE_CREATION:
 					checkClassInstanceCreation(df, rules, expr, ++depth);
 					break;
+				case ASTNode.ARRAY_INITIALIZER:
+					checkArrayInitializer(df, rules, expr, ++depth);
+					break;
+				case ASTNode.PARENTHESIZED_EXPRESSION:
+					checkParenthesizedExpression(df, rules, expr, ++depth);
+					break;
 				default:
 					PluginLogger.logError("Default Node Type: " + expr.getNodeType() + " - " + expr, null);
 			}
@@ -476,10 +483,9 @@ public abstract class Verifier {
 	}
 
 	protected void checkQualifiedName(DataFlow df, List<Integer> rules, Expression expr, int depth) {
-		QualifiedName qualifiedName = (QualifiedName) expr;
-		Expression name = qualifiedName.getName();
+		Expression expression = ((QualifiedName) expr).getName();
 
-		checkExpression(df.addNodeToPath(name), rules, name, depth);
+		checkExpression(df.addNodeToPath(expression), rules, expression, depth);
 	}
 
 	protected void checkMethodInvocation(DataFlow df, List<Integer> rules, Expression expr, int depth) {
@@ -522,8 +528,7 @@ public abstract class Verifier {
 	}
 
 	protected void checkCastExpression(DataFlow df, List<Integer> rules, Expression expr, int depth) {
-		CastExpression castExpression = (CastExpression) expr;
-		Expression expression = castExpression.getExpression();
+		Expression expression = ((CastExpression) expr).getExpression();
 
 		checkExpression(df.addNodeToPath(expression), rules, expression, depth);
 	}
@@ -533,6 +538,19 @@ public abstract class Verifier {
 		for (Expression parameter : parameters) {
 			checkExpression(df.addNodeToPath(parameter), rules, parameter, depth);
 		}
+	}
+
+	protected void checkArrayInitializer(DataFlow df, List<Integer> rules, Expression expr, int depth) {
+		List<Expression> parameters = BindingResolver.getParameters(expr);
+		for (Expression parameter : parameters) {
+			checkExpression(df.addNodeToPath(parameter), rules, parameter, depth);
+		}
+	}
+
+	protected void checkParenthesizedExpression(DataFlow df, List<Integer> rules, Expression expr, int depth) {
+		Expression expression = ((ParenthesizedExpression) expr).getExpression();
+
+		checkExpression(df.addNodeToPath(expression), rules, expression, depth);
 	}
 
 	protected void checkBlock(DataFlow df, List<Integer> rules, Block block, int depth) {

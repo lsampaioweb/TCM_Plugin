@@ -16,8 +16,9 @@ public abstract class Constant {
 	public static final String	MARKER_ID															= Activator.PLUGIN_ID + ".TCM_EVD_MARKER";
 	public static final String	VIEW_ID																= Activator.PLUGIN_ID + ".TCM_EVD_VIEW";
 
-	public static final String	SEPARATOR															= ";";
-	public static final String	RESOURCE_TYPE_TO_PERFORM_DETECTION		= "java" + SEPARATOR + "jsp";
+	public static final String	SEPARATOR_RESOURCES_TYPE							= ";";
+	public static final String	SEPARATOR_FULL_PATH										= " - ";
+	public static final String	RESOURCE_TYPE_TO_PERFORM_DETECTION		= "java" + SEPARATOR_RESOURCES_TYPE + "jsp";
 	public static final int			MAXIMUM_VERIFICATION_DEPTH						= 15;
 
 	public static final int			VERIFIER_ID_COMMAND_INJECTION					= 1;

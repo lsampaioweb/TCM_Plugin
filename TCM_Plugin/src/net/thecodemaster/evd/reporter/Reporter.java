@@ -311,11 +311,10 @@ public class Reporter {
 	}
 
 	private String getFullPath(List<DataFlow> listVulnerablePaths) {
-		String SEPARATOR = " - ";
 		StringBuilder fullPath = new StringBuilder();
 		for (DataFlow vulnerablePath : listVulnerablePaths) {
-			if (fullPath.length() != 0) {
-				fullPath.append(SEPARATOR);
+			if (0 != fullPath.length()) {
+				fullPath.append(Constant.SEPARATOR_FULL_PATH);
 			}
 			fullPath.append(vulnerablePath.getRoot().toString());
 		}

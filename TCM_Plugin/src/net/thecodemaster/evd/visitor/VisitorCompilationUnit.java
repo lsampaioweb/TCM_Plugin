@@ -10,6 +10,7 @@ import net.thecodemaster.evd.graph.VariableBindingManager;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Assignment.Operator;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
@@ -22,6 +23,7 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -190,6 +192,12 @@ public class VisitorCompilationUnit extends ASTVisitor {
 				case ASTNode.CONDITIONAL_EXPRESSION:
 					addReferenceConditionalExpression(expression, (ConditionalExpression) initializer);
 					break;
+				case ASTNode.ARRAY_INITIALIZER:
+					addReferenceArrayInitializer(expression, (ArrayInitializer) initializer);
+					break;
+				case ASTNode.PARENTHESIZED_EXPRESSION:
+					addReferenceParenthesizedExpression(expression, (ParenthesizedExpression) initializer);
+					break;
 			}
 		}
 	}
@@ -228,6 +236,18 @@ public class VisitorCompilationUnit extends ASTVisitor {
 	private void addReferenceConditionalExpression(Expression expression, ConditionalExpression initializer) {
 		checkInitializer(expression, initializer.getThenExpression());
 		checkInitializer(expression, initializer.getElseExpression());
+	}
+
+	private void addReferenceArrayInitializer(Expression expression, ArrayInitializer initializer) {
+		List<Expression> expressions = BindingResolver.getParameters(initializer);
+
+		for (Expression current : expressions) {
+			checkInitializer(expression, current);
+		}
+	}
+
+	private void addReferenceParenthesizedExpression(Expression expression, ParenthesizedExpression initializer) {
+		checkInitializer(expression, initializer.getExpression());
 	}
 
 }

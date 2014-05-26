@@ -9,6 +9,7 @@ import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.point.AbstractPoint;
 
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -153,7 +154,10 @@ public class BindingResolver {
 				parameters = getParameters(((ClassInstanceCreation) expr).arguments());
 			} else if (expr.getNodeType() == ASTNode.INFIX_EXPRESSION) {
 				parameters = getParameters(((InfixExpression) expr).extendedOperands());
+			} else if (expr.getNodeType() == ASTNode.ARRAY_INITIALIZER) {
+				parameters = getParameters(((ArrayInitializer) expr).expressions());
 			}
+
 		}
 		return parameters;
 	}

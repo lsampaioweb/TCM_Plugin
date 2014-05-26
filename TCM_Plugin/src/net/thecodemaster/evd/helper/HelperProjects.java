@@ -71,7 +71,7 @@ public abstract class HelperProjects {
 		String storedMonitoredProjects = store.getString(Constant.PrefPageSecurityVulnerability.FIELD_MONITORED_PROJECTS);
 
 		// Extract a collection (unique elements) from the string.
-		List<String> projectsNames = Convert.fromStringToList(storedMonitoredProjects, Constant.SEPARATOR);
+		List<String> projectsNames = Convert.fromStringToList(storedMonitoredProjects, Constant.SEPARATOR_RESOURCES_TYPE);
 
 		// The list with the projects that are being monitored by our plug-in.
 		List<IProject> listMonitoredProjects = Creator.newList();
@@ -95,7 +95,7 @@ public abstract class HelperProjects {
 
 		StringBuilder projectsToSave = new StringBuilder();
 		for (IProject project : projects) {
-			projectsToSave.append(project.getName()).append(Constant.SEPARATOR);
+			projectsToSave.append(project.getName()).append(Constant.SEPARATOR_RESOURCES_TYPE);
 		}
 
 		store.putValue(Constant.PrefPageSecurityVulnerability.FIELD_MONITORED_PROJECTS, projectsToSave.toString());
@@ -237,7 +237,7 @@ public abstract class HelperProjects {
 	 */
 	public static List<String> getResourceTypesToPerformDetection() {
 		List<String> resourceTypes = Convert.fromStringToList(Constant.RESOURCE_TYPE_TO_PERFORM_DETECTION,
-				Constant.SEPARATOR);
+				Constant.SEPARATOR_RESOURCES_TYPE);
 
 		return resourceTypes;
 	}
