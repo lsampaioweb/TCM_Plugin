@@ -99,6 +99,8 @@ public abstract class Message extends NLS {
 		public static String				LITERAL;
 		public static String				NULL_LITERAL;
 		public static String				ENTRY_POINT_METHOD;
+		public static String				STRING_CONCATENATION;
+
 		public static String				LABEL_RESOLUTION;
 		public static String				DESCRIPTION_RESOLUTION;
 
