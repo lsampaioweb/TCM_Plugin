@@ -146,14 +146,15 @@ public class BindingResolver {
 	public static List<Expression> getParameters(Expression expr) {
 		List<Expression> parameters = Creator.newList();
 
-		if (expr.getNodeType() == ASTNode.METHOD_INVOCATION) {
-			parameters = getParameters(((MethodInvocation) expr).arguments());
-		} else if (expr.getNodeType() == ASTNode.CLASS_INSTANCE_CREATION) {
-			parameters = getParameters(((ClassInstanceCreation) expr).arguments());
-		} else if (expr.getNodeType() == ASTNode.INFIX_EXPRESSION) {
-			parameters = getParameters(((InfixExpression) expr).extendedOperands());
+		if (null != expr) {
+			if (expr.getNodeType() == ASTNode.METHOD_INVOCATION) {
+				parameters = getParameters(((MethodInvocation) expr).arguments());
+			} else if (expr.getNodeType() == ASTNode.CLASS_INSTANCE_CREATION) {
+				parameters = getParameters(((ClassInstanceCreation) expr).arguments());
+			} else if (expr.getNodeType() == ASTNode.INFIX_EXPRESSION) {
+				parameters = getParameters(((InfixExpression) expr).extendedOperands());
+			}
 		}
-
 		return parameters;
 	}
 
