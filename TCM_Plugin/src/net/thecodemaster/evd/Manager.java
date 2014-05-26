@@ -14,26 +14,45 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
 
 /**
+ * This class knows which options (settings, verifiers and etc.) were selected by the developer (our user). <br/>
+ * The Manager iterates over all the Analyzers and invokes the run method. <br/>
  * This has to be a singleton class.
  * 
  * @author Luciano Sampaio
  */
 public class Manager {
 
-	// This object controls which analyzers are going to be executed to perform the security vulnerability
-	// detection.
-	private static volatile Manager	instance	= null;
-	private final List<Analyzer>		analyzers;
-	private Reporter								reporter;
+	private static Manager				instance	= null;
+	/**
+	 * The list with all the implemented analyzers.
+	 */
+	private final List<Analyzer>	analyzers;
+	/**
+	 * The object that know where and how to report the found vulnerabilities.
+	 */
+	private Reporter							reporter;
 
+	/**
+	 * Default constructor.
+	 */
 	private Manager() {
 		analyzers = Creator.newList();
 	}
 
+	/**
+	 * The user has changed some options from the tool. It is necessary to reset the list of analyzers and where to report
+	 * the vulnerabilities.
+	 */
 	public static void reset() {
 		instance = null;
 	}
 
+	/**
+	 * Creates one instance of the Manager class if it was not created before. <br/>
+	 * After that always return the same instance of the Manager class.
+	 * 
+	 * @return Return the same instance of the Manager class.
+	 */
 	public static Manager getInstance() {
 		if (instance == null) {
 			synchronized (Manager.class) {
@@ -50,6 +69,9 @@ public class Manager {
 		return instance;
 	}
 
+	/**
+	 * @param store
+	 */
 	private void addAnalyzers(IPreferenceStore store) {
 		// Get the options checked by the developer.
 		boolean commandInjection = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_COMMAND_INJECTION);
@@ -70,10 +92,16 @@ public class Manager {
 		}
 	}
 
+	/**
+	 * @param analyzer
+	 */
 	private void addAnalyzer(Analyzer analyzer) {
 		analyzers.add(analyzer);
 	}
 
+	/**
+	 * @param store
+	 */
 	private void addOutputs(IPreferenceStore store) {
 		boolean problemView = store.getBoolean(Constant.PrefPageSettings.FIELD_OUTPUT_PROBLEMS_VIEW);
 		boolean textFile = store.getBoolean(Constant.PrefPageSettings.FIELD_OUTPUT_TEXT_FILE);
@@ -89,6 +117,10 @@ public class Manager {
 		reporter.setProgressMonitor(progressMonitor);
 	}
 
+	/**
+	 * @param resources
+	 * @param callGraph
+	 */
 	public void run(List<IResource> resources, CallGraph callGraph) {
 		// 01 - Any Analyzer or its verifiers can add markers, so we first need to clean the old values.
 		Reporter.clearOldProblems(resources);
