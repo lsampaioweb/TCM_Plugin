@@ -8,6 +8,11 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.dom.Expression;
 
+/**
+ * Each instance of this class represents a single line into the Security Vulnerability View.
+ * 
+ * @author Luciano Sampaio
+ */
 public class ViewDataModel {
 
 	private int												typeVulnerability;
@@ -18,6 +23,9 @@ public class ViewDataModel {
 	private int												lineNumber;
 	private IMarker										marker;
 
+	/**
+	 * A vulnerability might have several possible vulnerable paths, so this list contains all these paths.
+	 */
 	private final List<ViewDataModel>	children;
 
 	public ViewDataModel() {
@@ -88,6 +96,9 @@ public class ViewDataModel {
 		this.marker = marker;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -101,10 +112,6 @@ public class ViewDataModel {
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * @param obj
-	 *          Object
-	 * @return boolean
 	 */
 	@Override
 	public boolean equals(Object obj) {

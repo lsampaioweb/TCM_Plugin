@@ -9,15 +9,32 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.Statement;
 
 /**
+ * This class is responsible to hold the complete flow of a vulnerability starting where the vulnerability was
+ * introduced until where it was exploited.
+ * 
  * @author Luciano Sampaio
  */
 public class DataFlow {
 
+	/**
+	 * The object that is vulnerable.
+	 */
 	private final Expression						root;
+	/**
+	 * The parent object because we need to navigate from the parent to its children and also on the opposite direction.
+	 */
 	private DataFlow										parent;
+	/**
+	 * The message that will be displayed to the user informing that this object is vulnerable.
+	 */
 	private String											message;
-
+	/**
+	 * All the possible flows that the vulnerability could reach, but some of them might end up being not vulnerable.
+	 */
 	private final List<DataFlow>				children;
+	/**
+	 * This list holds that actual paths that ARE vulnerable.
+	 */
 	private final List<List<DataFlow>>	allVulnerablePaths;
 
 	private DataFlow(Expression root, DataFlow parent) {
@@ -57,7 +74,7 @@ public class DataFlow {
 	}
 
 	/**
-	 * This method set the foundVulnerability to true on the parent's path.
+	 * This method informs to the parent object that a vulnerable path was found.
 	 */
 	private void isVulnerable(List<DataFlow> childrenList) {
 		List<DataFlow> currentList = Creator.newList();
@@ -74,6 +91,10 @@ public class DataFlow {
 
 	}
 
+	public boolean isVulnerable() {
+		return !allVulnerablePaths.isEmpty();
+	}
+
 	public void isInfinitiveLoop(Expression expr) {
 		PluginLogger.logIfDebugging("Found an Infinitive Loop at expression: " + expr);
 	}
@@ -82,10 +103,9 @@ public class DataFlow {
 		PluginLogger.logIfDebugging("Found an Infinitive Loop at statement: " + statement);
 	}
 
-	public boolean isVulnerable() {
-		return !allVulnerablePaths.isEmpty();
-	}
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -96,10 +116,6 @@ public class DataFlow {
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * @param obj
-	 *          Object
-	 * @return boolean
 	 */
 	@Override
 	public boolean equals(Object obj) {

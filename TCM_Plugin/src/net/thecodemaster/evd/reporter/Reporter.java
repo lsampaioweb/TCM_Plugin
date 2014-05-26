@@ -23,6 +23,8 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.swt.widgets.Display;
 
 /**
+ * This class knows where and how to report the vulnerabilities.
+ * 
  * @author Luciano Sampaio
  */
 public class Reporter {
@@ -34,6 +36,16 @@ public class Reporter {
 
 	private static ViewDataModel	rootVdm;
 
+	/**
+	 * Default constructor.
+	 * 
+	 * @param problemView
+	 *          If the users wants to display the vulnerabilities into our Security Vulnerability View.
+	 * @param textFile
+	 *          If the users wants to display the vulnerabilities into a text file.
+	 * @param xmlFile
+	 *          If the users wants to display the vulnerabilities into a xml file.
+	 */
 	public Reporter(boolean problemView, boolean textFile, boolean xmlFile) {
 		Reporter.problemView = problemView;
 		Reporter.textFile = textFile;
@@ -50,28 +62,53 @@ public class Reporter {
 		this.progressMonitor = progressMonitor;
 	}
 
+	/**
+	 * Delete all old problems of the provided project from the Marker View and our Security Vulnerability View.
+	 * 
+	 * @param project
+	 *          The project that will have all of its old problems deleted from the Marker View and our Security
+	 *          Vulnerability View.
+	 */
 	public static void clearOldProblems(IProject project) {
 		try {
 			List<IResource> resources = Creator.newList();
 
+			// 01 - Iterate over all members (Folder and files) of the current project.
 			for (IResource resource : project.members()) {
+				// 02 - We only care for the java files.
 				if (HelperProjects.isToPerformDetection(resource)) {
 					resources.add(resource);
 				}
 			}
 
+			// 03 - Now that we have the list of all resources(java files) from the provided project, we actually delete the
+			// old problems.
 			clearOldProblems(resources);
 		} catch (CoreException e) {
 			PluginLogger.logError(e);
 		}
 	}
 
+	/**
+	 * Delete all old problems of the provided list from the Marker View and our Security Vulnerability View.
+	 * 
+	 * @param resources
+	 *          The list of resources that will have all of its old problems deleted from the Marker View and our Security
+	 *          Vulnerability View.
+	 */
 	public static void clearOldProblems(List<IResource> resources) {
 		for (IResource resource : resources) {
 			clearOldProblems(resource);
 		}
 	}
 
+	/**
+	 * Delete all old problems of the provided resource from the Marker View and our Security Vulnerability View.
+	 * 
+	 * @param resource
+	 *          The resources that will have all of its old problems deleted from the Marker View and our Security
+	 *          Vulnerability View.
+	 */
 	public static void clearOldProblems(IResource resource) {
 		if (problemView) {
 			clearProblemsFromView(resource);
@@ -84,6 +121,60 @@ public class Reporter {
 		}
 	}
 
+	/**
+	 * Delete all old problems of the provided resource from the Marker View and our Security Vulnerability View.
+	 * 
+	 * @param resource
+	 *          The resources that will have all of its old problems deleted from the Marker View and our Security
+	 *          Vulnerability View.
+	 */
+	private static void clearProblemsFromView(IResource resource) {
+		try {
+			// Clear the Markers.
+			if (resource.exists()) {
+				resource.deleteMarkers(Constant.MARKER_ID, true, IResource.DEPTH_INFINITE);
+			}
+
+			// Clear the Security Vulnerability View.
+			clearViewDataModel(resource);
+		} catch (CoreException e) {
+			PluginLogger.logError(e);
+		}
+	}
+
+	/**
+	 * Delete all old problems of the provided resource from our Security Vulnerability View.
+	 * 
+	 * @param resource
+	 *          The resources that will have all of its old problems deleted from our Security Vulnerability View.
+	 */
+	private static void clearViewDataModel(IResource resource) {
+		List<ViewDataModel> vdmToRemove = Creator.newList();
+
+		// 01 - Iterate over the list to see which elements will be removed.
+		for (ViewDataModel vdm : rootVdm.getChildren()) {
+			if (vdm.getResource().equals(resource)) {
+				vdmToRemove.add(vdm);
+			}
+		}
+
+		// 02 - Now we really remove them.
+		rootVdm.getChildren().removeAll(vdmToRemove);
+
+		// 03 - Update the view so the new data can appear and the old ones can be removed.
+		updateView();
+	}
+
+	/**
+	 * Add the problem to one or more of the options selected by the user.
+	 * 
+	 * @param typeVulnerability
+	 *          The type of the vulnerability.
+	 * @param resource
+	 *          The resource where the vulnerability was found.
+	 * @param dataFlow
+	 *          The data flow of the vulnerability, from where it started to where it finished. {@link DataFlow}.
+	 */
 	public void addProblem(int typeVulnerability, IResource resource, DataFlow dataFlow) {
 		if (problemView) {
 			addProblemToView(typeVulnerability, resource, dataFlow);
@@ -96,34 +187,26 @@ public class Reporter {
 		}
 	}
 
-	private static void clearProblemsFromView(IResource resource) {
-		try {
-			// Clear the Markers.
-			if (resource.exists()) {
-				resource.deleteMarkers(Constant.MARKER_ID, true, IResource.DEPTH_INFINITE);
-			}
+	private void addProblemToView(final int typeVulnerability, final IResource resource, final DataFlow dataFlow) {
+		addToViewDataModel(typeVulnerability, resource, dataFlow);
 
-			clearViewDataModel(resource);
-		} catch (CoreException e) {
-			PluginLogger.logError(e);
-		}
-	}
-
-	private static void clearViewDataModel(IResource resource) {
-		List<ViewDataModel> vdmToRemove = Creator.newList();
-
-		// 01 - First we iterate over the list to see which elements will be removed.
-		for (ViewDataModel vdm : rootVdm.getChildren()) {
-			if (vdm.getResource().equals(resource)) {
-				vdmToRemove.add(vdm);
-			}
-		}
-
-		// 02 - Now we really remove them.
-		rootVdm.getChildren().removeAll(vdmToRemove);
+		// 02 - Update the view so the new data can appear and the old ones can be removed.
 		updateView();
 	}
 
+	private static ViewSecurityVulnerabilities createView() {
+		ViewSecurityVulnerabilities view = new ViewSecurityVulnerabilities();
+
+		view = new ViewSecurityVulnerabilities();
+		// view.createPartControl(new Shell(Display.getDefault()));
+		view.showView();
+
+		return view;
+	}
+
+	/**
+	 * Update the Security Vulnerability View so the new data can appear and the old ones can be removed.
+	 */
 	private static void updateView() {
 		// Update the user interface asynchronously.
 		Display.getDefault().asyncExec(new Runnable() {
@@ -140,23 +223,7 @@ public class Reporter {
 		});
 	}
 
-	private static ViewSecurityVulnerabilities createView() {
-		ViewSecurityVulnerabilities view = new ViewSecurityVulnerabilities();
-
-		view = new ViewSecurityVulnerabilities();
-		// view.createPartControl(new Shell(Display.getDefault()));
-		view.showView();
-
-		return view;
-	}
-
-	private void addProblemToView(final int typeVulnerability, final IResource resource, final DataFlow dataFlow) {
-		addToViewDataModel(typeVulnerability, resource, dataFlow);
-
-		updateView();
-	}
-
-	public void addToViewDataModel(int typeVulnerability, IResource resource, DataFlow df) {
+	private void addToViewDataModel(int typeVulnerability, IResource resource, DataFlow df) {
 		ViewDataModel parent = null;
 		ViewDataModel currentVdm;
 		// Expression root = df.getRoot();

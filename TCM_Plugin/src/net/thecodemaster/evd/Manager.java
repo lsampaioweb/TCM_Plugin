@@ -70,7 +70,11 @@ public class Manager {
 	}
 
 	/**
+	 * Based on the options selected by the user, the analyzers are added to the list of analyzers that are going to be
+	 * invoked when the plug-in runs.
+	 * 
 	 * @param store
+	 *          The IPreferenceStore interface represents a table mapping named preferences to values.
 	 */
 	private void addAnalyzers(IPreferenceStore store) {
 		// Get the options checked by the developer.
@@ -93,14 +97,20 @@ public class Manager {
 	}
 
 	/**
+	 * Add the provided analyzer to the list of analyzers that will be invoked when the plug-in runs.
+	 * 
 	 * @param analyzer
+	 *          The analyzer that will be added to the list.
 	 */
 	private void addAnalyzer(Analyzer analyzer) {
 		analyzers.add(analyzer);
 	}
 
 	/**
+	 * Based on the options selected by the user, the outputs are added to the reporter. {@link Reporter}
+	 * 
 	 * @param store
+	 *          The IPreferenceStore interface represents a table mapping named preferences to values.
 	 */
 	private void addOutputs(IPreferenceStore store) {
 		boolean problemView = store.getBoolean(Constant.PrefPageSettings.FIELD_OUTPUT_PROBLEMS_VIEW);

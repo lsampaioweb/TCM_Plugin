@@ -42,6 +42,9 @@ import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
 
 /**
+ * The verifier is the class that actually knows how to find the vulnerability and the one that performs this
+ * verification. Each verifier can reimplement/override methods of add new behavior to them.
+ * 
  * @author Luciano Sampaio
  */
 public abstract class Verifier {

@@ -15,6 +15,9 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
+ * The Analyzer is like a category of one or several verifiers. On this first version we only have a
+ * SecurityVulnerability Analyzer but in the future we might add others.
+ * 
  * @author Luciano Sampaio
  */
 public abstract class Analyzer {
@@ -57,12 +60,30 @@ public abstract class Analyzer {
 		return entryPoints;
 	}
 
+	/**
+	 * Load all the EntryPoints that the plug-in will use.
+	 */
 	protected static void loadEntryPoints() {
 		entryPoints = (new LoaderEntryPoint()).load();
 	}
 
+	/**
+	 * This method will iterate over all the Verifiers of this Analyzer and start invoking each of them.
+	 * 
+	 * @param resources
+	 *          The list of modified resources that needs to be verified.
+	 * @param callGraph
+	 *          The object that contains the callGraph of all methods and variables of the analyzed source code.
+	 *          {@link CallGraph}
+	 * @param reporter
+	 *          The object that know where and how to displayed the found vulnerabilities. {@link Reporter}
+	 */
 	public void run(List<IResource> resources, CallGraph callGraph, Reporter reporter) {
+		// 01 - Iterate over the list of verifiers.
 		for (Verifier verifier : getVerifiers()) {
+
+			// 02 - Before invoking the run method of the current verifier, it is important to check if the user canceled the
+			// process.
 			if (!userCanceledProcess(reporter)) {
 				Timer timer = (new Timer("01.2.1 - Verifier: " + verifier.getName())).start();
 				verifier.run(resources, callGraph, reporter);
