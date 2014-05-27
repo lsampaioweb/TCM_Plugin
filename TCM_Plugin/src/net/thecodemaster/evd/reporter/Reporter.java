@@ -158,10 +158,58 @@ public class Reporter {
 			}
 		}
 
-		// 02 - Now we really remove them.
+		deleteFromListAndUpdateView(vdmToRemove);
+	}
+
+	public static void clearProblem(IMarker marker) {
+		try {
+			// Clear the Markers.
+			if (null != marker) {
+				marker.delete();
+			}
+
+			// Clear the Security Vulnerability View.
+			clearViewDataModel(marker);
+		} catch (CoreException e) {
+			PluginLogger.logError(e);
+		}
+	}
+
+	/**
+	 * TODO - I think only one Marker will be found here, maybe add a BREAK. Delete problems of the provided marker from
+	 * our Security Vulnerability View.
+	 * 
+	 * @param IMarker
+	 *          The marker that will have all of its old problems deleted from our Security Vulnerability View.
+	 */
+	private static void clearViewDataModel(IMarker marker) {
+		List<ViewDataModel> vdmToRemove = Creator.newList();
+
+		// 01 - Iterate over the list to see which elements will be removed.
+		ViewDataModel vdm = getViewDataModel(marker);
+		if (null != vdm) {
+			vdmToRemove.add(vdm);
+		}
+
+		deleteFromListAndUpdateView(vdmToRemove);
+	}
+
+	/**
+	 * Get the ViewDataModel that has the provided marker.
+	 * 
+	 * @param marker
+	 *          The marker that will be used to find the ViewDataModel.
+	 * @return The ViewDataModel that has the provided marker.
+	 */
+	public static ViewDataModel getViewDataModel(IMarker marker) {
+		return rootVdm.findByMarker(marker);
+	}
+
+	private static void deleteFromListAndUpdateView(List<ViewDataModel> vdmToRemove) {
+		// 01 - Now we really remove them.
 		rootVdm.getChildren().removeAll(vdmToRemove);
 
-		// 03 - Update the view so the new data can appear and the old ones can be removed.
+		// 02 - Update the view so the new data can appear and the old ones can be removed.
 		updateView();
 	}
 

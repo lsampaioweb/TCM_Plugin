@@ -143,4 +143,19 @@ public class ViewDataModel {
 		return true;
 	}
 
+	public ViewDataModel findByMarker(IMarker marker) {
+		if ((null != getMarker()) && (getMarker().equals(marker))) {
+			return this;
+		}
+
+		for (ViewDataModel vdm : getChildren()) {
+			ViewDataModel current = vdm.findByMarker(marker);
+			if (null != current) {
+				return current;
+			}
+		}
+
+		return null;
+	}
+
 }

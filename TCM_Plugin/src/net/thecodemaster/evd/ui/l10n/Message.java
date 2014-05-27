@@ -101,6 +101,10 @@ public abstract class Message extends NLS {
 		public static String				ENTRY_POINT_METHOD;
 		public static String				STRING_CONCATENATION;
 
+		// IgnoreResolution
+		public static String				LABEL_RESOLUTION_IGNORE_RESOLUTION;
+		public static String				DESCRIPTION_RESOLUTION_IGNORE_RESOLUTION;
+
 		public static String				LABEL_RESOLUTION;
 		public static String				DESCRIPTION_RESOLUTION;
 
@@ -117,7 +121,8 @@ public abstract class Message extends NLS {
 		public static String				FILE_XML_PARSING_FAIL;
 		public static String				FILE_XML_READING_FAIL;
 		public static String				CALL_GRAPH_DOES_NOT_CONTAIN_PROJECT;
-		public static String				FILE_EXIT_POINT_NOT_FOUND;
+		public static String				FILE_PATH_ID_NOT_FOUND;
+		public static String				TYPE_VULNERABILITY_NOT_FOUND;
 
 		static {
 			// Initialize resource bundle.

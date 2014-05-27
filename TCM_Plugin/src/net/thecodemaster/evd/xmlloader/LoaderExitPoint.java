@@ -6,9 +6,9 @@ import java.util.Map;
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.Parameter;
 import net.thecodemaster.evd.helper.Creator;
+import net.thecodemaster.evd.helper.HelperVerifiers;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.point.ExitPoint;
-import net.thecodemaster.evd.ui.l10n.Message;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -28,26 +28,7 @@ public class LoaderExitPoint extends LoaderXML {
 
 	@Override
 	protected String getFilePath() {
-		switch (fileId) {
-			case Constant.VERIFIER_ID_COMMAND_INJECTION:
-				return Constant.File.FILE_EXIT_POINT_COMMAND_INJECTION;
-			case Constant.VERIFIER_ID_COOKIE_POISONING:
-				return Constant.File.FILE_EXIT_POINT_COOKIE_POISONING;
-			case Constant.VERIFIER_ID_CROSS_SITE_SCRIPTING:
-				return Constant.File.FILE_EXIT_POINT_CROSS_SITE_SCRIPTING;
-			case Constant.VERIFIER_ID_PATH_TRAVERSAL:
-				return Constant.File.FILE_EXIT_POINT_PATH_TRAVERSAL;
-			case Constant.VERIFIER_ID_SECURITY_MISCONFIGURATION:
-				return Constant.File.FILE_EXIT_POINT_SECURITY_MISCONFIGURATION;
-			case Constant.VERIFIER_ID_SQL_INJECTION:
-				return Constant.File.FILE_EXIT_POINT_SQL_INJECTION;
-			case Constant.VERIFIER_ID_UNVALIDATED_REDIRECTING:
-				return Constant.File.FILE_EXIT_POINT_UNVALIDATED_REDIRECTING;
-			default:
-				String errorMessage = String.format(Message.Error.FILE_EXIT_POINT_NOT_FOUND, fileId);
-				PluginLogger.logError(errorMessage, null);
-				return null;
-		}
+		return HelperVerifiers.getFilePath(fileId);
 	}
 
 	@Override

@@ -13,8 +13,10 @@ public abstract class Constant {
 	public static final String	JDT_NATURE														= "org.eclipse.jdt.core.javanature";
 	public static final String	NATURE_ID															= Activator.PLUGIN_ID + ".TCM_EVD_NATURE";
 	public static final String	BUILDER_ID														= Activator.PLUGIN_ID + ".TCM_EVD_BUILDER";
-	public static final String	MARKER_ID															= Activator.PLUGIN_ID + ".TCM_EVD_MARKER";
 	public static final String	VIEW_ID																= Activator.PLUGIN_ID + ".TCM_EVD_VIEW";
+	public static final String	MARKER_ID															= Activator.PLUGIN_ID + ".TCM_EVD_MARKER";
+	public static final String	MARKER_ID_ANNOTATION_INVISIBLE				= Activator.PLUGIN_ID
+																																				+ ".TCM_EVD_MARKER_ANNOTATION_INVISIBLE";
 
 	public static final String	SEPARATOR_RESOURCES_TYPE							= ";";
 	public static final String	SEPARATOR_FULL_PATH										= " - ";
@@ -60,7 +62,10 @@ public abstract class Constant {
 	}
 
 	public abstract class Icons {
-		public static final String	SECURITY_VULNERABILITY	= Folder.ICON + "SecurityVulnerability.png";
+		public static final String	SECURITY_VULNERABILITY_QUICK_FIX_OPTION	= Folder.ICON + "QuickFixOption.png";
+		public static final String	SECURITY_VULNERABILITY_ENTRY						= Folder.ICON + "SecVulEntry.png";
+		public static final String	SECURITY_VULNERABILITY_EXIT							= Folder.ICON + "SecVulExit.png";
+		public static final String	SECURITY_VULNERABILITY_MULTIPLE					= Folder.ICON + "SecVulMultiple.png";
 	}
 
 	public abstract class PrefPageSecurityVulnerability {
