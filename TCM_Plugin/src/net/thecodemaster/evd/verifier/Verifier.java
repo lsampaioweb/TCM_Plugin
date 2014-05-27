@@ -313,51 +313,59 @@ public abstract class Verifier {
 				return;
 			}
 
-			// 02 - We need to check the type of the parameter and deal with it accordingly to its type.
-			switch (expr.getNodeType()) {
-				case ASTNode.STRING_LITERAL:
-				case ASTNode.CHARACTER_LITERAL:
-				case ASTNode.NUMBER_LITERAL:
-				case ASTNode.NULL_LITERAL:
-					checkLiteral(df, expr);
-					break;
-				case ASTNode.INFIX_EXPRESSION:
-					checkInfixExpression(df, rules, expr, ++depth);
-					break;
-				case ASTNode.PREFIX_EXPRESSION:
-					checkPrefixExpression(df, rules, expr, ++depth);
-					break;
-				case ASTNode.CONDITIONAL_EXPRESSION:
-					checkConditionExpression(df, rules, expr, ++depth);
-					break;
-				case ASTNode.ASSIGNMENT:
-					checkAssignment(df, rules, expr, ++depth);
-					break;
-				case ASTNode.SIMPLE_NAME:
-					checkSimpleName(df, rules, expr, ++depth);
-					break;
-				case ASTNode.QUALIFIED_NAME:
-					checkQualifiedName(df, rules, expr, ++depth);
-					break;
-				case ASTNode.METHOD_INVOCATION:
-					checkMethodInvocation(df, rules, expr, ++depth);
-					break;
-				case ASTNode.CAST_EXPRESSION:
-					checkCastExpression(df, rules, expr, ++depth);
-					break;
-				case ASTNode.CLASS_INSTANCE_CREATION:
-					checkClassInstanceCreation(df, rules, expr, ++depth);
-					break;
-				case ASTNode.ARRAY_INITIALIZER:
-					checkArrayInitializer(df, rules, expr, ++depth);
-					break;
-				case ASTNode.PARENTHESIZED_EXPRESSION:
-					checkParenthesizedExpression(df, rules, expr, ++depth);
-					break;
-				default:
-					PluginLogger.logError("Default Node Type: " + expr.getNodeType() + " - " + expr, null);
+			// 02 - Check if there is an annotation, in case there is, we should BELIEVE it is not vulnerable.
+			if (!hasAnnotationAtPosition(expr)) {
+
+				// 03 - We need to check the type of the parameter and deal with it accordingly to its type.
+				switch (expr.getNodeType()) {
+					case ASTNode.STRING_LITERAL:
+					case ASTNode.CHARACTER_LITERAL:
+					case ASTNode.NUMBER_LITERAL:
+					case ASTNode.NULL_LITERAL:
+						checkLiteral(df, expr);
+						break;
+					case ASTNode.INFIX_EXPRESSION:
+						checkInfixExpression(df, rules, expr, ++depth);
+						break;
+					case ASTNode.PREFIX_EXPRESSION:
+						checkPrefixExpression(df, rules, expr, ++depth);
+						break;
+					case ASTNode.CONDITIONAL_EXPRESSION:
+						checkConditionExpression(df, rules, expr, ++depth);
+						break;
+					case ASTNode.ASSIGNMENT:
+						checkAssignment(df, rules, expr, ++depth);
+						break;
+					case ASTNode.SIMPLE_NAME:
+						checkSimpleName(df, rules, expr, ++depth);
+						break;
+					case ASTNode.QUALIFIED_NAME:
+						checkQualifiedName(df, rules, expr, ++depth);
+						break;
+					case ASTNode.METHOD_INVOCATION:
+						checkMethodInvocation(df, rules, expr, ++depth);
+						break;
+					case ASTNode.CAST_EXPRESSION:
+						checkCastExpression(df, rules, expr, ++depth);
+						break;
+					case ASTNode.CLASS_INSTANCE_CREATION:
+						checkClassInstanceCreation(df, rules, expr, ++depth);
+						break;
+					case ASTNode.ARRAY_INITIALIZER:
+						checkArrayInitializer(df, rules, expr, ++depth);
+						break;
+					case ASTNode.PARENTHESIZED_EXPRESSION:
+						checkParenthesizedExpression(df, rules, expr, ++depth);
+						break;
+					default:
+						PluginLogger.logError("Default Node Type: " + expr.getNodeType() + " - " + expr, null);
+				}
 			}
 		}
+	}
+
+	private boolean hasAnnotationAtPosition(Expression expr) {
+		return getReporter().hasAnnotationAtPosition(expr);
 	}
 
 	protected boolean matchRules(List<Integer> rules, Expression parameter) {

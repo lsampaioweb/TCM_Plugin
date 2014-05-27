@@ -1,15 +1,18 @@
 package net.thecodemaster.evd.reporter;
 
 import java.util.List;
+import java.util.Map;
 
 import net.thecodemaster.evd.Activator;
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.BindingResolver;
 import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.helper.Creator;
+import net.thecodemaster.evd.helper.HelperAnnotation;
 import net.thecodemaster.evd.helper.HelperProjects;
+import net.thecodemaster.evd.helper.HelperViewDataModel;
 import net.thecodemaster.evd.logger.PluginLogger;
-import net.thecodemaster.evd.ui.l10n.Message;
+import net.thecodemaster.evd.marker.annotation.InvisibleAnnotation;
 import net.thecodemaster.evd.ui.view.ViewDataModel;
 import net.thecodemaster.evd.ui.view.ViewSecurityVulnerabilities;
 
@@ -17,7 +20,9 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.swt.widgets.Display;
@@ -29,12 +34,13 @@ import org.eclipse.swt.widgets.Display;
  */
 public class Reporter {
 
-	private IProgressMonitor			progressMonitor;
-	private static boolean				problemView;
-	private static boolean				textFile;
-	private static boolean				xmlFile;
+	private IProgressMonitor															progressMonitor;
+	private static boolean																problemView;
+	private static boolean																textFile;
+	private static boolean																xmlFile;
 
-	private static ViewDataModel	rootVdm;
+	private static ViewDataModel													rootVdm;
+	private static Map<IPath, List<InvisibleAnnotation>>	invisibleAnnotationsPerFile;
 
 	/**
 	 * Default constructor.
@@ -52,6 +58,7 @@ public class Reporter {
 		Reporter.xmlFile = xmlFile;
 
 		rootVdm = new ViewDataModel();
+		invisibleAnnotationsPerFile = Creator.newMap();
 	}
 
 	public IProgressMonitor getProgressMonitor() {
@@ -158,40 +165,34 @@ public class Reporter {
 			}
 		}
 
-		deleteFromListAndUpdateView(vdmToRemove);
+		removeFromListAndUpdateView(vdmToRemove, false);
 	}
 
-	public static void clearProblem(IMarker marker) {
+	public static void clearProblem(ViewDataModel vdm, boolean removeChildren) {
 		try {
-			// Clear the Markers.
-			if (null != marker) {
-				marker.delete();
+			// Clear the Marker and the children' markers.
+			if (null != vdm.getMarker()) {
+				vdm.removeMarker(removeChildren);
 			}
 
 			// Clear the Security Vulnerability View.
-			clearViewDataModel(marker);
+			clearViewDataModel(vdm, removeChildren);
 		} catch (CoreException e) {
 			PluginLogger.logError(e);
 		}
 	}
 
 	/**
-	 * TODO - I think only one Marker will be found here, maybe add a BREAK. Delete problems of the provided marker from
-	 * our Security Vulnerability View.
-	 * 
-	 * @param IMarker
-	 *          The marker that will have all of its old problems deleted from our Security Vulnerability View.
+	 * @param vdm
+	 * @param removeChildren
+	 *          True if the children elements should also be removed.
 	 */
-	private static void clearViewDataModel(IMarker marker) {
+	private static void clearViewDataModel(ViewDataModel vdm, boolean removeChildren) {
 		List<ViewDataModel> vdmToRemove = Creator.newList();
 
-		// 01 - Iterate over the list to see which elements will be removed.
-		ViewDataModel vdm = getViewDataModel(marker);
-		if (null != vdm) {
-			vdmToRemove.add(vdm);
-		}
+		vdmToRemove.add(vdm);
 
-		deleteFromListAndUpdateView(vdmToRemove);
+		removeFromListAndUpdateView(vdmToRemove, removeChildren);
 	}
 
 	/**
@@ -202,12 +203,12 @@ public class Reporter {
 	 * @return The ViewDataModel that has the provided marker.
 	 */
 	public static ViewDataModel getViewDataModel(IMarker marker) {
-		return rootVdm.findByMarker(marker);
+		return rootVdm.getBy(marker);
 	}
 
-	private static void deleteFromListAndUpdateView(List<ViewDataModel> vdmToRemove) {
+	private static void removeFromListAndUpdateView(List<ViewDataModel> vdmToRemove, boolean removeChildren) {
 		// 01 - Now we really remove them.
-		rootVdm.getChildren().removeAll(vdmToRemove);
+		rootVdm.removeChildren(vdmToRemove, removeChildren);
 
 		// 02 - Update the view so the new data can appear and the old ones can be removed.
 		updateView();
@@ -309,15 +310,8 @@ public class Reporter {
 	}
 
 	private String getMessageByNumberOfVulnerablePaths(List<List<DataFlow>> allVulnerablePaths, DataFlow firstElement) {
-		String messageTemplate = "";
-
-		if (allVulnerablePaths.size() == 1) {
-			messageTemplate = Message.View.SINGLE_VULNERABILITY;
-		} else {
-			messageTemplate = Message.View.MULTIPLE_VULNERABILITIES;
-		}
-
-		return String.format(messageTemplate, firstElement.getRoot().toString(), allVulnerablePaths.size());
+		return HelperViewDataModel.getMessageByNumberOfVulnerablePaths(firstElement.getRoot().toString(),
+				allVulnerablePaths.size());
 	}
 
 	private ViewDataModel createViewDataModelElement(int typeVulnerability, IResource resource, Expression expr,
@@ -367,6 +361,49 @@ public class Reporter {
 			fullPath.append(vulnerablePath.getRoot().toString());
 		}
 		return fullPath.toString();
+	}
+
+	/**
+	 * Add our invisible annotation into the source code.
+	 * 
+	 * @param marker
+	 *          The marker that will be used to add the annotation.
+	 */
+	public static void addInvisibleAnnotation(ASTNode node) {
+		// 01 - Get the Compilation Unit which this node belongs to.
+		CompilationUnit cu = BindingResolver.getParentCompilationUnit(node);
+		if (null != cu) {
+			InvisibleAnnotation invisibleAnnotation = HelperAnnotation.addInvisibleAnnotation(cu, node);
+			// addToInternalList(getPath(cu), invisibleAnnotation);
+		}
+	}
+
+	private static IPath getPath(CompilationUnit cu) {
+		return (null != cu) ? cu.getJavaElement().getPath() : null;
+	}
+
+	public boolean hasAnnotationAtPosition(ASTNode node) {
+		return HelperAnnotation.hasAnnotationAtPosition(node);
+		// return HelperAnnotation.hasAnnotationAtPosition(node, invisibleAnnotationsPerFile);
+	}
+
+	private static void addToInternalList(IPath path, InvisibleAnnotation annotation) {
+		if (null != annotation) {
+			// 01 - Check if the current file is already in the list.
+			if (!invisibleAnnotationsPerFile.containsKey(path)) {
+				List<InvisibleAnnotation> invisibleAnnotations = Creator.newList();
+
+				invisibleAnnotationsPerFile.put(path, invisibleAnnotations);
+			}
+
+			// 02 - Get the list of annotations in the current file.
+			List<InvisibleAnnotation> invisibleAnnotations = invisibleAnnotationsPerFile.get(path);
+
+			// 03 - Add the annotation to the list.
+			if (!invisibleAnnotations.contains(annotation)) {
+				invisibleAnnotations.add(annotation);
+			}
+		}
 	}
 
 }

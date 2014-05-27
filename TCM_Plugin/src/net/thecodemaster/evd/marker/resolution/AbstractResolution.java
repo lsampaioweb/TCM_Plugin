@@ -5,12 +5,8 @@ import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.reporter.Reporter;
 import net.thecodemaster.evd.ui.view.ViewDataModel;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IMarkerResolution2;
 
@@ -73,20 +69,17 @@ public abstract class AbstractResolution implements IMarkerResolution2 {
 	}
 
 	/**
-	 * Returns the ICompilationUnit which this marker belongs to.
+	 * Add our invisible annotation into the source code.
 	 * 
 	 * @param marker
-	 *          The marker that will be used to retrieve the ICompilationUnit.
-	 * @return The ICompilationUnit which this marker belongs to.
+	 *          The marker that will be used to add the annotation.
 	 */
-	protected ICompilationUnit getCompilationUnit(IMarker marker) {
-		IResource res = marker.getResource();
-		if (res instanceof IFile && res.isAccessible()) {
-			IJavaElement element = JavaCore.create((IFile) res);
-			if (element instanceof ICompilationUnit)
-				return (ICompilationUnit) element;
-		}
-		return null;
+	protected void addInvisibleAnnotation(ASTNode node) {
+		Reporter.addInvisibleAnnotation(node);
+	}
+
+	protected void clearProblem(ViewDataModel vdm, boolean removeChildren) {
+		Reporter.clearProblem(vdm, removeChildren);
 	}
 
 }
