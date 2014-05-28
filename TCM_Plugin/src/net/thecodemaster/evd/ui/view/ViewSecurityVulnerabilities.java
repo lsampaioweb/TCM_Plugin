@@ -95,8 +95,10 @@ public class ViewSecurityVulnerabilities extends ViewPart {
 					@Override
 					public void run() {
 						try {
-							for (TreeColumn tc : treeItem.getParent().getColumns()) {
-								tc.pack();
+							if ((null != treeItem) && (!treeItem.isDisposed())) {
+								for (TreeColumn tc : treeItem.getParent().getColumns()) {
+									tc.pack();
+								}
 							}
 						} catch (Exception e) {
 							PluginLogger.logError(e);

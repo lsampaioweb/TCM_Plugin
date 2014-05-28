@@ -64,7 +64,7 @@ public abstract class Message extends NLS {
 
 		// Output text
 		public static String				LABEL_OUTPUT;
-		public static String				LABEL_OUTPUT_PROBLEMS_VIEW;
+		public static String				LABEL_OUTPUT_SECURITY_VIEW;
 		public static String				LABEL_OUTPUT_TEXT_FILE;
 		public static String				LABEL_OUTPUT_XML_FILE;
 

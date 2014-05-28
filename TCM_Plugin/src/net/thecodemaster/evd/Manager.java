@@ -8,6 +8,9 @@ import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.reporter.Reporter;
+import net.thecodemaster.evd.reporter.ReporterView;
+import net.thecodemaster.evd.reporter.TextFileView;
+import net.thecodemaster.evd.reporter.XmlFileView;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -69,6 +72,10 @@ public class Manager {
 		return instance;
 	}
 
+	public Reporter getReporter() {
+		return reporter;
+	}
+
 	/**
 	 * Based on the options selected by the user, the analyzers are added to the list of analyzers that are going to be
 	 * invoked when the plug-in runs.
@@ -113,30 +120,33 @@ public class Manager {
 	 *          The IPreferenceStore interface represents a table mapping named preferences to values.
 	 */
 	private void addOutputs(IPreferenceStore store) {
-		boolean problemView = store.getBoolean(Constant.PrefPageSettings.FIELD_OUTPUT_PROBLEMS_VIEW);
+		boolean securityView = store.getBoolean(Constant.PrefPageSettings.FIELD_OUTPUT_SECURITY_VIEW);
 		boolean textFile = store.getBoolean(Constant.PrefPageSettings.FIELD_OUTPUT_TEXT_FILE);
 		boolean xmlFile = store.getBoolean(Constant.PrefPageSettings.FIELD_OUTPUT_XML_FILE);
 
-		reporter = new Reporter(problemView, textFile, xmlFile);
+		Reporter.reset();
+		reporter = Reporter.getInstance();
+		if (securityView) {
+			getReporter().addReporter(new ReporterView());
+		}
+		if (textFile) {
+			getReporter().addReporter(new TextFileView());
+		}
+		if (xmlFile) {
+			getReporter().addReporter(new XmlFileView());
+		}
 	}
 
-	/**
-	 * @param progressMonitor
-	 */
-	public void setProgressMonitor(IProgressMonitor progressMonitor) {
-		reporter.setProgressMonitor(progressMonitor);
-	}
+	public void run(IProgressMonitor monitor, List<IResource> resources, CallGraph callGraph) {
+		// 01 - With the progress monitor, the report is able to let the user know that the plug-in is working on something.
+		getReporter().setProgressMonitor(monitor);
 
-	/**
-	 * @param resources
-	 * @param callGraph
-	 */
-	public void run(List<IResource> resources, CallGraph callGraph) {
-		// 01 - Any Analyzer or its verifiers can add markers, so we first need to clean the old values.
-		Reporter.clearOldProblems(resources);
+		// 02 - Any Analyzer or its verifiers can add markers or files, so we first need to clean the old values.
+		getReporter().clearOldProblems(resources);
 
+		// Iterate over the list of analyzers.
 		for (Analyzer analyzer : analyzers) {
-			analyzer.run(resources, callGraph, reporter);
+			analyzer.run(resources, callGraph, getReporter());
 		}
 	}
 

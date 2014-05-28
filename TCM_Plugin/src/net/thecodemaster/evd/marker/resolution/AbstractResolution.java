@@ -2,7 +2,10 @@ package net.thecodemaster.evd.marker.resolution;
 
 import net.thecodemaster.evd.Activator;
 import net.thecodemaster.evd.constant.Constant;
+import net.thecodemaster.evd.marker.annotation.AnnotationManager;
+import net.thecodemaster.evd.reporter.IReporter;
 import net.thecodemaster.evd.reporter.Reporter;
+import net.thecodemaster.evd.reporter.ReporterView;
 import net.thecodemaster.evd.ui.view.ViewDataModel;
 
 import org.eclipse.core.resources.IMarker;
@@ -16,6 +19,7 @@ public abstract class AbstractResolution implements IMarkerResolution2 {
 	private final IMarker	marker;
 	private String				label;
 	private String				description;
+	private ReporterView	reporter;
 
 	public AbstractResolution(int position, IMarker marker) {
 		this.position = position;
@@ -57,6 +61,14 @@ public abstract class AbstractResolution implements IMarkerResolution2 {
 		return description;
 	}
 
+	public ReporterView getReporter() {
+		if (null == reporter) {
+			reporter = (ReporterView) Reporter.getInstance().getReporter(IReporter.SECURITY_VIEW);
+		}
+
+		return reporter;
+	}
+
 	/**
 	 * Get the ViewDataModel of this marker.
 	 * 
@@ -65,7 +77,11 @@ public abstract class AbstractResolution implements IMarkerResolution2 {
 	 * @return the ViewDataModel of this marker.
 	 */
 	protected ViewDataModel getViewDataModelFromMarker(IMarker marker) {
-		return Reporter.getViewDataModel(marker);
+		return getReporter().getViewDataModel(marker);
+	}
+
+	protected void clearProblem(ViewDataModel vdm, boolean removeChildren) {
+		getReporter().clearProblem(vdm, removeChildren);
 	}
 
 	/**
@@ -75,11 +91,7 @@ public abstract class AbstractResolution implements IMarkerResolution2 {
 	 *          The marker that will be used to add the annotation.
 	 */
 	protected void addInvisibleAnnotation(ASTNode node) {
-		Reporter.addInvisibleAnnotation(node);
-	}
-
-	protected void clearProblem(ViewDataModel vdm, boolean removeChildren) {
-		Reporter.clearProblem(vdm, removeChildren);
+		AnnotationManager.addInvisibleAnnotation(node);
 	}
 
 }

@@ -89,7 +89,7 @@ public abstract class Constant {
 
 		public static final String	FIELD_RUN_MODE							= Activator.PLUGIN_ID + ".RunMode";
 
-		public static final String	FIELD_OUTPUT_PROBLEMS_VIEW	= Activator.PLUGIN_ID + ".ProblemsView";
+		public static final String	FIELD_OUTPUT_SECURITY_VIEW	= Activator.PLUGIN_ID + ".SecurityView";
 		public static final String	FIELD_OUTPUT_TEXT_FILE			= Activator.PLUGIN_ID + ".TextFile";
 		public static final String	FIELD_OUTPUT_XML_FILE				= Activator.PLUGIN_ID + ".XmlFile";
 	}

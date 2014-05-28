@@ -11,9 +11,10 @@
 		<label><![CDATA[CookiePoisoningResolution]]></label>
 		<description><![CDATA[CookiePoisoningResolution]]></description>
 	</resolution>
-	<resolution type="3">
-		<label><![CDATA[CrossSiteScriptingResolution]]></label>
-		<description><![CDATA[CrossSiteScriptingResolution]]></description>
+	<resolution type="3"> <!-- CrossSiteScriptingResolution -->
+		<label><![CDATA[Sanitize this element using OWASP libraries]]></label>
+		<description><![CDATA[This element should be sanitized to avoid Cross-Site Scripting(XSS).<br/>
+		Cross-Site Scripting (XSS) attacks are a type of injection, in which malicious scripts are injected into otherwise benign and trusted web sites.]]></description>
 	</resolution>
 	<resolution type="4">
 		<label><![CDATA[PathTraversalResolution]]></label>
@@ -32,10 +33,12 @@
 		<description><![CDATA[UnvalidatedRedirectingResolution]]></description>
 	</resolution>
 	<resolution type="8">
-		<label><![CDATA[Ignore this warning.]]></label>
+		<label><![CDATA[Ignore this warning]]></label>
 		<description>
-		<![CDATA[The full path: <b>%s</b><br/>
-      If you think this is a false positive you can ignore it.]]>
+		<![CDATA[
+Our heuristics detected that <b>%s</b> might be vulnerable.<br/>
+It has the full path: <b>%s</b><br/>
+If you think it is a false positive you can ignore it and this warning will no longer appear.]]>
 		</description>
 	</resolution>
 </resolutions>

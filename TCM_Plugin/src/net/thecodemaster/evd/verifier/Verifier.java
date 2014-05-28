@@ -11,6 +11,7 @@ import net.thecodemaster.evd.graph.Parameter;
 import net.thecodemaster.evd.graph.VariableBindingManager;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.logger.PluginLogger;
+import net.thecodemaster.evd.marker.annotation.AnnotationManager;
 import net.thecodemaster.evd.point.EntryPoint;
 import net.thecodemaster.evd.point.ExitPoint;
 import net.thecodemaster.evd.reporter.Reporter;
@@ -172,29 +173,26 @@ public abstract class Verifier {
 	}
 
 	protected void performVerification(IResource resource) {
-		// 01 - Run the vulnerability detection on the provided resource.
-		if (getCallGraph().contains(resource)) {
+		// 01 - Get the list of methods in the current resource.
+		Map<MethodDeclaration, List<Expression>> methods = getCallGraph().getMethods(resource);
 
-			// 02 - Get the list of methods in the current resource.
-			Map<MethodDeclaration, List<Expression>> methods = getCallGraph().getMethods(resource);
-
-			// 03 - Get all the method invocations of each method declaration.
+		if (null != methods) {
+			// 02 - Get all the method invocations of each method declaration.
 			for (List<Expression> invocations : methods.values()) {
 
-				// 04 - Iterate over all method invocations to verify if it is a ExitPoint.
+				// 03 - Iterate over all method invocations to verify if it is a ExitPoint.
 				for (Expression method : invocations) {
 					ExitPoint exitPoint = getExitPointIfMethodIsOne(method);
 
 					if (null != exitPoint) {
-						// 05 - Some methods will need to have access to the resource that is currently being analyzed.
+						// 04 - Some methods will need to have access to the resource that is currently being analyzed.
 						// but we do not want to pass it to all these methods as a parameter.
 						setCurrentResource(resource);
 
-						// 07 - This is an ExitPoint method and it needs to be verified.
+						// 05 - This is an ExitPoint method and it needs to be verified.
 						performVerification(method, exitPoint);
 					}
 				}
-
 			}
 		}
 	}
@@ -230,13 +228,13 @@ public abstract class Verifier {
 	protected ExitPoint getExitPointIfMethodIsOne(Expression method) {
 		for (ExitPoint currentExitPoint : getExitPoints()) {
 			if (BindingResolver.methodsHaveSameNameAndPackage(currentExitPoint, method)) {
-				// 05 - Get the expected arguments of this method.
+				// 01 - Get the expected arguments of this method.
 				Map<Parameter, List<Integer>> expectedParameters = currentExitPoint.getParameters();
 
-				// 06 - Get the received parameters of the current method.
+				// 02 - Get the received parameters of the current method.
 				List<Expression> receivedParameters = BindingResolver.getParameters(method);
 
-				// 07 - It is necessary to check the number of parameters and its types
+				// 03 - It is necessary to check the number of parameters and its types
 				// because it may exist methods with the same names but different parameters.
 				if (expectedParameters.size() == receivedParameters.size()) {
 					boolean isMethodAnExitPoint = true;
@@ -365,7 +363,7 @@ public abstract class Verifier {
 	}
 
 	private boolean hasAnnotationAtPosition(Expression expr) {
-		return getReporter().hasAnnotationAtPosition(expr);
+		return AnnotationManager.hasAnnotationAtPosition(expr);
 	}
 
 	protected boolean matchRules(List<Integer> rules, Expression parameter) {

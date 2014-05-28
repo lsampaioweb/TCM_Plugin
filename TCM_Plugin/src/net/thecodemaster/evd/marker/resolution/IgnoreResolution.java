@@ -17,7 +17,7 @@ public class IgnoreResolution extends AbstractResolution {
 		// 03 - Get the ViewDataModel of this marker.
 		ViewDataModel vdm = getViewDataModelFromMarker(marker);
 
-		String description = String.format(resolutionMessage.getDescription(), vdm.getFullPath());
+		String description = String.format(resolutionMessage.getDescription(), vdm.getExpr().toString(), vdm.getFullPath());
 
 		setLabel(resolutionMessage.getLabel());
 		setDescription(description);

@@ -1,10 +1,9 @@
-package net.thecodemaster.evd.helper;
+package net.thecodemaster.evd.marker.annotation;
 
 import java.util.Iterator;
 
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.BindingResolver;
-import net.thecodemaster.evd.marker.annotation.InvisibleAnnotation;
 
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
@@ -18,9 +17,20 @@ import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.IAnnotationModel;
 
 /**
+ * This class knows where and how to report the vulnerabilities.
+ * 
  * @author Luciano Sampaio
  */
-public abstract class HelperAnnotation {
+public class AnnotationManager {
+
+	// private static Map<IPath, List<InvisibleAnnotation>> invisibleAnnotationsPerFile;
+
+	/**
+	 * Default constructor.
+	 */
+	public AnnotationManager() {
+		// invisibleAnnotationsPerFile = Creator.newMap();
+	}
 
 	/**
 	 * Returns the text file buffer managed for the file at the given location or null if there is no such text file
@@ -52,8 +62,8 @@ public abstract class HelperAnnotation {
 	 * @param marker
 	 * @param buffer
 	 */
-	public static InvisibleAnnotation addInvisibleAnnotation(CompilationUnit cu, ASTNode node) {
-		IAnnotationModel model = getAnnotationModel(getPath(cu));
+	public static void addInvisibleAnnotation(ASTNode node) {
+		IAnnotationModel model = getAnnotationModel(getPath(BindingResolver.getParentCompilationUnit(node)));
 		if (null != model) {
 			Annotation annotation = new Annotation(Constant.MARKER_ID_ANNOTATION_INVISIBLE, true, null);
 			int offset = node.getStartPosition();
@@ -63,10 +73,8 @@ public abstract class HelperAnnotation {
 			Position position = new Position(offset, length);
 			model.addAnnotation(annotation, position);
 
-			return new InvisibleAnnotation(annotation, position);
+			// addToInternalList(getPath(cu), new InvisibleAnnotation(annotation, position));
 		}
-
-		return null;
 	}
 
 	// public static boolean hasAnnotationAtPosition(ASTNode node,
@@ -117,5 +125,25 @@ public abstract class HelperAnnotation {
 		}
 		return false;
 	}
+
+	//
+	// private void addToInternalList(IPath path, InvisibleAnnotation annotation) {
+	// if (null != annotation) {
+	// // 01 - Check if the current file is already in the list.
+	// if (!invisibleAnnotationsPerFile.containsKey(path)) {
+	// List<InvisibleAnnotation> invisibleAnnotations = Creator.newList();
+	//
+	// invisibleAnnotationsPerFile.put(path, invisibleAnnotations);
+	// }
+	//
+	// // 02 - Get the list of annotations in the current file.
+	// List<InvisibleAnnotation> invisibleAnnotations = invisibleAnnotationsPerFile.get(path);
+	//
+	// // 03 - Add the annotation to the list.
+	// if (!invisibleAnnotations.contains(annotation)) {
+	// invisibleAnnotations.add(annotation);
+	// }
+	// }
+	// }
 
 }
