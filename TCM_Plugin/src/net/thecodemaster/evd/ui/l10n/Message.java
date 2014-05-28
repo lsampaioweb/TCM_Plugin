@@ -101,17 +101,6 @@ public abstract class Message extends NLS {
 		public static String				ENTRY_POINT_METHOD;
 		public static String				STRING_CONCATENATION;
 
-		// IgnoreResolution
-		public static String				LABEL_RESOLUTION_IGNORE_RESOLUTION;
-		public static String				DESCRIPTION_RESOLUTION_IGNORE_RESOLUTION;
-
-		// CrossSiteScriptingResolution
-		public static String				LABEL_RESOLUTION_CROSS_SITE_SCRIPTING;
-		public static String				DESCRIPTION_RESOLUTION_CROSS_SITE_SCRIPTING;
-
-		public static String				LABEL_RESOLUTION;
-		public static String				DESCRIPTION_RESOLUTION;
-
 		static {
 			// Initialize resource bundle.
 			NLS.initializeMessages(BUNDLE_NAME, VerifierSecurityVulnerability.class);

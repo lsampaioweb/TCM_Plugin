@@ -1,7 +1,5 @@
 package net.thecodemaster.evd.marker.resolution;
 
-import net.thecodemaster.evd.ui.l10n.Message;
-
 import org.eclipse.core.resources.IMarker;
 
 /**
@@ -9,11 +7,14 @@ import org.eclipse.core.resources.IMarker;
  */
 public class CookiePoisoningResolution extends AbstractResolution {
 
-	public CookiePoisoningResolution(int position, IMarker marker) {
+	public CookiePoisoningResolution(int position, ResolutionMessage resolutionMessage, IMarker marker) {
 		super(position, marker);
 
-		setLabel(Message.VerifierSecurityVulnerability.LABEL_RESOLUTION_IGNORE_RESOLUTION);
-		setDescription(Message.VerifierSecurityVulnerability.DESCRIPTION_RESOLUTION_IGNORE_RESOLUTION);
+		// 01 - Get the ViewDataModel of this marker.
+		// ViewDataModel vdm = getViewDataModelFromMarker(marker);
+
+		setLabel(resolutionMessage.getLabel());
+		setDescription(resolutionMessage.getDescription());
 	}
 
 	/**
