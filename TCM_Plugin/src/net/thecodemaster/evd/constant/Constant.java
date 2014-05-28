@@ -31,6 +31,8 @@ public abstract class Constant {
 	public static final int			VERIFIER_ID_SQL_INJECTION							= 6;
 	public static final int			VERIFIER_ID_UNVALIDATED_REDIRECTING		= 7;
 
+	public static final int			RESOLUTION_ID_IGNORE_WARNING					= 8;
+
 	public static final String	OBJECT																= "java.lang.Object";
 	public static final int			LITERAL																= 1;
 
@@ -44,10 +46,12 @@ public abstract class Constant {
 		public static final String	KNOWLEDGE_BASE	= "knowledge_base/";
 		public static final String	ENTRY_POINT			= KNOWLEDGE_BASE + "entry_point/";
 		public static final String	EXIT_POINT			= KNOWLEDGE_BASE + "exit_point/";
+		public static final String	RESOLUTION			= KNOWLEDGE_BASE + "resolution/";
 	}
 
 	public abstract class File {
 		public static final String	FILE_ENTRY_POINT													= Folder.ENTRY_POINT + "entry_point.xml";
+		public static final String	FILE_RESOLUTION														= Folder.RESOLUTION + "resolution.xml";
 
 		public static final String	FILE_EXIT_POINT_COMMAND_INJECTION					= Folder.EXIT_POINT + "command_injection.xml";
 		public static final String	FILE_EXIT_POINT_COOKIE_POISONING					= Folder.EXIT_POINT + "cookie_poisoning.xml";
@@ -95,13 +99,18 @@ public abstract class Constant {
 	}
 
 	public abstract class XMLLoader {
-		public static final String	TAG_ENTRY_POINT				= "entrypoint";
-		public static final String	TAG_EXIT_POINT				= "exitpoint";
-		public static final String	TAG_QUALIFIED_NAME		= "qualifiedname";
-		public static final String	TAG_METHOD_NAME				= "methodname";
-		public static final String	TAG_PARAMETERS				= "parameters";
-		public static final String	TAG_PARAMETERS_TYPE		= "type";
-		public static final String	TAG_PARAMETERS_RULES	= "rules";
+		public static final String	TAG_ENTRY_POINT							= "entrypoint";
+		public static final String	TAG_EXIT_POINT							= "exitpoint";
+		public static final String	TAG_QUALIFIED_NAME					= "qualifiedname";
+		public static final String	TAG_METHOD_NAME							= "methodname";
+		public static final String	TAG_PARAMETERS							= "parameters";
+		public static final String	TAG_PARAMETERS_TYPE					= "type";
+		public static final String	TAG_PARAMETERS_RULES				= "rules";
+
+		public static final String	TAG_RESOLUTION							= "resolution";
+		public static final String	TAG_RESOLUTION_TYPE					= "type";
+		public static final String	TAG_RESOLUTION_LABEL				= "label";
+		public static final String	TAG_RESOLUTION_DESCRIPTION	= "description";
 	}
 
 }

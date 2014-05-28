@@ -1,7 +1,6 @@
 package net.thecodemaster.evd.marker.resolution;
 
 import net.thecodemaster.evd.logger.PluginLogger;
-import net.thecodemaster.evd.ui.l10n.Message;
 import net.thecodemaster.evd.ui.view.ViewDataModel;
 
 import org.eclipse.core.resources.IMarker;
@@ -12,11 +11,16 @@ import org.eclipse.jdt.core.dom.ASTNode;
  */
 public class IgnoreResolution extends AbstractResolution {
 
-	public IgnoreResolution(int position, IMarker marker) {
+	public IgnoreResolution(int position, ResolutionMessage resolutionMessage, IMarker marker) {
 		super(position, marker);
 
-		setLabel(Message.VerifierSecurityVulnerability.LABEL_RESOLUTION_IGNORE_RESOLUTION);
-		setDescription(Message.VerifierSecurityVulnerability.DESCRIPTION_RESOLUTION_IGNORE_RESOLUTION);
+		// 03 - Get the ViewDataModel of this marker.
+		ViewDataModel vdm = getViewDataModelFromMarker(marker);
+
+		String description = String.format(resolutionMessage.getDescription(), vdm.getFullPath());
+
+		setLabel(resolutionMessage.getLabel());
+		setDescription(description);
 	}
 
 	/**

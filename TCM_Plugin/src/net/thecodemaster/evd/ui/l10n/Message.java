@@ -105,6 +105,10 @@ public abstract class Message extends NLS {
 		public static String				LABEL_RESOLUTION_IGNORE_RESOLUTION;
 		public static String				DESCRIPTION_RESOLUTION_IGNORE_RESOLUTION;
 
+		// CrossSiteScriptingResolution
+		public static String				LABEL_RESOLUTION_CROSS_SITE_SCRIPTING;
+		public static String				DESCRIPTION_RESOLUTION_CROSS_SITE_SCRIPTING;
+
 		public static String				LABEL_RESOLUTION;
 		public static String				DESCRIPTION_RESOLUTION;
 

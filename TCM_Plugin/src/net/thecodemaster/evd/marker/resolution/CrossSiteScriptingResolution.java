@@ -12,8 +12,8 @@ public class CrossSiteScriptingResolution extends AbstractResolution {
 	public CrossSiteScriptingResolution(int position, IMarker marker) {
 		super(position, marker);
 
-		setLabel(Message.VerifierSecurityVulnerability.LABEL_RESOLUTION_IGNORE_RESOLUTION);
-		setDescription(Message.VerifierSecurityVulnerability.DESCRIPTION_RESOLUTION_IGNORE_RESOLUTION);
+		setLabel(Message.VerifierSecurityVulnerability.LABEL_RESOLUTION_CROSS_SITE_SCRIPTING);
+		setDescription(Message.VerifierSecurityVulnerability.DESCRIPTION_RESOLUTION_CROSS_SITE_SCRIPTING);
 	}
 
 	/**

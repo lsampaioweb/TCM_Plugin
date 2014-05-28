@@ -33,6 +33,11 @@ public class LoaderExitPoint extends LoaderXML {
 
 	@Override
 	@SuppressWarnings("unchecked")
+	public List<ExitPoint> load() {
+		return (List<ExitPoint>) super.load();
+	}
+
+	@Override
 	protected List<ExitPoint> load(String file) {
 		List<ExitPoint> exitPoints = Creator.newList();
 

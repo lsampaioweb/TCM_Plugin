@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -13,16 +12,17 @@ import javax.xml.parsers.ParserConfigurationException;
 import net.thecodemaster.evd.Activator;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.logger.PluginLogger;
-import net.thecodemaster.evd.point.AbstractPoint;
 import net.thecodemaster.evd.ui.l10n.Message;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.osgi.framework.Bundle;
+import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -30,7 +30,7 @@ import org.xml.sax.SAXException;
  */
 public abstract class LoaderXML {
 
-	public <T extends AbstractPoint> List<T> load() {
+	protected Object load() {
 		String file = getFilePath();
 		if (fileExists(file)) {
 			return load(file);
@@ -43,7 +43,7 @@ public abstract class LoaderXML {
 
 	protected abstract String getFilePath();
 
-	protected abstract <T extends AbstractPoint> List<T> load(String file);
+	protected abstract Object load(String file);
 
 	protected boolean fileExists(String file) {
 		return (getInputStream(file) != null);
@@ -109,6 +109,22 @@ public abstract class LoaderXML {
 		Node node = getNodeByTagNameAndIndex(element, sTag, 0);
 
 		return (null == node) ? null : node.getNodeValue();
+	}
+
+	protected String getCDataFromElement(Element element, String sTag) {
+		Node node = element.getElementsByTagName(sTag).item(0);
+
+		NodeList nodeList = node.getChildNodes();
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			Node child = nodeList.item(i);
+
+			if (child.getNodeType() == Node.CDATA_SECTION_NODE) {
+				CharacterData cd = (CharacterData) child;
+				return cd.getData();
+			}
+		}
+
+		return null;
 	}
 
 	private Node getNodeByTagNameAndIndex(Element element, String sTag, int index) {

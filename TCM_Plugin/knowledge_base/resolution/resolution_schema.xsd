@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="qualified">
+
+ <!-- The definition of simple elements. -->
+
+ <!-- The definition of attributes. -->
+ <xs:attribute name="type">
+  <xs:simpleType>
+   <xs:restriction base="xs:string">
+    <xs:pattern value="([a-zA-Z0-9._]+)" />
+   </xs:restriction>
+  </xs:simpleType>
+ </xs:attribute>
+
+ <!-- The definition of complex elements. -->
+ <xs:element name="label">
+  <xs:simpleType>
+   <xs:restriction base="xs:string">
+    <xs:whiteSpace value="collapse" />
+   </xs:restriction>
+  </xs:simpleType>
+ </xs:element>
+ <xs:element name="description">
+  <xs:simpleType>
+   <xs:restriction base="xs:string">
+    <xs:whiteSpace value="collapse" />
+   </xs:restriction>
+  </xs:simpleType>
+ </xs:element>
+
+ <xs:element name="resolution">
+  <xs:complexType>
+   <xs:sequence>
+    <xs:element ref="label" />
+    <xs:element ref="description" />
+   </xs:sequence>
+   <xs:attribute ref="type" use="required" />
+  </xs:complexType>
+ </xs:element>
+
+ <!-- The root element. -->
+ <xs:element name="resolutions">
+  <xs:complexType>
+   <xs:sequence>
+    <xs:element ref="resolution" maxOccurs="unbounded" />
+   </xs:sequence>
+  </xs:complexType>
+ </xs:element>
+
+</xs:schema>

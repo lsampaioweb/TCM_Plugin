@@ -363,6 +363,11 @@ public class Reporter {
 		return fullPath.toString();
 	}
 
+	public boolean hasAnnotationAtPosition(ASTNode node) {
+		return HelperAnnotation.hasAnnotationAtPosition(node);
+		// return HelperAnnotation.hasAnnotationAtPosition(node, invisibleAnnotationsPerFile);
+	}
+
 	/**
 	 * Add our invisible annotation into the source code.
 	 * 
@@ -380,11 +385,6 @@ public class Reporter {
 
 	private static IPath getPath(CompilationUnit cu) {
 		return (null != cu) ? cu.getJavaElement().getPath() : null;
-	}
-
-	public boolean hasAnnotationAtPosition(ASTNode node) {
-		return HelperAnnotation.hasAnnotationAtPosition(node);
-		// return HelperAnnotation.hasAnnotationAtPosition(node, invisibleAnnotationsPerFile);
 	}
 
 	private static void addToInternalList(IPath path, InvisibleAnnotation annotation) {

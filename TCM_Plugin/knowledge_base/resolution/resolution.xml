@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resolutions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="resolution_schema.xsd">
+	<resolution type="1">
+		<label><![CDATA[CommandInjectionResolution]]></label>
+		<description>
+		  <![CDATA[The full path: %s
+      If you think this is a false positive you can ignore it.]]>
+		</description>
+	</resolution>
+	<resolution type="2">
+		<label><![CDATA[CookiePoisoningResolution]]></label>
+		<description><![CDATA[CookiePoisoningResolution]]></description>
+	</resolution>
+	<resolution type="3">
+		<label><![CDATA[CrossSiteScriptingResolution]]></label>
+		<description><![CDATA[CrossSiteScriptingResolution]]></description>
+	</resolution>
+	<resolution type="4">
+		<label><![CDATA[PathTraversalResolution]]></label>
+		<description><![CDATA[PathTraversalResolution]]></description>
+	</resolution>
+	<resolution type="5">
+		<label><![CDATA[SecurityMisconfigurationResolution]]></label>
+		<description><![CDATA[SecurityMisconfigurationResolution]]></description>
+	</resolution>
+	<resolution type="6">
+		<label><![CDATA[SQLInjectionResolution]]></label>
+		<description><![CDATA[SQLInjectionResolution]]></description>
+	</resolution>
+	<resolution type="7">
+		<label><![CDATA[UnvalidatedRedirectingResolution]]></label>
+		<description><![CDATA[UnvalidatedRedirectingResolution]]></description>
+	</resolution>
+	<resolution type="8">
+		<label><![CDATA[Ignore this warning.]]></label>
+		<description>
+		<![CDATA[The full path: <b>%s</b><br/>
+      If you think this is a false positive you can ignore it.]]>
+		</description>
+	</resolution>
+</resolutions>

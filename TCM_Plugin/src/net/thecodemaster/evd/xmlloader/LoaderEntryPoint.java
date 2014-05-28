@@ -23,6 +23,11 @@ public class LoaderEntryPoint extends LoaderXML {
 
 	@Override
 	@SuppressWarnings("unchecked")
+	public List<EntryPoint> load() {
+		return (List<EntryPoint>) super.load();
+	}
+
+	@Override
 	protected List<EntryPoint> load(String file) {
 		List<EntryPoint> entryPoints = Creator.newList();
 
