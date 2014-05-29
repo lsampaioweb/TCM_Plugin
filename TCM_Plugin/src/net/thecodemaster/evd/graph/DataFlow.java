@@ -25,6 +25,10 @@ public class DataFlow {
 	 */
 	private DataFlow										parent;
 	/**
+	 * The type of the vulnerability.
+	 */
+	private int													typeProblem;
+	/**
 	 * The message that will be displayed to the user informing that this object is vulnerable.
 	 */
 	private String											message;
@@ -37,23 +41,35 @@ public class DataFlow {
 	 */
 	private final List<List<DataFlow>>	allVulnerablePaths;
 
-	private DataFlow(Expression root, DataFlow parent) {
-		this(root);
-		this.parent = parent;
-	}
-
 	public DataFlow(Expression root) {
 		this.root = root;
 		children = Creator.newList();
 		allVulnerablePaths = Creator.newList();
 	}
 
+	private DataFlow(Expression root, DataFlow parent) {
+		this(root);
+		this.parent = parent;
+	}
+
 	public Expression getRoot() {
 		return root;
 	}
 
+	public int getTypeProblem() {
+		return typeProblem;
+	}
+
+	private void setTypeProblem(int typeProblem) {
+		this.typeProblem = typeProblem;
+	}
+
 	public String getMessage() {
 		return message;
+	}
+
+	private void setMessage(String message) {
+		this.message = message;
 	}
 
 	public List<List<DataFlow>> getAllVulnerablePaths() {
@@ -67,10 +83,11 @@ public class DataFlow {
 		return nvp;
 	}
 
-	public void isVulnerable(Expression expr, String message) {
+	public void isVulnerable(int typeProblem, String message) {
 		isVulnerable(null);
 
-		this.message = message;
+		setTypeProblem(typeProblem);
+		setMessage(message);
 	}
 
 	/**

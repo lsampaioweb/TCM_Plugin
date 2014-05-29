@@ -113,4 +113,16 @@ public abstract class Constant {
 		public static final String	TAG_RESOLUTION_DESCRIPTION	= "description";
 	}
 
+	public abstract class Vulnerability {
+		// To avoid collision with the id from the Verifiers. 20 - 29
+		public static final int	ENTRY_POINT																		= 20;
+		public static final int	UNKNOWN																				= 21;
+
+		// SQL Injection 30 - 39
+		public static final int	SQL_INJECTION_STRING_CONCATENATION						= 30;
+
+		// Security Misconfiguration 40 - 49
+		public static final int	SECURITY_MISCONFIGURATION_HARD_CODED_CONTENT	= 40;
+	}
+
 }

@@ -101,6 +101,11 @@ public abstract class Message extends NLS {
 		public static String				ENTRY_POINT_METHOD;
 		public static String				STRING_CONCATENATION;
 
+		public static String				ENTRY_POINT;
+		public static String				UNKNOWN;
+		public static String				SQL_INJECTION_STRING_CONCATENATION;
+		public static String				SECURITY_MISCONFIGURATION_HARD_CODED_CONTENT;
+
 		static {
 			// Initialize resource bundle.
 			NLS.initializeMessages(BUNDLE_NAME, VerifierSecurityVulnerability.class);

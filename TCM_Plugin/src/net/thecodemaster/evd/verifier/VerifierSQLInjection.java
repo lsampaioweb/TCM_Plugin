@@ -18,19 +18,19 @@ public class VerifierSQLInjection extends Verifier {
 		super(Message.Plugin.VERIFIER_NAME_SQL_INJECTION, Constant.VERIFIER_ID_SQL_INJECTION, entryPoints);
 	}
 
-	private String getStringConcatenation() {
+	private String getStringConcatenationMessage() {
 		return Message.VerifierSecurityVulnerability.STRING_CONCATENATION;
 	}
 
 	@Override
 	protected void checkInfixExpression(DataFlow df, List<Integer> rules, Expression expr, int depth) {
 		// 01 - Informs that this node is a vulnerability.
-		df.isVulnerable(expr, getStringConcatenation());
+		df.isVulnerable(Constant.Vulnerability.SQL_INJECTION_STRING_CONCATENATION, getStringConcatenationMessage());
 	}
 
 	@Override
 	protected void checkPrefixExpression(DataFlow df, List<Integer> rules, Expression expr, int depth) {
 		// 01 - Informs that this node is a vulnerability.
-		df.isVulnerable(expr, getStringConcatenation());
+		df.isVulnerable(Constant.Vulnerability.SQL_INJECTION_STRING_CONCATENATION, getStringConcatenationMessage());
 	}
 }

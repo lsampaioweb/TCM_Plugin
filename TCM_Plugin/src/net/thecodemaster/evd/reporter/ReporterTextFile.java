@@ -11,7 +11,7 @@ import org.eclipse.core.resources.IResource;
  * 
  * @author Luciano Sampaio
  */
-public class TextFileView implements IReporter {
+public class ReporterTextFile implements IReporter {
 
 	@Override
 	public int getType() {

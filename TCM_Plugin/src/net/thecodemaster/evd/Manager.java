@@ -9,8 +9,8 @@ import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.reporter.Reporter;
 import net.thecodemaster.evd.reporter.ReporterView;
-import net.thecodemaster.evd.reporter.TextFileView;
-import net.thecodemaster.evd.reporter.XmlFileView;
+import net.thecodemaster.evd.reporter.ReporterTextFile;
+import net.thecodemaster.evd.reporter.ReporterXmlFile;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -130,10 +130,10 @@ public class Manager {
 			getReporter().addReporter(new ReporterView());
 		}
 		if (textFile) {
-			getReporter().addReporter(new TextFileView());
+			getReporter().addReporter(new ReporterTextFile());
 		}
 		if (xmlFile) {
-			getReporter().addReporter(new XmlFileView());
+			getReporter().addReporter(new ReporterXmlFile());
 		}
 	}
 

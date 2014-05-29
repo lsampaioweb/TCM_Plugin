@@ -505,8 +505,8 @@ public abstract class Verifier {
 		if (isMethodAnEntryPoint(expr)) {
 			String message = getMessageEntryPoint(BindingResolver.getFullName(expr));
 
-			// If a entry point method is being invoked, then we DO have a vulnerability.
-			df.isVulnerable(expr, message);
+			// We found a invocation to a entry point method.
+			df.isVulnerable(Constant.Vulnerability.ENTRY_POINT, message);
 			return;
 		}
 
@@ -527,7 +527,7 @@ public abstract class Verifier {
 			// if (null != optionalExpression) {
 			// checkExpression(vp.addNodeToPath(optionalExpression), rules, optionalExpression, depth);
 			// } else {
-			df.isVulnerable(expr, "We fear what we do not understand!");
+			df.isVulnerable(Constant.Vulnerability.UNKNOWN, "We fear what we do not understand!");
 			System.out.println("Method:" + expr);
 			// }
 		}

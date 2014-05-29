@@ -11,7 +11,7 @@ import org.eclipse.core.resources.IResource;
  * 
  * @author Luciano Sampaio
  */
-public class XmlFileView implements IReporter {
+public class ReporterXmlFile implements IReporter {
 
 	@Override
 	public int getType() {

@@ -68,6 +68,20 @@ public class ReporterView implements IReporter {
 		}
 	}
 
+	public void clearProblem(ViewDataModel vdm, boolean removeChildren) {
+		try {
+			// Clear the Marker and the children' markers.
+			if (null != vdm.getMarker()) {
+				vdm.removeMarker(removeChildren);
+			}
+
+			// Clear the Security Vulnerability View.
+			clearViewDataModel(vdm, removeChildren);
+		} catch (CoreException e) {
+			PluginLogger.logError(e);
+		}
+	}
+
 	/**
 	 * Delete all old problems of the provided resource from our Security Vulnerability View.
 	 * 
@@ -93,20 +107,6 @@ public class ReporterView implements IReporter {
 
 		// 02 - Update the view so the new data can appear and the old ones can be removed.
 		updateView();
-	}
-
-	public void clearProblem(ViewDataModel vdm, boolean removeChildren) {
-		try {
-			// Clear the Marker and the children' markers.
-			if (null != vdm.getMarker()) {
-				vdm.removeMarker(removeChildren);
-			}
-
-			// Clear the Security Vulnerability View.
-			clearViewDataModel(vdm, removeChildren);
-		} catch (CoreException e) {
-			PluginLogger.logError(e);
-		}
 	}
 
 	/**
@@ -162,7 +162,7 @@ public class ReporterView implements IReporter {
 		});
 	}
 
-	private void addToViewDataModel(int typeVulnerability, IResource resource, DataFlow df) {
+	private void addToViewDataModel(int typeProblem, IResource resource, DataFlow df) {
 		ViewDataModel parent = null;
 		ViewDataModel currentVdm;
 		// Expression root = df.getRoot();
@@ -181,13 +181,13 @@ public class ReporterView implements IReporter {
 			if ((null == parent) && (firstElement != lastElement)) {
 				String message = getMessageByNumberOfVulnerablePaths(allVulnerablePaths, firstElement);
 
-				parent = createViewDataModelElement(typeVulnerability, resource, firstElement.getRoot(), message, null);
+				parent = createViewDataModelElement(typeProblem, resource, firstElement.getRoot(), message, null);
 				if (null != parent) {
 					rootVdm.addChildren(parent);
 				}
 			}
 
-			currentVdm = createViewDataModelElement(typeVulnerability, resource, lastElement.getRoot(),
+			currentVdm = createViewDataModelElement(lastElement.getTypeProblem(), resource, lastElement.getRoot(),
 					lastElement.getMessage(), fullPath);
 			if (null != currentVdm) {
 				if (null != parent) {
@@ -204,7 +204,7 @@ public class ReporterView implements IReporter {
 				allVulnerablePaths.size());
 	}
 
-	private ViewDataModel createViewDataModelElement(int typeVulnerability, IResource resource, Expression expr,
+	private ViewDataModel createViewDataModelElement(int typeProblem, IResource resource, Expression expr,
 			String message, String fullPath) {
 		try {
 			int startPosition = expr.getStartPosition();
@@ -220,7 +220,7 @@ public class ReporterView implements IReporter {
 
 			IMarker marker = resource.createMarker(Constant.MARKER_ID);
 			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
-			marker.setAttribute(Constant.Marker.TYPE_SECURITY_VULNERABILITY, typeVulnerability);
+			marker.setAttribute(Constant.Marker.TYPE_SECURITY_VULNERABILITY, typeProblem);
 			marker.setAttribute(IMarker.MESSAGE, message);
 			marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
 			marker.setAttribute(IMarker.CHAR_START, startPosition);
@@ -229,7 +229,7 @@ public class ReporterView implements IReporter {
 			ViewDataModel vdm = new ViewDataModel();
 			vdm.setMarker(marker);
 			vdm.setExpr(expr);
-			vdm.setTypeVulnerability(typeVulnerability);
+			vdm.setTypeVulnerability(typeProblem);
 			vdm.setMessage(message);
 			vdm.setLineNumber(lineNumber);
 			vdm.setResource(resource);

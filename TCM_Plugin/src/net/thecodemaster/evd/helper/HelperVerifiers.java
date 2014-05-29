@@ -34,6 +34,7 @@ public abstract class HelperVerifiers {
 
 	public static String getTypeVulnerabilityName(int typeVulnerability) {
 		switch (typeVulnerability) {
+		// Main verifier vulnerabilities.
 			case Constant.VERIFIER_ID_COMMAND_INJECTION:
 				return Message.Plugin.VERIFIER_NAME_COMMAND_INJECTION;
 			case Constant.VERIFIER_ID_COOKIE_POISONING:
@@ -48,6 +49,17 @@ public abstract class HelperVerifiers {
 				return Message.Plugin.VERIFIER_NAME_SQL_INJECTION;
 			case Constant.VERIFIER_ID_UNVALIDATED_REDIRECTING:
 				return Message.Plugin.VERIFIER_NAME_UNVALIDATED_REDIRECTING;
+
+				// Sub-Vulnerabilities' types.
+			case Constant.Vulnerability.ENTRY_POINT:
+				return Message.VerifierSecurityVulnerability.ENTRY_POINT;
+			case Constant.Vulnerability.UNKNOWN:
+				return Message.VerifierSecurityVulnerability.UNKNOWN;
+			case Constant.Vulnerability.SECURITY_MISCONFIGURATION_HARD_CODED_CONTENT:
+				return Message.VerifierSecurityVulnerability.SECURITY_MISCONFIGURATION_HARD_CODED_CONTENT;
+			case Constant.Vulnerability.SQL_INJECTION_STRING_CONCATENATION:
+				return Message.VerifierSecurityVulnerability.SQL_INJECTION_STRING_CONCATENATION;
+
 			default:
 				String errorMessage = String.format(Message.Error.TYPE_VULNERABILITY_NOT_FOUND, typeVulnerability);
 				PluginLogger.logError(errorMessage, null);
