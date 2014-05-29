@@ -1,44 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resolutions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="resolution_schema.xsd">
-	<resolution type="1">
-		<label><![CDATA[CommandInjectionResolution]]></label>
-		<description>
-		  <![CDATA[The full path: %s
-      If you think this is a false positive you can ignore it.]]>
-		</description>
-	</resolution>
-	<resolution type="2">
-		<label><![CDATA[CookiePoisoningResolution]]></label>
-		<description><![CDATA[CookiePoisoningResolution]]></description>
-	</resolution>
-	<resolution type="3"> <!-- CrossSiteScriptingResolution -->
-		<label><![CDATA[Sanitize this element using OWASP libraries]]></label>
-		<description><![CDATA[This element should be sanitized to avoid Cross-Site Scripting(XSS).<br/>
-		Cross-Site Scripting (XSS) attacks are a type of injection, in which malicious scripts are injected into otherwise benign and trusted web sites.]]></description>
-	</resolution>
-	<resolution type="4">
-		<label><![CDATA[PathTraversalResolution]]></label>
-		<description><![CDATA[PathTraversalResolution]]></description>
-	</resolution>
-	<resolution type="5">
-		<label><![CDATA[SecurityMisconfigurationResolution]]></label>
-		<description><![CDATA[SecurityMisconfigurationResolution]]></description>
-	</resolution>
-	<resolution type="6">
-		<label><![CDATA[SQLInjectionResolution]]></label>
-		<description><![CDATA[SQLInjectionResolution]]></description>
-	</resolution>
-	<resolution type="7">
-		<label><![CDATA[UnvalidatedRedirectingResolution]]></label>
-		<description><![CDATA[UnvalidatedRedirectingResolution]]></description>
-	</resolution>
 	<resolution type="8">
 		<label><![CDATA[Ignore this warning]]></label>
 		<description>
-		<![CDATA[
+    <![CDATA[
 Our heuristics detected that <b>%s</b> might be vulnerable.<br/>
-It has the full path: <b>%s</b><br/>
+It has the full path: <b>%s</b><br/><br/>
 If you think it is a false positive you can ignore it and this warning will no longer appear.]]>
+		</description>
+	</resolution>
+	<resolution type="20">
+		<label><![CDATA[Sanitize this element]]></label>
+		<description><![CDATA[This element should be sanitized to avoid Cross-Site Scripting(XSS).<br/>
+    Cross-Site Scripting (XSS) attacks are a type of injection, in which malicious 
+    scripts are injected into otherwise benign and trusted web sites.]]></description>
+	</resolution>
+	<resolution type="30">
+		<label><![CDATA[Remove hard-coded content]]></label>
+		<description><![CDATA[You should retrieve this content from a safe place and remove it from the source code.]]></description>
+	</resolution>
+	<resolution type="40">
+		<label><![CDATA[Remove String Concatenation]]></label>
+		<description>
+		  <![CDATA[When you use String Concatenation to create your queries you give
+		  an opportunity to an attacker to exploit a vulnerability in your application. <br/>
+      ...<br/>  
+		  String userName = request.getParameter("userName");<br/>
+      String sql = "SELECT * FROM USER WHERE USERNAME = " + <b>userName</b>;<br/>
+      ResultSet resultSet = statement.executeQuery(sql);<br/>
+      ...<br/>      
+      You should change your code to make it more like the code below: <br/>
+      ...<br/>  
+      String userName = request.getParameter("userName");<br/>
+      String sql = "SELECT * FROM USER WHERE USERNAME = <b>?</b>";<br/>      
+      PreparedStatement preparedStatement = conn.prepareStatement(sql);<br/>
+      preparedStatement.setString(1, userName);<br/>
+      ResultSet resultSet = statement.executeQuery();<br/>
+      ...<br/>
+		  ]]>
 		</description>
 	</resolution>
 </resolutions>
