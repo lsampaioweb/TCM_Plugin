@@ -9,34 +9,67 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.Statement;
 
 /**
+ * This class is responsible to hold the complete flow of a vulnerability starting where the vulnerability was
+ * introduced until where it was exploited.
+ * 
  * @author Luciano Sampaio
  */
 public class DataFlow {
 
-	private final Expression						root;
+	/**
+	 * The object that is vulnerable.
+	 */
+	private Expression									root;
+	/**
+	 * The parent object because we need to navigate from the parent to its children and also on the opposite direction.
+	 */
 	private DataFlow										parent;
+	/**
+	 * The type of the vulnerability.
+	 */
+	private int													typeProblem;
+	/**
+	 * The message that will be displayed to the user informing that this object is vulnerable.
+	 */
 	private String											message;
-
+	/**
+	 * All the possible flows that the vulnerability could reach, but some of them might end up being not vulnerable.
+	 */
 	private final List<DataFlow>				children;
+	/**
+	 * This list holds that actual paths that ARE vulnerable.
+	 */
 	private final List<List<DataFlow>>	allVulnerablePaths;
 
-	private DataFlow(Expression root, DataFlow parent) {
-		this(root);
-		this.parent = parent;
-	}
-
-	public DataFlow(Expression root) {
-		this.root = root;
+	public DataFlow() {
 		children = Creator.newList();
 		allVulnerablePaths = Creator.newList();
+	}
+
+	private DataFlow(Expression root, DataFlow parent) {
+		this();
+		this.root = root;
+		this.parent = parent;
 	}
 
 	public Expression getRoot() {
 		return root;
 	}
 
+	public int getTypeProblem() {
+		return typeProblem;
+	}
+
+	private void setTypeProblem(int typeProblem) {
+		this.typeProblem = typeProblem;
+	}
+
 	public String getMessage() {
 		return message;
+	}
+
+	private void setMessage(String message) {
+		this.message = message;
 	}
 
 	public List<List<DataFlow>> getAllVulnerablePaths() {
@@ -44,20 +77,27 @@ public class DataFlow {
 	}
 
 	public DataFlow addNodeToPath(Expression node) {
-		DataFlow nvp = new DataFlow(node, this);
-		children.add(nvp);
+		DataFlow nvp;
+		if (null == root) {
+			root = node;
+			nvp = this;
+		} else {
+			nvp = new DataFlow(node, this);
+			children.add(nvp);
+		}
 
 		return nvp;
 	}
 
-	public void isVulnerable(Expression expr, String message) {
+	public void isVulnerable(int typeProblem, String message) {
 		isVulnerable(null);
 
-		this.message = message;
+		setTypeProblem(typeProblem);
+		setMessage(message);
 	}
 
 	/**
-	 * This method set the foundVulnerability to true on the parent's path.
+	 * This method informs to the parent object that a vulnerable path was found.
 	 */
 	private void isVulnerable(List<DataFlow> childrenList) {
 		List<DataFlow> currentList = Creator.newList();
@@ -74,6 +114,10 @@ public class DataFlow {
 
 	}
 
+	public boolean isVulnerable() {
+		return !allVulnerablePaths.isEmpty();
+	}
+
 	public void isInfinitiveLoop(Expression expr) {
 		PluginLogger.logIfDebugging("Found an Infinitive Loop at expression: " + expr);
 	}
@@ -82,10 +126,9 @@ public class DataFlow {
 		PluginLogger.logIfDebugging("Found an Infinitive Loop at statement: " + statement);
 	}
 
-	public boolean isVulnerable() {
-		return !allVulnerablePaths.isEmpty();
-	}
-
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -96,10 +139,6 @@ public class DataFlow {
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * @param obj
-	 *          Object
-	 * @return boolean
 	 */
 	@Override
 	public boolean equals(Object obj) {

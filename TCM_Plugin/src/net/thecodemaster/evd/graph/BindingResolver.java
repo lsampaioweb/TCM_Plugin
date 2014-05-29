@@ -9,7 +9,9 @@ import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.point.AbstractPoint;
 
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.Assignment;
+import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
@@ -43,8 +45,19 @@ public class BindingResolver {
 		return (CompilationUnit) findAncestor(node, ASTNode.COMPILATION_UNIT);
 	}
 
+	public static Block getParentBlock(ASTNode node) {
+		return (Block) findAncestor(node, ASTNode.BLOCK);
+	}
+
 	public static MethodDeclaration getParentMethodDeclaration(ASTNode node) {
 		return (MethodDeclaration) findAncestor(node, ASTNode.METHOD_DECLARATION);
+	}
+
+	public static ASTNode getFirstParentBeforeBlock(ASTNode node) {
+		while ((null != node) && (null != node.getParent()) && (node.getParent().getNodeType() != ASTNode.BLOCK)) {
+			node = node.getParent();
+		}
+		return node;
 	}
 
 	public static Expression getParentWhoHasAReference(ASTNode node) {
@@ -146,14 +159,18 @@ public class BindingResolver {
 	public static List<Expression> getParameters(Expression expr) {
 		List<Expression> parameters = Creator.newList();
 
-		if (expr.getNodeType() == ASTNode.METHOD_INVOCATION) {
-			parameters = getParameters(((MethodInvocation) expr).arguments());
-		} else if (expr.getNodeType() == ASTNode.CLASS_INSTANCE_CREATION) {
-			parameters = getParameters(((ClassInstanceCreation) expr).arguments());
-		} else if (expr.getNodeType() == ASTNode.INFIX_EXPRESSION) {
-			parameters = getParameters(((InfixExpression) expr).extendedOperands());
-		}
+		if (null != expr) {
+			if (expr.getNodeType() == ASTNode.METHOD_INVOCATION) {
+				parameters = getParameters(((MethodInvocation) expr).arguments());
+			} else if (expr.getNodeType() == ASTNode.CLASS_INSTANCE_CREATION) {
+				parameters = getParameters(((ClassInstanceCreation) expr).arguments());
+			} else if (expr.getNodeType() == ASTNode.INFIX_EXPRESSION) {
+				parameters = getParameters(((InfixExpression) expr).extendedOperands());
+			} else if (expr.getNodeType() == ASTNode.ARRAY_INITIALIZER) {
+				parameters = getParameters(((ArrayInitializer) expr).expressions());
+			}
 
+		}
 		return parameters;
 	}
 

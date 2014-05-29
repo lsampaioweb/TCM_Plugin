@@ -2,7 +2,7 @@ package net.thecodemaster.evd.ui.view;
 
 import net.thecodemaster.evd.Activator;
 import net.thecodemaster.evd.constant.Constant;
-import net.thecodemaster.evd.ui.l10n.Message;
+import net.thecodemaster.evd.helper.HelperVerifiers;
 
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
@@ -11,23 +11,18 @@ import org.eclipse.swt.graphics.Image;
 class ViewLabelProvider implements ITableLabelProvider {
 
 	private String getTypeVulnerabilityName(int typeVulnerability) {
-		switch (typeVulnerability) {
-			case Constant.VERIFIER_ID_COMMAND_INJECTION:
-				return Message.Plugin.VERIFIER_NAME_COMMAND_INJECTION;
-			case Constant.VERIFIER_ID_COOKIE_POISONING:
-				return Message.Plugin.VERIFIER_NAME_COOKIE_POISONING;
-			case Constant.VERIFIER_ID_CROSS_SITE_SCRIPTING:
-				return Message.Plugin.VERIFIER_NAME_CROSS_SITE_SCRIPTING;
-			case Constant.VERIFIER_ID_PATH_TRAVERSAL:
-				return Message.Plugin.VERIFIER_NAME_PATH_TRAVERSAL;
-			case Constant.VERIFIER_ID_SECURITY_MISCONFIGURATION:
-				return Message.Plugin.VERIFIER_NAME_SECURITY_MISCONFIGURATION;
-			case Constant.VERIFIER_ID_SQL_INJECTION:
-				return Message.Plugin.VERIFIER_NAME_SQL_INJECTION;
-			case Constant.VERIFIER_ID_UNVALIDATED_REDIRECTING:
-				return Message.Plugin.VERIFIER_NAME_UNVALIDATED_REDIRECTING;
-			default:
-				return null;
+		return HelperVerifiers.getTypeVulnerabilityName(typeVulnerability);
+	}
+
+	private String getImage(ViewDataModel vdm) {
+		int nrChildren = vdm.getChildren().size();
+
+		if (nrChildren == 0) {
+			return Constant.Icons.SECURITY_VULNERABILITY_ENTRY;
+		} else if (nrChildren == 1) {
+			return Constant.Icons.SECURITY_VULNERABILITY_EXIT;
+		} else {
+			return Constant.Icons.SECURITY_VULNERABILITY_MULTIPLE;
 		}
 	}
 
@@ -35,7 +30,8 @@ class ViewLabelProvider implements ITableLabelProvider {
 	public Image getColumnImage(Object element, int columnIndex) {
 		switch (columnIndex) {
 			case 3:
-				return Activator.getImageDescriptor(Constant.Icons.SECURITY_VULNERABILITY).createImage();
+				String image = getImage((ViewDataModel) element);
+				return Activator.getImageDescriptor(image).createImage();
 			default:
 				return null;
 		}

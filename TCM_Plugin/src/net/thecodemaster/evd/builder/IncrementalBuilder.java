@@ -111,8 +111,8 @@ public class IncrementalBuilder extends IncrementalProjectBuilder {
 	 */
 	@Override
 	protected void clean(IProgressMonitor monitor) throws CoreException {
-		// Delete markers set and files created.
-		Reporter.clearOldProblems(getProject());
+		// Delete old files, markers and etc related to this project.
+		Reporter.getInstance().clearOldProblems(getProject());
 	}
 
 	protected void fullBuild(final IProgressMonitor monitor) {

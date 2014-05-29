@@ -54,7 +54,7 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 		}
 
 		// 01 - Informs that this node is a vulnerability.
-		df.isVulnerable(expr, message);
+		df.isVulnerable(Constant.Vulnerability.SECURITY_MISCONFIGURATION_HARD_CODED_CONTENT, message);
 	}
 
 }

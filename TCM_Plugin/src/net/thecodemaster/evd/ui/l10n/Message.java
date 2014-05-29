@@ -64,7 +64,7 @@ public abstract class Message extends NLS {
 
 		// Output text
 		public static String				LABEL_OUTPUT;
-		public static String				LABEL_OUTPUT_PROBLEMS_VIEW;
+		public static String				LABEL_OUTPUT_SECURITY_VIEW;
 		public static String				LABEL_OUTPUT_TEXT_FILE;
 		public static String				LABEL_OUTPUT_XML_FILE;
 
@@ -99,8 +99,12 @@ public abstract class Message extends NLS {
 		public static String				LITERAL;
 		public static String				NULL_LITERAL;
 		public static String				ENTRY_POINT_METHOD;
-		public static String				LABEL_RESOLUTION;
-		public static String				DESCRIPTION_RESOLUTION;
+		public static String				STRING_CONCATENATION;
+
+		public static String				ENTRY_POINT;
+		public static String				UNKNOWN;
+		public static String				SQL_INJECTION_STRING_CONCATENATION;
+		public static String				SECURITY_MISCONFIGURATION_HARD_CODED_CONTENT;
 
 		static {
 			// Initialize resource bundle.
@@ -115,7 +119,8 @@ public abstract class Message extends NLS {
 		public static String				FILE_XML_PARSING_FAIL;
 		public static String				FILE_XML_READING_FAIL;
 		public static String				CALL_GRAPH_DOES_NOT_CONTAIN_PROJECT;
-		public static String				FILE_EXIT_POINT_NOT_FOUND;
+		public static String				FILE_PATH_ID_NOT_FOUND;
+		public static String				TYPE_VULNERABILITY_NOT_FOUND;
 
 		static {
 			// Initialize resource bundle.

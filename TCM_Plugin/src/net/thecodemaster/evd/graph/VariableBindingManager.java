@@ -47,6 +47,9 @@ public class VariableBindingManager {
 		return references;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -58,10 +61,6 @@ public class VariableBindingManager {
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * @param obj
-	 *          Object
-	 * @return boolean
 	 */
 	@Override
 	public boolean equals(Object obj) {

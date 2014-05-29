@@ -15,9 +15,4 @@ public class VerifierCrossSiteScripting extends Verifier {
 		super(Message.Plugin.VERIFIER_NAME_CROSS_SITE_SCRIPTING, Constant.VERIFIER_ID_CROSS_SITE_SCRIPTING, entryPoints);
 	}
 
-	@Override
-	protected String getMessageEntryPoint(String value) {
-		return String.format(Message.VerifierSecurityVulnerability.ENTRY_POINT_METHOD, value);
-	}
-
 }

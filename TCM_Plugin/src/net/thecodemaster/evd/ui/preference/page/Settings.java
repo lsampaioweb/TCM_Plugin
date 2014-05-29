@@ -19,7 +19,7 @@ import org.eclipse.ui.IWorkbench;
 public class Settings extends AbstracPreferencePage {
 
 	private RadioGroupFieldEditor	rbtnRunMode;
-	private BooleanFieldEditor		ckbtnProblemView;
+	private BooleanFieldEditor		ckbtnSecurityView;
 	private BooleanFieldEditor		ckbtnTextFile;
 	private BooleanFieldEditor		ckbtnXmlFile;
 
@@ -71,8 +71,8 @@ public class Settings extends AbstracPreferencePage {
 		groupOutput.setText(Message.PrefPageSettings.LABEL_OUTPUT);
 
 		// The output options where the warnings of security vulnerabilities will be displayed.
-		ckbtnProblemView = createBooleanField(Constant.PrefPageSettings.FIELD_OUTPUT_PROBLEMS_VIEW,
-				Message.PrefPageSettings.LABEL_OUTPUT_PROBLEMS_VIEW, groupOutput);
+		ckbtnSecurityView = createBooleanField(Constant.PrefPageSettings.FIELD_OUTPUT_SECURITY_VIEW,
+				Message.PrefPageSettings.LABEL_OUTPUT_SECURITY_VIEW, groupOutput);
 		ckbtnTextFile = createBooleanField(Constant.PrefPageSettings.FIELD_OUTPUT_TEXT_FILE,
 				Message.PrefPageSettings.LABEL_OUTPUT_TEXT_FILE, groupOutput);
 		ckbtnXmlFile = createBooleanField(Constant.PrefPageSettings.FIELD_OUTPUT_XML_FILE,
@@ -87,14 +87,14 @@ public class Settings extends AbstracPreferencePage {
 		// Save the default values into the preference file.
 		store.setDefault(Constant.PrefPageSettings.FIELD_RUN_MODE, Message.PrefPageSettings.VALUE_RUN_AUTOMATICALLY);
 
-		store.setDefault(Constant.PrefPageSettings.FIELD_OUTPUT_PROBLEMS_VIEW, true);
+		store.setDefault(Constant.PrefPageSettings.FIELD_OUTPUT_SECURITY_VIEW, true);
 		store.setDefault(Constant.PrefPageSettings.FIELD_OUTPUT_TEXT_FILE, false);
 		store.setDefault(Constant.PrefPageSettings.FIELD_OUTPUT_XML_FILE, false);
 
 		// Set the default values into the fields.
 		loadDefaultValue(rbtnRunMode);
 
-		loadDefaultValue(ckbtnProblemView);
+		loadDefaultValue(ckbtnSecurityView);
 		loadDefaultValue(ckbtnTextFile);
 		loadDefaultValue(ckbtnXmlFile);
 
@@ -106,7 +106,7 @@ public class Settings extends AbstracPreferencePage {
 		// Save (store) the content chosen by the developer back to the eclipse's preferences.
 		storeValue(rbtnRunMode);
 
-		storeValue(ckbtnProblemView);
+		storeValue(ckbtnSecurityView);
 		storeValue(ckbtnTextFile);
 		storeValue(ckbtnXmlFile);
 

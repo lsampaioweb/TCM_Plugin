@@ -3,11 +3,18 @@ package net.thecodemaster.evd.ui.view;
 import java.util.List;
 
 import net.thecodemaster.evd.helper.Creator;
+import net.thecodemaster.evd.helper.HelperViewDataModel;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.dom.Expression;
 
+/**
+ * Each instance of this class represents a single line into the Security Vulnerability View.
+ * 
+ * @author Luciano Sampaio
+ */
 public class ViewDataModel {
 
 	private int												typeVulnerability;
@@ -18,6 +25,13 @@ public class ViewDataModel {
 	private int												lineNumber;
 	private IMarker										marker;
 
+	/**
+	 * If this object is not a exit point, then it has a parent node.
+	 */
+	private ViewDataModel							parent;
+	/**
+	 * A vulnerability might have several possible vulnerable paths, so this list contains all these paths.
+	 */
 	private final List<ViewDataModel>	children;
 
 	public ViewDataModel() {
@@ -49,7 +63,15 @@ public class ViewDataModel {
 	}
 
 	public String getMessage() {
+		if (null == message) {
+			message = getMessageByNumberOfVulnerablePaths();
+		}
+
 		return message;
+	}
+
+	public void updateMessage() {
+		setMessage(null);
 	}
 
 	public void setMessage(String message) {
@@ -72,14 +94,6 @@ public class ViewDataModel {
 		this.lineNumber = lineNumber;
 	}
 
-	public void addChildren(ViewDataModel vdm) {
-		children.add(vdm);
-	}
-
-	public List<ViewDataModel> getChildren() {
-		return children;
-	}
-
 	public IMarker getMarker() {
 		return marker;
 	}
@@ -88,6 +102,26 @@ public class ViewDataModel {
 		this.marker = marker;
 	}
 
+	public void addChildren(ViewDataModel vdm) {
+		vdm.addParent(this);
+		children.add(vdm);
+	}
+
+	public List<ViewDataModel> getChildren() {
+		return children;
+	}
+
+	private void addParent(ViewDataModel parent) {
+		this.parent = parent;
+	}
+
+	public ViewDataModel getParent() {
+		return parent;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -101,10 +135,6 @@ public class ViewDataModel {
 
 	/**
 	 * {@inheritDoc}
-	 * 
-	 * @param obj
-	 *          Object
-	 * @return boolean
 	 */
 	@Override
 	public boolean equals(Object obj) {
@@ -134,6 +164,53 @@ public class ViewDataModel {
 		}
 
 		return true;
+	}
+
+	public ViewDataModel getBy(IMarker marker) {
+		if ((null != getMarker()) && (getMarker().equals(marker))) {
+			return this;
+		}
+
+		for (ViewDataModel vdm : getChildren()) {
+			ViewDataModel current = vdm.getBy(marker);
+			if (null != current) {
+				return current;
+			}
+		}
+
+		return null;
+	}
+
+	public void removeMarker(boolean removeChildren) throws CoreException {
+		if (null != getMarker()) {
+			getMarker().delete();
+		}
+
+		if (removeChildren) {
+			for (ViewDataModel vdm : getChildren()) {
+				vdm.removeMarker(removeChildren);
+			}
+		}
+	}
+
+	public void removeChildren(List<ViewDataModel> childrenToRemove, boolean removeChildren) {
+		if (getChildren().containsAll(childrenToRemove)) {
+			getChildren().removeAll(childrenToRemove);
+			return;
+		}
+
+		getChildren().removeAll(childrenToRemove);
+
+		if (removeChildren) {
+			// It will iterate only on the children that were not removed.
+			for (ViewDataModel vdm : getChildren()) {
+				vdm.removeChildren(childrenToRemove, removeChildren);
+			}
+		}
+	}
+
+	private String getMessageByNumberOfVulnerablePaths() {
+		return HelperViewDataModel.getMessageByNumberOfVulnerablePaths(getExpr().toString(), getChildren().size());
 	}
 
 }
