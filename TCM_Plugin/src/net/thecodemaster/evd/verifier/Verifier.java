@@ -1,5 +1,6 @@
 package net.thecodemaster.evd.verifier;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -27,11 +28,13 @@ import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.QualifiedName;
@@ -40,6 +43,8 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
 
 /**
@@ -159,6 +164,17 @@ public abstract class Verifier {
 		getReporter().addProblem(getId(), getCurrentResource(), dataFlow);
 	}
 
+	protected boolean hasReachedMaximumDepth(int depth) {
+		return Constant.MAXIMUM_VERIFICATION_DEPTH == depth;
+	}
+
+	/**
+	 * The public run method that will be invoked by the Analyzer.
+	 * 
+	 * @param resources
+	 * @param callGraph
+	 * @param reporter
+	 */
 	public void run(List<IResource> resources, CallGraph callGraph, Reporter reporter) {
 		this.callGraph = callGraph;
 		this.reporter = reporter;
@@ -168,10 +184,226 @@ public abstract class Verifier {
 		// Perform the verifications on the resources.
 		// 01 - Run the vulnerability detection on all the provided resources.
 		for (IResource resource : resources) {
-			performVerification(resource);
+			run(resource);
 		}
 	}
 
+	/**
+	 * Iterate over all the method declarations found in the current resource.
+	 * 
+	 * @param resource
+	 */
+	protected void run(IResource resource) {
+		// We need this information when we are going to display the vulnerabilities.
+		setCurrentResource(resource);
+
+		// 02 - Get the list of methods in the current resource.
+		Map<MethodDeclaration, List<Expression>> methods = getCallGraph().getMethods(resource);
+
+		// 03 - Get all the method invocations of each method declaration.
+		for (MethodDeclaration methodDeclaration : methods.keySet()) {
+			run(methodDeclaration);
+		}
+	}
+
+	/**
+	 * Run the vulnerability detection on the current method declaration.
+	 * 
+	 * @param methodDeclaration
+	 */
+	protected void run(MethodDeclaration methodDeclaration) {
+		// The depth control the investigation mechanism to avoid infinitive loops.
+		int depth = 0;
+		checkBlock(depth, methodDeclaration.getBody());
+	}
+
+	protected void checkBlock(int depth, Block block) {
+		if (null != block) {
+			List<?> statements = block.statements();
+			for (Object object : statements) {
+				checkStatement(depth, (Statement) object);
+			}
+		}
+	}
+
+	protected void checkStatement(int depth, Statement statement) {
+		// 01 - To avoid infinitive loop, this check is necessary.
+		if (hasReachedMaximumDepth(depth)) {
+			return;
+		}
+
+		switch (statement.getNodeType()) {
+			case ASTNode.BLOCK: // 08
+				checkBlock(depth, (Block) statement);
+				break;
+			case ASTNode.DO_STATEMENT: // 19
+				checkDoStatement(depth, (DoStatement) statement);
+				break;
+			case ASTNode.EXPRESSION_STATEMENT: // 21
+				checkExpressionStatement(depth, (ExpressionStatement) statement);
+				break;
+			case ASTNode.FOR_STATEMENT: // 24
+				checkForStatement(depth, (ForStatement) statement);
+				break;
+			case ASTNode.IF_STATEMENT: // 25
+				checkIfStatement(depth, (IfStatement) statement);
+				break;
+			case ASTNode.RETURN_STATEMENT: // 41
+				checkReturnStatement(depth, (ReturnStatement) statement);
+				break;
+			case ASTNode.SWITCH_STATEMENT: // 50
+				checkSwitchStatement(depth, (SwitchStatement) statement);
+				break;
+			case ASTNode.TRY_STATEMENT: // 54
+				checkTryStatement(depth, (TryStatement) statement);
+				break;
+			case ASTNode.VARIABLE_DECLARATION_STATEMENT: // 60
+				checkVariableDeclarationStatementStatement(depth, (VariableDeclarationStatement) statement);
+				break;
+			case ASTNode.WHILE_STATEMENT: // 61
+				checkWhileStatement(depth, (WhileStatement) statement);
+				break;
+			default:
+				PluginLogger.logError("checkStatement Default Node Type: " + statement.getNodeType() + " - " + statement, null);
+		}
+	}
+
+	/**
+	 * Checks for the Statements.
+	 */
+	private void checkDoStatement(int depth, DoStatement statement) {
+		checkStatement(depth, statement.getBody());
+	}
+
+	private void checkExpressionStatement(int depth, ExpressionStatement expression) {
+		checkExpression(depth, expression.getExpression());
+	}
+
+	private void checkForStatement(int depth, ForStatement statement) {
+		checkStatement(depth, statement.getBody());
+	}
+
+	private void checkIfStatement(int depth, IfStatement statement) {
+		checkStatement(depth, statement.getThenStatement());
+		checkStatement(depth, statement.getElseStatement());
+	}
+
+	private void checkReturnStatement(int depth, ReturnStatement statement) {
+		checkExpression(depth, statement.getExpression());
+	}
+
+	private void checkSwitchStatement(int depth, SwitchStatement statement) {
+		List<?> switchStatements = statement.statements();
+		for (Object switchCases : switchStatements) {
+			checkStatement(depth, (Statement) switchCases);
+		}
+	}
+
+	private void checkTryStatement(int depth, TryStatement statement) {
+		checkStatement(depth, statement.getBody());
+
+		List<?> listCatches = statement.catchClauses();
+		for (Object catchClause : listCatches) {
+			checkStatement(depth, ((CatchClause) catchClause).getBody());
+		}
+
+		checkStatement(depth, statement.getFinally());
+	}
+
+	protected void checkVariableDeclarationStatementStatement(int depth, VariableDeclarationStatement statement) {
+		List<?> fragments = statement.fragments();
+		for (Iterator<?> iter = fragments.iterator(); iter.hasNext();) {
+			// VariableDeclarationFragment: is the plain variable declaration part.
+			// Example: "int x=0, y=0;" contains two VariableDeclarationFragments, "x=0" and "y=0"
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) iter.next();
+
+			// (fragment.getName(), fragment.getInitializer());
+		}
+	}
+
+	protected void checkWhileStatement(int depth, WhileStatement statement) {
+		checkStatement(depth, statement.getBody());
+	}
+
+	protected void checkExpression(int depth, Expression expression) {
+		// 01 - To avoid infinitive loop, this check is necessary.
+		if (hasReachedMaximumDepth(depth)) {
+			return;
+		}
+
+		// 06 - We need to check the type of the parameter and deal with it accordingly to its type.
+		switch (expression.getNodeType()) {
+			case ASTNode.ARRAY_INITIALIZER: // 04
+				// checkArrayInitializer(depth, expression);
+				break;
+			case ASTNode.ASSIGNMENT: // 07
+				break;
+			case ASTNode.CAST_EXPRESSION: // 11
+				// checkCastExpression(depth, expression);
+				break;
+			case ASTNode.CLASS_INSTANCE_CREATION: // 14
+				// checkClassInstanceCreation(depth, expression);
+				break;
+			case ASTNode.CONDITIONAL_EXPRESSION: // 16
+				// checkConditionExpression(depth, expression);
+				break;
+			case ASTNode.INFIX_EXPRESSION: // 27
+				// checkInfixExpression(depth, expression);
+				break;
+			case ASTNode.METHOD_INVOCATION: // 32
+				checkMethodInvocation(depth, expression);
+				break;
+			case ASTNode.PARENTHESIZED_EXPRESSION: // 36
+				// checkParenthesizedExpression(depth, expression);
+				break;
+			case ASTNode.PREFIX_EXPRESSION: // 38
+				// checkPrefixExpression(depth, expression);
+				break;
+			case ASTNode.QUALIFIED_NAME: // 40
+				// checkQualifiedName(depth, expression);
+				break;
+			case ASTNode.SIMPLE_NAME: // 42
+				// checkSimpleName(depth, expression);
+				break;
+			case ASTNode.CHARACTER_LITERAL: // 13
+			case ASTNode.NULL_LITERAL: // 33
+			case ASTNode.NUMBER_LITERAL: // 34
+			case ASTNode.STRING_LITERAL: // 45
+				// checkLiteral(depth, expression);
+				break;
+			default:
+				PluginLogger.logError("checkExpression Default Node Type: " + expression.getNodeType() + " - " + expression,
+						null);
+		}
+	}
+
+	/**
+	 * Checks for the Expressions.
+	 */
+	protected void checkMethodInvocation(int depth, Expression expression) {
+		// There are 2 cases: When we have the source code of this method and when we do not.
+		MethodDeclaration methodDeclaration = getCallGraph().getMethod(getCurrentResource(), expression);
+
+		if (null != methodDeclaration) {
+			// 01 - We have the source code.
+
+		} else {
+			// 02 - We do not have the source code.
+			// Now we have to investigate if the element who is invoking this method is vulnerable or not.
+			Expression objectName = ((MethodInvocation) expression).getExpression();
+			if (isVulnerable(objectName)) {
+				// We found a vulnerability.
+			}
+		}
+	}
+
+	protected boolean isVulnerable(Expression expression) {
+		return false;
+	}
+
+	/**
+	 * OLD PART
+	 */
 	protected void performVerification(IResource resource) {
 		// 01 - Get the list of methods in the current resource.
 		Map<MethodDeclaration, List<Expression>> methods = getCallGraph().getMethods(resource);
@@ -307,7 +539,7 @@ public abstract class Verifier {
 			df = df.addNodeToPath(expr);
 
 			// 03 - To avoid infinitive loop, this check is necessary.
-			if (Constant.MAXIMUM_VERIFICATION_DEPTH == depth) {
+			if (hasReachedMaximumDepth(depth)) {
 				// Informs that we can no longer investigate because it looks like we are in an infinitive loop.
 				df.isInfinitiveLoop(expr);
 
@@ -368,7 +600,7 @@ public abstract class Verifier {
 		}
 	}
 
-	private boolean hasAnnotationAtPosition(Expression expr) {
+	protected boolean hasAnnotationAtPosition(Expression expr) {
 		return AnnotationManager.hasAnnotationAtPosition(expr);
 	}
 
@@ -576,7 +808,7 @@ public abstract class Verifier {
 		if (statement.getNodeType() == ASTNode.RETURN_STATEMENT) {
 			Expression expr = ((ReturnStatement) statement).getExpression();
 			checkExpression(df, rules, depth, expr);
-		} else if (Constant.MAXIMUM_VERIFICATION_DEPTH == depth) {
+		} else if (hasReachedMaximumDepth(depth)) {
 			// To avoid infinitive loop, this check is necessary.
 			// Informs that we can no longer investigate because it looks like we are in an infinitive loop.
 			df.isInfinitiveLoop(statement);
@@ -599,6 +831,14 @@ public abstract class Verifier {
 					checkIfBlockOrStatement(df, rules, depth, is.getThenStatement());
 					checkIfBlockOrStatement(df, rules, depth, is.getElseStatement());
 					break;
+				case ASTNode.SWITCH_STATEMENT:
+					SwitchStatement switchStatement = (SwitchStatement) statement;
+
+					List<?> switchStatements = switchStatement.statements();
+					for (Object switchCases : switchStatements) {
+						checkIfBlockOrStatement(df, rules, depth, (Statement) switchCases);
+					}
+					break;
 				case ASTNode.TRY_STATEMENT:
 					TryStatement tryStatement = (TryStatement) statement;
 
@@ -610,14 +850,6 @@ public abstract class Verifier {
 					}
 
 					checkIfBlockOrStatement(df, rules, depth, tryStatement.getFinally());
-					break;
-				case ASTNode.SWITCH_STATEMENT:
-					SwitchStatement switchStatement = (SwitchStatement) statement;
-
-					List<?> switchStatements = switchStatement.statements();
-					for (Object switchCases : switchStatements) {
-						checkIfBlockOrStatement(df, rules, depth, (Statement) switchCases);
-					}
 					break;
 			}
 		}

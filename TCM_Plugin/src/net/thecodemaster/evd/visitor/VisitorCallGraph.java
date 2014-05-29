@@ -115,7 +115,7 @@ public class VisitorCallGraph implements IResourceVisitor, IResourceDeltaVisitor
 
 				// Add a new empty branch.
 				callGraph.setCurrentResource(resource);
-				cUnit.accept(new VisitorCompilationUnit(cUnit, callGraph));
+				cUnit.accept(new VisitorCompilationUnit(callGraph));
 				PluginLogger.logIfDebugging(timer.stop().toString());
 
 				// Add this resource to the list of updated resources.

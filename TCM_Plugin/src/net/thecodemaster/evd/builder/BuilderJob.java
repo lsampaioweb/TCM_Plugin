@@ -112,9 +112,7 @@ public class BuilderJob extends Job {
 					// 02 - Use the VISITOR pattern to create/populate the call graph.
 					resourcesUpdated = visitorCallGraph.run(delta);
 					PluginLogger.logIfDebugging(timerD.stop().toString());
-				}
-
-				if (null != project) {
+				} else if (null != project) {
 					Timer timerP = (new Timer("01.1 - Call Graph Project: ")).start();
 					// 02 - Use the VISITOR pattern to create/populate the call graph.
 					resourcesUpdated = visitorCallGraph.run(project);

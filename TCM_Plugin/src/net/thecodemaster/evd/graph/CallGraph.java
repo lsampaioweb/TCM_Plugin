@@ -97,9 +97,20 @@ public class CallGraph {
 	}
 
 	public Map<MethodDeclaration, List<Expression>> getMethods(IResource resource) {
-		return methodsPerFile.get(resource);
+		Map<MethodDeclaration, List<Expression>> emptyList = Creator.newMap();
+
+		Map<MethodDeclaration, List<Expression>> methods = methodsPerFile.get(resource);
+
+		return (null != methods) ? methods : emptyList;
 	}
 
+	/**
+	 * Get the implementation (MethodDeclaration) of the method.
+	 * 
+	 * @param resource
+	 * @param expr
+	 * @return
+	 */
 	public MethodDeclaration getMethod(IResource resource, Expression expr) {
 		// 01 - Get all the methods from this resource.
 		// 02 - From that list, try to find this method (expr).
@@ -184,54 +195,57 @@ public class CallGraph {
 	}
 
 	private Map<IBinding, List<VariableBindingManager>> getVariables(IResource resource) {
-		return variablesPerFile.get(resource);
+		Map<IBinding, List<VariableBindingManager>> emptyList = Creator.newMap();
+
+		Map<IBinding, List<VariableBindingManager>> variables = variablesPerFile.get(resource);
+
+		return (null != variables) ? variables : emptyList;
 	}
 
 	private List<VariableBindingManager> getVariableBindings(IBinding binding) {
 		// 01 - Get the list of variables in the current file.
 		Map<IBinding, List<VariableBindingManager>> variableBindings = getVariables(getCurrentResource());
 
-		if (null != variableBindings) {
-			// 02 - Get the list of references of this variable.
-			List<VariableBindingManager> vbms = variableBindings.get(binding);
+		// 02 - Get the list of references of this variable.
+		List<VariableBindingManager> vbms = variableBindings.get(binding);
 
-			// 03 - If the list is null, this variable belongs to another file.
-			if ((null == vbms) && (null != binding)) {
-				for (Entry<IResource, Map<IBinding, List<VariableBindingManager>>> entry : variablesPerFile.entrySet()) {
-					vbms = getVariableBindings(entry.getValue(), binding);
+		// 03 - If the list is null, this variable belongs to another file.
+		if ((null == vbms) && (null != binding)) {
+			for (Entry<IResource, Map<IBinding, List<VariableBindingManager>>> entry : variablesPerFile.entrySet()) {
+				vbms = getVariableBindings(entry.getValue(), binding);
 
-					// 04 - If the list is different from null, it means we found it.
-					if (null != vbms) {
-						break;
-					}
+				// 04 - If the list is different from null, it means we found it.
+				if (vbms.size() > 0) {
+					break;
 				}
 			}
-
-			// 05 - Return the last element of the list.
-			return vbms;
 		}
 
-		return null;
+		// 05 - Return the last element of the list.
+		return vbms;
 	}
 
 	private List<VariableBindingManager> getVariableBindings(Map<IBinding, List<VariableBindingManager>> mapVariables,
 			IBinding binding) {
+		List<VariableBindingManager> variableBindings = Creator.newList();
+
 		// 01 - Iterate through the list to verify if we have the implementation of this method in our list.
 		for (Entry<IBinding, List<VariableBindingManager>> entry : mapVariables.entrySet()) {
 			// 02 - Verify if these methods are the same.
 			if (entry.getKey().equals(binding)) {
-				return entry.getValue();
+				variableBindings = entry.getValue();
+				break;
 			}
 		}
 
-		return null;
+		return variableBindings;
 	}
 
 	public VariableBindingManager getVariableBinding(SimpleName simpleName) {
 		// 01 - Get the list of references of this variable.
 		List<VariableBindingManager> vbms = getVariableBindings(simpleName.resolveBinding());
 
-		if (null != vbms) {
+		if (vbms.size() > 0) {
 			// 02 - Get a parent expression which has a reference to this variable.
 			Expression expression = BindingResolver.getParentWhoHasAReference(simpleName);
 			if (null != expression) {

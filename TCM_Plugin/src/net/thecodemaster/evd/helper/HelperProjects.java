@@ -223,7 +223,8 @@ public abstract class HelperProjects {
 				resourceTypesWanted = getResourceTypesToPerformDetection();
 			}
 
-			return resourceTypesWanted.contains(resource.getFileExtension().toLowerCase());
+			String fileExtension = (null != resource.getFileExtension()) ? resource.getFileExtension() : "";
+			return resourceTypesWanted.contains(fileExtension.toLowerCase());
 		}
 
 		// If it reaches this point, it means that the detection should not be performed in this resource.
