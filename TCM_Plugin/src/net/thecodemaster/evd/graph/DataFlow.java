@@ -19,7 +19,7 @@ public class DataFlow {
 	/**
 	 * The object that is vulnerable.
 	 */
-	private final Expression						root;
+	private Expression									root;
 	/**
 	 * The parent object because we need to navigate from the parent to its children and also on the opposite direction.
 	 */
@@ -41,14 +41,14 @@ public class DataFlow {
 	 */
 	private final List<List<DataFlow>>	allVulnerablePaths;
 
-	public DataFlow(Expression root) {
-		this.root = root;
+	public DataFlow() {
 		children = Creator.newList();
 		allVulnerablePaths = Creator.newList();
 	}
 
 	private DataFlow(Expression root, DataFlow parent) {
-		this(root);
+		this();
+		this.root = root;
 		this.parent = parent;
 	}
 
@@ -77,8 +77,14 @@ public class DataFlow {
 	}
 
 	public DataFlow addNodeToPath(Expression node) {
-		DataFlow nvp = new DataFlow(node, this);
-		children.add(nvp);
+		DataFlow nvp;
+		if (null == root) {
+			root = node;
+			nvp = this;
+		} else {
+			nvp = new DataFlow(node, this);
+			children.add(nvp);
+		}
 
 		return nvp;
 	}

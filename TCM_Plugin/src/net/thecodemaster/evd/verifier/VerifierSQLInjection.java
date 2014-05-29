@@ -23,13 +23,13 @@ public class VerifierSQLInjection extends Verifier {
 	}
 
 	@Override
-	protected void checkInfixExpression(DataFlow df, List<Integer> rules, Expression expr, int depth) {
+	protected void checkInfixExpression(DataFlow df, List<Integer> rules, int depth, Expression expr) {
 		// 01 - Informs that this node is a vulnerability.
 		df.isVulnerable(Constant.Vulnerability.SQL_INJECTION_STRING_CONCATENATION, getStringConcatenationMessage());
 	}
 
 	@Override
-	protected void checkPrefixExpression(DataFlow df, List<Integer> rules, Expression expr, int depth) {
+	protected void checkPrefixExpression(DataFlow df, List<Integer> rules, int depth, Expression expr) {
 		// 01 - Informs that this node is a vulnerability.
 		df.isVulnerable(Constant.Vulnerability.SQL_INJECTION_STRING_CONCATENATION, getStringConcatenationMessage());
 	}

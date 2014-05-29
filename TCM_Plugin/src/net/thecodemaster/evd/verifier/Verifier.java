@@ -210,9 +210,9 @@ public abstract class Verifier {
 			// If the rules are null, it means the expected parameter can be anything. (We do not care for it).
 			if (null != rules) {
 				Expression expr = receivedParameters.get(index);
-				DataFlow df = new DataFlow(expr);
+				DataFlow df = new DataFlow();
 
-				checkExpression(df, rules, expr, depth);
+				checkExpression(df, rules, depth, expr);
 				if (df.isVulnerable()) {
 					reportVulnerability(df);
 				}
@@ -298,12 +298,15 @@ public abstract class Verifier {
 		return false;
 	}
 
-	protected void checkExpression(DataFlow df, List<Integer> rules, Expression expr, int depth) {
+	protected void checkExpression(DataFlow df, List<Integer> rules, int depth, Expression expr) {
 		// 01 - If the parameter matches the rules (Easy case), the parameter is okay, otherwise we need to check for more
 		// things.
 		if (!matchRules(rules, expr)) {
 
-			// To avoid infinitive loop, this check is necessary.
+			// 02 -Add the current element to the data flow.
+			df = df.addNodeToPath(expr);
+
+			// 03 - To avoid infinitive loop, this check is necessary.
 			if (Constant.MAXIMUM_VERIFICATION_DEPTH == depth) {
 				// Informs that we can no longer investigate because it looks like we are in an infinitive loop.
 				df.isInfinitiveLoop(expr);
@@ -311,10 +314,13 @@ public abstract class Verifier {
 				return;
 			}
 
-			// 02 - Check if there is an annotation, in case there is, we should BELIEVE it is not vulnerable.
+			// 04 - Check if there is an annotation, in case there is, we should BELIEVE it is not vulnerable.
 			if (!hasAnnotationAtPosition(expr)) {
 
-				// 03 - We need to check the type of the parameter and deal with it accordingly to its type.
+				// 05 - We are going to investigate 1 layer deeper, so we increment the depth.
+				depth++;
+
+				// 06 - We need to check the type of the parameter and deal with it accordingly to its type.
 				switch (expr.getNodeType()) {
 					case ASTNode.STRING_LITERAL:
 					case ASTNode.CHARACTER_LITERAL:
@@ -323,37 +329,37 @@ public abstract class Verifier {
 						checkLiteral(df, expr);
 						break;
 					case ASTNode.INFIX_EXPRESSION:
-						checkInfixExpression(df, rules, expr, ++depth);
+						checkInfixExpression(df, rules, depth, expr);
 						break;
 					case ASTNode.PREFIX_EXPRESSION:
-						checkPrefixExpression(df, rules, expr, ++depth);
+						checkPrefixExpression(df, rules, depth, expr);
 						break;
 					case ASTNode.CONDITIONAL_EXPRESSION:
-						checkConditionExpression(df, rules, expr, ++depth);
+						checkConditionExpression(df, rules, depth, expr);
 						break;
 					case ASTNode.ASSIGNMENT:
-						checkAssignment(df, rules, expr, ++depth);
+						checkAssignment(df, rules, depth, expr);
 						break;
 					case ASTNode.SIMPLE_NAME:
-						checkSimpleName(df, rules, expr, ++depth);
+						checkSimpleName(df, rules, depth, expr);
 						break;
 					case ASTNode.QUALIFIED_NAME:
-						checkQualifiedName(df, rules, expr, ++depth);
+						checkQualifiedName(df, rules, depth, expr);
 						break;
 					case ASTNode.METHOD_INVOCATION:
-						checkMethodInvocation(df, rules, expr, ++depth);
+						checkMethodInvocation(df, rules, depth, expr);
 						break;
 					case ASTNode.CAST_EXPRESSION:
-						checkCastExpression(df, rules, expr, ++depth);
+						checkCastExpression(df, rules, depth, expr);
 						break;
 					case ASTNode.CLASS_INSTANCE_CREATION:
-						checkClassInstanceCreation(df, rules, expr, ++depth);
+						checkClassInstanceCreation(df, rules, depth, expr);
 						break;
 					case ASTNode.ARRAY_INITIALIZER:
-						checkArrayInitializer(df, rules, expr, ++depth);
+						checkArrayInitializer(df, rules, depth, expr);
 						break;
 					case ASTNode.PARENTHESIZED_EXPRESSION:
-						checkParenthesizedExpression(df, rules, expr, ++depth);
+						checkParenthesizedExpression(df, rules, depth, expr);
 						break;
 					default:
 						PluginLogger.logError("Default Node Type: " + expr.getNodeType() + " - " + expr, null);
@@ -395,7 +401,7 @@ public abstract class Verifier {
 	protected void checkLiteral(DataFlow df, Expression expr) {
 	}
 
-	protected void checkInfixExpression(DataFlow df, List<Integer> rules, Expression expr, int depth) {
+	protected void checkInfixExpression(DataFlow df, List<Integer> rules, int depth, Expression expr) {
 		InfixExpression parameter = (InfixExpression) expr;
 
 		// 01 - Get the elements from the operation.
@@ -404,24 +410,24 @@ public abstract class Verifier {
 		List<Expression> extendedOperands = BindingResolver.getParameters(parameter);
 
 		// 02 - Check each element.
-		checkExpression(df.addNodeToPath(leftOperand), rules, leftOperand, depth);
-		checkExpression(df.addNodeToPath(rightOperand), rules, rightOperand, depth);
+		checkExpression(df, rules, depth, leftOperand);
+		checkExpression(df, rules, depth, rightOperand);
 
 		for (Expression expression : extendedOperands) {
-			checkExpression(df.addNodeToPath(expression), rules, expression, depth);
+			checkExpression(df, rules, depth, expression);
 		}
 	}
 
-	protected void checkPrefixExpression(DataFlow df, List<Integer> rules, Expression expr, int depth) {
+	protected void checkPrefixExpression(DataFlow df, List<Integer> rules, int depth, Expression expr) {
 		PrefixExpression parameter = (PrefixExpression) expr;
 		// 01 - Get the elements from the operation.
 		Expression operand = parameter.getOperand();
 
 		// 02 - Check each element.
-		checkExpression(df.addNodeToPath(operand), rules, operand, depth);
+		checkExpression(df, rules, depth, operand);
 	}
 
-	protected void checkConditionExpression(DataFlow df, List<Integer> rules, Expression expr, int depth) {
+	protected void checkConditionExpression(DataFlow df, List<Integer> rules, int depth, Expression expr) {
 		ConditionalExpression parameter = (ConditionalExpression) expr;
 
 		// 01 - Get the elements from the operation.
@@ -429,11 +435,11 @@ public abstract class Verifier {
 		Expression elseExpression = parameter.getElseExpression();
 
 		// 02 - Check each element.
-		checkExpression(df.addNodeToPath(thenExpression), rules, thenExpression, depth);
-		checkExpression(df.addNodeToPath(elseExpression), rules, elseExpression, depth);
+		checkExpression(df, rules, depth, thenExpression);
+		checkExpression(df, rules, depth, elseExpression);
 	}
 
-	protected void checkAssignment(DataFlow df, List<Integer> rules, Expression expr, int depth) {
+	protected void checkAssignment(DataFlow df, List<Integer> rules, int depth, Expression expr) {
 		Assignment assignment = (Assignment) expr;
 
 		// 01 - Get the elements from the operation.
@@ -441,11 +447,11 @@ public abstract class Verifier {
 		Expression rightHandSide = assignment.getRightHandSide();
 
 		// 02 - Check each element.
-		checkExpression(df.addNodeToPath(leftHandSide), rules, leftHandSide, depth);
-		checkExpression(df.addNodeToPath(rightHandSide), rules, rightHandSide, depth);
+		checkExpression(df, rules, depth, leftHandSide);
+		checkExpression(df, rules, depth, rightHandSide);
 	}
 
-	protected void checkSimpleName(DataFlow df, List<Integer> rules, Expression expr, int depth) {
+	protected void checkSimpleName(DataFlow df, List<Integer> rules, int depth, Expression expr) {
 		SimpleName simpleName = (SimpleName) expr;
 
 		// 01 - Try to retrieve the variable from the list of variables.
@@ -454,7 +460,7 @@ public abstract class Verifier {
 
 			// 02 - This is the case where we have to go deeper into the variable's path.
 			Expression initializer = manager.getInitializer();
-			checkExpression(df.addNodeToPath(initializer), rules, initializer, depth);
+			checkExpression(df, rules, depth, initializer);
 		} else {
 			// This is the case where the variable is an argument of the method.
 			// 04 - Get the method signature that is using this parameter.
@@ -477,7 +483,7 @@ public abstract class Verifier {
 								Expression parameter = BindingResolver.getParameterAtIndex(expression, parameterIndex);
 
 								// 10 - Run detection on this parameter.
-								checkExpression(df.addNodeToPath(parameter), rules, parameter, depth);
+								checkExpression(df, rules, depth, parameter);
 							}
 						}
 
@@ -488,13 +494,13 @@ public abstract class Verifier {
 		}
 	}
 
-	protected void checkQualifiedName(DataFlow df, List<Integer> rules, Expression expr, int depth) {
+	protected void checkQualifiedName(DataFlow df, List<Integer> rules, int depth, Expression expr) {
 		Expression expression = ((QualifiedName) expr).getName();
 
-		checkExpression(df.addNodeToPath(expression), rules, expression, depth);
+		checkExpression(df, rules, depth, expression);
 	}
 
-	protected void checkMethodInvocation(DataFlow df, List<Integer> rules, Expression expr, int depth) {
+	protected void checkMethodInvocation(DataFlow df, List<Integer> rules, int depth, Expression expr) {
 		// 01 - Check if this method is a Sanitization-Point.
 		if (isMethodASanitizationPoint(expr)) {
 			// If a sanitization method is being invoked, then we do not have a vulnerability.
@@ -517,7 +523,7 @@ public abstract class Verifier {
 		MethodDeclaration methodDeclaration = getCallGraph().getMethod(getCurrentResource(), expr);
 
 		if (null != methodDeclaration) {
-			checkBlock(df, rules, methodDeclaration.getBody(), depth);
+			checkBlock(df, rules, depth, methodDeclaration.getBody());
 		} else {
 			// TODO - Special cases:
 			// "url".toString(); variable.toLowerCase();
@@ -525,7 +531,7 @@ public abstract class Verifier {
 			// Expression optionalExpression = methodInvocation.getExpression();
 			//
 			// if (null != optionalExpression) {
-			// checkExpression(vp.addNodeToPath(optionalExpression), rules, optionalExpression, depth);
+			// checkExpression(vp.(optionalExpression), rules, optionalExpression, depth);
 			// } else {
 			df.isVulnerable(Constant.Vulnerability.UNKNOWN, "We fear what we do not understand!");
 			System.out.println("Method:" + expr);
@@ -533,43 +539,43 @@ public abstract class Verifier {
 		}
 	}
 
-	protected void checkCastExpression(DataFlow df, List<Integer> rules, Expression expr, int depth) {
+	protected void checkCastExpression(DataFlow df, List<Integer> rules, int depth, Expression expr) {
 		Expression expression = ((CastExpression) expr).getExpression();
 
-		checkExpression(df.addNodeToPath(expression), rules, expression, depth);
+		checkExpression(df, rules, depth, expression);
 	}
 
-	protected void checkClassInstanceCreation(DataFlow df, List<Integer> rules, Expression expr, int depth) {
+	protected void checkClassInstanceCreation(DataFlow df, List<Integer> rules, int depth, Expression expr) {
 		List<Expression> parameters = BindingResolver.getParameters(expr);
 		for (Expression parameter : parameters) {
-			checkExpression(df.addNodeToPath(parameter), rules, parameter, depth);
+			checkExpression(df, rules, depth, parameter);
 		}
 	}
 
-	protected void checkArrayInitializer(DataFlow df, List<Integer> rules, Expression expr, int depth) {
+	protected void checkArrayInitializer(DataFlow df, List<Integer> rules, int depth, Expression expr) {
 		List<Expression> parameters = BindingResolver.getParameters(expr);
 		for (Expression parameter : parameters) {
-			checkExpression(df.addNodeToPath(parameter), rules, parameter, depth);
+			checkExpression(df, rules, depth, parameter);
 		}
 	}
 
-	protected void checkParenthesizedExpression(DataFlow df, List<Integer> rules, Expression expr, int depth) {
+	protected void checkParenthesizedExpression(DataFlow df, List<Integer> rules, int depth, Expression expr) {
 		Expression expression = ((ParenthesizedExpression) expr).getExpression();
 
-		checkExpression(df.addNodeToPath(expression), rules, expression, depth);
+		checkExpression(df, rules, depth, expression);
 	}
 
-	protected void checkBlock(DataFlow df, List<Integer> rules, Block block, int depth) {
+	protected void checkBlock(DataFlow df, List<Integer> rules, int depth, Block block) {
 		List<?> statements = block.statements();
 		for (Object object : statements) {
-			checkStatement(df, rules, (Statement) object, depth);
+			checkStatement(df, rules, depth, (Statement) object);
 		}
 	}
 
-	protected void checkStatement(DataFlow df, List<Integer> rules, Statement statement, int depth) {
+	protected void checkStatement(DataFlow df, List<Integer> rules, int depth, Statement statement) {
 		if (statement.getNodeType() == ASTNode.RETURN_STATEMENT) {
 			Expression expr = ((ReturnStatement) statement).getExpression();
-			checkExpression(df.addNodeToPath(expr), rules, expr, depth);
+			checkExpression(df, rules, depth, expr);
 		} else if (Constant.MAXIMUM_VERIFICATION_DEPTH == depth) {
 			// To avoid infinitive loop, this check is necessary.
 			// Informs that we can no longer investigate because it looks like we are in an infinitive loop.
@@ -579,55 +585,55 @@ public abstract class Verifier {
 		} else {
 			switch (statement.getNodeType()) {
 				case ASTNode.FOR_STATEMENT:
-					checkIfBlockOrStatement(df, rules, ((ForStatement) statement).getBody(), depth);
+					checkIfBlockOrStatement(df, rules, depth, ((ForStatement) statement).getBody());
 					break;
 				case ASTNode.WHILE_STATEMENT:
-					checkIfBlockOrStatement(df, rules, ((WhileStatement) statement).getBody(), depth);
+					checkIfBlockOrStatement(df, rules, depth, ((WhileStatement) statement).getBody());
 					break;
 				case ASTNode.DO_STATEMENT:
-					checkIfBlockOrStatement(df, rules, ((DoStatement) statement).getBody(), depth);
+					checkIfBlockOrStatement(df, rules, depth, ((DoStatement) statement).getBody());
 					break;
 				case ASTNode.IF_STATEMENT:
 					IfStatement is = (IfStatement) statement;
 
-					checkIfBlockOrStatement(df, rules, is.getThenStatement(), depth);
-					checkIfBlockOrStatement(df, rules, is.getElseStatement(), depth);
+					checkIfBlockOrStatement(df, rules, depth, is.getThenStatement());
+					checkIfBlockOrStatement(df, rules, depth, is.getElseStatement());
 					break;
 				case ASTNode.TRY_STATEMENT:
 					TryStatement tryStatement = (TryStatement) statement;
 
-					checkIfBlockOrStatement(df, rules, tryStatement.getBody(), depth);
+					checkIfBlockOrStatement(df, rules, depth, tryStatement.getBody());
 
 					List<?> listCatches = tryStatement.catchClauses();
 					for (Object catchClause : listCatches) {
-						checkIfBlockOrStatement(df, rules, ((CatchClause) catchClause).getBody(), depth);
+						checkIfBlockOrStatement(df, rules, depth, ((CatchClause) catchClause).getBody());
 					}
 
-					checkIfBlockOrStatement(df, rules, tryStatement.getFinally(), depth);
+					checkIfBlockOrStatement(df, rules, depth, tryStatement.getFinally());
 					break;
 				case ASTNode.SWITCH_STATEMENT:
 					SwitchStatement switchStatement = (SwitchStatement) statement;
 
 					List<?> switchStatements = switchStatement.statements();
 					for (Object switchCases : switchStatements) {
-						checkIfBlockOrStatement(df, rules, (Statement) switchCases, depth);
+						checkIfBlockOrStatement(df, rules, depth, (Statement) switchCases);
 					}
 					break;
 			}
 		}
 	}
 
-	protected void checkIfBlockOrStatement(DataFlow df, List<Integer> rules, Statement statement, int depth) {
+	protected void checkIfBlockOrStatement(DataFlow df, List<Integer> rules, int depth, Statement statement) {
 		if (null == statement) {
 			return;
 		}
 
 		switch (statement.getNodeType()) {
 			case ASTNode.BLOCK:
-				checkBlock(df, rules, (Block) statement, ++depth);
+				checkBlock(df, rules, ++depth, (Block) statement);
 				break;
 			default:
-				checkStatement(df, rules, statement, ++depth);
+				checkStatement(df, rules, ++depth, statement);
 				break;
 		}
 	}
