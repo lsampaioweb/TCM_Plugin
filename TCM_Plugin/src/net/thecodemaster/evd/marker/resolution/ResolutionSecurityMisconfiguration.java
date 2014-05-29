@@ -5,9 +5,9 @@ import org.eclipse.core.resources.IMarker;
 /**
  * @author Luciano Sampaio
  */
-public class CrossSiteScriptingResolution extends AbstractResolution {
+public class ResolutionSecurityMisconfiguration extends AbstractResolution {
 
-	public CrossSiteScriptingResolution(int position, ResolutionMessage resolutionMessage, IMarker marker) {
+	public ResolutionSecurityMisconfiguration(int position, ResolutionMessage resolutionMessage, IMarker marker) {
 		super(position, marker);
 
 		// 01 - Get the ViewDataModel of this marker.

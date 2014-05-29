@@ -7,9 +7,9 @@ import org.eclipse.core.resources.IMarker;
 /**
  * @author Luciano Sampaio
  */
-public class StringConcatenationResolution extends AbstractResolution {
+public class ResolutionEntryPointNotSanitized extends AbstractResolution {
 
-	public StringConcatenationResolution(int position, ResolutionMessage resolutionMessage, IMarker marker) {
+	public ResolutionEntryPointNotSanitized(int position, ResolutionMessage resolutionMessage, IMarker marker) {
 		super(position, marker);
 
 		setLabel(resolutionMessage.getLabel());
@@ -23,7 +23,7 @@ public class StringConcatenationResolution extends AbstractResolution {
 	public void run(IMarker marker) {
 		try {
 			// 01 - The comment that will be insert into the source code.
-			String comment = "// FIXME - Remove String Concatenation.";
+			String comment = "// FIXME - Sanitize this content before use it.";
 
 			runInsertComment(marker, comment);
 		} catch (Exception e) {

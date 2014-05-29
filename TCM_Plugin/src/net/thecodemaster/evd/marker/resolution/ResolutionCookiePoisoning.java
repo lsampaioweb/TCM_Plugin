@@ -5,9 +5,9 @@ import org.eclipse.core.resources.IMarker;
 /**
  * @author Luciano Sampaio
  */
-public class CookiePoisoningResolution extends AbstractResolution {
+public class ResolutionCookiePoisoning extends AbstractResolution {
 
-	public CookiePoisoningResolution(int position, ResolutionMessage resolutionMessage, IMarker marker) {
+	public ResolutionCookiePoisoning(int position, ResolutionMessage resolutionMessage, IMarker marker) {
 		super(position, marker);
 
 		// 01 - Get the ViewDataModel of this marker.

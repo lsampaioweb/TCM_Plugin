@@ -5,9 +5,9 @@ import org.eclipse.core.resources.IMarker;
 /**
  * @author Luciano Sampaio
  */
-public class UnvalidatedRedirectingResolution extends AbstractResolution {
+public class ResolutionPathTraversal extends AbstractResolution {
 
-	public UnvalidatedRedirectingResolution(int position, ResolutionMessage resolutionMessage, IMarker marker) {
+	public ResolutionPathTraversal(int position, ResolutionMessage resolutionMessage, IMarker marker) {
 		super(position, marker);
 
 		// 01 - Get the ViewDataModel of this marker.

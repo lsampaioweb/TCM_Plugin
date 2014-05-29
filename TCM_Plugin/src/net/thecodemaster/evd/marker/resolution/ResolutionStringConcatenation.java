@@ -7,9 +7,9 @@ import org.eclipse.core.resources.IMarker;
 /**
  * @author Luciano Sampaio
  */
-public class HardCodeContentResolution extends AbstractResolution {
+public class ResolutionStringConcatenation extends AbstractResolution {
 
-	public HardCodeContentResolution(int position, ResolutionMessage resolutionMessage, IMarker marker) {
+	public ResolutionStringConcatenation(int position, ResolutionMessage resolutionMessage, IMarker marker) {
 		super(position, marker);
 
 		setLabel(resolutionMessage.getLabel());
@@ -23,7 +23,7 @@ public class HardCodeContentResolution extends AbstractResolution {
 	public void run(IMarker marker) {
 		try {
 			// 01 - The comment that will be insert into the source code.
-			String comment = "// FIXME - Remove hard-coded content.";
+			String comment = "// FIXME - Remove String Concatenation.";
 
 			runInsertComment(marker, comment);
 		} catch (Exception e) {

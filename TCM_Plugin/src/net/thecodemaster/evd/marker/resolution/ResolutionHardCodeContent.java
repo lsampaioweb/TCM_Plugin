@@ -7,9 +7,9 @@ import org.eclipse.core.resources.IMarker;
 /**
  * @author Luciano Sampaio
  */
-public class EntryPointNotSanitizedResolution extends AbstractResolution {
+public class ResolutionHardCodeContent extends AbstractResolution {
 
-	public EntryPointNotSanitizedResolution(int position, ResolutionMessage resolutionMessage, IMarker marker) {
+	public ResolutionHardCodeContent(int position, ResolutionMessage resolutionMessage, IMarker marker) {
 		super(position, marker);
 
 		setLabel(resolutionMessage.getLabel());
@@ -23,7 +23,7 @@ public class EntryPointNotSanitizedResolution extends AbstractResolution {
 	public void run(IMarker marker) {
 		try {
 			// 01 - The comment that will be insert into the source code.
-			String comment = "// FIXME - Sanitize this content before use it.";
+			String comment = "// FIXME - Remove hard-coded content.";
 
 			runInsertComment(marker, comment);
 		} catch (Exception e) {

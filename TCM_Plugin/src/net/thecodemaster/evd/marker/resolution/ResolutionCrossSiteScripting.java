@@ -5,9 +5,9 @@ import org.eclipse.core.resources.IMarker;
 /**
  * @author Luciano Sampaio
  */
-public class CommandInjectionResolution extends AbstractResolution {
+public class ResolutionCrossSiteScripting extends AbstractResolution {
 
-	public CommandInjectionResolution(int position, ResolutionMessage resolutionMessage, IMarker marker) {
+	public ResolutionCrossSiteScripting(int position, ResolutionMessage resolutionMessage, IMarker marker) {
 		super(position, marker);
 
 		// 01 - Get the ViewDataModel of this marker.

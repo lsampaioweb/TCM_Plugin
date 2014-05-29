@@ -5,9 +5,9 @@ import org.eclipse.core.resources.IMarker;
 /**
  * @author Luciano Sampaio
  */
-public class PathTraversalResolution extends AbstractResolution {
+public class ResolutionCommandInjection extends AbstractResolution {
 
-	public PathTraversalResolution(int position, ResolutionMessage resolutionMessage, IMarker marker) {
+	public ResolutionCommandInjection(int position, ResolutionMessage resolutionMessage, IMarker marker) {
 		super(position, marker);
 
 		// 01 - Get the ViewDataModel of this marker.

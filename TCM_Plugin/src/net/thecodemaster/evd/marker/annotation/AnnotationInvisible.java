@@ -3,7 +3,7 @@ package net.thecodemaster.evd.marker.annotation;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.source.Annotation;
 
-public class InvisibleAnnotation {
+public class AnnotationInvisible {
 
 	private Annotation	annotation;
 	private Position		position;
@@ -14,7 +14,7 @@ public class InvisibleAnnotation {
 	 * @param position
 	 *          the position describing the range covered by this annotation, may not be <code>null</code>
 	 */
-	public InvisibleAnnotation(Annotation annotation, Position position) {
+	public AnnotationInvisible(Annotation annotation, Position position) {
 		this.setAnnotation(annotation);
 		this.setPosition(position);
 	}
