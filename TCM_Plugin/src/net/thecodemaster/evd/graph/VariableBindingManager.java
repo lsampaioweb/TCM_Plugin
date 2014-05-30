@@ -14,6 +14,8 @@ public class VariableBindingManager {
 
 	private IBinding								binding;
 	private Expression							initializer;
+	private boolean									isVulnerable;
+	private DataFlow								dataFlow;
 
 	private final List<Expression>	references;
 
@@ -45,6 +47,23 @@ public class VariableBindingManager {
 
 	public List<Expression> getReferences() {
 		return references;
+	}
+
+	public boolean isVulnerable() {
+		return isVulnerable;
+	}
+
+	public void setVulnerable(DataFlow dataFlow) {
+		this.isVulnerable = true;
+		setDataFlow(dataFlow);
+	}
+
+	public DataFlow getDataFlow() {
+		return dataFlow;
+	}
+
+	private void setDataFlow(DataFlow dataFlow) {
+		this.dataFlow = dataFlow;
 	}
 
 	/**

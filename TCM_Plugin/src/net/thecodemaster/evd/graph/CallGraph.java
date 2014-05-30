@@ -257,23 +257,20 @@ public class CallGraph {
 					}
 				}
 			}
-
-			// 03 - Return the last element of the list.
-			return getLastReference(vbms);
 		}
 
 		return null;
 	}
 
-	public VariableBindingManager getLastReference(IBinding binding) {
+	public VariableBindingManager getLastReference(SimpleName simpleName) {
 		// 01 - Get the list of references of this variable.
-		List<VariableBindingManager> vbms = getVariableBindings(binding);
+		List<VariableBindingManager> vbms = getVariableBindings(simpleName.resolveBinding());
 
 		// 02 - Return the last element of the list.
 		return getLastReference(vbms);
 	}
 
-	public VariableBindingManager getLastReference(List<VariableBindingManager> vbms) {
+	private VariableBindingManager getLastReference(List<VariableBindingManager> vbms) {
 		// 01 - Return the last element of the list.
 		return ((null != vbms) && (vbms.size() > 0)) ? vbms.get(vbms.size() - 1) : null;
 	}

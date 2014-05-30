@@ -1,14 +1,22 @@
 package net.thecodemaster.evd.visitor;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.Stack;
 
+import net.thecodemaster.evd.graph.BindingResolver;
 import net.thecodemaster.evd.graph.CallGraph;
+import net.thecodemaster.evd.graph.VariableBindingManager;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 /**
  * @author Luciano Sampaio
@@ -64,6 +72,40 @@ public class VisitorCompilationUnit extends ASTVisitor {
 		}
 	}
 
+	@Override
+	public boolean visit(FieldDeclaration node) {
+		return addVariableToList(node.fragments());
+	}
+
+	@Override
+	public boolean visit(VariableDeclarationStatement node) {
+		return addVariableToList(node.fragments());
+	}
+
+	private boolean addVariableToList(List<?> fragments) {
+		for (Iterator<?> iter = fragments.iterator(); iter.hasNext();) {
+			// VariableDeclarationFragment: is the plain variable declaration part.
+			// Example: "int x=0, y=0;" contains two VariableDeclarationFragments, "x=0" and "y=0"
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) iter.next();
+
+			addVariableToCallGraph(fragment.getName(), fragment.getInitializer());
+		}
+
+		return true;
+	}
+
+	private void addVariableToCallGraph(Expression expression, Expression initializer) {
+		IBinding binding = BindingResolver.resolveBinding(expression);
+
+		if (null != binding) {
+			VariableBindingManager variableBinding = new VariableBindingManager(binding);
+			variableBinding.setInitializer(initializer);
+
+			// checkInitializer(expression, initializer);
+			callGraph.addVariable(variableBinding);
+		}
+	}
+
 	// private void addMethodReferenceToVariable(Expression node) {
 	// List<Expression> parameters = BindingResolver.getParameters(node);
 	// for (Expression parameter : parameters) {
@@ -71,27 +113,6 @@ public class VisitorCompilationUnit extends ASTVisitor {
 	// }
 	// }
 
-	// @Override
-	// public boolean visit(FieldDeclaration node) {
-	// return addVariableToList(node.fragments());
-	// }
-	//
-	// @Override
-	// public boolean visit(VariableDeclarationStatement node) {
-	// return addVariableToList(node.fragments());
-	// }
-	//
-	// private boolean addVariableToList(List<?> fragments) {
-	// for (Iterator<?> iter = fragments.iterator(); iter.hasNext();) {
-	// // VariableDeclarationFragment: is the plain variable declaration part.
-	// // Example: "int x=0, y=0;" contains two VariableDeclarationFragments, "x=0" and "y=0"
-	// VariableDeclarationFragment fragment = (VariableDeclarationFragment) iter.next();
-	//
-	// addVariableToCallGraph(fragment.getName(), fragment.getInitializer());
-	// }
-	//
-	// return true;
-	// }
 	//
 	// @Override
 	// public boolean visit(Assignment node) {
@@ -125,29 +146,7 @@ public class VisitorCompilationUnit extends ASTVisitor {
 	// return super.visit(node);
 	// }
 	//
-	// private void addVariableToCallGraph(Expression expression, Expression initializer) {
-	// IBinding binding = getBinding(expression);
-	//
-	// if (null != binding) {
-	// VariableBindingManager variableBinding = new VariableBindingManager(binding);
-	// variableBinding.setInitializer(initializer);
-	//
-	// checkInitializer(expression, initializer);
-	//
-	// callGraph.addVariable(variableBinding);
-	// }
-	// }
-	//
-	// private IBinding getBinding(Expression expression) {
-	// switch (expression.getNodeType()) {
-	// case ASTNode.SIMPLE_NAME:
-	// return ((SimpleName) expression).resolveBinding();
-	// case ASTNode.FIELD_ACCESS:
-	// return ((FieldAccess) expression).resolveFieldBinding();
-	// default:
-	// return null;
-	// }
-	// }
+
 	//
 	// private void checkInitializer(Expression expression, Expression initializer) {
 	// if (null != initializer) {

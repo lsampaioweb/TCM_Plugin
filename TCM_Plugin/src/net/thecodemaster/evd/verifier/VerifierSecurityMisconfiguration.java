@@ -3,15 +3,8 @@ package net.thecodemaster.evd.verifier;
 import java.util.List;
 
 import net.thecodemaster.evd.constant.Constant;
-import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.point.EntryPoint;
 import net.thecodemaster.evd.ui.l10n.Message;
-
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.CharacterLiteral;
-import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.NumberLiteral;
-import org.eclipse.jdt.core.dom.StringLiteral;
 
 /**
  * @author Luciano Sampaio
@@ -35,26 +28,26 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 		return String.format(Message.VerifierSecurityVulnerability.NULL_LITERAL);
 	}
 
-	@Override
-	protected void checkLiteral(DataFlow df, Expression expr) {
-		String message = null;
-		switch (expr.getNodeType()) {
-			case ASTNode.STRING_LITERAL:
-				message = getMessageLiteral(((StringLiteral) expr).getLiteralValue());
-				break;
-			case ASTNode.CHARACTER_LITERAL:
-				message = getMessageLiteral(((CharacterLiteral) expr).charValue());
-				break;
-			case ASTNode.NUMBER_LITERAL:
-				message = getMessageLiteral(((NumberLiteral) expr).getToken());
-				break;
-			case ASTNode.NULL_LITERAL:
-				message = getMessageNullLiteral();
-				break;
-		}
-
-		// 01 - Informs that this node is a vulnerability.
-		df.isVulnerable(Constant.Vulnerability.SECURITY_MISCONFIGURATION_HARD_CODED_CONTENT, message);
-	}
+	// @Override
+	// protected void checkLiteral(DataFlow df, Expression expr) {
+	// String message = null;
+	// switch (expr.getNodeType()) {
+	// case ASTNode.STRING_LITERAL:
+	// message = getMessageLiteral(((StringLiteral) expr).getLiteralValue());
+	// break;
+	// case ASTNode.CHARACTER_LITERAL:
+	// message = getMessageLiteral(((CharacterLiteral) expr).charValue());
+	// break;
+	// case ASTNode.NUMBER_LITERAL:
+	// message = getMessageLiteral(((NumberLiteral) expr).getToken());
+	// break;
+	// case ASTNode.NULL_LITERAL:
+	// message = getMessageNullLiteral();
+	// break;
+	// }
+	//
+	// // 01 - Informs that this node is a vulnerability.
+	// df.isVulnerable(Constant.Vulnerability.SECURITY_MISCONFIGURATION_HARD_CODED_CONTENT, message);
+	// }
 
 }

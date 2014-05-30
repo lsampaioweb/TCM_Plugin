@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
@@ -98,6 +99,17 @@ public class BindingResolver {
 		}
 
 		return null;
+	}
+
+	public static IBinding resolveBinding(Expression expression) {
+		switch (expression.getNodeType()) {
+			case ASTNode.SIMPLE_NAME:
+				return ((SimpleName) expression).resolveBinding();
+			case ASTNode.FIELD_ACCESS:
+				return ((FieldAccess) expression).resolveFieldBinding();
+			default:
+				return null;
+		}
 	}
 
 	private static ITypeBinding getDeclaringClass(IMethodBinding methodBinding) {
