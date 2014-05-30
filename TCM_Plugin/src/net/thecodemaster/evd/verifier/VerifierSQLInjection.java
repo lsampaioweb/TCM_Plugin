@@ -1,9 +1,6 @@
 package net.thecodemaster.evd.verifier;
 
-import java.util.List;
-
 import net.thecodemaster.evd.constant.Constant;
-import net.thecodemaster.evd.point.EntryPoint;
 import net.thecodemaster.evd.ui.l10n.Message;
 
 /**
@@ -11,8 +8,8 @@ import net.thecodemaster.evd.ui.l10n.Message;
  */
 public class VerifierSQLInjection extends Verifier {
 
-	public VerifierSQLInjection(List<EntryPoint> entryPoints) {
-		super(Message.Plugin.VERIFIER_NAME_SQL_INJECTION, Constant.VERIFIER_ID_SQL_INJECTION, entryPoints);
+	public VerifierSQLInjection() {
+		super(Constant.VERIFIER_ID_SQL_INJECTION, Message.Plugin.VERIFIER_NAME_SQL_INJECTION);
 	}
 
 	private String getStringConcatenationMessage() {

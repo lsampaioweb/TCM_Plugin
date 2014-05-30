@@ -16,9 +16,11 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 /**
+ * This class adds Method Declarations, Method Invocations and Field Declarations to the callGraph object.
+ * ClassInstanceCreation and MethodInvocation are treated as the same thing.
+ * 
  * @author Luciano Sampaio
  */
 public class VisitorCompilationUnit extends ASTVisitor {
@@ -77,11 +79,6 @@ public class VisitorCompilationUnit extends ASTVisitor {
 		return addVariableToList(node.fragments());
 	}
 
-	@Override
-	public boolean visit(VariableDeclarationStatement node) {
-		return addVariableToList(node.fragments());
-	}
-
 	private boolean addVariableToList(List<?> fragments) {
 		for (Iterator<?> iter = fragments.iterator(); iter.hasNext();) {
 			// VariableDeclarationFragment: is the plain variable declaration part.
@@ -101,127 +98,8 @@ public class VisitorCompilationUnit extends ASTVisitor {
 			VariableBindingManager variableBinding = new VariableBindingManager(binding);
 			variableBinding.setInitializer(initializer);
 
-			// checkInitializer(expression, initializer);
 			callGraph.addVariable(variableBinding);
 		}
 	}
-
-	// private void addMethodReferenceToVariable(Expression node) {
-	// List<Expression> parameters = BindingResolver.getParameters(node);
-	// for (Expression parameter : parameters) {
-	// checkInitializer(node, parameter);
-	// }
-	// }
-
-	//
-	// @Override
-	// public boolean visit(Assignment node) {
-	// Expression leftHandSide = node.getLeftHandSide();
-	// Expression rightHandSide = null;
-	//
-	// if (node.getOperator().equals(Operator.PLUS_ASSIGN)) {
-	// // ASTRewrite rewriter = ASTRewrite.create(cUnit.getAST());
-	// // AST ast = rewriter.getAST();
-	// //
-	// // InfixExpression expr = ast.newInfixExpression();
-	// //
-	// // Expression left = (Expression) ASTNode.copySubtree(ast, node.getLeftHandSide());
-	// // Expression right = (Expression) ASTNode.copySubtree(ast, node.getRightHandSide());
-	// //
-	// // // String message = "a";
-	// // // message += "b";
-	// // // Result: message = message + "b"
-	// // expr.setLeftOperand(left);
-	// // expr.setOperator(InfixExpression.Operator.PLUS);
-	// // expr.setRightOperand(right);
-	// //
-	// // rightHandSide = expr;
-	// rightHandSide = node.getRightHandSide();
-	// } else {
-	// rightHandSide = node.getRightHandSide();
-	// }
-	//
-	// addVariableToCallGraph(leftHandSide, rightHandSide);
-	//
-	// return super.visit(node);
-	// }
-	//
-
-	//
-	// private void checkInitializer(Expression expression, Expression initializer) {
-	// if (null != initializer) {
-	// switch (initializer.getNodeType()) {
-	// case ASTNode.SIMPLE_NAME:
-	// addReferenceSimpleName(expression, (SimpleName) initializer);
-	// break;
-	// case ASTNode.QUALIFIED_NAME:
-	// addReferenceQualifiedName(expression, (QualifiedName) initializer);
-	// break;
-	// case ASTNode.ASSIGNMENT:
-	// addReferenceAssgnment(expression, (Assignment) initializer);
-	// break;
-	// case ASTNode.INFIX_EXPRESSION:
-	// addReferenceInfixExpression(expression, (InfixExpression) initializer);
-	// break;
-	// case ASTNode.CONDITIONAL_EXPRESSION:
-	// addReferenceConditionalExpression(expression, (ConditionalExpression) initializer);
-	// break;
-	// case ASTNode.ARRAY_INITIALIZER:
-	// addReferenceArrayInitializer(expression, (ArrayInitializer) initializer);
-	// break;
-	// case ASTNode.PARENTHESIZED_EXPRESSION:
-	// addReferenceParenthesizedExpression(expression, (ParenthesizedExpression) initializer);
-	// break;
-	// }
-	// }
-	// }
-	//
-	// private void addReference(Expression expression, IBinding binding) {
-	// VariableBindingManager variableBindingInitializer = callGraph.getLastReference(binding);
-	// if (null != variableBindingInitializer) {
-	// variableBindingInitializer.addReferences(expression);
-	// }
-	// }
-	//
-	// private void addReferenceSimpleName(Expression expression, SimpleName initializer) {
-	// addReference(expression, initializer.resolveBinding());
-	// }
-	//
-	// private void addReferenceQualifiedName(Expression expression, QualifiedName initializer) {
-	// addReference(expression, initializer.resolveBinding());
-	// }
-	//
-	// private void addReferenceAssgnment(Expression expression, Assignment initializer) {
-	// checkInitializer(expression, initializer.getLeftHandSide());
-	// checkInitializer(expression, initializer.getRightHandSide());
-	// }
-	//
-	// private void addReferenceInfixExpression(Expression expression, InfixExpression initializer) {
-	// checkInitializer(expression, initializer.getLeftOperand());
-	// checkInitializer(expression, initializer.getRightOperand());
-	//
-	// List<Expression> extendedOperands = BindingResolver.getParameters(initializer);
-	//
-	// for (Expression current : extendedOperands) {
-	// checkInitializer(expression, current);
-	// }
-	// }
-	//
-	// private void addReferenceConditionalExpression(Expression expression, ConditionalExpression initializer) {
-	// checkInitializer(expression, initializer.getThenExpression());
-	// checkInitializer(expression, initializer.getElseExpression());
-	// }
-	//
-	// private void addReferenceArrayInitializer(Expression expression, ArrayInitializer initializer) {
-	// List<Expression> expressions = BindingResolver.getParameters(initializer);
-	//
-	// for (Expression current : expressions) {
-	// checkInitializer(expression, current);
-	// }
-	// }
-	//
-	// private void addReferenceParenthesizedExpression(Expression expression, ParenthesizedExpression initializer) {
-	// checkInitializer(expression, initializer.getExpression());
-	// }
 
 }

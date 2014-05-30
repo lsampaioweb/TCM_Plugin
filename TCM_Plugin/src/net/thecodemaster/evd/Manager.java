@@ -8,8 +8,8 @@ import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.reporter.Reporter;
-import net.thecodemaster.evd.reporter.ReporterView;
 import net.thecodemaster.evd.reporter.ReporterTextFile;
+import net.thecodemaster.evd.reporter.ReporterView;
 import net.thecodemaster.evd.reporter.ReporterXmlFile;
 
 import org.eclipse.core.resources.IResource;
@@ -135,6 +135,15 @@ public class Manager {
 		if (xmlFile) {
 			getReporter().addReporter(new ReporterXmlFile());
 		}
+	}
+
+	/**
+	 * Check if the user has selected at least one verifier, if not there is nothing to do.
+	 * 
+	 * @return True if the verifications should be performed, otherwise false.
+	 */
+	public boolean shouldPerformVerifications() {
+		return (analyzers.size() > 0);
 	}
 
 	public void run(IProgressMonitor monitor, List<IResource> resources, CallGraph callGraph) {

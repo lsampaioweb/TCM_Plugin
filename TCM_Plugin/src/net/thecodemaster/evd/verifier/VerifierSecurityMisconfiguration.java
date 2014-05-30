@@ -1,9 +1,6 @@
 package net.thecodemaster.evd.verifier;
 
-import java.util.List;
-
 import net.thecodemaster.evd.constant.Constant;
-import net.thecodemaster.evd.point.EntryPoint;
 import net.thecodemaster.evd.ui.l10n.Message;
 
 /**
@@ -11,9 +8,8 @@ import net.thecodemaster.evd.ui.l10n.Message;
  */
 public class VerifierSecurityMisconfiguration extends Verifier {
 
-	public VerifierSecurityMisconfiguration(List<EntryPoint> entryPoints) {
-		super(Message.Plugin.VERIFIER_NAME_SECURITY_MISCONFIGURATION, Constant.VERIFIER_ID_SECURITY_MISCONFIGURATION,
-				entryPoints);
+	public VerifierSecurityMisconfiguration() {
+		super(Constant.VERIFIER_ID_SECURITY_MISCONFIGURATION, Message.Plugin.VERIFIER_NAME_SECURITY_MISCONFIGURATION);
 	}
 
 	protected String getMessageLiteral(String value) {

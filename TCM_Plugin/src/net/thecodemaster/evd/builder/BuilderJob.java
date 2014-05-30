@@ -10,6 +10,7 @@ import net.thecodemaster.evd.helper.Timer;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.ui.l10n.Message;
 import net.thecodemaster.evd.visitor.VisitorCallGraph;
+import net.thecodemaster.evd.visitor.VisitorPointToAnalysis;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -85,6 +86,16 @@ public class BuilderJob extends Job {
 		}
 	}
 
+	/**
+	 * Returns whether cancellation of current operation has been requested
+	 * 
+	 * @param reporter
+	 * @return true if cancellation has been requested, and false otherwise.
+	 */
+	private boolean userCanceledProcess(IProgressMonitor monitor) {
+		return ((null != monitor) && (monitor.isCanceled()));
+	}
+
 	public void run() {
 		schedule();
 	}
@@ -94,41 +105,54 @@ public class BuilderJob extends Job {
 	 */
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
-		Timer timerCP = (new Timer("01 - Complete Process: ")).start();
 		try {
-			// 01 - Get the CallGraph instance for this project.
-			CallGraph callGraph = getCallGraph();
-			if (null == callGraph) {
-				String projectName = (null != project) ? project.getName() : "";
-				PluginLogger.logError(String.format(Message.Error.CALL_GRAPH_DOES_NOT_CONTAIN_PROJECT, projectName), null);
-			} else {
-				monitor.beginTask(Message.Plugin.TASK, IProgressMonitor.UNKNOWN);
+			// 01 - The manager knows what are the actions that should be performed.
+			Manager manager = Manager.getInstance();
+			if (manager.shouldPerformVerifications()) {
+				Timer timerCP = (new Timer("01 - Complete Process: ")).start();
 
-				VisitorCallGraph visitorCallGraph = new VisitorCallGraph(callGraph);
-				List<IResource> resourcesUpdated = Creator.newList();
-
-				if (null != delta) {
-					Timer timerD = (new Timer("01.1 - Call Graph Delta: ")).start();
-					// 02 - Use the VISITOR pattern to create/populate the call graph.
-					resourcesUpdated = visitorCallGraph.run(delta);
-					PluginLogger.logIfDebugging(timerD.stop().toString());
-				} else if (null != project) {
-					Timer timerP = (new Timer("01.1 - Call Graph Project: ")).start();
-					// 02 - Use the VISITOR pattern to create/populate the call graph.
-					resourcesUpdated = visitorCallGraph.run(project);
-					PluginLogger.logIfDebugging(timerP.stop().toString());
-				}
-
-				if ((null != monitor) && (!monitor.isCanceled())) {
-					Timer timerPV = (new Timer("01.2 - Plug-in verifications: ")).start();
-					// 03 - Perform the plug-in's verifications.
-					Manager manager = Manager.getInstance();
-					manager.run(monitor, resourcesUpdated, callGraph);
-					PluginLogger.logIfDebugging(timerPV.stop().toString());
+				// 02 - Get the CallGraph instance for this project.
+				CallGraph callGraph = getCallGraph();
+				if (null == callGraph) {
+					String projectName = (null != project) ? project.getName() : "";
+					PluginLogger.logError(String.format(Message.Error.CALL_GRAPH_DOES_NOT_CONTAIN_PROJECT, projectName), null);
 				} else {
-					// The user canceled the operation.
-					return Status.CANCEL_STATUS;
+					monitor.beginTask(Message.Plugin.TASK, IProgressMonitor.UNKNOWN);
+
+					VisitorCallGraph visitorCallGraph = new VisitorCallGraph(callGraph);
+					List<IResource> resourcesUpdated = Creator.newList();
+
+					if (null != delta) {
+						Timer timerD = (new Timer("01.1 - Call Graph Delta: ")).start();
+						// 03 - Use the VISITOR pattern to create/populate the call graph.
+						resourcesUpdated = visitorCallGraph.run(delta);
+						PluginLogger.logIfDebugging(timerD.stop().toString());
+					} else if (null != project) {
+						Timer timerP = (new Timer("01.1 - Call Graph Project: ")).start();
+						// 03 - Use the VISITOR pattern to create/populate the call graph.
+						resourcesUpdated = visitorCallGraph.run(project);
+						PluginLogger.logIfDebugging(timerP.stop().toString());
+					}
+
+					if (!userCanceledProcess(monitor)) {
+						Timer timerPA = (new Timer("01.2 - : Points-to Analysis: ")).start();
+						// 04 - Link variables and methods to content.
+						VisitorPointToAnalysis pointToAnalysis = new VisitorPointToAnalysis();
+						pointToAnalysis.run(resourcesUpdated, callGraph);
+						PluginLogger.logIfDebugging(timerPA.stop().toString());
+					}
+
+					if (!userCanceledProcess(monitor)) {
+						Timer timerPV = (new Timer("01.3 - Plug-in verifications: ")).start();
+						// 05 - Perform the plug-in's verifications.
+						manager.run(monitor, resourcesUpdated, callGraph);
+						PluginLogger.logIfDebugging(timerPV.stop().toString());
+					} else {
+						// The user canceled the operation.
+						return Status.CANCEL_STATUS;
+					}
 				}
+				PluginLogger.logIfDebugging(timerCP.stop().toString());
 			}
 		} catch (CoreException e) {
 			PluginLogger.logError(e);
@@ -142,7 +166,6 @@ public class BuilderJob extends Job {
 			}
 		}
 
-		PluginLogger.logIfDebugging(timerCP.stop().toString());
 		return Status.OK_STATUS;
 	}
 }

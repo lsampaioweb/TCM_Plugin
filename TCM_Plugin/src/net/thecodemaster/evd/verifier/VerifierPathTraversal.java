@@ -1,9 +1,6 @@
 package net.thecodemaster.evd.verifier;
 
-import java.util.List;
-
 import net.thecodemaster.evd.constant.Constant;
-import net.thecodemaster.evd.point.EntryPoint;
 import net.thecodemaster.evd.ui.l10n.Message;
 
 /**
@@ -11,8 +8,8 @@ import net.thecodemaster.evd.ui.l10n.Message;
  */
 public class VerifierPathTraversal extends Verifier {
 
-	public VerifierPathTraversal(List<EntryPoint> entryPoints) {
-		super(Message.Plugin.VERIFIER_NAME_PATH_TRAVERSAL, Constant.VERIFIER_ID_PATH_TRAVERSAL, entryPoints);
+	public VerifierPathTraversal() {
+		super(Constant.VERIFIER_ID_PATH_TRAVERSAL, Message.Plugin.VERIFIER_NAME_PATH_TRAVERSAL);
 	}
 
 }
