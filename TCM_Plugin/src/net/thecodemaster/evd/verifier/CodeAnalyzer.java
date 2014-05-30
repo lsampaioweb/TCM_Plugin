@@ -1,6 +1,5 @@
 package net.thecodemaster.evd.verifier;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +42,6 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
 
@@ -348,56 +346,10 @@ public abstract class CodeAnalyzer {
 	 * 32 TODO Verify if we have to do something with the dfParent.
 	 */
 	protected void inspectMethodInvocation(int depth, DataFlow dfParent, MethodInvocation expression) {
-		// 01 - Check if this method is a Sanitization-Point.
-		if (isMethodASanitizationPoint(expression)) {
-			// If a sanitization method is being invoked, then we do not have a vulnerability.
-			return;
-		}
-
-		// 02 - Check if this method is an Entry-Point.
-		if (isMethodAnEntryPoint(expression)) {
-			// String message = getMessageEntryPoint(BindingResolver.getFullName(expression));
-
-			// We found a invocation to a entry point method.
-			// df.isVulnerable(Constant.Vulnerability.ENTRY_POINT, message);
-			return;
-		}
-
-		// 03 - Check if this method is an Exit-Point.
-		// ExitPoint exitPoint = getExitPointIfMethodIsOne(expression);
-		// if (null != exitPoint) {
-		// // 03.1 - A new dataFlow for this variable.
-		// DataFlow df = new DataFlow(expression);
-		//
-		// // 03.2 - Inspect the Initializer to verify if this variable is vulnerable.
-		// inspectParameterOfExitPoint(depth, df, expression, exitPoint);
-		//
-		// // 03.3 - If there a vulnerable path, then this variable is vulnerable.
-		// if (df.isVulnerable()) {
-		// // 03.4 - We found a vulnerability and have to report it.
-		// // reportVulnerability(df);
-		// }
-		//
-		// return;
-		// }
-
-		// 04 - There are 2 cases: When we have the source code of this method and when we do not.
-		MethodDeclaration methodDeclaration = getCallGraph().getMethod(getCurrentResource(), expression);
-
-		if (null != methodDeclaration) {
-			// 04.1 - We have the source code.
-
-		} else {
-			// 04.2 - We do not have the source code.
-			// Now we have to investigate if the element who is invoking this method is vulnerable or not.
-			Expression objectName = expression.getExpression();
-			// if (isVulnerable(objectName)) {
-			// We found a vulnerability.
-			// }
-		}
+		PluginLogger.logIfDebugging("inspectMethodInvocation not implemented.");
 	}
 
-	protected void inspectParameterOfExitPoint(int depth, DataFlow df, MethodInvocation method, ExitPoint exitPoint) {
+	private void inspectParameterOfExitPoint(int depth, DataFlow df, MethodInvocation method, ExitPoint exitPoint) {
 		// 01 - Get the parameters (received) from the current method.
 		List<Expression> receivedParameters = BindingResolver.getParameters(method);
 
@@ -464,7 +416,7 @@ public abstract class CodeAnalyzer {
 			// 04 - Get the method signature that is using this parameter.
 			MethodDeclaration methodDeclaration = BindingResolver.getParentMethodDeclaration(expression);
 
-			// 05 - Get the index position where this parameter appear.
+			// 05 - Get the index position where this parameter appears.
 			int parameterIndex = BindingResolver.getParameterIndex(methodDeclaration, expression);
 			if (parameterIndex >= 0) {
 				// 06 - Get the list of methods that invokes this method.
@@ -517,32 +469,10 @@ public abstract class CodeAnalyzer {
 	}
 
 	/**
-	 * 60 TODO Verify if we have to do something with the dfParent.
+	 * 60
 	 */
-	protected void inspectVariableDeclarationStatement(int depth, DataFlow dfParent,
-			VariableDeclarationStatement statement) {
-		List<?> fragments = statement.fragments();
-		for (Iterator<?> iter = fragments.iterator(); iter.hasNext();) {
-			// VariableDeclarationFragment: is the plain variable declaration part.
-			// Example: "int x=0, y=0;" contains two VariableDeclarationFragments, "x=0" and "y=0"
-			VariableDeclarationFragment fragment = (VariableDeclarationFragment) iter.next();
-
-			SimpleName simpleName = fragment.getName();
-			// 01 - Try to retrieve the variable from the list of variables.
-			VariableBindingManager manager = getCallGraph().getLastReference(simpleName);
-			if (null != manager) {
-				// 02 - A new dataFlow for this variable.
-				DataFlow df = new DataFlow(simpleName);
-
-				// 03 - Inspect the Initializer to verify if this variable is vulnerable.
-				inspectNode(depth, df, fragment.getInitializer());
-
-				// 04 - If there a vulnerable path, then this variable is vulnerable.
-				if (df.isVulnerable()) {
-					manager.setVulnerable(df);
-				}
-			}
-		}
+	protected void inspectVariableDeclarationStatement(int depth, DataFlow df, VariableDeclarationStatement statement) {
+		PluginLogger.logIfDebugging("inspectVariableDeclarationStatement not implemented.");
 	}
 
 	/**

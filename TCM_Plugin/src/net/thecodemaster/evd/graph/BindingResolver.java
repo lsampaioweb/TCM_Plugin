@@ -187,7 +187,7 @@ public class BindingResolver {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static List<SingleVariableDeclaration> getParameters(MethodDeclaration node) {
+	public static List<SingleVariableDeclaration> getParameters(MethodDeclaration node) {
 		List<SingleVariableDeclaration> parameters = Creator.newList();
 
 		if ((null != node) && (null != node.parameters())) {
@@ -232,23 +232,23 @@ public class BindingResolver {
 	}
 
 	public static boolean areMethodsEqual(MethodDeclaration method, Expression other) {
-		String methodName = BindingResolver.getName(method);
-		String otherName = BindingResolver.getName(other);
+		String methodName = getName(method);
+		String otherName = getName(other);
 
 		// 02 - Verify if they have the same name.
 		if (methodName.equals(otherName)) {
 
 			// 03 - Get the qualified name (Package + Class) of these methods.
-			String qualifiedName = BindingResolver.getQualifiedName(method);
-			String otherQualifiedName = BindingResolver.getQualifiedName(other);
+			String qualifiedName = getQualifiedName(method);
+			String otherQualifiedName = getQualifiedName(other);
 
 			// 04 - Verify if they are from the same package and class.
 			// Method names can repeat in other classes.
 			if (qualifiedName.equals(otherQualifiedName)) {
 
 				// 05 - Get their parameters.
-				List<ITypeBinding> methodParameters = BindingResolver.getParameterTypes(method);
-				List<Expression> otherParameters = BindingResolver.getParameters(other);
+				List<ITypeBinding> methodParameters = getParameterTypes(method);
+				List<Expression> otherParameters = getParameters(other);
 
 				// 06 - It is necessary to check the number of parameters and its types
 				// because it may exist methods with the same names but different parameters.
@@ -259,7 +259,7 @@ public class BindingResolver {
 
 						// 07 - Verify if all the parameters are the ones expected. However, there is a case
 						// where an Object is expected, and any type is accepted.
-						if (!BindingResolver.parametersHaveSameType(currentParameter.getQualifiedName(), otherTypeBinding)) {
+						if (!parametersHaveSameType(currentParameter.getQualifiedName(), otherTypeBinding)) {
 							return false;
 						}
 					}
@@ -274,13 +274,13 @@ public class BindingResolver {
 
 	public static boolean methodsHaveSameNameAndPackage(AbstractPoint abstractPoint, Expression method) {
 		// 01 - Get the method name.
-		String methodName = BindingResolver.getName(method);
+		String methodName = getName(method);
 
 		// 02 - Verify if this method is in the list of ExitPoints.
 		if (abstractPoint.getMethodName().equals(methodName)) {
 
 			// 03 - Get the qualified name (Package + Class) of this method.
-			String qualifiedName = BindingResolver.getQualifiedName(method);
+			String qualifiedName = getQualifiedName(method);
 
 			// 04 - Verify if this is really the method we were looking for.
 			// Method names can repeat in other classes.
