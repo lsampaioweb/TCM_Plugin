@@ -10,7 +10,7 @@ import net.thecodemaster.evd.helper.Timer;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.ui.l10n.Message;
 import net.thecodemaster.evd.visitor.VisitorCallGraph;
-import net.thecodemaster.evd.visitor.VisitorPointToAnalysis;
+import net.thecodemaster.evd.visitor.VisitorPointsToAnalysis;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -137,7 +137,7 @@ public class BuilderJob extends Job {
 					if (!userCanceledProcess(monitor)) {
 						Timer timerPA = (new Timer("01.2 - : Points-to Analysis: ")).start();
 						// 04 - Link variables and methods to content.
-						VisitorPointToAnalysis pointToAnalysis = new VisitorPointToAnalysis();
+						VisitorPointsToAnalysis pointToAnalysis = new VisitorPointsToAnalysis();
 						pointToAnalysis.run(resourcesUpdated, callGraph);
 						PluginLogger.logIfDebugging(timerPA.stop().toString());
 					}

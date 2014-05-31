@@ -99,10 +99,6 @@ public abstract class CodeAnalyzer {
 		return String.format(Message.VerifierSecurityVulnerability.ENTRY_POINT_METHOD, value);
 	}
 
-	protected boolean isVulnerable(Expression expression) {
-		return false;
-	}
-
 	protected boolean hasReachedMaximumDepth(int depth) {
 		return Constant.MAXIMUM_VERIFICATION_DEPTH == depth;
 	}
@@ -190,7 +186,8 @@ public abstract class CodeAnalyzer {
 				inspectInfixExpression(depth, dataFlow, (InfixExpression) node);
 				break;
 			case ASTNode.METHOD_INVOCATION: // 32
-				inspectMethodInvocation(depth, dataFlow, (MethodInvocation) node);
+				MethodInvocation method = (MethodInvocation) node;
+				inspectMethodInvocation(depth, dataFlow.addNodeToPath(method), method);
 				break;
 			case ASTNode.PARENTHESIZED_EXPRESSION: // 36
 				inspectParenthesizedExpression(depth, dataFlow, (ParenthesizedExpression) node);
@@ -205,7 +202,8 @@ public abstract class CodeAnalyzer {
 				inspectReturnStatement(depth, dataFlow, (ReturnStatement) node);
 				break;
 			case ASTNode.SIMPLE_NAME: // 42
-				inspectSimpleName(depth, dataFlow, (SimpleName) node);
+				SimpleName simpleName = (SimpleName) node;
+				inspectSimpleName(depth, dataFlow.addNodeToPath(simpleName), simpleName);
 				break;
 			case ASTNode.SWITCH_STATEMENT: // 50
 				inspectSwitchStatement(depth, dataFlow, (SwitchStatement) node);
@@ -223,7 +221,8 @@ public abstract class CodeAnalyzer {
 			case ASTNode.NULL_LITERAL: // 33
 			case ASTNode.NUMBER_LITERAL: // 34
 			case ASTNode.STRING_LITERAL: // 45
-				inspectLiteral(depth, dataFlow, (Expression) node);
+				Expression expression = (Expression) node;
+				inspectLiteral(depth, dataFlow.addNodeToPath(expression), expression);
 				break;
 			case ASTNode.FIELD_ACCESS: // 22
 

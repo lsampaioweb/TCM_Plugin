@@ -42,7 +42,7 @@ public class CallGraph {
 		variablesPerFile = Creator.newMap();
 	}
 
-	private IResource getCurrentResource() {
+	public IResource getCurrentResource() {
 		return currentResource;
 	}
 
@@ -168,16 +168,35 @@ public class CallGraph {
 		return invokers;
 	}
 
-	public void addVariable(VariableBindingManager variableBinding) {
+	public VariableBindingManager addVariableToCallGraph(Expression variable, Expression initializer) {
+		return addVariableToCallGraph(BindingResolver.getResource(variable), variable, initializer);
+	}
+
+	public VariableBindingManager addVariableToCallGraph(IResource resource, Expression variable, Expression initializer) {
+		IBinding binding = BindingResolver.resolveBinding(variable);
+
+		if (null != binding) {
+			VariableBindingManager variableBinding = new VariableBindingManager(binding);
+			variableBinding.setInitializer(initializer);
+
+			addVariable(resource, variableBinding);
+
+			return variableBinding;
+		}
+
+		return null;
+	}
+
+	private void addVariable(IResource resource, VariableBindingManager variableBinding) {
 		// 01 - Check if the current file is already in the list.
-		if (!variablesPerFile.containsKey(getCurrentResource())) {
+		if (!variablesPerFile.containsKey(resource)) {
 			Map<IBinding, List<VariableBindingManager>> variableBindings = Creator.newMap();
 
-			variablesPerFile.put(getCurrentResource(), variableBindings);
+			variablesPerFile.put(resource, variableBindings);
 		}
 
 		// 02 - Get the list of variables in the current file.
-		Map<IBinding, List<VariableBindingManager>> variableBindings = getVariables(getCurrentResource());
+		Map<IBinding, List<VariableBindingManager>> variableBindings = getVariables(resource);
 
 		IBinding binding = variableBinding.getBinding();
 		if (!variableBindings.containsKey(binding)) {

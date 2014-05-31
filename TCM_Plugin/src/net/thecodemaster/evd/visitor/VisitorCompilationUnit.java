@@ -4,15 +4,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
-import net.thecodemaster.evd.graph.BindingResolver;
 import net.thecodemaster.evd.graph.CallGraph;
-import net.thecodemaster.evd.graph.VariableBindingManager;
 
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
-import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -85,21 +82,10 @@ public class VisitorCompilationUnit extends ASTVisitor {
 			// Example: "int x=0, y=0;" contains two VariableDeclarationFragments, "x=0" and "y=0"
 			VariableDeclarationFragment fragment = (VariableDeclarationFragment) iter.next();
 
-			addVariableToCallGraph(fragment.getName(), fragment.getInitializer());
+			callGraph.addVariableToCallGraph(callGraph.getCurrentResource(), fragment.getName(), fragment.getInitializer());
 		}
 
 		return true;
-	}
-
-	private void addVariableToCallGraph(Expression expression, Expression initializer) {
-		IBinding binding = BindingResolver.resolveBinding(expression);
-
-		if (null != binding) {
-			VariableBindingManager variableBinding = new VariableBindingManager(binding);
-			variableBinding.setInitializer(initializer);
-
-			callGraph.addVariable(variableBinding);
-		}
 	}
 
 }

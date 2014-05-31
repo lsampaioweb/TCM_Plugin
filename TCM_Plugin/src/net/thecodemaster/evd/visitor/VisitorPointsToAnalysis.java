@@ -35,9 +35,9 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
  * 
  * @author Luciano Sampaio
  */
-public class VisitorPointToAnalysis extends CodeAnalyzer {
+public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
-	public VisitorPointToAnalysis() {
+	public VisitorPointsToAnalysis() {
 	}
 
 	public void run(List<IResource> resources, CallGraph callGraph) {
@@ -111,19 +111,7 @@ public class VisitorPointToAnalysis extends CodeAnalyzer {
 		Expression rightHandSide = expression.getRightHandSide();
 
 		// 02 - Add the new variable to the callGraph.
-		VariableBindingManager manager = addVariableToCallGraph(leftHandSide, rightHandSide);
-		if (null != manager) {
-			// 03 - A new dataFlow for this variable.
-			DataFlow dataFlow = new DataFlow(leftHandSide);
-
-			// 04 - Inspect the Initializer to verify if this variable is vulnerable.
-			inspectNode(depth, dataFlow, rightHandSide);
-
-			// 05 - If there a vulnerable path, then this variable is vulnerable.
-			EnumStatusVariable status = (dataFlow.isVulnerable()) ? EnumStatusVariable.VULNERABLE
-					: EnumStatusVariable.NOT_VULNERABLE;
-			manager.setStatus(dataFlow, status);
-		}
+		addVariableToCallGraphAndInspectInitializer(depth, leftHandSide, rightHandSide);
 	}
 
 	/**
@@ -217,27 +205,12 @@ public class VisitorPointToAnalysis extends CodeAnalyzer {
 				Expression initializer = BindingResolver.getParameterAtIndex(methodInvocation, parameterIndex++);
 
 				// 04 - We add the content with the one that came from the method invocation.
-				addVariableToCallGraph(parameterName, initializer);
+				getCallGraph().addVariableToCallGraph(parameterName, initializer);
 			}
 		}
 
 		// 05 - Now I inspect the body of the method.
 		inspectNode(depth, dataFlow, methodDeclaration.getBody());
-	}
-
-	private VariableBindingManager addVariableToCallGraph(Expression variable, Expression initializer) {
-		IBinding binding = BindingResolver.resolveBinding(variable);
-
-		if (null != binding) {
-			VariableBindingManager variableBinding = new VariableBindingManager(binding);
-			variableBinding.setInitializer(initializer);
-
-			getCallGraph().addVariable(variableBinding);
-
-			return variableBinding;
-		}
-
-		return null;
 	}
 
 	/**
@@ -279,23 +252,24 @@ public class VisitorPointToAnalysis extends CodeAnalyzer {
 			// Example: "int x=0, y=0;" contains two VariableDeclarationFragments, "x=0" and "y=0"
 			VariableDeclarationFragment fragment = (VariableDeclarationFragment) iter.next();
 
-			SimpleName simpleName = fragment.getName();
-			Expression initializer = fragment.getInitializer();
-
 			// 01 - Add the new variable to the callGraph.
-			VariableBindingManager manager = addVariableToCallGraph(simpleName, initializer);
-			if (null != manager) {
-				// 02 - A new dataFlow for this variable.
-				DataFlow dataFlow = new DataFlow(simpleName);
+			addVariableToCallGraphAndInspectInitializer(depth, fragment.getName(), fragment.getInitializer());
+		}
+	}
 
-				// 03 - Inspect the Initializer to verify if this variable is vulnerable.
-				inspectNode(depth, dataFlow, initializer);
+	private void addVariableToCallGraphAndInspectInitializer(int depth, Expression variableName, Expression initializer) {
+		VariableBindingManager manager = getCallGraph().addVariableToCallGraph(variableName, initializer);
+		if (null != manager) {
+			// 03 - A new dataFlow for this variable.
+			DataFlow dataFlow = new DataFlow(variableName);
 
-				// 04 - If there a vulnerable path, then this variable is vulnerable.
-				EnumStatusVariable status = (dataFlow.isVulnerable()) ? EnumStatusVariable.VULNERABLE
-						: EnumStatusVariable.NOT_VULNERABLE;
-				manager.setStatus(dataFlow, status);
-			}
+			// 04 - Inspect the Initializer to verify if this variable is vulnerable.
+			inspectNode(depth, dataFlow, initializer);
+
+			// 05 - If there a vulnerable path, then this variable is vulnerable.
+			EnumStatusVariable status = (dataFlow.isVulnerable()) ? EnumStatusVariable.VULNERABLE
+					: EnumStatusVariable.NOT_VULNERABLE;
+			manager.setStatus(dataFlow, status);
 		}
 	}
 
