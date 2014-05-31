@@ -276,7 +276,7 @@ public class CallGraph {
 
 	private VariableBindingManager getLastReference(List<VariableBindingManager> vbms) {
 		// 01 - Return the last element of the list.
-		return ((null != vbms) && (vbms.size() > 0)) ? vbms.get(vbms.size() - 1) : null;
+		return (vbms.size() > 0) ? vbms.get(vbms.size() - 1) : null;
 	}
 
 }

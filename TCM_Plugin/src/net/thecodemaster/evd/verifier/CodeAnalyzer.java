@@ -149,7 +149,7 @@ public abstract class CodeAnalyzer {
 		return false;
 	}
 
-	protected void inspectNode(int depth, DataFlow df, ASTNode node) {
+	protected void inspectNode(int depth, DataFlow dataFlow, ASTNode node) {
 		// 01 - To avoid infinitive loop, this check is necessary.
 		if (hasReachedMaximumDepth(depth++)) {
 			return;
@@ -157,74 +157,78 @@ public abstract class CodeAnalyzer {
 
 		switch (node.getNodeType()) {
 			case ASTNode.ARRAY_INITIALIZER: // 04
-				inspectArrayInitializer(depth, df, (ArrayInitializer) node);
+				inspectArrayInitializer(depth, dataFlow, (ArrayInitializer) node);
 				break;
 			case ASTNode.ASSIGNMENT: // 07
-				inspectAssignment(depth, df, (Assignment) node);
+				inspectAssignment(depth, dataFlow, (Assignment) node);
 				break;
 			case ASTNode.BLOCK: // 08
-				inspectBlock(depth, df, (Block) node);
+				inspectBlock(depth, dataFlow, (Block) node);
 				break;
 			case ASTNode.CAST_EXPRESSION: // 11
-				inspectCastExpression(depth, df, (CastExpression) node);
+				inspectCastExpression(depth, dataFlow, (CastExpression) node);
 				break;
 			case ASTNode.CLASS_INSTANCE_CREATION: // 14
-				inspectClassInstanceCreation(depth, df, (ClassInstanceCreation) node);
+				inspectClassInstanceCreation(depth, dataFlow, (ClassInstanceCreation) node);
 				break;
 			case ASTNode.CONDITIONAL_EXPRESSION: // 16
-				inspectConditionExpression(depth, df, (ConditionalExpression) node);
+				inspectConditionExpression(depth, dataFlow, (ConditionalExpression) node);
 				break;
 			case ASTNode.DO_STATEMENT: // 19
-				inspectDoStatement(depth, df, (DoStatement) node);
+				inspectDoStatement(depth, dataFlow, (DoStatement) node);
 				break;
 			case ASTNode.EXPRESSION_STATEMENT: // 21
-				inspectExpressionStatement(depth, df, (ExpressionStatement) node);
+				inspectExpressionStatement(depth, dataFlow, (ExpressionStatement) node);
 				break;
 			case ASTNode.FOR_STATEMENT: // 24
-				inspectForStatement(depth, df, (ForStatement) node);
+				inspectForStatement(depth, dataFlow, (ForStatement) node);
 				break;
 			case ASTNode.IF_STATEMENT: // 25
-				inspectIfStatement(depth, df, (IfStatement) node);
+				inspectIfStatement(depth, dataFlow, (IfStatement) node);
 				break;
 			case ASTNode.INFIX_EXPRESSION: // 27
-				inspectInfixExpression(depth, df, (InfixExpression) node);
+				inspectInfixExpression(depth, dataFlow, (InfixExpression) node);
 				break;
 			case ASTNode.METHOD_INVOCATION: // 32
-				inspectMethodInvocation(depth, df, (MethodInvocation) node);
+				inspectMethodInvocation(depth, dataFlow, (MethodInvocation) node);
 				break;
 			case ASTNode.PARENTHESIZED_EXPRESSION: // 36
-				inspectParenthesizedExpression(depth, df, (ParenthesizedExpression) node);
+				inspectParenthesizedExpression(depth, dataFlow, (ParenthesizedExpression) node);
 				break;
 			case ASTNode.PREFIX_EXPRESSION: // 38
-				inspectPrefixExpression(depth, df, (PrefixExpression) node);
+				inspectPrefixExpression(depth, dataFlow, (PrefixExpression) node);
 				break;
 			case ASTNode.QUALIFIED_NAME: // 40
-				inspectQualifiedName(depth, df, (QualifiedName) node);
+				inspectQualifiedName(depth, dataFlow, (QualifiedName) node);
 				break;
 			case ASTNode.RETURN_STATEMENT: // 41
-				inspectReturnStatement(depth, df, (ReturnStatement) node);
+				inspectReturnStatement(depth, dataFlow, (ReturnStatement) node);
 				break;
 			case ASTNode.SIMPLE_NAME: // 42
-				inspectSimpleName(depth, df, (SimpleName) node);
+				inspectSimpleName(depth, dataFlow, (SimpleName) node);
 				break;
 			case ASTNode.SWITCH_STATEMENT: // 50
-				inspectSwitchStatement(depth, df, (SwitchStatement) node);
+				inspectSwitchStatement(depth, dataFlow, (SwitchStatement) node);
 				break;
 			case ASTNode.TRY_STATEMENT: // 54
-				inspectTryStatement(depth, df, (TryStatement) node);
+				inspectTryStatement(depth, dataFlow, (TryStatement) node);
 				break;
 			case ASTNode.VARIABLE_DECLARATION_STATEMENT: // 60
-				inspectVariableDeclarationStatement(depth, df, (VariableDeclarationStatement) node);
+				inspectVariableDeclarationStatement(depth, dataFlow, (VariableDeclarationStatement) node);
 				break;
 			case ASTNode.WHILE_STATEMENT: // 61
-				inspectWhileStatement(depth, df, (WhileStatement) node);
+				inspectWhileStatement(depth, dataFlow, (WhileStatement) node);
 				break;
 			case ASTNode.CHARACTER_LITERAL: // 13
 			case ASTNode.NULL_LITERAL: // 33
 			case ASTNode.NUMBER_LITERAL: // 34
 			case ASTNode.STRING_LITERAL: // 45
-				inspectLiteral(depth, df, (Expression) node);
+				inspectLiteral(depth, dataFlow, (Expression) node);
 				break;
+			case ASTNode.FIELD_ACCESS: // 22
+
+				break;
+
 			default:
 				PluginLogger.logError("inspectStatement Default Node Type: " + node.getNodeType() + " - " + node, null);
 		}
@@ -233,35 +237,34 @@ public abstract class CodeAnalyzer {
 	/**
 	 * 04
 	 */
-	protected void inspectArrayInitializer(int depth, DataFlow df, ArrayInitializer expression) {
+	protected void inspectArrayInitializer(int depth, DataFlow dataFlow, ArrayInitializer expression) {
 		List<Expression> parameters = BindingResolver.getParameters(expression);
 		for (Expression parameter : parameters) {
-			inspectNode(depth, df, parameter);
+			inspectNode(depth, dataFlow, parameter);
 		}
 	}
 
 	/**
 	 * 07
 	 */
-	protected void inspectAssignment(int depth, DataFlow df, Assignment expression) {
+	protected void inspectAssignment(int depth, DataFlow dataFlow, Assignment expression) {
 		// 01 - Get the elements from the operation.
 		Expression leftHandSide = expression.getLeftHandSide();
 		Expression rightHandSide = expression.getRightHandSide();
 
 		// 02 - Check each element.
-		inspectNode(depth, df, leftHandSide);
-		inspectNode(depth, df, rightHandSide);
+		inspectNode(depth, dataFlow, leftHandSide);
+		inspectNode(depth, dataFlow, rightHandSide);
 	}
 
 	/**
 	 * 08
 	 */
-	protected void inspectBlock(int depth, DataFlow df, Block block) {
-		// I believe I have to increment the depth here.
+	protected void inspectBlock(int depth, DataFlow dataFlow, Block block) {
 		if (null != block) {
 			List<?> statements = block.statements();
 			for (Object object : statements) {
-				inspectNode(depth, df, (Statement) object);
+				inspectNode(depth, dataFlow, (Statement) object);
 			}
 		}
 	}
@@ -269,77 +272,77 @@ public abstract class CodeAnalyzer {
 	/**
 	 * 11
 	 */
-	protected void inspectCastExpression(int depth, DataFlow df, CastExpression expression) {
-		inspectNode(depth, df, expression.getExpression());
+	protected void inspectCastExpression(int depth, DataFlow dataFlow, CastExpression expression) {
+		inspectNode(depth, dataFlow, expression.getExpression());
 	}
 
 	/**
 	 * 14
 	 */
-	protected void inspectClassInstanceCreation(int depth, DataFlow df, ClassInstanceCreation expression) {
+	protected void inspectClassInstanceCreation(int depth, DataFlow dataFlow, ClassInstanceCreation expression) {
 		List<Expression> parameters = BindingResolver.getParameters(expression);
 		for (Expression parameter : parameters) {
-			inspectNode(depth, df, parameter);
+			inspectNode(depth, dataFlow, parameter);
 		}
 	}
 
 	/**
 	 * 16
 	 */
-	protected void inspectConditionExpression(int depth, DataFlow df, ConditionalExpression expression) {
+	protected void inspectConditionExpression(int depth, DataFlow dataFlow, ConditionalExpression expression) {
 		// 01 - Get the elements from the operation.
 		Expression thenExpression = expression.getThenExpression();
 		Expression elseExpression = expression.getElseExpression();
 
 		// 02 - Check each element.
-		inspectNode(depth, df, thenExpression);
-		inspectNode(depth, df, elseExpression);
+		inspectNode(depth, dataFlow, thenExpression);
+		inspectNode(depth, dataFlow, elseExpression);
 	}
 
 	/**
 	 * 19
 	 */
-	protected void inspectDoStatement(int depth, DataFlow df, DoStatement statement) {
-		inspectNode(depth, df, statement.getBody());
+	protected void inspectDoStatement(int depth, DataFlow dataFlow, DoStatement statement) {
+		inspectNode(depth, dataFlow, statement.getBody());
 	}
 
 	/**
 	 * 21
 	 */
-	protected void inspectExpressionStatement(int depth, DataFlow df, ExpressionStatement expression) {
-		inspectNode(depth, df, expression.getExpression());
+	protected void inspectExpressionStatement(int depth, DataFlow dataFlow, ExpressionStatement expression) {
+		inspectNode(depth, dataFlow, expression.getExpression());
 	}
 
 	/**
 	 * 24
 	 */
-	protected void inspectForStatement(int depth, DataFlow df, ForStatement statement) {
-		inspectNode(depth, df, statement.getBody());
+	protected void inspectForStatement(int depth, DataFlow dataFlow, ForStatement statement) {
+		inspectNode(depth, dataFlow, statement.getBody());
 	}
 
 	/**
 	 * 25
 	 */
-	protected void inspectIfStatement(int depth, DataFlow df, IfStatement statement) {
-		inspectNode(depth, df, statement.getThenStatement());
-		inspectNode(depth, df, statement.getElseStatement());
+	protected void inspectIfStatement(int depth, DataFlow dataFlow, IfStatement statement) {
+		inspectNode(depth, dataFlow, statement.getThenStatement());
+		inspectNode(depth, dataFlow, statement.getElseStatement());
 	}
 
 	/**
 	 * 27
 	 */
-	protected void inspectInfixExpression(int depth, DataFlow df, InfixExpression expression) {
+	protected void inspectInfixExpression(int depth, DataFlow dataFlow, InfixExpression expression) {
 		// 01 - Get the elements from the operation.
 		Expression leftOperand = expression.getLeftOperand();
 		Expression rightOperand = expression.getRightOperand();
 		List<Expression> extendedOperands = BindingResolver.getParameters(expression);
 
 		// 02 - Check each element.
-		inspectNode(depth, df, leftOperand);
-		inspectNode(depth, df, rightOperand);
+		inspectNode(depth, dataFlow, leftOperand);
+		inspectNode(depth, dataFlow, rightOperand);
 
 		for (Expression extendedOperand : extendedOperands) {
-			inspectNode(depth, df, extendedOperand);
+			inspectNode(depth, dataFlow, extendedOperand);
 		}
 	}
 
@@ -350,7 +353,7 @@ public abstract class CodeAnalyzer {
 		PluginLogger.logIfDebugging("inspectMethodInvocation not implemented.");
 	}
 
-	private void inspectParameterOfExitPoint(int depth, DataFlow df, MethodInvocation method, ExitPoint exitPoint) {
+	private void inspectParameterOfExitPoint(int depth, DataFlow dataFlow, MethodInvocation method, ExitPoint exitPoint) {
 		// 01 - Get the parameters (received) from the current method.
 		List<Expression> receivedParameters = BindingResolver.getParameters(method);
 
@@ -363,7 +366,7 @@ public abstract class CodeAnalyzer {
 			if (null != rules) {
 				Expression expr = receivedParameters.get(index);
 
-				// checkExpression(depth, df, rules, expr);
+				// checkExpression(depth, dataFlow, rules, expr);
 			}
 			index++;
 		}
@@ -372,46 +375,46 @@ public abstract class CodeAnalyzer {
 	/**
 	 * 36
 	 */
-	protected void inspectParenthesizedExpression(int depth, DataFlow df, ParenthesizedExpression expression) {
-		inspectNode(depth, df, expression.getExpression());
+	protected void inspectParenthesizedExpression(int depth, DataFlow dataFlow, ParenthesizedExpression expression) {
+		inspectNode(depth, dataFlow, expression.getExpression());
 	}
 
 	/**
 	 * 38
 	 */
-	protected void inspectPrefixExpression(int depth, DataFlow df, PrefixExpression expression) {
+	protected void inspectPrefixExpression(int depth, DataFlow dataFlow, PrefixExpression expression) {
 		// 01 - Get the elements from the operation.
 		Expression operand = expression.getOperand();
 
 		// 02 - Check each element.
-		inspectNode(depth, df, operand);
+		inspectNode(depth, dataFlow, operand);
 	}
 
 	/**
 	 * 40
 	 */
-	protected void inspectQualifiedName(int depth, DataFlow df, QualifiedName expression) {
-		inspectNode(depth, df, expression.getName());
+	protected void inspectQualifiedName(int depth, DataFlow dataFlow, QualifiedName expression) {
+		inspectNode(depth, dataFlow, expression.getName());
 	}
 
 	/**
 	 * 41
 	 */
-	protected void inspectReturnStatement(int depth, DataFlow df, ReturnStatement statement) {
-		inspectNode(depth, df, statement.getExpression());
+	protected void inspectReturnStatement(int depth, DataFlow dataFlow, ReturnStatement statement) {
+		inspectNode(depth, dataFlow, statement.getExpression());
 	}
 
 	/**
 	 * 42
 	 */
-	protected void inspectSimpleName(int depth, DataFlow df, SimpleName expression) {
+	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression) {
 		// 01 - Try to retrieve the variable from the list of variables.
 		VariableBindingManager manager = getCallGraph().getVariableBinding(expression);
 		if (null != manager) {
 
 			// 02 - This is the case where we have to go deeper into the variable's path.
 			Expression initializer = manager.getInitializer();
-			inspectNode(depth, df, initializer);
+			inspectNode(depth, dataFlow, initializer);
 		} else {
 			// This is the case where the variable is an argument of the method.
 			// 04 - Get the method signature that is using this parameter.
@@ -433,7 +436,7 @@ public abstract class CodeAnalyzer {
 							Expression parameter = BindingResolver.getParameterAtIndex(invocation, parameterIndex);
 
 							// 10 - Run detection on this parameter.
-							inspectNode(depth, df, parameter);
+							inspectNode(depth, dataFlow, parameter);
 						}
 					}
 
@@ -446,45 +449,46 @@ public abstract class CodeAnalyzer {
 	/**
 	 * 50
 	 */
-	protected void inspectSwitchStatement(int depth, DataFlow df, SwitchStatement statement) {
+	protected void inspectSwitchStatement(int depth, DataFlow dataFlow, SwitchStatement statement) {
 		List<?> switchStatements = statement.statements();
 		for (Object switchCases : switchStatements) {
-			inspectNode(depth, df, (Statement) switchCases);
+			inspectNode(depth, dataFlow, (Statement) switchCases);
 		}
 	}
 
 	/**
 	 * 54
 	 */
-	protected void inspectTryStatement(int depth, DataFlow df, TryStatement statement) {
-		inspectNode(depth, df, statement.getBody());
+	protected void inspectTryStatement(int depth, DataFlow dataFlow, TryStatement statement) {
+		inspectNode(depth, dataFlow, statement.getBody());
 
 		List<?> listCatches = statement.catchClauses();
 		for (Object catchClause : listCatches) {
-			inspectNode(depth, df, ((CatchClause) catchClause).getBody());
+			inspectNode(depth, dataFlow, ((CatchClause) catchClause).getBody());
 		}
 
-		inspectNode(depth, df, statement.getFinally());
+		inspectNode(depth, dataFlow, statement.getFinally());
 	}
 
 	/**
 	 * 60
 	 */
-	protected void inspectVariableDeclarationStatement(int depth, DataFlow df, VariableDeclarationStatement statement) {
+	protected void inspectVariableDeclarationStatement(int depth, DataFlow dataFlow,
+			VariableDeclarationStatement statement) {
 		PluginLogger.logIfDebugging("inspectVariableDeclarationStatement not implemented.");
 	}
 
 	/**
 	 * 61
 	 */
-	protected void inspectWhileStatement(int depth, DataFlow df, WhileStatement statement) {
-		inspectNode(depth, df, statement.getBody());
+	protected void inspectWhileStatement(int depth, DataFlow dataFlow, WhileStatement statement) {
+		inspectNode(depth, dataFlow, statement.getBody());
 	}
 
 	/**
 	 * 13, 33, 34, 45
 	 */
-	protected void inspectLiteral(int depth, DataFlow df, Expression node) {
+	protected void inspectLiteral(int depth, DataFlow dataFlow, Expression node) {
 	}
 
 }

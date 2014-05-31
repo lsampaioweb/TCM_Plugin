@@ -3,6 +3,7 @@ package net.thecodemaster.evd.graph;
 import java.util.List;
 
 import net.thecodemaster.evd.helper.Creator;
+import net.thecodemaster.evd.ui.enumeration.EnumStatusVariable;
 
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -14,13 +15,14 @@ public class VariableBindingManager {
 
 	private IBinding								binding;
 	private Expression							initializer;
-	private boolean									isVulnerable;
+	private EnumStatusVariable			status;
 	private DataFlow								dataFlow;
 
 	private final List<Expression>	references;
 
 	public VariableBindingManager(IBinding binding) {
-		this.setBinding(binding);
+		setBinding(binding);
+		this.status = EnumStatusVariable.UNKNOWN;
 
 		references = Creator.newList();
 	}
@@ -49,12 +51,12 @@ public class VariableBindingManager {
 		return references;
 	}
 
-	public boolean isVulnerable() {
-		return isVulnerable;
+	public EnumStatusVariable status() {
+		return status;
 	}
 
-	public void setVulnerable(DataFlow dataFlow) {
-		this.isVulnerable = true;
+	public void setStatus(DataFlow dataFlow, EnumStatusVariable status) {
+		this.status = status;
 		setDataFlow(dataFlow);
 	}
 
