@@ -151,7 +151,7 @@ public abstract class CodeAnalyzer {
 
 	protected void inspectNode(int depth, DataFlow df, ASTNode node) {
 		// 01 - To avoid infinitive loop, this check is necessary.
-		if (hasReachedMaximumDepth(depth)) {
+		if (hasReachedMaximumDepth(depth++)) {
 			return;
 		}
 
@@ -257,6 +257,7 @@ public abstract class CodeAnalyzer {
 	 * 08
 	 */
 	protected void inspectBlock(int depth, DataFlow df, Block block) {
+		// I believe I have to increment the depth here.
 		if (null != block) {
 			List<?> statements = block.statements();
 			for (Object object : statements) {
@@ -422,22 +423,20 @@ public abstract class CodeAnalyzer {
 				// 06 - Get the list of methods that invokes this method.
 				Map<MethodDeclaration, List<Expression>> invokers = getCallGraph().getInvokers(methodDeclaration);
 
-				if (null != invokers) {
-					// 07 - Iterate over all the methods that invokes this method.
-					for (List<Expression> currentInvocations : invokers.values()) {
+				// 07 - Iterate over all the methods that invokes this method.
+				for (List<Expression> currentInvocations : invokers.values()) {
 
-						// 08 - Care only about the invocations to this method.
-						for (Expression invocation : currentInvocations) {
-							if (BindingResolver.areMethodsEqual(methodDeclaration, invocation)) {
-								// 09 - Get the parameter at the index position.
-								Expression parameter = BindingResolver.getParameterAtIndex(invocation, parameterIndex);
+					// 08 - Care only about the invocations to this method.
+					for (Expression invocation : currentInvocations) {
+						if (BindingResolver.areMethodsEqual(methodDeclaration, invocation)) {
+							// 09 - Get the parameter at the index position.
+							Expression parameter = BindingResolver.getParameterAtIndex(invocation, parameterIndex);
 
-								// 10 - Run detection on this parameter.
-								inspectNode(depth, df, parameter);
-							}
+							// 10 - Run detection on this parameter.
+							inspectNode(depth, df, parameter);
 						}
-
 					}
+
 				}
 			}
 

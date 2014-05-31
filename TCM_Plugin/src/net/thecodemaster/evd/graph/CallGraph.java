@@ -263,8 +263,12 @@ public class CallGraph {
 	}
 
 	public VariableBindingManager getLastReference(SimpleName simpleName) {
+		return getLastReference(simpleName.resolveBinding());
+	}
+
+	public VariableBindingManager getLastReference(IBinding binding) {
 		// 01 - Get the list of references of this variable.
-		List<VariableBindingManager> vbms = getVariableBindings(simpleName.resolveBinding());
+		List<VariableBindingManager> vbms = getVariableBindings(binding);
 
 		// 02 - Return the last element of the list.
 		return getLastReference(vbms);

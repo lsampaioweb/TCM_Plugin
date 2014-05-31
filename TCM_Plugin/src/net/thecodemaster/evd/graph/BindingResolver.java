@@ -6,8 +6,11 @@ import java.util.List;
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.helper.Convert;
 import net.thecodemaster.evd.helper.Creator;
+import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.point.AbstractPoint;
 
+import org.eclipse.core.resources.IResource;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.Assignment;
@@ -309,6 +312,16 @@ public class BindingResolver {
 		// boolean, byte, char, short, int, long, float, and double
 		String newName = Convert.fromPrimitiveNameToWrapperClass(other.getQualifiedName());
 		return (parameter.equals(newName));
+	}
+
+	public static IResource getResource(ASTNode node) {
+		try {
+			CompilationUnit cUnit = getParentCompilationUnit(node);
+			return cUnit.getJavaElement().getCorrespondingResource();
+		} catch (JavaModelException e) {
+			PluginLogger.logError(e);
+		}
+		return null;
 	}
 
 }
