@@ -108,4 +108,9 @@ public class VariableBindingManager {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return getBinding().toString() + " - " + getInitializer().toString();
+	}
+
 }

@@ -248,7 +248,8 @@ public class ReporterView implements IReporter {
 			if (0 != fullPath.length()) {
 				fullPath.append(Constant.SEPARATOR_FULL_PATH);
 			}
-			fullPath.append(vulnerablePath.getRoot().toString());
+			Expression root = vulnerablePath.getRoot();
+			fullPath.append((null != root) ? root.toString() : "");
 		}
 		return fullPath.toString();
 	}

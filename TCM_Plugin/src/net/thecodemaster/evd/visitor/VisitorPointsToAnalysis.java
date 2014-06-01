@@ -12,17 +12,9 @@ import net.thecodemaster.evd.ui.enumeration.EnumStatusVariable;
 import net.thecodemaster.evd.verifier.CodeAnalyzer;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.Assignment;
-import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.IBinding;
-import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.ParenthesizedExpression;
-import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -124,7 +116,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	}
 
 	@Override
-	protected void inspectMethodWithSourceCode(int depth, DataFlow dataFlow, MethodInvocation methodInvocation,
+	protected void inspectMethodWithSourceCode(int depth, DataFlow dataFlow, Expression methodInvocation,
 			MethodDeclaration methodDeclaration) {
 		// If this method declaration has parameters, we have to add the values from
 		// the invocation to these parameters.
@@ -154,7 +146,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	}
 
 	@Override
-	protected void inspectMethodWithOutSourceCode(int depth, DataFlow dataFlow, MethodInvocation methodInvocation) {
+	protected void inspectMethodWithOutSourceCode(int depth, DataFlow dataFlow, Expression methodInvocation) {
 		// We have to iterate over its parameters to see if any is vulnerable.
 		// If there is a vulnerable parameter and if this is a method from an object
 		// we set this object as vulnerable.
@@ -200,82 +192,6 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 					: EnumStatusVariable.NOT_VULNERABLE;
 			manager.setStatus(newDataFlow, status);
 		}
-	}
-
-	private void addReferenceToInitializer(Expression expression, Expression initializer) {
-		if (null != initializer) {
-			switch (initializer.getNodeType()) {
-				case ASTNode.ARRAY_INITIALIZER: // 04
-					addReferenceArrayInitializer(expression, (ArrayInitializer) initializer);
-					break;
-				case ASTNode.ASSIGNMENT: // 07
-					addReferenceAssgnment(expression, (Assignment) initializer);
-					break;
-				case ASTNode.CONDITIONAL_EXPRESSION: // 16
-					addReferenceConditionalExpression(expression, (ConditionalExpression) initializer);
-					break;
-				case ASTNode.INFIX_EXPRESSION: // 27
-					addReferenceInfixExpression(expression, (InfixExpression) initializer);
-					break;
-				case ASTNode.PARENTHESIZED_EXPRESSION: // 36
-					addReferenceParenthesizedExpression(expression, (ParenthesizedExpression) initializer);
-					break;
-				case ASTNode.QUALIFIED_NAME: // 40
-					addReferenceQualifiedName(expression, (QualifiedName) initializer);
-					break;
-				case ASTNode.SIMPLE_NAME: // 42
-					addReferenceSimpleName(expression, (SimpleName) initializer);
-					break;
-			}
-		}
-	}
-
-	private void addReference(Expression expression, IBinding binding) {
-		VariableBindingManager variableBindingInitializer = getCallGraph().getLastReference(binding);
-		if (null != variableBindingInitializer) {
-			variableBindingInitializer.addReferences(expression);
-		}
-	}
-
-	private void addReferenceSimpleName(Expression expression, SimpleName initializer) {
-		addReference(expression, initializer.resolveBinding());
-	}
-
-	private void addReferenceQualifiedName(Expression expression, QualifiedName initializer) {
-		addReference(expression, initializer.resolveBinding());
-	}
-
-	private void addReferenceAssgnment(Expression expression, Assignment initializer) {
-		addReferenceToInitializer(expression, initializer.getLeftHandSide());
-		addReferenceToInitializer(expression, initializer.getRightHandSide());
-	}
-
-	private void addReferenceInfixExpression(Expression expression, InfixExpression initializer) {
-		addReferenceToInitializer(expression, initializer.getLeftOperand());
-		addReferenceToInitializer(expression, initializer.getRightOperand());
-
-		List<Expression> extendedOperands = BindingResolver.getParameters(initializer);
-
-		for (Expression current : extendedOperands) {
-			addReferenceToInitializer(expression, current);
-		}
-	}
-
-	private void addReferenceConditionalExpression(Expression expression, ConditionalExpression initializer) {
-		addReferenceToInitializer(expression, initializer.getThenExpression());
-		addReferenceToInitializer(expression, initializer.getElseExpression());
-	}
-
-	private void addReferenceArrayInitializer(Expression expression, ArrayInitializer initializer) {
-		List<Expression> expressions = BindingResolver.getParameters(initializer);
-
-		for (Expression current : expressions) {
-			addReferenceToInitializer(expression, current);
-		}
-	}
-
-	private void addReferenceParenthesizedExpression(Expression expression, ParenthesizedExpression initializer) {
-		addReferenceToInitializer(expression, initializer.getExpression());
 	}
 
 }

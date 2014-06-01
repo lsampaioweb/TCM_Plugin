@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.ForStatement;
+import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
@@ -163,9 +164,6 @@ public abstract class CodeAnalyzer {
 			case ASTNode.CAST_EXPRESSION: // 11
 				inspectCastExpression(depth, dataFlow, (CastExpression) node);
 				break;
-			case ASTNode.CLASS_INSTANCE_CREATION: // 14
-				inspectClassInstanceCreation(depth, dataFlow, (ClassInstanceCreation) node);
-				break;
 			case ASTNode.CONDITIONAL_EXPRESSION: // 16
 				inspectConditionExpression(depth, dataFlow, (ConditionalExpression) node);
 				break;
@@ -187,8 +185,9 @@ public abstract class CodeAnalyzer {
 			case ASTNode.INFIX_EXPRESSION: // 27
 				inspectInfixExpression(depth, dataFlow, (InfixExpression) node);
 				break;
+			case ASTNode.CLASS_INSTANCE_CREATION: // 14
 			case ASTNode.METHOD_INVOCATION: // 32
-				MethodInvocation method = (MethodInvocation) node;
+				Expression method = (Expression) node;
 				inspectMethodInvocation(depth, dataFlow.addNodeToPath(method), method);
 				break;
 			case ASTNode.PARENTHESIZED_EXPRESSION: // 36
@@ -273,16 +272,6 @@ public abstract class CodeAnalyzer {
 	}
 
 	/**
-	 * 14
-	 */
-	protected void inspectClassInstanceCreation(int depth, DataFlow dataFlow, ClassInstanceCreation expression) {
-		List<Expression> parameters = BindingResolver.getParameters(expression);
-		for (Expression parameter : parameters) {
-			inspectNode(depth, dataFlow, parameter);
-		}
-	}
-
-	/**
 	 * 16
 	 */
 	protected void inspectConditionExpression(int depth, DataFlow dataFlow, ConditionalExpression expression) {
@@ -352,7 +341,7 @@ public abstract class CodeAnalyzer {
 	/**
 	 * 32
 	 */
-	protected void inspectMethodInvocation(int depth, DataFlow dataFlow, MethodInvocation methodInvocation) {
+	protected void inspectMethodInvocation(int depth, DataFlow dataFlow, Expression methodInvocation) {
 		// 01 - Check if this method is a Sanitization-Point.
 		if (isMethodASanitizationPoint(methodInvocation)) {
 			// If a sanitization method is being invoked, then we do not have a vulnerability.
@@ -395,22 +384,30 @@ public abstract class CodeAnalyzer {
 		}
 	}
 
-	protected void inspectMethodWithSourceCode(int depth, DataFlow dataFlow, MethodInvocation methodInvocation,
+	protected void inspectMethodWithSourceCode(int depth, DataFlow dataFlow, Expression methodInvocation,
 			MethodDeclaration methodDeclaration) {
 		inspectNode(depth, dataFlow, methodDeclaration.getBody());
 	}
 
-	protected void inspectMethodWithOutSourceCode(int depth, DataFlow dataFlow, MethodInvocation methodInvocation) {
+	protected void inspectMethodWithOutSourceCode(int depth, DataFlow dataFlow, Expression methodInvocation) {
 		List<Expression> parameters = BindingResolver.getParameters(methodInvocation);
 		for (Expression parameter : parameters) {
 			inspectNode(depth, dataFlow, parameter);
 		}
 	}
 
-	protected VariableBindingManager getVariableBindingIfItIsAnObject(MethodInvocation methodInvocation) {
-		Expression expression = methodInvocation.getExpression();
-		while (null != expression) {
+	protected VariableBindingManager getVariableBindingIfItIsAnObject(Expression method) {
+		Expression expression = null;
+		switch (method.getNodeType()) {
+			case ASTNode.CLASS_INSTANCE_CREATION: // 14
+				expression = ((ClassInstanceCreation) method).getExpression();
+				break;
+			case ASTNode.METHOD_INVOCATION: // 32
+				expression = ((MethodInvocation) method).getExpression();
+				break;
+		}
 
+		while (null != expression) {
 			switch (expression.getNodeType()) {
 				case ASTNode.SIMPLE_NAME:
 					return getCallGraph().getLastReference((SimpleName) expression);
@@ -423,7 +420,6 @@ public abstract class CodeAnalyzer {
 					expression = null;
 					break;
 			}
-
 		}
 
 		return null;
@@ -532,6 +528,82 @@ public abstract class CodeAnalyzer {
 	 * 13, 33, 34, 45
 	 */
 	protected void inspectLiteral(int depth, DataFlow dataFlow, Expression node) {
+	}
+
+	protected void addReferenceToInitializer(Expression expression, Expression initializer) {
+		if (null != initializer) {
+			switch (initializer.getNodeType()) {
+				case ASTNode.ARRAY_INITIALIZER: // 04
+					addReferenceArrayInitializer(expression, (ArrayInitializer) initializer);
+					break;
+				case ASTNode.ASSIGNMENT: // 07
+					addReferenceAssgnment(expression, (Assignment) initializer);
+					break;
+				case ASTNode.CONDITIONAL_EXPRESSION: // 16
+					addReferenceConditionalExpression(expression, (ConditionalExpression) initializer);
+					break;
+				case ASTNode.INFIX_EXPRESSION: // 27
+					addReferenceInfixExpression(expression, (InfixExpression) initializer);
+					break;
+				case ASTNode.PARENTHESIZED_EXPRESSION: // 36
+					addReferenceParenthesizedExpression(expression, (ParenthesizedExpression) initializer);
+					break;
+				case ASTNode.QUALIFIED_NAME: // 40
+					addReferenceQualifiedName(expression, (QualifiedName) initializer);
+					break;
+				case ASTNode.SIMPLE_NAME: // 42
+					addReferenceSimpleName(expression, (SimpleName) initializer);
+					break;
+			}
+		}
+	}
+
+	protected void addReference(Expression expression, IBinding binding) {
+		VariableBindingManager variableBindingInitializer = getCallGraph().getLastReference(binding);
+		if (null != variableBindingInitializer) {
+			variableBindingInitializer.addReferences(expression);
+		}
+	}
+
+	protected void addReferenceSimpleName(Expression expression, SimpleName initializer) {
+		addReference(expression, initializer.resolveBinding());
+	}
+
+	protected void addReferenceQualifiedName(Expression expression, QualifiedName initializer) {
+		addReference(expression, initializer.resolveBinding());
+	}
+
+	protected void addReferenceAssgnment(Expression expression, Assignment initializer) {
+		addReferenceToInitializer(expression, initializer.getLeftHandSide());
+		addReferenceToInitializer(expression, initializer.getRightHandSide());
+	}
+
+	protected void addReferenceInfixExpression(Expression expression, InfixExpression initializer) {
+		addReferenceToInitializer(expression, initializer.getLeftOperand());
+		addReferenceToInitializer(expression, initializer.getRightOperand());
+
+		List<Expression> extendedOperands = BindingResolver.getParameters(initializer);
+
+		for (Expression current : extendedOperands) {
+			addReferenceToInitializer(expression, current);
+		}
+	}
+
+	protected void addReferenceConditionalExpression(Expression expression, ConditionalExpression initializer) {
+		addReferenceToInitializer(expression, initializer.getThenExpression());
+		addReferenceToInitializer(expression, initializer.getElseExpression());
+	}
+
+	protected void addReferenceArrayInitializer(Expression expression, ArrayInitializer initializer) {
+		List<Expression> expressions = BindingResolver.getParameters(initializer);
+
+		for (Expression current : expressions) {
+			addReferenceToInitializer(expression, current);
+		}
+	}
+
+	protected void addReferenceParenthesizedExpression(Expression expression, ParenthesizedExpression initializer) {
+		addReferenceToInitializer(expression, initializer.getExpression());
 	}
 
 }

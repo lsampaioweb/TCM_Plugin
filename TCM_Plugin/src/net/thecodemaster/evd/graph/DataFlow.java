@@ -6,8 +6,8 @@ import java.util.List;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.logger.PluginLogger;
 
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Expression;
-import org.eclipse.jdt.core.dom.Statement;
 
 /**
  * This class is responsible to hold the complete flow of a vulnerability starting where the vulnerability was
@@ -130,8 +130,11 @@ public class DataFlow {
 		children = dataFlow.children;
 
 		if (!dataFlow.allVulnerablePaths.isEmpty()) {
+
+			List<List<DataFlow>> copyVulnerablePaths = Creator.newList(dataFlow.allVulnerablePaths);
+
 			// Inform the parent that this path is vulnerable.
-			for (Iterator<List<DataFlow>> iterator = dataFlow.allVulnerablePaths.iterator(); iterator.hasNext();) {
+			for (Iterator<List<DataFlow>> iterator = copyVulnerablePaths.iterator(); iterator.hasNext();) {
 				List<DataFlow> copyList = Creator.newList(iterator.next());
 				// This element will be re-added on the currentList.add(this);
 				copyList.remove(0);
@@ -140,12 +143,8 @@ public class DataFlow {
 		}
 	}
 
-	public void isInfinitiveLoop(Expression expr) {
+	public void isInfinitiveLoop(ASTNode expr) {
 		PluginLogger.logIfDebugging("Found an Infinitive Loop at expression: " + expr);
-	}
-
-	public void isInfinitiveLoop(Statement statement) {
-		PluginLogger.logIfDebugging("Found an Infinitive Loop at statement: " + statement);
 	}
 
 	/**
