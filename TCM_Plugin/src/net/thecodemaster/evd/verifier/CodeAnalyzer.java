@@ -147,6 +147,10 @@ public abstract class CodeAnalyzer {
 			return;
 		}
 
+		if (null == node) {
+			return;
+		}
+
 		switch (node.getNodeType()) {
 			case ASTNode.ARRAY_INITIALIZER: // 04
 				inspectArrayInitializer(depth, dataFlow, (ArrayInitializer) node);
@@ -256,8 +260,7 @@ public abstract class CodeAnalyzer {
 	 */
 	protected void inspectBlock(int depth, DataFlow dataFlow, Block block) {
 		if (null != block) {
-			List<?> statements = block.statements();
-			for (Object object : statements) {
+			for (Object object : block.statements()) {
 				inspectNode(depth, dataFlow, (Statement) object);
 			}
 		}

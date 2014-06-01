@@ -17,6 +17,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.Assignment;
+import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -27,6 +28,7 @@ import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
@@ -96,9 +98,14 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	 * @param methodDeclaration
 	 */
 	protected void run(MethodDeclaration methodDeclaration) {
-		// The depth control the investigation mechanism to avoid infinitive loops.
-		int depth = 0;
-		inspectNode(depth, new DataFlow(), methodDeclaration.getBody());
+		Block block = methodDeclaration.getBody();
+		if (null != block) {
+			// The depth control the investigation mechanism to avoid infinitive loops.
+			int depth = 0;
+			for (Object object : block.statements()) {
+				inspectNode(depth, new DataFlow(), (Statement) object);
+			}
+		}
 	}
 
 	/**
@@ -136,7 +143,6 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
 		// 03 - There are 2 cases: When we have the source code of this method and when we do not.
 		MethodDeclaration methodDeclaration = getCallGraph().getMethod(getCurrentResource(), methodInvocation);
-
 		if (null != methodDeclaration) {
 			// We have the source code.
 			inspectMethodWithSourceCode(depth, dataFlow, methodInvocation, methodDeclaration);
@@ -178,7 +184,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 				getCallGraph().addVariableToCallGraph(parameterName, initializer);
 
 				// 05 - Add a method reference to this variable (if it is a variable).
-				addMethodReferenceToVariable(methodInvocation, initializer);
+				addReferenceToInitializer(methodInvocation, initializer);
 			}
 		}
 
@@ -193,7 +199,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		List<Expression> parameters = BindingResolver.getParameters(methodInvocation);
 		for (Expression parameter : parameters) {
 			// 01 - Add a method reference to this variable (if it is a variable).
-			addMethodReferenceToVariable(methodInvocation, parameter);
+			addReferenceToInitializer(methodInvocation, parameter);
 
 			inspectNode(depth, dataFlow, parameter);
 		}
@@ -229,17 +235,18 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		// 01 - Try to retrieve the variable from the list of variables.
 		VariableBindingManager manager = getCallGraph().getLastReference(expression);
 		if (null != manager) {
-			if (manager.status().equals(EnumStatusVariable.VULNERABLE)) {
-				dataFlow.replace(manager.getDataFlow());
-			} else if (manager.status().equals(EnumStatusVariable.UNKNOWN)) {
-				// 02 - This is the case where we have to go deeper into the variable's path.
-				inspectNode(depth, dataFlow, manager.getInitializer());
+			// FIXME - TODO
+			// if (manager.status().equals(EnumStatusVariable.VULNERABLE)) {
+			// dataFlow.replace(manager.getDataFlow());
+			// } else if (manager.status().equals(EnumStatusVariable.UNKNOWN)) {
+			// 02 - This is the case where we have to go deeper into the variable's path.
+			inspectNode(depth, dataFlow, manager.getInitializer());
 
-				// 03 - If there a vulnerable path, then this variable is vulnerable.
-				EnumStatusVariable status = (dataFlow.isVulnerable()) ? EnumStatusVariable.VULNERABLE
-						: EnumStatusVariable.NOT_VULNERABLE;
-				manager.setStatus(dataFlow, status);
-			}
+			// 03 - If there a vulnerable path, then this variable is vulnerable.
+			EnumStatusVariable status = (dataFlow.isVulnerable()) ? EnumStatusVariable.VULNERABLE
+					: EnumStatusVariable.NOT_VULNERABLE;
+			manager.setStatus(dataFlow, status);
+			// }
 		} else {
 			// If I don't know this variable, it is a parameter.
 			PluginLogger.logIfDebugging("inspectSimpleName manager == null");
@@ -268,6 +275,9 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 			Expression initializer) {
 		VariableBindingManager manager = getCallGraph().addVariableToCallGraph(variableName, initializer);
 		if (null != manager) {
+			// 01 - Add a reference to this variable (if it is a variable).
+			addReferenceToInitializer(variableName, initializer);
+
 			// 01 - Inspect the Initializer to verify if this variable is vulnerable.
 			inspectNode(depth, dataFlow.addNodeToPath(variableName), initializer);
 
@@ -278,7 +288,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		}
 	}
 
-	private void addMethodReferenceToVariable(Expression expression, Expression initializer) {
+	private void addReferenceToInitializer(Expression expression, Expression initializer) {
 		if (null != initializer) {
 			switch (initializer.getNodeType()) {
 				case ASTNode.ARRAY_INITIALIZER: // 04
@@ -322,36 +332,36 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	}
 
 	private void addReferenceAssgnment(Expression expression, Assignment initializer) {
-		addMethodReferenceToVariable(expression, initializer.getLeftHandSide());
-		addMethodReferenceToVariable(expression, initializer.getRightHandSide());
+		addReferenceToInitializer(expression, initializer.getLeftHandSide());
+		addReferenceToInitializer(expression, initializer.getRightHandSide());
 	}
 
 	private void addReferenceInfixExpression(Expression expression, InfixExpression initializer) {
-		addMethodReferenceToVariable(expression, initializer.getLeftOperand());
-		addMethodReferenceToVariable(expression, initializer.getRightOperand());
+		addReferenceToInitializer(expression, initializer.getLeftOperand());
+		addReferenceToInitializer(expression, initializer.getRightOperand());
 
 		List<Expression> extendedOperands = BindingResolver.getParameters(initializer);
 
 		for (Expression current : extendedOperands) {
-			addMethodReferenceToVariable(expression, current);
+			addReferenceToInitializer(expression, current);
 		}
 	}
 
 	private void addReferenceConditionalExpression(Expression expression, ConditionalExpression initializer) {
-		addMethodReferenceToVariable(expression, initializer.getThenExpression());
-		addMethodReferenceToVariable(expression, initializer.getElseExpression());
+		addReferenceToInitializer(expression, initializer.getThenExpression());
+		addReferenceToInitializer(expression, initializer.getElseExpression());
 	}
 
 	private void addReferenceArrayInitializer(Expression expression, ArrayInitializer initializer) {
 		List<Expression> expressions = BindingResolver.getParameters(initializer);
 
 		for (Expression current : expressions) {
-			addMethodReferenceToVariable(expression, current);
+			addReferenceToInitializer(expression, current);
 		}
 	}
 
 	private void addReferenceParenthesizedExpression(Expression expression, ParenthesizedExpression initializer) {
-		addMethodReferenceToVariable(expression, initializer.getExpression());
+		addReferenceToInitializer(expression, initializer.getExpression());
 	}
 
 }

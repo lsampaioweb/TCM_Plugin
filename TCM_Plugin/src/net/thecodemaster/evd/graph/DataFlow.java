@@ -122,8 +122,6 @@ public class DataFlow {
 	}
 
 	public void replace(DataFlow dataFlow) {
-		// root = dataFlow.root;
-		// parent = dataFlow.parent;
 		typeProblem = dataFlow.typeProblem;
 		message = dataFlow.message;
 		children = dataFlow.children;

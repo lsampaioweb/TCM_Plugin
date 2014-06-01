@@ -16,6 +16,7 @@ import net.thecodemaster.evd.ui.enumeration.EnumStatusVariable;
 import net.thecodemaster.evd.xmlloader.LoaderExitPoint;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -282,6 +283,39 @@ public abstract class Verifier extends CodeAnalyzer {
 			PluginLogger.logIfDebugging("inspectSimpleName");
 			// TODO do what here ?
 		}
+	}
+
+	/**
+	 * TODO
+	 * 
+	 * @param rules
+	 * @param parameter
+	 * @return
+	 */
+	private boolean matchRules(List<Integer> rules, Expression parameter) {
+		if (null == parameter) {
+			// There is nothing we can do to verify it.
+			return true;
+		}
+
+		// -1 Anything is valid.
+		// 0 Only sanitized values are valid.
+		// 1 LITERAL and sanitized values are valid.
+		for (Integer astNodeValue : rules) {
+			if (astNodeValue == Constant.LITERAL) {
+				switch (parameter.getNodeType()) {
+					case ASTNode.STRING_LITERAL:
+					case ASTNode.CHARACTER_LITERAL:
+					case ASTNode.NUMBER_LITERAL:
+					case ASTNode.NULL_LITERAL:
+						return true;
+				}
+			} else if (astNodeValue == parameter.getNodeType()) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 }
