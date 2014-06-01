@@ -19,27 +19,27 @@ public class DataFlow {
 	/**
 	 * The object that is vulnerable.
 	 */
-	private Expression									root;
+	private Expression						root;
 	/**
 	 * The parent object because we need to navigate from the parent to its children and also on the opposite direction.
 	 */
-	private DataFlow										parent;
+	private DataFlow							parent;
 	/**
 	 * The type of the vulnerability.
 	 */
-	private int													typeProblem;
+	private int										typeProblem;
 	/**
 	 * The message that will be displayed to the user informing that this object is vulnerable.
 	 */
-	private String											message;
+	private String								message;
 	/**
 	 * All the possible flows that the vulnerability could reach, but some of them might end up being not vulnerable.
 	 */
-	private final List<DataFlow>				children;
+	private List<DataFlow>				children;
 	/**
 	 * This list holds that actual paths that ARE vulnerable.
 	 */
-	private final List<List<DataFlow>>	allVulnerablePaths;
+	private List<List<DataFlow>>	allVulnerablePaths;
 
 	public DataFlow() {
 		children = Creator.newList();
@@ -94,10 +94,10 @@ public class DataFlow {
 	}
 
 	public void isVulnerable(int typeProblem, String message) {
+		isVulnerable(null);
+
 		setTypeProblem(typeProblem);
 		setMessage(message);
-
-		isVulnerable(null);
 	}
 
 	/**
@@ -120,6 +120,15 @@ public class DataFlow {
 
 	public boolean isVulnerable() {
 		return !allVulnerablePaths.isEmpty();
+	}
+
+	public void replace(DataFlow dataFlow) {
+		root = dataFlow.root;
+		parent = dataFlow.parent;
+		typeProblem = dataFlow.typeProblem;
+		message = dataFlow.message;
+		children = dataFlow.children;
+		allVulnerablePaths = dataFlow.allVulnerablePaths;
 	}
 
 	public void isInfinitiveLoop(Expression expr) {

@@ -270,7 +270,7 @@ public class CallGraph {
 			if (null != expression) {
 				for (VariableBindingManager variableBindingManager : vbms) {
 					for (Expression currentMethod : variableBindingManager.getReferences()) {
-						if (currentMethod == expression) {
+						if (currentMethod.equals(expression)) {
 							return variableBindingManager;
 						}
 					}

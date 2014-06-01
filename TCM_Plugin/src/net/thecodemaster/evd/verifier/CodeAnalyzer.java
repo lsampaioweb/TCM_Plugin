@@ -1,18 +1,14 @@
 package net.thecodemaster.evd.verifier;
 
 import java.util.List;
-import java.util.Map;
 
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.BindingResolver;
 import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.DataFlow;
-import net.thecodemaster.evd.graph.Parameter;
-import net.thecodemaster.evd.graph.VariableBindingManager;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.marker.annotation.AnnotationManager;
 import net.thecodemaster.evd.point.EntryPoint;
-import net.thecodemaster.evd.point.ExitPoint;
 import net.thecodemaster.evd.ui.l10n.Message;
 import net.thecodemaster.evd.xmlloader.LoaderEntryPoint;
 
@@ -28,11 +24,11 @@ import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
@@ -176,6 +172,9 @@ public abstract class CodeAnalyzer {
 			case ASTNode.EXPRESSION_STATEMENT: // 21
 				inspectExpressionStatement(depth, dataFlow, (ExpressionStatement) node);
 				break;
+			case ASTNode.FIELD_ACCESS: // 22
+				inspectFieldAccess(depth, dataFlow, (FieldAccess) node);
+				break;
 			case ASTNode.FOR_STATEMENT: // 24
 				inspectForStatement(depth, dataFlow, (ForStatement) node);
 				break;
@@ -224,10 +223,6 @@ public abstract class CodeAnalyzer {
 				Expression expression = (Expression) node;
 				inspectLiteral(depth, dataFlow.addNodeToPath(expression), expression);
 				break;
-			case ASTNode.FIELD_ACCESS: // 22
-
-				break;
-
 			default:
 				PluginLogger.logError("inspectStatement Default Node Type: " + node.getNodeType() + " - " + node, null);
 		}
@@ -313,6 +308,13 @@ public abstract class CodeAnalyzer {
 	}
 
 	/**
+	 * 22
+	 */
+	protected void inspectFieldAccess(int depth, DataFlow dataFlow, FieldAccess expression) {
+		inspectNode(depth, dataFlow, expression.getExpression());
+	}
+
+	/**
 	 * 24
 	 */
 	protected void inspectForStatement(int depth, DataFlow dataFlow, ForStatement statement) {
@@ -346,29 +348,10 @@ public abstract class CodeAnalyzer {
 	}
 
 	/**
-	 * 32 TODO Verify if we have to do something with the dfParent.
+	 * 32
 	 */
-	protected void inspectMethodInvocation(int depth, DataFlow dfParent, MethodInvocation expression) {
+	protected void inspectMethodInvocation(int depth, DataFlow dataFlow, MethodInvocation expression) {
 		PluginLogger.logIfDebugging("inspectMethodInvocation not implemented.");
-	}
-
-	private void inspectParameterOfExitPoint(int depth, DataFlow dataFlow, MethodInvocation method, ExitPoint exitPoint) {
-		// 01 - Get the parameters (received) from the current method.
-		List<Expression> receivedParameters = BindingResolver.getParameters(method);
-
-		// 02 - Get the expected parameters of the ExitPoint method.
-		Map<Parameter, List<Integer>> expectedParameters = exitPoint.getParameters();
-
-		int index = 0;
-		for (List<Integer> rules : expectedParameters.values()) {
-			// If the rules are null, it means the expected parameter can be anything. (We do not care for it).
-			if (null != rules) {
-				Expression expr = receivedParameters.get(index);
-
-				// checkExpression(depth, dataFlow, rules, expr);
-			}
-			index++;
-		}
 	}
 
 	/**
@@ -407,42 +390,7 @@ public abstract class CodeAnalyzer {
 	 * 42
 	 */
 	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression) {
-		// 01 - Try to retrieve the variable from the list of variables.
-		VariableBindingManager manager = getCallGraph().getVariableBinding(expression);
-		if (null != manager) {
-
-			// 02 - This is the case where we have to go deeper into the variable's path.
-			Expression initializer = manager.getInitializer();
-			inspectNode(depth, dataFlow, initializer);
-		} else {
-			// This is the case where the variable is an argument of the method.
-			// 04 - Get the method signature that is using this parameter.
-			MethodDeclaration methodDeclaration = BindingResolver.getParentMethodDeclaration(expression);
-
-			// 05 - Get the index position where this parameter appears.
-			int parameterIndex = BindingResolver.getParameterIndex(methodDeclaration, expression);
-			if (parameterIndex >= 0) {
-				// 06 - Get the list of methods that invokes this method.
-				Map<MethodDeclaration, List<Expression>> invokers = getCallGraph().getInvokers(methodDeclaration);
-
-				// 07 - Iterate over all the methods that invokes this method.
-				for (List<Expression> currentInvocations : invokers.values()) {
-
-					// 08 - Care only about the invocations to this method.
-					for (Expression invocation : currentInvocations) {
-						if (BindingResolver.areMethodsEqual(methodDeclaration, invocation)) {
-							// 09 - Get the parameter at the index position.
-							Expression parameter = BindingResolver.getParameterAtIndex(invocation, parameterIndex);
-
-							// 10 - Run detection on this parameter.
-							inspectNode(depth, dataFlow, parameter);
-						}
-					}
-
-				}
-			}
-
-		}
+		PluginLogger.logIfDebugging("inspectSimpleName not implemented.");
 	}
 
 	/**

@@ -115,10 +115,10 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	}
 
 	/**
-	 * 32 TODO Verify if we have to do something with the dfParent.
+	 * 32
 	 */
 	@Override
-	protected void inspectMethodInvocation(int depth, DataFlow dfParent, MethodInvocation methodInvocation) {
+	protected void inspectMethodInvocation(int depth, DataFlow dataFlow, MethodInvocation methodInvocation) {
 		// 01 - Check if this method is a Sanitization-Point.
 		if (isMethodASanitizationPoint(methodInvocation)) {
 			// If a sanitization method is being invoked, then we do not have a vulnerability.
@@ -130,7 +130,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 			String message = getMessageEntryPoint(BindingResolver.getFullName(methodInvocation));
 
 			// We found a invocation to a entry point method.
-			dfParent.isVulnerable(Constant.Vulnerability.ENTRY_POINT, message);
+			dataFlow.isVulnerable(Constant.Vulnerability.ENTRY_POINT, message);
 			return;
 		}
 
@@ -143,9 +143,6 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		List<Expression> parameters = BindingResolver.getParameters(methodInvocation);
 		for (Expression parameter : parameters) {
 			addMethodReferenceToVariable(methodInvocation, parameter);
-
-			// 02 - A new dataFlow for this variable.
-			DataFlow dataFlow = new DataFlow(parameter);
 
 			inspectNode(depth, dataFlow, parameter);
 			// We found a vulnerability.
@@ -161,7 +158,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		}
 		if (null != methodDeclaration) {
 			// We have the source code.
-			inspectMethodDeclaration(depth, dfParent, methodInvocation, methodDeclaration);
+			inspectMethodDeclaration(depth, dataFlow, methodInvocation, methodDeclaration);
 		}
 	}
 
@@ -222,8 +219,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		VariableBindingManager manager = getCallGraph().getLastReference(expression);
 		if (null != manager) {
 			if (manager.status().equals(EnumStatusVariable.VULNERABLE)) {
-				DataFlow temp = manager.getDataFlow();
-				dataFlow.isVulnerable(temp.getTypeProblem(), temp.getMessage());
+				dataFlow.replace(manager.getDataFlow());
 			} else if (manager.status().equals(EnumStatusVariable.UNKNOWN)) {
 				// 02 - This is the case where we have to go deeper into the variable's path.
 				inspectNode(depth, dataFlow, manager.getInitializer());

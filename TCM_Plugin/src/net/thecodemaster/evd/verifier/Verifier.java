@@ -8,8 +8,11 @@ import net.thecodemaster.evd.graph.BindingResolver;
 import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.graph.Parameter;
+import net.thecodemaster.evd.graph.VariableBindingManager;
+import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.point.ExitPoint;
 import net.thecodemaster.evd.reporter.Reporter;
+import net.thecodemaster.evd.ui.enumeration.EnumStatusVariable;
 import net.thecodemaster.evd.xmlloader.LoaderExitPoint;
 
 import org.eclipse.core.resources.IResource;
@@ -17,6 +20,7 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.SimpleName;
 
 /**
  * The verifier is the class that actually knows how to find the vulnerability and the one that performs this
@@ -251,6 +255,32 @@ public abstract class Verifier extends CodeAnalyzer {
 		if (null != methodDeclaration) {
 			// We have the source code.
 			// inspectMethodDeclaration(depth, dfParent, methodInvocation, methodDeclaration);
+		}
+	}
+
+	/**
+	 * 42
+	 */
+	@Override
+	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression) {
+		// 01 - Try to retrieve the variable from the list of variables.
+		VariableBindingManager manager = getCallGraph().getVariableBinding(expression);
+		if (null != manager) {
+			if (manager.status().equals(EnumStatusVariable.VULNERABLE)) {
+				dataFlow.replace(manager.getDataFlow());
+			} else if (manager.status().equals(EnumStatusVariable.UNKNOWN)) {
+				// 02 - This is the case where we have to go deeper into the variable's path.
+				inspectNode(depth, dataFlow, manager.getInitializer());
+
+				// 03 - If there a vulnerable path, then this variable is vulnerable.
+				EnumStatusVariable status = (dataFlow.isVulnerable()) ? EnumStatusVariable.VULNERABLE
+						: EnumStatusVariable.NOT_VULNERABLE;
+				manager.setStatus(dataFlow, status);
+			}
+		} else {
+			// If I don't know this variable, it is a parameter.
+			PluginLogger.logIfDebugging("inspectSimpleName");
+			// TODO do what here ?
 		}
 	}
 
