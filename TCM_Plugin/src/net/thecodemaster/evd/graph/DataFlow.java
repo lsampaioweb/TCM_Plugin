@@ -110,10 +110,9 @@ public class DataFlow {
 			currentList.addAll(childrenList);
 		}
 
+		allVulnerablePaths.add(currentList);
 		if (null != parent) {
 			parent.isVulnerable(currentList);
-		} else {
-			allVulnerablePaths.add(currentList);
 		}
 
 	}
@@ -123,8 +122,8 @@ public class DataFlow {
 	}
 
 	public void replace(DataFlow dataFlow) {
-		root = dataFlow.root;
-		parent = dataFlow.parent;
+		// root = dataFlow.root;
+		// parent = dataFlow.parent;
 		typeProblem = dataFlow.typeProblem;
 		message = dataFlow.message;
 		children = dataFlow.children;
