@@ -1,6 +1,7 @@
 package net.thecodemaster.evd.helper;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,19 @@ public class Creator {
 	 */
 	public static <T> List<T> newList(int initialCapacity) {
 		return new ArrayList<T>(initialCapacity);
+	}
+
+	/**
+	 * Constructs a list containing the elements of the specified collection, in the order they are returned by the
+	 * collection's iterator.
+	 * 
+	 * @param: collection The collection whose elements are to be placed into this list
+	 * @return List<T>
+	 */
+	public static <T> List<T> newList(Collection<T> collection) {
+		List<T> list = newList(collection.size());
+		list.addAll(collection);
+		return list;
 	}
 
 	/**

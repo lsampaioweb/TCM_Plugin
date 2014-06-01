@@ -6,9 +6,11 @@ import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.BindingResolver;
 import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.DataFlow;
+import net.thecodemaster.evd.graph.VariableBindingManager;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.marker.annotation.AnnotationManager;
 import net.thecodemaster.evd.point.EntryPoint;
+import net.thecodemaster.evd.ui.enumeration.EnumStatusVariable;
 import net.thecodemaster.evd.ui.l10n.Message;
 import net.thecodemaster.evd.xmlloader.LoaderEntryPoint;
 
@@ -29,6 +31,7 @@ import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
@@ -143,11 +146,7 @@ public abstract class CodeAnalyzer {
 
 	protected void inspectNode(int depth, DataFlow dataFlow, ASTNode node) {
 		// 01 - To avoid infinitive loop, this check is necessary.
-		if (hasReachedMaximumDepth(depth++)) {
-			return;
-		}
-
-		if (null == node) {
+		if ((null == node) || (hasReachedMaximumDepth(depth++))) {
 			return;
 		}
 
@@ -353,8 +352,81 @@ public abstract class CodeAnalyzer {
 	/**
 	 * 32
 	 */
-	protected void inspectMethodInvocation(int depth, DataFlow dataFlow, MethodInvocation expression) {
-		PluginLogger.logIfDebugging("inspectMethodInvocation not implemented.");
+	protected void inspectMethodInvocation(int depth, DataFlow dataFlow, MethodInvocation methodInvocation) {
+		// 01 - Check if this method is a Sanitization-Point.
+		if (isMethodASanitizationPoint(methodInvocation)) {
+			// If a sanitization method is being invoked, then we do not have a vulnerability.
+			return;
+		}
+
+		// 02 - Check if this method is an Entry-Point.
+		if (isMethodAnEntryPoint(methodInvocation)) {
+			String message = getMessageEntryPoint(BindingResolver.getFullName(methodInvocation));
+
+			// We found a invocation to a entry point method.
+			dataFlow.isVulnerable(Constant.Vulnerability.ENTRY_POINT, message);
+			return;
+		}
+
+		// 03 - Check if there is an annotation, in case there is, we should BELIEVE it is not vulnerable.
+		if (hasAnnotationAtPosition(methodInvocation)) {
+			return;
+		}
+
+		// 04 - There are 2 cases: When we have the source code of this method and when we do not.
+		MethodDeclaration methodDeclaration = getCallGraph().getMethod(getCurrentResource(), methodInvocation);
+		if (null != methodDeclaration) {
+			// We have the source code.
+			inspectMethodWithSourceCode(depth, dataFlow, methodInvocation, methodDeclaration);
+		} else {
+			inspectMethodWithOutSourceCode(depth, dataFlow, methodInvocation);
+		}
+
+		// We found a vulnerability.
+		if (dataFlow.isVulnerable()) {
+			// There are 2 sub-cases: When is a method from an object and when is a method from a library.
+			// 01 - stringBuilder.append("...");
+			// 02 - System.out.println("..."); Nothing else to do.
+
+			VariableBindingManager manager = getVariableBindingIfItIsAnObject(methodInvocation);
+			if (null != manager) {
+				manager.setStatus(dataFlow, EnumStatusVariable.VULNERABLE);
+			}
+		}
+	}
+
+	protected void inspectMethodWithSourceCode(int depth, DataFlow dataFlow, MethodInvocation methodInvocation,
+			MethodDeclaration methodDeclaration) {
+		inspectNode(depth, dataFlow, methodDeclaration.getBody());
+	}
+
+	protected void inspectMethodWithOutSourceCode(int depth, DataFlow dataFlow, MethodInvocation methodInvocation) {
+		List<Expression> parameters = BindingResolver.getParameters(methodInvocation);
+		for (Expression parameter : parameters) {
+			inspectNode(depth, dataFlow, parameter);
+		}
+	}
+
+	protected VariableBindingManager getVariableBindingIfItIsAnObject(MethodInvocation methodInvocation) {
+		Expression expression = methodInvocation.getExpression();
+		while (null != expression) {
+
+			switch (expression.getNodeType()) {
+				case ASTNode.SIMPLE_NAME:
+					return getCallGraph().getLastReference((SimpleName) expression);
+				case ASTNode.QUALIFIED_NAME:
+					QualifiedName qualifiedName = (QualifiedName) expression;
+					expression = qualifiedName.getQualifier();
+					break;
+				default:
+					PluginLogger.logIfDebugging("getVariableBindingIfItIsAnObject default:" + expression.getNodeType());
+					expression = null;
+					break;
+			}
+
+		}
+
+		return null;
 	}
 
 	/**
@@ -393,7 +465,28 @@ public abstract class CodeAnalyzer {
 	 * 42
 	 */
 	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression) {
-		PluginLogger.logIfDebugging("inspectSimpleName not implemented.");
+
+	}
+
+	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression, VariableBindingManager manager) {
+		if (null != manager) {
+			if (manager.status().equals(EnumStatusVariable.VULNERABLE)) {
+				dataFlow.replace(manager.getDataFlow());
+			} else if (manager.status().equals(EnumStatusVariable.UNKNOWN)) {
+				// 02 - This is the case where we have to go deeper into the variable's path.
+				// inspectNode(depth, dataFlow.addNodeToPath(expression), manager.getInitializer());
+				inspectNode(depth, dataFlow, manager.getInitializer());
+
+				// 03 - If there a vulnerable path, then this variable is vulnerable.
+				EnumStatusVariable status = (dataFlow.isVulnerable()) ? EnumStatusVariable.VULNERABLE
+						: EnumStatusVariable.NOT_VULNERABLE;
+				manager.setStatus(dataFlow, status);
+			}
+		} else {
+			// If I don't know this variable, it is a parameter.
+			PluginLogger.logIfDebugging("inspectSimpleName manager == null");
+			// TODO do what here ?
+		}
 	}
 
 	/**

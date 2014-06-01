@@ -1,5 +1,6 @@
 package net.thecodemaster.evd.graph;
 
+import java.util.Iterator;
 import java.util.List;
 
 import net.thecodemaster.evd.helper.Creator;
@@ -19,27 +20,27 @@ public class DataFlow {
 	/**
 	 * The object that is vulnerable.
 	 */
-	private Expression						root;
+	private Expression									root;
 	/**
 	 * The parent object because we need to navigate from the parent to its children and also on the opposite direction.
 	 */
-	private DataFlow							parent;
+	private DataFlow										parent;
 	/**
 	 * The type of the vulnerability.
 	 */
-	private int										typeProblem;
+	private int													typeProblem;
 	/**
 	 * The message that will be displayed to the user informing that this object is vulnerable.
 	 */
-	private String								message;
+	private String											message;
 	/**
 	 * All the possible flows that the vulnerability could reach, but some of them might end up being not vulnerable.
 	 */
-	private List<DataFlow>				children;
+	private List<DataFlow>							children;
 	/**
 	 * This list holds that actual paths that ARE vulnerable.
 	 */
-	private List<List<DataFlow>>	allVulnerablePaths;
+	private final List<List<DataFlow>>	allVulnerablePaths;
 
 	public DataFlow() {
 		children = Creator.newList();
@@ -85,6 +86,8 @@ public class DataFlow {
 		if (null == root) {
 			root = node;
 			nvp = this;
+		} else if (root.equals(node)) {
+			nvp = this;
 		} else {
 			nvp = new DataFlow(node, this);
 			children.add(nvp);
@@ -125,7 +128,16 @@ public class DataFlow {
 		typeProblem = dataFlow.typeProblem;
 		message = dataFlow.message;
 		children = dataFlow.children;
-		allVulnerablePaths = dataFlow.allVulnerablePaths;
+
+		if (!dataFlow.allVulnerablePaths.isEmpty()) {
+			// Inform the parent that this path is vulnerable.
+			for (Iterator<List<DataFlow>> iterator = dataFlow.allVulnerablePaths.iterator(); iterator.hasNext();) {
+				List<DataFlow> copyList = Creator.newList(iterator.next());
+				// This element will be re-added on the currentList.add(this);
+				copyList.remove(0);
+				isVulnerable(copyList);
+			}
+		}
 	}
 
 	public void isInfinitiveLoop(Expression expr) {
@@ -169,6 +181,11 @@ public class DataFlow {
 		}
 
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return getRoot().toString();
 	}
 
 }

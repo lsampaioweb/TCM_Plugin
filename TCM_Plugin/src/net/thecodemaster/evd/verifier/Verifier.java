@@ -9,10 +9,8 @@ import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.graph.Parameter;
 import net.thecodemaster.evd.graph.VariableBindingManager;
-import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.point.ExitPoint;
 import net.thecodemaster.evd.reporter.Reporter;
-import net.thecodemaster.evd.ui.enumeration.EnumStatusVariable;
 import net.thecodemaster.evd.xmlloader.LoaderExitPoint;
 
 import org.eclipse.core.resources.IResource;
@@ -20,7 +18,6 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.SimpleName;
 
 /**
@@ -208,81 +205,14 @@ public abstract class Verifier extends CodeAnalyzer {
 	}
 
 	/**
-	 * 32 TODO Verify if we have to do something with the dfParent.
-	 */
-	@Override
-	protected void inspectMethodInvocation(int depth, DataFlow dfParent, MethodInvocation methodInvocation) {
-		// 01 - Check if this method is a Sanitization-Point.
-		if (isMethodASanitizationPoint(methodInvocation)) {
-			// If a sanitization method is being invoked, then we do not have a vulnerability.
-			return;
-		}
-
-		// 02 - Check if this method is an Entry-Point.
-		if (isMethodAnEntryPoint(methodInvocation)) {
-			String message = getMessageEntryPoint(BindingResolver.getFullName(methodInvocation));
-
-			// We found a invocation to a entry point method.
-			dfParent.isVulnerable(Constant.Vulnerability.ENTRY_POINT, message);
-			return;
-		}
-
-		// 03 - Check if there is an annotation, in case there is, we should BELIEVE it is not vulnerable.
-		if (hasAnnotationAtPosition(methodInvocation)) {
-			return;
-		}
-
-		// 04 - There are 2 cases: When we have the source code of this method and when we do not.
-		MethodDeclaration methodDeclaration = getCallGraph().getMethod(getCurrentResource(), methodInvocation);
-
-		// We have to iterate over its parameters to see if any is vulnerable.
-		// If there is a vulnerable parameter and if this is a method from an object
-		// we set this object as vulnerable.
-		List<Expression> parameters = BindingResolver.getParameters(methodInvocation);
-		for (Expression parameter : parameters) {
-
-			// 02 - A new dataFlow for this variable.
-			DataFlow dataFlow = new DataFlow(parameter);
-
-			inspectNode(depth, dataFlow, parameter);
-			// We found a vulnerability.
-			if (dataFlow.isVulnerable()) {
-				// There are 2 sub-cases: When is a method from an object and when is a method from a library.
-				// 01 - stringBuilder.append("...");
-				// 02 - System.out.println("..."); Nothing else to do.
-
-			}
-		}
-		if (null != methodDeclaration) {
-			// We have the source code.
-			// inspectMethodDeclaration(depth, dfParent, methodInvocation, methodDeclaration);
-		}
-	}
-
-	/**
 	 * 42
 	 */
 	@Override
 	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression) {
 		// 01 - Try to retrieve the variable from the list of variables.
 		VariableBindingManager manager = getCallGraph().getVariableBinding(expression);
-		if (null != manager) {
-			if (manager.status().equals(EnumStatusVariable.VULNERABLE)) {
-				dataFlow.replace(manager.getDataFlow());
-			} else if (manager.status().equals(EnumStatusVariable.UNKNOWN)) {
-				// 02 - This is the case where we have to go deeper into the variable's path.
-				inspectNode(depth, dataFlow, manager.getInitializer());
 
-				// 03 - If there a vulnerable path, then this variable is vulnerable.
-				EnumStatusVariable status = (dataFlow.isVulnerable()) ? EnumStatusVariable.VULNERABLE
-						: EnumStatusVariable.NOT_VULNERABLE;
-				manager.setStatus(dataFlow, status);
-			}
-		} else {
-			// If I don't know this variable, it is a parameter.
-			PluginLogger.logIfDebugging("inspectSimpleName");
-			// TODO do what here ?
-		}
+		super.inspectSimpleName(depth, dataFlow, expression, manager);
 	}
 
 	/**
