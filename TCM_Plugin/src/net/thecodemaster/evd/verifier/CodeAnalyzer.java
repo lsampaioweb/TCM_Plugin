@@ -21,7 +21,6 @@ import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.CatchClause;
-import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.Expression;
@@ -148,6 +147,7 @@ public abstract class CodeAnalyzer {
 	protected void inspectNode(int depth, DataFlow dataFlow, ASTNode node) {
 		// 01 - To avoid infinitive loop, this check is necessary.
 		if ((null == node) || (hasReachedMaximumDepth(depth++))) {
+			PluginLogger.logError("null or hasReachedMaximumDepth: " + dataFlow + " - " + node, null);
 			return;
 		}
 
@@ -397,18 +397,14 @@ public abstract class CodeAnalyzer {
 	}
 
 	protected VariableBindingManager getVariableBindingIfItIsAnObject(Expression method) {
-		Expression expression = null;
-		switch (method.getNodeType()) {
-			case ASTNode.CLASS_INSTANCE_CREATION: // 14
-				expression = ((ClassInstanceCreation) method).getExpression();
-				break;
-			case ASTNode.METHOD_INVOCATION: // 32
-				expression = ((MethodInvocation) method).getExpression();
-				break;
-		}
+		Expression expression = BindingResolver.getExpression(method);
 
 		while (null != expression) {
 			switch (expression.getNodeType()) {
+				case ASTNode.METHOD_INVOCATION: // 40
+					MethodInvocation methodInvocation = (MethodInvocation) expression;
+					expression = methodInvocation.getExpression();
+					break;
 				case ASTNode.QUALIFIED_NAME: // 40
 					QualifiedName qualifiedName = (QualifiedName) expression;
 					expression = qualifiedName.getQualifier();
@@ -419,8 +415,8 @@ public abstract class CodeAnalyzer {
 					expression = null;
 					break;
 				default:
-					PluginLogger.logIfDebugging("getVariableBindingIfItIsAnObject default: " + expression + " - "
-							+ expression.getNodeType());
+					PluginLogger.logError(
+							"getVariableBindingIfItIsAnObject default: " + expression + " - " + expression.getNodeType(), null);
 					expression = null;
 					break;
 			}
@@ -484,7 +480,7 @@ public abstract class CodeAnalyzer {
 			}
 		} else {
 			// If I don't know this variable, it is a parameter.
-			PluginLogger.logIfDebugging("inspectSimpleName manager == null");
+			PluginLogger.logError("inspectSimpleName manager == null " + expression, null);
 			// TODO do what here ?
 		}
 	}
@@ -518,7 +514,7 @@ public abstract class CodeAnalyzer {
 	 */
 	protected void inspectVariableDeclarationStatement(int depth, DataFlow dataFlow,
 			VariableDeclarationStatement statement) {
-		PluginLogger.logIfDebugging("inspectVariableDeclarationStatement not implemented.");
+		PluginLogger.logError("inspectVariableDeclarationStatement not implemented.", null);
 	}
 
 	/**

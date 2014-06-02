@@ -165,22 +165,32 @@ public class BindingResolver {
 		return expressions;
 	}
 
-	public static List<Expression> getParameters(Expression expr) {
+	public static List<Expression> getParameters(Expression expression) {
 		List<Expression> parameters = Creator.newList();
 
-		if (null != expr) {
-			if (expr.getNodeType() == ASTNode.METHOD_INVOCATION) {
-				parameters = getParameters(((MethodInvocation) expr).arguments());
-			} else if (expr.getNodeType() == ASTNode.CLASS_INSTANCE_CREATION) {
-				parameters = getParameters(((ClassInstanceCreation) expr).arguments());
-			} else if (expr.getNodeType() == ASTNode.INFIX_EXPRESSION) {
-				parameters = getParameters(((InfixExpression) expr).extendedOperands());
-			} else if (expr.getNodeType() == ASTNode.ARRAY_INITIALIZER) {
-				parameters = getParameters(((ArrayInitializer) expr).expressions());
+		if (null != expression) {
+			if (expression.getNodeType() == ASTNode.METHOD_INVOCATION) {
+				parameters = getParameters(((MethodInvocation) expression).arguments());
+			} else if (expression.getNodeType() == ASTNode.CLASS_INSTANCE_CREATION) {
+				parameters = getParameters(((ClassInstanceCreation) expression).arguments());
+			} else if (expression.getNodeType() == ASTNode.INFIX_EXPRESSION) {
+				parameters = getParameters(((InfixExpression) expression).extendedOperands());
+			} else if (expression.getNodeType() == ASTNode.ARRAY_INITIALIZER) {
+				parameters = getParameters(((ArrayInitializer) expression).expressions());
 			}
 
 		}
 		return parameters;
+	}
+
+	public static Expression getExpression(Expression expression) {
+		switch (expression.getNodeType()) {
+			case ASTNode.CLASS_INSTANCE_CREATION: // 14
+				return ((ClassInstanceCreation) expression).getExpression();
+			case ASTNode.METHOD_INVOCATION: // 32
+				return ((MethodInvocation) expression).getExpression();
+		}
+		return null;
 	}
 
 	@SuppressWarnings("unchecked")

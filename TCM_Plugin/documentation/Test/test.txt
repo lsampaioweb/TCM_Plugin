@@ -3,9 +3,9 @@ nr   FileName                           Just One     All
 01 - CookiePoisoning.java                   06       12      
 02 - CrossSiteScripting.java                57       51
 03 - SecurityMisconfiguration.java          30
-04 - SQLInjection.java                      12
-05 - UnvalidatedRedirecting.java            05
+04 - SQLInjection.java                      14       16
+05 - UnvalidatedRedirecting.java            04       04
 06 - VariableDeclararion.java               11
-07 - VulnerabilityPathReporter.java         09
+07 - VulnerabilityPathReporter.java         09       10
 -------------------------------------------------------
 Total:                                     135

@@ -8,6 +8,7 @@ import net.thecodemaster.evd.graph.BindingResolver;
 import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.graph.VariableBindingManager;
+import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.ui.enumeration.EnumStatusVariable;
 import net.thecodemaster.evd.verifier.CodeAnalyzer;
 
@@ -147,15 +148,29 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
 	@Override
 	protected void inspectMethodWithOutSourceCode(int depth, DataFlow dataFlow, Expression methodInvocation) {
-		// We have to iterate over its parameters to see if any is vulnerable.
-		// If there is a vulnerable parameter and if this is a method from an object
-		// we set this object as vulnerable.
-		List<Expression> parameters = BindingResolver.getParameters(methodInvocation);
-		for (Expression parameter : parameters) {
-			// 01 - Add a method reference to this variable (if it is a variable).
-			addReferenceToInitializer(methodInvocation, parameter);
+		// Some method invocations can be in a chain call, we have to investigate them all.
+		// response.sendRedirect(login);
+		// getServletContext().getRequestDispatcher(login).forward(request, response);
+		List<Expression> expressions = Creator.newList();
 
-			inspectNode(depth, dataFlow, parameter);
+		Expression Optionalexpression = methodInvocation;
+		while (null != Optionalexpression) {
+			expressions.add(Optionalexpression);
+
+			Optionalexpression = BindingResolver.getExpression(Optionalexpression);
+		}
+
+		for (Expression expression : expressions) {
+			// We have to iterate over its parameters to see if any is vulnerable.
+			// If there is a vulnerable parameter and if this is a method from an object
+			// we set this object as vulnerable.
+			List<Expression> parameters = BindingResolver.getParameters(expression);
+			for (Expression parameter : parameters) {
+				// 01 - Add a method reference to this variable (if it is a variable).
+				addReferenceToInitializer(expression, parameter);
+
+				inspectNode(depth, dataFlow, parameter);
+			}
 		}
 	}
 
