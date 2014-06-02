@@ -14,10 +14,12 @@ import net.thecodemaster.evd.verifier.CodeAnalyzer;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.dom.Assignment;
+import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
@@ -89,20 +91,25 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	protected void run(MethodDeclaration methodDeclaration) {
 		// The depth control the investigation mechanism to avoid infinitive loops.
 		int depth = 0;
-		inspectNode(depth, new DataFlow(), methodDeclaration.getBody());
+		Block block = methodDeclaration.getBody();
+		if (null != block) {
+			for (Object object : block.statements()) {
+				inspectNode(depth, new DataFlow(), (Statement) object);
+			}
+		}
 	}
 
 	/**
 	 * 07
 	 */
 	@Override
-	protected void inspectAssignment(int depth, DataFlow dfParent, Assignment expression) {
+	protected void inspectAssignment(int depth, DataFlow dataFlow, Assignment expression) {
 		// 01 - Get the elements from the expression.
 		Expression leftHandSide = expression.getLeftHandSide();
 		Expression rightHandSide = expression.getRightHandSide();
 
 		// 02 - Add the new variable to the callGraph.
-		addVariableToCallGraphAndInspectInitializer(depth, dfParent, leftHandSide, rightHandSide);
+		addVariableToCallGraphAndInspectInitializer(depth, dataFlow, leftHandSide, rightHandSide);
 	}
 
 	/**
