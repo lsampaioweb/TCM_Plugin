@@ -222,8 +222,7 @@ public abstract class CodeAnalyzer {
 			case ASTNode.NULL_LITERAL: // 33
 			case ASTNode.NUMBER_LITERAL: // 34
 			case ASTNode.STRING_LITERAL: // 45
-				Expression expression = (Expression) node;
-				inspectLiteral(depth, dataFlow.addNodeToPath(expression), expression);
+				inspectLiteral(depth, dataFlow, (Expression) node);
 				break;
 			default:
 				PluginLogger.logError("inspectStatement Default Node Type: " + node.getNodeType() + " - " + node, null);
@@ -244,13 +243,11 @@ public abstract class CodeAnalyzer {
 	 * 07
 	 */
 	protected void inspectAssignment(int depth, DataFlow dataFlow, Assignment expression) {
-		// 01 - Get the elements from the operation.
 		Expression leftHandSide = expression.getLeftHandSide();
 		Expression rightHandSide = expression.getRightHandSide();
 
-		// 02 - Check each element.
-		inspectNode(depth, dataFlow, leftHandSide);
-		inspectNode(depth, dataFlow, rightHandSide);
+		inspectNode(depth, dataFlow.addNodeToPath(leftHandSide), leftHandSide);
+		inspectNode(depth, dataFlow.addNodeToPath(rightHandSide), rightHandSide);
 	}
 
 	/**
@@ -275,13 +272,11 @@ public abstract class CodeAnalyzer {
 	 * 16
 	 */
 	protected void inspectConditionExpression(int depth, DataFlow dataFlow, ConditionalExpression expression) {
-		// 01 - Get the elements from the operation.
 		Expression thenExpression = expression.getThenExpression();
 		Expression elseExpression = expression.getElseExpression();
 
-		// 02 - Check each element.
-		inspectNode(depth, dataFlow, thenExpression);
-		inspectNode(depth, dataFlow, elseExpression);
+		inspectNode(depth, dataFlow.addNodeToPath(thenExpression), thenExpression);
+		inspectNode(depth, dataFlow.addNodeToPath(elseExpression), elseExpression);
 	}
 
 	/**
@@ -324,17 +319,15 @@ public abstract class CodeAnalyzer {
 	 * 27
 	 */
 	protected void inspectInfixExpression(int depth, DataFlow dataFlow, InfixExpression expression) {
-		// 01 - Get the elements from the operation.
 		Expression leftOperand = expression.getLeftOperand();
 		Expression rightOperand = expression.getRightOperand();
+
+		inspectNode(depth, dataFlow.addNodeToPath(leftOperand), leftOperand);
+		inspectNode(depth, dataFlow.addNodeToPath(rightOperand), rightOperand);
+
 		List<Expression> extendedOperands = BindingResolver.getParameters(expression);
-
-		// 02 - Check each element.
-		inspectNode(depth, dataFlow, leftOperand);
-		inspectNode(depth, dataFlow, rightOperand);
-
 		for (Expression extendedOperand : extendedOperands) {
-			inspectNode(depth, dataFlow, extendedOperand);
+			inspectNode(depth, dataFlow.addNodeToPath(extendedOperand), extendedOperand);
 		}
 	}
 
@@ -436,11 +429,7 @@ public abstract class CodeAnalyzer {
 	 * 38
 	 */
 	protected void inspectPrefixExpression(int depth, DataFlow dataFlow, PrefixExpression expression) {
-		// 01 - Get the elements from the operation.
-		Expression operand = expression.getOperand();
-
-		// 02 - Check each element.
-		inspectNode(depth, dataFlow, operand);
+		inspectNode(depth, dataFlow, expression.getOperand());
 	}
 
 	/**

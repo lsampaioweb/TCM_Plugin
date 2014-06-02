@@ -184,7 +184,7 @@ public class DataFlow {
 
 	@Override
 	public String toString() {
-		return getRoot().toString();
+		return (null != getRoot()) ? getRoot().toString() : "";
 	}
 
 }

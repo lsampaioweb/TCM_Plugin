@@ -6,6 +6,17 @@ nr   FileName                           Just One     All
 04 - SQLInjection.java                      14       16
 05 - UnvalidatedRedirecting.java            04       04
 06 - VariableDeclararion.java               11
-07 - VulnerabilityPathReporter.java         09       10
+07 - VulnerabilityPathReporter.java         --       10
 -------------------------------------------------------
 Total:                                     135
+
+
+
+VulnerabilityPathReporter.java
+The DataFlow is still not 100%.
+
+Problem with
+
+String d = request.getParameter("a1");
+d += "a2";
+System.out.println(d); // False Positive
