@@ -152,7 +152,7 @@ public class BuilderJob extends Job {
 						return Status.CANCEL_STATUS;
 					}
 				}
-				PluginLogger.logIfDebugging(timerCP.stop().toString());
+				PluginLogger.logInfo(timerCP.stop().toString());
 			}
 		} catch (CoreException e) {
 			PluginLogger.logError(e);

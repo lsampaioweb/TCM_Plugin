@@ -241,7 +241,9 @@ public class CallGraph {
 		}
 
 		// 05 - Return the last element of the list.
-		return vbms;
+		List<VariableBindingManager> emptyList = Creator.newList();
+
+		return (null != vbms) ? vbms : emptyList;
 	}
 
 	private List<VariableBindingManager> getVariableBindings(Map<IBinding, List<VariableBindingManager>> mapVariables,

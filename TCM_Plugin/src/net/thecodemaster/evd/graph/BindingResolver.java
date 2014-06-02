@@ -92,24 +92,18 @@ public class BindingResolver {
 		return getName(resolveBinding(node));
 	}
 
-	private static IMethodBinding resolveBinding(ASTNode node) {
-		if (node.getNodeType() == ASTNode.METHOD_DECLARATION) {
-			return ((MethodDeclaration) node).resolveBinding();
-		} else if (node.getNodeType() == ASTNode.METHOD_INVOCATION) {
-			return ((MethodInvocation) node).resolveMethodBinding();
-		} else if (node.getNodeType() == ASTNode.CLASS_INSTANCE_CREATION) {
-			return ((ClassInstanceCreation) node).resolveConstructorBinding();
-		}
-
-		return null;
-	}
-
-	public static IBinding resolveBinding(Expression expression) {
-		switch (expression.getNodeType()) {
-			case ASTNode.SIMPLE_NAME:
-				return ((SimpleName) expression).resolveBinding();
-			case ASTNode.FIELD_ACCESS:
-				return ((FieldAccess) expression).resolveFieldBinding();
+	public static IBinding resolveBinding(ASTNode node) {
+		switch (node.getNodeType()) {
+			case ASTNode.CLASS_INSTANCE_CREATION: // 14
+				return ((ClassInstanceCreation) node).resolveConstructorBinding();
+			case ASTNode.FIELD_ACCESS: // 22
+				return ((FieldAccess) node).resolveFieldBinding();
+			case ASTNode.METHOD_DECLARATION: // 31
+				return ((MethodDeclaration) node).resolveBinding();
+			case ASTNode.METHOD_INVOCATION: // 32
+				return ((MethodInvocation) node).resolveMethodBinding();
+			case ASTNode.SIMPLE_NAME: // 42
+				return ((SimpleName) node).resolveBinding();
 			default:
 				return null;
 		}
@@ -139,7 +133,7 @@ public class BindingResolver {
 	}
 
 	private static String getQualifiedName(ASTNode node) {
-		return getQualifiedName(resolveBinding(node));
+		return getQualifiedName((IMethodBinding) resolveBinding(node));
 	}
 
 	public static String getFullName(Expression expr) {
@@ -201,7 +195,7 @@ public class BindingResolver {
 	}
 
 	private static List<ITypeBinding> getParameterTypes(MethodDeclaration node) {
-		IMethodBinding methodBinding = resolveBinding(node);
+		IMethodBinding methodBinding = (IMethodBinding) resolveBinding(node);
 
 		return (null != methodBinding) ? Arrays.asList(methodBinding.getParameterTypes()) : null;
 	}

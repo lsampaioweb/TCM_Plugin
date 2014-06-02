@@ -112,7 +112,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		// 01 - Try to retrieve the variable from the list of variables.
 		VariableBindingManager manager = getCallGraph().getLastReference(expression);
 
-		super.inspectSimpleName(depth, dataFlow, expression, manager);
+		inspectSimpleName(depth, dataFlow, expression, manager);
 	}
 
 	@Override

@@ -212,7 +212,7 @@ public abstract class Verifier extends CodeAnalyzer {
 		// 01 - Try to retrieve the variable from the list of variables.
 		VariableBindingManager manager = getCallGraph().getVariableBinding(expression);
 
-		super.inspectSimpleName(depth, dataFlow, expression, manager);
+		inspectSimpleName(depth, dataFlow, expression, manager);
 	}
 
 	/**

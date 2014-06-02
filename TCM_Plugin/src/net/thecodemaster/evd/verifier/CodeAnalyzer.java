@@ -409,14 +409,18 @@ public abstract class CodeAnalyzer {
 
 		while (null != expression) {
 			switch (expression.getNodeType()) {
-				case ASTNode.SIMPLE_NAME:
-					return getCallGraph().getLastReference((SimpleName) expression);
-				case ASTNode.QUALIFIED_NAME:
+				case ASTNode.QUALIFIED_NAME: // 40
 					QualifiedName qualifiedName = (QualifiedName) expression;
 					expression = qualifiedName.getQualifier();
 					break;
+				case ASTNode.SIMPLE_NAME: // 42
+					return getCallGraph().getLastReference((SimpleName) expression);
+				case ASTNode.STRING_LITERAL: // 42
+					expression = null;
+					break;
 				default:
-					PluginLogger.logIfDebugging("getVariableBindingIfItIsAnObject default:" + expression.getNodeType());
+					PluginLogger.logIfDebugging("getVariableBindingIfItIsAnObject default: " + expression + " - "
+							+ expression.getNodeType());
 					expression = null;
 					break;
 			}

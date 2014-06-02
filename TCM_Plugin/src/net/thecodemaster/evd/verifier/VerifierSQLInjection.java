@@ -2,10 +2,14 @@ package net.thecodemaster.evd.verifier;
 
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.DataFlow;
+import net.thecodemaster.evd.graph.VariableBindingManager;
+import net.thecodemaster.evd.ui.enumeration.EnumStatusVariable;
 import net.thecodemaster.evd.ui.l10n.Message;
 
+import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
+import org.eclipse.jdt.core.dom.SimpleName;
 
 /**
  * @author Luciano Sampaio
@@ -20,16 +24,39 @@ public class VerifierSQLInjection extends Verifier {
 		return Message.VerifierSecurityVulnerability.STRING_CONCATENATION;
 	}
 
+	/**
+	 * 27
+	 */
 	@Override
 	protected void inspectInfixExpression(int depth, DataFlow dataFlow, InfixExpression expression) {
-		// 01 - Informs that this node is a vulnerability.
-		dataFlow.isVulnerable(Constant.Vulnerability.SQL_INJECTION_STRING_CONCATENATION, getStringConcatenationMessage());
+		processStringConcatenation(dataFlow, expression);
 	}
 
+	/**
+	 * 38
+	 */
 	@Override
 	protected void inspectPrefixExpression(int depth, DataFlow dataFlow, PrefixExpression expression) {
+		processStringConcatenation(dataFlow, expression);
+	}
+
+	private void processStringConcatenation(DataFlow dataFlow, Expression expression) {
 		// 01 - Informs that this node is a vulnerability.
-		dataFlow.isVulnerable(Constant.Vulnerability.SQL_INJECTION_STRING_CONCATENATION, getStringConcatenationMessage());
+		dataFlow.addNodeToPath(expression).isVulnerable(Constant.Vulnerability.SQL_INJECTION_STRING_CONCATENATION,
+				getStringConcatenationMessage());
+	}
+
+	/**
+	 * 42
+	 */
+	@Override
+	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression, VariableBindingManager manager) {
+		if ((null != manager) && (manager.status().equals(EnumStatusVariable.NOT_VULNERABLE))) {
+			// The SQL Injection verifier also needs to know if the variable has its content from a string concatenation.
+			inspectNode(depth, dataFlow, manager.getInitializer());
+		} else {
+			super.inspectSimpleName(depth, dataFlow, expression, manager);
+		}
 	}
 
 }
