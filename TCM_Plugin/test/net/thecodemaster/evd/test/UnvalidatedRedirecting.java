@@ -2,6 +2,7 @@ package net.thecodemaster.evd.test;
 
 import java.util.List;
 
+import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.helper.Creator;
 
 import org.eclipse.core.resources.IResource;
@@ -21,7 +22,10 @@ public class UnvalidatedRedirecting extends AbstractTestVerifier {
 
 	@Test
 	public void test() {
-		Assert.assertEquals(2, allVulnerablePaths.size());
+		Assert.assertEquals(1, allVulnerablePaths.size());
+
+		List<DataFlow> vulnerablePaths = allVulnerablePaths.get(0);
+		Assert.assertEquals(4, vulnerablePaths.size());
 	}
 
 }

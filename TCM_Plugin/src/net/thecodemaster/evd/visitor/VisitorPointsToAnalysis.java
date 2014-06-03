@@ -124,6 +124,26 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	}
 
 	@Override
+	protected void inspectMethodInvocationWithOrWithOutSourceCode(int depth, DataFlow dataFlow,
+			Expression methodInvocation) {
+		// Some method invocations can be in a chain call, we have to investigate them all.
+		// response.sendRedirect(login);
+		// getServletContext().getRequestDispatcher(login).forward(request, response);
+		List<Expression> expressions = Creator.newList();
+
+		Expression Optionalexpression = methodInvocation;
+		while (null != Optionalexpression) {
+			expressions.add(Optionalexpression);
+
+			Optionalexpression = BindingResolver.getExpression(Optionalexpression);
+		}
+
+		for (Expression expression : expressions) {
+			super.inspectMethodInvocationWithOrWithOutSourceCode(depth, dataFlow, expression);
+		}
+	}
+
+	@Override
 	protected void inspectMethodWithSourceCode(int depth, DataFlow dataFlow, Expression methodInvocation,
 			MethodDeclaration methodDeclaration) {
 		// If this method declaration has parameters, we have to add the values from
@@ -154,30 +174,16 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	}
 
 	@Override
-	protected void inspectMethodWithOutSourceCode(int depth, DataFlow dataFlow, Expression methodInvocation) {
-		// Some method invocations can be in a chain call, we have to investigate them all.
-		// response.sendRedirect(login);
-		// getServletContext().getRequestDispatcher(login).forward(request, response);
-		List<Expression> expressions = Creator.newList();
+	protected void inspectMethodWithOutSourceCode(int depth, DataFlow dataFlow, Expression expression) {
+		// We have to iterate over its parameters to see if any is vulnerable.
+		// If there is a vulnerable parameter and if this is a method from an object
+		// we set this object as vulnerable.
+		List<Expression> parameters = BindingResolver.getParameters(expression);
+		for (Expression parameter : parameters) {
+			// 01 - Add a method reference to this variable (if it is a variable).
+			addReferenceToInitializer(expression, parameter);
 
-		Expression Optionalexpression = methodInvocation;
-		while (null != Optionalexpression) {
-			expressions.add(Optionalexpression);
-
-			Optionalexpression = BindingResolver.getExpression(Optionalexpression);
-		}
-
-		for (Expression expression : expressions) {
-			// We have to iterate over its parameters to see if any is vulnerable.
-			// If there is a vulnerable parameter and if this is a method from an object
-			// we set this object as vulnerable.
-			List<Expression> parameters = BindingResolver.getParameters(expression);
-			for (Expression parameter : parameters) {
-				// 01 - Add a method reference to this variable (if it is a variable).
-				addReferenceToInitializer(expression, parameter);
-
-				inspectNode(depth, dataFlow, parameter);
-			}
+			inspectNode(depth, dataFlow, parameter);
 		}
 	}
 

@@ -145,11 +145,11 @@ public abstract class CodeAnalyzer {
 	}
 
 	protected void inspectNode(int depth, DataFlow dataFlow, ASTNode node) {
-		// 01 - To avoid infinitive loop, this check is necessary.
 		if (null == node) {
 			return;
 		}
 
+		// 01 - To avoid infinitive loop, this check is necessary.
 		if (hasReachedMaximumDepth(depth++)) {
 			PluginLogger.logError("hasReachedMaximumDepth: " + dataFlow + " - " + node + " - " + depth, null);
 			return;
@@ -360,13 +360,7 @@ public abstract class CodeAnalyzer {
 		}
 
 		// 04 - There are 2 cases: When we have the source code of this method and when we do not.
-		MethodDeclaration methodDeclaration = getCallGraph().getMethod(getCurrentResource(), methodInvocation);
-		if (null != methodDeclaration) {
-			// We have the source code.
-			inspectMethodWithSourceCode(depth, dataFlow, methodInvocation, methodDeclaration);
-		} else {
-			inspectMethodWithOutSourceCode(depth, dataFlow, methodInvocation);
-		}
+		inspectMethodInvocationWithOrWithOutSourceCode(depth, dataFlow, methodInvocation);
 
 		// We found a vulnerability.
 		if (dataFlow.isVulnerable()) {
@@ -378,6 +372,21 @@ public abstract class CodeAnalyzer {
 			if (null != manager) {
 				manager.setStatus(dataFlow, EnumStatusVariable.VULNERABLE);
 			}
+		}
+	}
+
+	protected void inspectMethodInvocationWithOrWithOutSourceCode(int depth, DataFlow dataFlow,
+			Expression methodInvocation) {
+		// Some method invocations can be in a chain call, we have to investigate them all.
+		// response.sendRedirect(login);
+		// getServletContext().getRequestDispatcher(login).forward(request, response);
+		// 04 - There are 2 cases: When we have the source code of this method and when we do not.
+		MethodDeclaration methodDeclaration = getCallGraph().getMethod(getCurrentResource(), methodInvocation);
+		if (null != methodDeclaration) {
+			// We have the source code.
+			inspectMethodWithSourceCode(depth, dataFlow, methodInvocation, methodDeclaration);
+		} else {
+			inspectMethodWithOutSourceCode(depth, dataFlow, methodInvocation);
 		}
 	}
 
