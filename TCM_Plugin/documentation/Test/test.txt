@@ -5,12 +5,10 @@ nr   FileName                           Just One     All
 03 - SecurityMisconfiguration.java          30
 04 - SQLInjection.java                      14       16
 05 - UnvalidatedRedirecting.java            04       04
-06 - VariableDeclararion.java               11
+06 - VariableDeclaration.java               11
 07 - VulnerabilityPathReporter.java         --       10
 -------------------------------------------------------
 Total:                                     135
-
-
 
 VulnerabilityPathReporter.java
 The DataFlow is still not 100%.

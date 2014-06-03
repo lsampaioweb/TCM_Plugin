@@ -8,13 +8,13 @@ import org.eclipse.core.resources.IResource;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class SQLInjection extends AbstractTestVerifier {
+public class UnvalidatedRedirecting extends AbstractTestVerifier {
 
 	@Override
 	protected List<IResource> getResources() {
 		List<String> resourceNames = Creator.newList();
 
-		resourceNames.add("SQLInjection.java");
+		resourceNames.add("UnvalidatedRedirecting.java");
 
 		return getRersources(resourceNames);
 	}

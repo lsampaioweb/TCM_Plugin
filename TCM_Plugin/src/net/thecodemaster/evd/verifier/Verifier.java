@@ -9,6 +9,7 @@ import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.graph.Parameter;
 import net.thecodemaster.evd.graph.VariableBindingManager;
+import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.point.ExitPoint;
 import net.thecodemaster.evd.reporter.Reporter;
 import net.thecodemaster.evd.xmlloader.LoaderExitPoint;
@@ -138,10 +139,12 @@ public abstract class Verifier extends CodeAnalyzer {
 	 * @param resources
 	 * @param callGraph
 	 * @param reporter
+	 * @return
 	 */
-	public void run(List<IResource> resources, CallGraph callGraph, Reporter reporter) {
+	public List<DataFlow> run(List<IResource> resources, CallGraph callGraph, Reporter reporter) {
 		setCallGraph(callGraph);
 		this.reporter = reporter;
+		List<DataFlow> allVulnerablePaths = Creator.newList();
 
 		setSubTask(getName());
 
@@ -150,16 +153,19 @@ public abstract class Verifier extends CodeAnalyzer {
 			// We need this information when we are going to display the vulnerabilities.
 			setCurrentResource(resource);
 
-			run(resource);
+			run(allVulnerablePaths, resource);
 		}
+
+		return allVulnerablePaths;
 	}
 
 	/**
 	 * Iterate over all the method declarations found in the current resource.
 	 * 
+	 * @param allVulnerablePaths
 	 * @param resource
 	 */
-	protected void run(IResource resource) {
+	protected void run(List<DataFlow> allVulnerablePaths, IResource resource) {
 		// 01 - Get the list of methods in the current resource.
 		Map<MethodDeclaration, List<Expression>> methods = getCallGraph().getMethods(resource);
 
@@ -176,13 +182,13 @@ public abstract class Verifier extends CodeAnalyzer {
 					setCurrentResource(resource);
 
 					// 05 - This is an ExitPoint method and it needs to be verified.
-					run(method, exitPoint);
+					run(allVulnerablePaths, method, exitPoint);
 				}
 			}
 		}
 	}
 
-	protected void run(Expression method, ExitPoint exitPoint) {
+	protected void run(List<DataFlow> allVulnerablePaths, Expression method, ExitPoint exitPoint) {
 		// 01 - Get the parameters (received) from the current method.
 		List<Expression> receivedParameters = BindingResolver.getParameters(method);
 
@@ -199,6 +205,7 @@ public abstract class Verifier extends CodeAnalyzer {
 
 				inspectNode(depth, dataFlow, expression);
 				if (dataFlow.isVulnerable()) {
+					allVulnerablePaths.add(dataFlow);
 					reportVulnerability(dataFlow);
 				}
 			}

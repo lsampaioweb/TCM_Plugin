@@ -1,15 +1,14 @@
 package net.thecodemaster.evd.test;
 
-import static org.junit.Assert.fail;
-
 import java.util.List;
 
 import net.thecodemaster.evd.helper.Creator;
 
 import org.eclipse.core.resources.IResource;
+import org.junit.Assert;
 import org.junit.Test;
 
-public class CookiePoisoning extends TestVerifier {
+public class CookiePoisoning extends AbstractTestVerifier {
 
 	@Override
 	protected List<IResource> getResources() {
@@ -22,7 +21,7 @@ public class CookiePoisoning extends TestVerifier {
 
 	@Test
 	public void test() {
-		fail("Not yet implemented");
+		Assert.assertEquals(2, allVulnerablePaths.size());
 	}
 
 }
