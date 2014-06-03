@@ -72,9 +72,24 @@ public class AnnotationManager {
 			// 01 - Add our invisible annotation into the source code.
 			Position position = new Position(offset, length);
 			model.addAnnotation(annotation, position);
-
-			// addToInternalList(getPath(cu), new InvisibleAnnotation(annotation, position));
 		}
+		// ITextFileBuffer buffer = getTextFilebuffer(getPath(BindingResolver.getParentCompilationUnit(node)));
+		//
+		// // This is the document we want to connect to. This is taken from the current editor input.
+		// IDocument document = buffer.getDocument();
+		//
+		// // The IannotationModel enables to add/remove/change annotation to a Document loaded in an Editor.
+		// IAnnotationModel iamf = buffer.getAnnotationModel();
+		//
+		// // Note: The annotation type id specify that you want to create one of your annotations.
+		// int offset = node.getStartPosition();
+		// int length = node.getLength();
+		// Annotation annotation = new Annotation(Constant.MARKER_ID_ANNOTATION_INVISIBLE, true, null);
+		//
+		// // Finally add the new annotation to the model.
+		// iamf.connect(document);
+		// iamf.addAnnotation(annotation, new Position(offset, length));
+		// iamf.disconnect(document);
 	}
 
 	// public static boolean hasAnnotationAtPosition(ASTNode node,

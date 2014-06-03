@@ -201,7 +201,7 @@ public abstract class Verifier extends CodeAnalyzer {
 			// If the rules are null, it means the expected parameter can be anything. (We do not care for it).
 			if (null != rules) {
 				Expression expression = receivedParameters.get(index);
-				DataFlow dataFlow = new DataFlow(expression);
+				DataFlow dataFlow = new DataFlow();
 
 				inspectNode(depth, dataFlow, expression);
 				if (dataFlow.isVulnerable()) {
@@ -222,6 +222,7 @@ public abstract class Verifier extends CodeAnalyzer {
 		VariableBindingManager manager = getCallGraph().getVariableBinding(expression);
 
 		inspectSimpleName(depth, dataFlow, expression, manager);
+
 	}
 
 	/**

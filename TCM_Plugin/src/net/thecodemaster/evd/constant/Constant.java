@@ -21,7 +21,7 @@ public abstract class Constant {
 	public static final String	SEPARATOR_RESOURCES_TYPE							= ";";
 	public static final String	SEPARATOR_FULL_PATH										= " - ";
 	public static final String	RESOURCE_TYPE_TO_PERFORM_DETECTION		= "java" + SEPARATOR_RESOURCES_TYPE + "jsp";
-	public static final int			MAXIMUM_VERIFICATION_DEPTH						= 15;
+	public static final int			MAXIMUM_VERIFICATION_DEPTH						= 20;
 
 	public static final int			VERIFIER_ID_COMMAND_INJECTION					= 1;
 	public static final int			VERIFIER_ID_COOKIE_POISONING					= 2;

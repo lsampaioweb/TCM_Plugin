@@ -8,6 +8,7 @@ import net.thecodemaster.evd.ui.l10n.Message;
 
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.SimpleName;
 
@@ -29,6 +30,14 @@ public class VerifierSQLInjection extends Verifier {
 	 */
 	@Override
 	protected void inspectInfixExpression(int depth, DataFlow dataFlow, InfixExpression expression) {
+		processStringConcatenation(dataFlow, expression);
+	}
+
+	/**
+	 * 37
+	 */
+	@Override
+	protected void inspectPostfixExpression(int depth, DataFlow dataFlow, PostfixExpression expression) {
 		processStringConcatenation(dataFlow, expression);
 	}
 

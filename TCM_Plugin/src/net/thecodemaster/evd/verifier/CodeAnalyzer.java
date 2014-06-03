@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.DoStatement;
+import org.eclipse.jdt.core.dom.EnhancedForStatement;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
@@ -34,11 +35,13 @@ import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
+import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -197,6 +200,9 @@ public abstract class CodeAnalyzer {
 			case ASTNode.PARENTHESIZED_EXPRESSION: // 36
 				inspectParenthesizedExpression(depth, dataFlow, (ParenthesizedExpression) node);
 				break;
+			case ASTNode.POSTFIX_EXPRESSION: // 37
+				inspectPostfixExpression(depth, dataFlow, (PostfixExpression) node);
+				break;
 			case ASTNode.PREFIX_EXPRESSION: // 38
 				inspectPrefixExpression(depth, dataFlow, (PrefixExpression) node);
 				break;
@@ -210,6 +216,9 @@ public abstract class CodeAnalyzer {
 				SimpleName simpleName = (SimpleName) node;
 				inspectSimpleName(depth, dataFlow.addNodeToPath(simpleName), simpleName);
 				break;
+			case ASTNode.SWITCH_CASE: // 49
+				inspectSwitchCase(depth, dataFlow, (SwitchCase) node);
+				break;
 			case ASTNode.SWITCH_STATEMENT: // 50
 				inspectSwitchStatement(depth, dataFlow, (SwitchStatement) node);
 				break;
@@ -221,6 +230,9 @@ public abstract class CodeAnalyzer {
 				break;
 			case ASTNode.WHILE_STATEMENT: // 61
 				inspectWhileStatement(depth, dataFlow, (WhileStatement) node);
+				break;
+			case ASTNode.ENHANCED_FOR_STATEMENT: // 70
+				inspectEnhancedForStatement(depth, dataFlow, (EnhancedForStatement) node);
 				break;
 			case ASTNode.CHARACTER_LITERAL: // 13
 			case ASTNode.NULL_LITERAL: // 33
@@ -345,17 +357,17 @@ public abstract class CodeAnalyzer {
 			return;
 		}
 
-		// 02 - Check if this method is an Entry-Point.
+		// 02 - Check if there is an annotation, in case there is, we should BELIEVE it is not vulnerable.
+		if (hasAnnotationAtPosition(methodInvocation)) {
+			return;
+		}
+
+		// 03 - Check if this method is an Entry-Point.
 		if (isMethodAnEntryPoint(methodInvocation)) {
 			String message = getMessageEntryPoint(BindingResolver.getFullName(methodInvocation));
 
 			// We found a invocation to a entry point method.
 			dataFlow.isVulnerable(Constant.Vulnerability.ENTRY_POINT, message);
-			return;
-		}
-
-		// 03 - Check if there is an annotation, in case there is, we should BELIEVE it is not vulnerable.
-		if (hasAnnotationAtPosition(methodInvocation)) {
 			return;
 		}
 
@@ -439,6 +451,13 @@ public abstract class CodeAnalyzer {
 	}
 
 	/**
+	 * 37
+	 */
+	protected void inspectPostfixExpression(int depth, DataFlow dataFlow, PostfixExpression expression) {
+		inspectNode(depth, dataFlow, expression.getOperand());
+	}
+
+	/**
 	 * 38
 	 */
 	protected void inspectPrefixExpression(int depth, DataFlow dataFlow, PrefixExpression expression) {
@@ -488,6 +507,13 @@ public abstract class CodeAnalyzer {
 	}
 
 	/**
+	 * 49
+	 */
+	protected void inspectSwitchCase(int depth, DataFlow dataFlow, SwitchCase statement) {
+		// Nothing to do.
+	}
+
+	/**
 	 * 50
 	 */
 	protected void inspectSwitchStatement(int depth, DataFlow dataFlow, SwitchStatement statement) {
@@ -523,6 +549,13 @@ public abstract class CodeAnalyzer {
 	 * 61
 	 */
 	protected void inspectWhileStatement(int depth, DataFlow dataFlow, WhileStatement statement) {
+		inspectNode(depth, dataFlow, statement.getBody());
+	}
+
+	/**
+	 * 70
+	 */
+	protected void inspectEnhancedForStatement(int depth, DataFlow dataFlow, EnhancedForStatement statement) {
 		inspectNode(depth, dataFlow, statement.getBody());
 	}
 
