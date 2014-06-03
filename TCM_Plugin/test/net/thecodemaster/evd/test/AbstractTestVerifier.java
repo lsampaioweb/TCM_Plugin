@@ -22,7 +22,8 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.JavaCore;
 import org.junit.Before;
 
@@ -30,22 +31,54 @@ public abstract class AbstractTestVerifier {
 
 	protected List<List<DataFlow>>	allVulnerablePaths;
 
-	private static final String			PROJECT	= "WebDemo";
-	private static final String			PACKAGE	= "src/servlet";
+	private static final String			PROJECT				= "WebDemo";
+	private static final String			PACKAGE				= "src/servlet";
+	protected static final String		PROJECT_TEST	= "WebDemoTest";
+	protected static List<String>		renamedResources;
 
-	private IFolder getFolder() {
+	protected static IFolder getFolder(String projectName) {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		IWorkspaceRoot root = workspace.getRoot();
 
-		return root.getProject(PROJECT).getFolder(PACKAGE);
+		return root.getProject(projectName).getFolder(PACKAGE);
 	}
 
 	private IResource getResource(IFolder folder, String resourceName) {
 		IFile javaSRC = folder.getFile(resourceName);
+		if (!javaSRC.exists()) {
+			javaSRC = renameFile(folder, resourceName);
+		}
 
-		ICompilationUnit cu = JavaCore.createCompilationUnitFrom(javaSRC);
+		return JavaCore.createCompilationUnitFrom(javaSRC).getResource();
+	}
 
-		return cu.getResource();
+	private IFile renameFile(IFolder folder, String resourceName) {
+		IFile javaSRC = null;
+		try {
+			javaSRC = folder.getFile(resourceName + "2");
+			if (javaSRC.exists()) {
+				IFolder folderTest = getFolder(PROJECT_TEST);
+
+				String newPath = String.format("%s/%s", folderTest.getFullPath(), resourceName);
+				javaSRC.copy(new Path(newPath), true, null);
+
+				javaSRC = folderTest.getFile(resourceName);
+				addResourceToListOfRenamedResources(resourceName);
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+			return null;
+		}
+
+		return javaSRC;
+	}
+
+	private void addResourceToListOfRenamedResources(String resourceName) {
+		if (null == renamedResources) {
+			renamedResources = Creator.newList();
+		}
+
+		renamedResources.add(resourceName);
 	}
 
 	protected abstract List<IResource> getResources();
@@ -65,7 +98,7 @@ public abstract class AbstractTestVerifier {
 	}
 
 	protected List<IResource> getRersources(List<String> resourceNames) {
-		IFolder folder = getFolder();
+		IFolder folder = getFolder(PROJECT);
 
 		List<IResource> resources = Creator.newList();
 		for (String resourceName : resourceNames) {

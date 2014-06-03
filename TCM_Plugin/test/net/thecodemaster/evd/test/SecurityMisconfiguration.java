@@ -21,7 +21,7 @@ public class SecurityMisconfiguration extends AbstractTestVerifier {
 
 	@Test
 	public void test() {
-		Assert.assertEquals(2, allVulnerablePaths.size());
+		Assert.assertEquals(1, allVulnerablePaths.size());
 	}
 
 }

@@ -147,19 +147,23 @@ public class ReporterView implements IReporter {
 	 * Update the Security Vulnerability View so the new data can appear and the old ones can be removed.
 	 */
 	private void updateView() {
-		// Update the user interface asynchronously.
-		Display.getDefault().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				ViewSecurityVulnerabilities view = (ViewSecurityVulnerabilities) Activator.getDefault().findView(
-						Constant.VIEW_ID);
-				if (null == view) {
-					view = createView();
-				}
+		try {
+			// Update the user interface asynchronously.
+			Display.getDefault().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					ViewSecurityVulnerabilities view = (ViewSecurityVulnerabilities) Activator.getDefault().findView(
+							Constant.VIEW_ID);
+					if (null == view) {
+						view = createView();
+					}
 
-				view.addToView(rootVdm);
-			}
-		});
+					view.addToView(rootVdm);
+				}
+			});
+		} catch (Exception e) {
+			PluginLogger.logError(e);
+		}
 	}
 
 	private void addToViewDataModel(int typeProblem, IResource resource, DataFlow df) {

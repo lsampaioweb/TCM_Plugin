@@ -4,6 +4,7 @@ import net.thecodemaster.evd.constant.Constant;
 
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.IViewPart;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -88,7 +89,15 @@ public class Activator extends AbstractUIPlugin {
 	 * @return: the view, or null if none is found.
 	 */
 	public IViewPart findView(final String viewId) {
-		return getActiveWorkbenchWindow().getActivePage().findView(viewId);
+		IWorkbenchWindow iWorkbenchWindow = getActiveWorkbenchWindow();
+		if (null != iWorkbenchWindow) {
+			IWorkbenchPage activePage = iWorkbenchWindow.getActivePage();
+			if (null != activePage) {
+				return activePage.findView(viewId);
+			}
+		}
+
+		return null;
 	}
 
 	/**
@@ -110,7 +119,15 @@ public class Activator extends AbstractUIPlugin {
 	 *           if the view could not be initialized.
 	 */
 	public IViewPart showView(String viewId, String secondaryId, int viewVisible) throws PartInitException {
-		return getActiveWorkbenchWindow().getActivePage().showView(viewId, secondaryId, viewVisible);
+		IWorkbenchWindow iWorkbenchWindow = getActiveWorkbenchWindow();
+		if (null != iWorkbenchWindow) {
+			IWorkbenchPage activePage = iWorkbenchWindow.getActivePage();
+			if (null != activePage) {
+				return activePage.showView(viewId, secondaryId, viewVisible);
+			}
+		}
+
+		return null;
 	}
 
 }
