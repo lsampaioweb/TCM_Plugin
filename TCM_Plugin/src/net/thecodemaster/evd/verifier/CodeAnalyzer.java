@@ -146,8 +146,12 @@ public abstract class CodeAnalyzer {
 
 	protected void inspectNode(int depth, DataFlow dataFlow, ASTNode node) {
 		// 01 - To avoid infinitive loop, this check is necessary.
-		if ((null == node) || (hasReachedMaximumDepth(depth++))) {
-			PluginLogger.logError("null or hasReachedMaximumDepth: " + dataFlow + " - " + node, null);
+		if (null == node) {
+			return;
+		}
+
+		if (hasReachedMaximumDepth(depth++)) {
+			PluginLogger.logError("hasReachedMaximumDepth: " + dataFlow + " - " + node + " - " + depth, null);
 			return;
 		}
 

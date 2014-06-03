@@ -92,7 +92,9 @@ public abstract class Verifier extends CodeAnalyzer {
 	}
 
 	protected void reportVulnerability(DataFlow dataFlow) {
-		getReporter().addProblem(getId(), getCurrentResource(), dataFlow);
+		if (null != getReporter()) {
+			getReporter().addProblem(getId(), getCurrentResource(), dataFlow);
+		}
 	}
 
 	protected ExitPoint getExitPointIfMethodIsOne(Expression method) {
