@@ -2,12 +2,15 @@ package net.thecodemaster.evd.verifier;
 
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.DataFlow;
+import net.thecodemaster.evd.graph.VariableBindingManager;
+import net.thecodemaster.evd.ui.enumeration.EnumStatusVariable;
 import net.thecodemaster.evd.ui.l10n.Message;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.NumberLiteral;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.StringLiteral;
 
 /**
@@ -31,6 +34,22 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 		return String.format(Message.VerifierSecurityVulnerability.NULL_LITERAL);
 	}
 
+	/**
+	 * 42
+	 */
+	@Override
+	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression, VariableBindingManager manager) {
+		if ((null != manager) && (manager.status().equals(EnumStatusVariable.NOT_VULNERABLE))) {
+			// The SQL Injection verifier also needs to know if the variable has its content from a string concatenation.
+			inspectNode(depth, dataFlow, manager.getInitializer());
+		} else {
+			super.inspectSimpleName(depth, dataFlow, expression, manager);
+		}
+	}
+
+	/**
+	 * 13, 33, 34, 45
+	 */
 	@Override
 	protected void inspectLiteral(int depth, DataFlow dataFlow, Expression node) {
 		String message = null;
