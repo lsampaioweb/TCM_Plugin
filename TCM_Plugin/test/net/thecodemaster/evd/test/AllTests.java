@@ -4,11 +4,7 @@ import java.util.List;
 
 import net.thecodemaster.evd.Activator;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
-import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -38,24 +34,6 @@ public class AllTests extends AbstractTestVerifier {
 	// // $JUnit-END$
 	// return suite;
 	// }
-
-	@AfterClass
-	public static void tearDown() throws Exception {
-		if ((null != renamedResources) && (renamedResources.size() > 0)) {
-			for (String resourceName : renamedResources) {
-				try {
-					// We have to delete the files.
-					IFolder folderTest = getFolder(PROJECT_TEST);
-
-					IFile javaSRC = folderTest.getFile(resourceName);
-
-					javaSRC.delete(true, null);
-				} catch (CoreException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
 
 	@Override
 	protected List<IResource> getResources() {

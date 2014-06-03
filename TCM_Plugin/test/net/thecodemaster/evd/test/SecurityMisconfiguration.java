@@ -2,6 +2,7 @@ package net.thecodemaster.evd.test;
 
 import java.util.List;
 
+import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.helper.Creator;
 
 import org.eclipse.core.resources.IResource;
@@ -22,6 +23,9 @@ public class SecurityMisconfiguration extends AbstractTestVerifier {
 	@Test
 	public void test() {
 		Assert.assertEquals(1, allVulnerablePaths.size());
+
+		List<DataFlow> vulnerablePaths01 = allVulnerablePaths.get(0);
+		Assert.assertEquals(18, vulnerablePaths01.size());
 	}
 
 }

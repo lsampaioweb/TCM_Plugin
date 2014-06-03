@@ -34,7 +34,6 @@ public abstract class AbstractTestVerifier {
 	private static final String			PROJECT				= "WebDemo";
 	private static final String			PACKAGE				= "src/servlet";
 	protected static final String		PROJECT_TEST	= "WebDemoTest";
-	protected static List<String>		renamedResources;
 
 	protected static IFolder getFolder(String projectName) {
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -60,10 +59,10 @@ public abstract class AbstractTestVerifier {
 				IFolder folderTest = getFolder(PROJECT_TEST);
 
 				String newPath = String.format("%s/%s", folderTest.getFullPath(), resourceName);
+				deleteIfExists(folderTest, resourceName);
 				javaSRC.copy(new Path(newPath), true, null);
 
 				javaSRC = folderTest.getFile(resourceName);
-				addResourceToListOfRenamedResources(resourceName);
 			}
 		} catch (CoreException e) {
 			e.printStackTrace();
@@ -73,12 +72,15 @@ public abstract class AbstractTestVerifier {
 		return javaSRC;
 	}
 
-	private void addResourceToListOfRenamedResources(String resourceName) {
-		if (null == renamedResources) {
-			renamedResources = Creator.newList();
+	public static void deleteIfExists(IFolder folderTest, String resourceName) {
+		try {
+			IFile javaSRC = folderTest.getFile(resourceName);
+			if (javaSRC.exists()) {
+				javaSRC.delete(true, null);
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
 		}
-
-		renamedResources.add(resourceName);
 	}
 
 	protected abstract List<IResource> getResources();

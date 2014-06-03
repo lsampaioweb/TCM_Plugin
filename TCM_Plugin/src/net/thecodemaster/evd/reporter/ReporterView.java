@@ -149,18 +149,21 @@ public class ReporterView implements IReporter {
 	private void updateView() {
 		try {
 			// Update the user interface asynchronously.
-			Display.getDefault().asyncExec(new Runnable() {
-				@Override
-				public void run() {
-					ViewSecurityVulnerabilities view = (ViewSecurityVulnerabilities) Activator.getDefault().findView(
-							Constant.VIEW_ID);
-					if (null == view) {
-						view = createView();
-					}
+			Display defaultDisplay = Display.getDefault();
+			if ((null != defaultDisplay) && (!defaultDisplay.isDisposed())) {
+				defaultDisplay.asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						ViewSecurityVulnerabilities view = (ViewSecurityVulnerabilities) Activator.getDefault().findView(
+								Constant.VIEW_ID);
+						if (null == view) {
+							view = createView();
+						}
 
-					view.addToView(rootVdm);
-				}
-			});
+						view.addToView(rootVdm);
+					}
+				});
+			}
 		} catch (Exception e) {
 			PluginLogger.logError(e);
 		}
