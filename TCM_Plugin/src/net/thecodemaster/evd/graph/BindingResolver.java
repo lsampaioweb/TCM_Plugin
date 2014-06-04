@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -102,8 +103,9 @@ public class BindingResolver {
 				return ((MethodDeclaration) node).resolveBinding();
 			case ASTNode.METHOD_INVOCATION: // 32
 				return ((MethodInvocation) node).resolveMethodBinding();
+			case ASTNode.QUALIFIED_NAME: // 40
 			case ASTNode.SIMPLE_NAME: // 42
-				return ((SimpleName) node).resolveBinding();
+				return ((Name) node).resolveBinding();
 			default:
 				return null;
 		}

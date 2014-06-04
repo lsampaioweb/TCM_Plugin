@@ -45,6 +45,10 @@ public abstract class Verifier extends CodeAnalyzer {
 	 * List with all the ExitPoints of this verifier.
 	 */
 	private List<ExitPoint>	exitPoints;
+	/**
+	 * The rules that the current parameter must obey.
+	 */
+	private List<Integer>		rules;
 
 	/**
 	 * @param name
@@ -78,6 +82,14 @@ public abstract class Verifier extends CodeAnalyzer {
 		}
 
 		return exitPoints;
+	}
+
+	public List<Integer> getRules() {
+		return rules;
+	}
+
+	public void setRules(List<Integer> rules) {
+		this.rules = rules;
 	}
 
 	/**
@@ -197,9 +209,10 @@ public abstract class Verifier extends CodeAnalyzer {
 
 		int index = 0;
 		int depth = 0;
-		for (List<Integer> rules : expectedParameters.values()) {
+		for (List<Integer> currentRules : expectedParameters.values()) {
 			// If the rules are null, it means the expected parameter can be anything. (We do not care for it).
-			if (null != rules) {
+			if (null != currentRules) {
+				setRules(currentRules);
 				Expression expression = receivedParameters.get(index);
 				DataFlow dataFlow = new DataFlow(expression);
 
@@ -211,6 +224,21 @@ public abstract class Verifier extends CodeAnalyzer {
 			}
 			index++;
 		}
+	}
+
+	@Override
+	protected void inspectNode(int depth, DataFlow dataFlow, Expression node) {
+		if (null == node) {
+			return;
+		}
+
+		// 01 - Check if the expression matches the rules.
+		if (matchRules(getRules(), node)) {
+			return;
+		}
+
+		// 02 - Invoke the inspectNode from the superclass.
+		super.inspectNode(depth, dataFlow, node);
 	}
 
 	/**
@@ -225,13 +253,14 @@ public abstract class Verifier extends CodeAnalyzer {
 	}
 
 	/**
-	 * TODO
+	 * An exit point might have more that one parameter and each of these parameter might have different rules (acceptable
+	 * values). That is why we need to check.
 	 * 
 	 * @param rules
 	 * @param parameter
 	 * @return
 	 */
-	private boolean matchRules(List<Integer> rules, Expression parameter) {
+	protected boolean matchRules(List<Integer> rules, Expression parameter) {
 		if (null == parameter) {
 			// There is nothing we can do to verify it.
 			return true;
@@ -256,5 +285,4 @@ public abstract class Verifier extends CodeAnalyzer {
 
 		return false;
 	}
-
 }

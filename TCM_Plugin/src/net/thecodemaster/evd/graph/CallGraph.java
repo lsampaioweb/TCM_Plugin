@@ -37,9 +37,18 @@ public class CallGraph {
 	 */
 	private final Map<IResource, Map<IBinding, List<VariableBindingManager>>>	variablesPerFile;
 
+	// /**
+	// * This map was created to solve the problem of not have binding when creating a new INFIXEXPRESSION. <br/>
+	// * String message = "a"; <br/>
+	// * message += "b"; <br/>
+	// * Result: message = message + "b"
+	// */
+	// private final Map<Expression, IBinding> bindingMap;
+
 	public CallGraph() {
 		methodsPerFile = Creator.newMap();
 		variablesPerFile = Creator.newMap();
+		// bindingMap = Creator.newMap();
 	}
 
 	public IResource getCurrentResource() {
@@ -173,7 +182,7 @@ public class CallGraph {
 	}
 
 	public VariableBindingManager addVariableToCallGraph(IResource resource, Expression variable, Expression initializer) {
-		IBinding binding = BindingResolver.resolveBinding(variable);
+		IBinding binding = resolveBinding(variable);
 
 		if (null != binding) {
 			VariableBindingManager variableBinding = new VariableBindingManager(binding);
@@ -264,7 +273,7 @@ public class CallGraph {
 
 	public VariableBindingManager getVariableBinding(SimpleName simpleName) {
 		// 01 - Get the list of references of this variable.
-		List<VariableBindingManager> vbms = getVariableBindings(simpleName.resolveBinding());
+		List<VariableBindingManager> vbms = getVariableBindings(resolveBinding(simpleName));
 
 		if (vbms.size() > 0) {
 			// 02 - Get a parent expression which has a reference to this variable.
@@ -284,7 +293,7 @@ public class CallGraph {
 	}
 
 	public VariableBindingManager getLastReference(SimpleName simpleName) {
-		return getLastReference(simpleName.resolveBinding());
+		return getLastReference(resolveBinding(simpleName));
 	}
 
 	public VariableBindingManager getLastReference(IBinding binding) {
@@ -299,5 +308,23 @@ public class CallGraph {
 		// 01 - Return the last element of the list.
 		return ((null != vbms) && (vbms.size() > 0)) ? vbms.get(vbms.size() - 1) : null;
 	}
+
+	// private IBinding getBinding(Expression node) {
+	// return bindingMap.get(node);
+	// }
+
+	public IBinding resolveBinding(Expression initializer) {
+		IBinding binding = BindingResolver.resolveBinding(initializer);
+
+		// return (null != binding) ? binding : getBinding(initializer);
+		return binding;
+	}
+
+	// public void addBinding(Expression node, Expression initializer) {
+	// IBinding binding = BindingResolver.resolveBinding(initializer);
+	// if (null != binding) {
+	// bindingMap.put(node, binding);
+	// }
+	// }
 
 }

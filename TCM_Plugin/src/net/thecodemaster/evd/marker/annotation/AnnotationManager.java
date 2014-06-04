@@ -23,15 +23,6 @@ import org.eclipse.jface.text.source.IAnnotationModel;
  */
 public class AnnotationManager {
 
-	// private static Map<IPath, List<InvisibleAnnotation>> invisibleAnnotationsPerFile;
-
-	/**
-	 * Default constructor.
-	 */
-	public AnnotationManager() {
-		// invisibleAnnotationsPerFile = Creator.newMap();
-	}
-
 	/**
 	 * Returns the text file buffer managed for the file at the given location or null if there is no such text file
 	 * buffer.
@@ -73,52 +64,7 @@ public class AnnotationManager {
 			Position position = new Position(offset, length);
 			model.addAnnotation(annotation, position);
 		}
-		// ITextFileBuffer buffer = getTextFilebuffer(getPath(BindingResolver.getParentCompilationUnit(node)));
-		//
-		// // This is the document we want to connect to. This is taken from the current editor input.
-		// IDocument document = buffer.getDocument();
-		//
-		// // The IannotationModel enables to add/remove/change annotation to a Document loaded in an Editor.
-		// IAnnotationModel iamf = buffer.getAnnotationModel();
-		//
-		// // Note: The annotation type id specify that you want to create one of your annotations.
-		// int offset = node.getStartPosition();
-		// int length = node.getLength();
-		// Annotation annotation = new Annotation(Constant.MARKER_ID_ANNOTATION_INVISIBLE, true, null);
-		//
-		// // Finally add the new annotation to the model.
-		// iamf.connect(document);
-		// iamf.addAnnotation(annotation, new Position(offset, length));
-		// iamf.disconnect(document);
 	}
-
-	// public static boolean hasAnnotationAtPosition(ASTNode node,
-	// Map<IPath, List<InvisibleAnnotation>> invisibleAnnotationsPerFile) {
-	// // 01 - Get the Compilation Unit which this node belongs to.
-	// IPath path = getPath(BindingResolver.getParentCompilationUnit(node));
-	// if ((null != path) && (invisibleAnnotationsPerFile.size() > 0)) {
-	// // 02 - Get the list of annotations in the current file.
-	// List<InvisibleAnnotation> invisibleAnnotations = invisibleAnnotationsPerFile.get(path);
-	//
-	// if (null != invisibleAnnotations) {
-	// int offset = node.getStartPosition();
-	// int length = node.getLength();
-	//
-	// for (InvisibleAnnotation annotation : invisibleAnnotations) {
-	// if (annotation.getAnnotation().getType().equals(Constant.MARKER_ID_ANNOTATION_INVISIBLE)) {
-	// Position position = annotation.getPosition();
-	// if (position.getOffset() == offset && position.getLength() == length) {
-	// return true;
-	// }
-	// }
-	// }
-	// }
-	//
-	// }
-	//
-	// return false;
-	//
-	// }
 
 	public static boolean hasAnnotationAtPosition(ASTNode node) {
 		IAnnotationModel model = getAnnotationModel(getPath(BindingResolver.getParentCompilationUnit(node)));
@@ -140,25 +86,5 @@ public class AnnotationManager {
 		}
 		return false;
 	}
-
-	//
-	// private void addToInternalList(IPath path, InvisibleAnnotation annotation) {
-	// if (null != annotation) {
-	// // 01 - Check if the current file is already in the list.
-	// if (!invisibleAnnotationsPerFile.containsKey(path)) {
-	// List<InvisibleAnnotation> invisibleAnnotations = Creator.newList();
-	//
-	// invisibleAnnotationsPerFile.put(path, invisibleAnnotations);
-	// }
-	//
-	// // 02 - Get the list of annotations in the current file.
-	// List<InvisibleAnnotation> invisibleAnnotations = invisibleAnnotationsPerFile.get(path);
-	//
-	// // 03 - Add the annotation to the list.
-	// if (!invisibleAnnotations.contains(annotation)) {
-	// invisibleAnnotations.add(annotation);
-	// }
-	// }
-	// }
 
 }

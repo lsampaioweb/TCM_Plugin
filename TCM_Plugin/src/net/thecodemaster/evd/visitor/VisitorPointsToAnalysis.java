@@ -30,9 +30,6 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
  */
 public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
-	public VisitorPointsToAnalysis() {
-	}
-
 	public void run(List<IResource> resources, CallGraph callGraph) {
 		setCallGraph(callGraph);
 
@@ -103,10 +100,56 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	 * 07
 	 */
 	@Override
-	protected void inspectAssignment(int depth, DataFlow dataFlow, Assignment expression) {
+	protected void inspectAssignment(int depth, DataFlow dataFlow, Assignment node) {
 		// 01 - Get the elements from the expression.
-		Expression leftHandSide = expression.getLeftHandSide();
-		Expression rightHandSide = expression.getRightHandSide();
+		Expression leftHandSide = node.getLeftHandSide();
+		Expression rightHandSide = node.getRightHandSide();
+
+		// if (node.getOperator().equals(Operator.PLUS_ASSIGN)) {
+		// // 02 - Get the AST of this node.
+		// AST ast = node.getAST();
+		//
+		// // 03 - Create a new InfixExpression object.
+		// InfixExpression expr = ast.newInfixExpression();
+		//
+		// // 04 - Copy the old objects.
+		// Expression left = (Expression) ASTNode.copySubtree(ast, node.getLeftHandSide());
+		// Expression right = (Expression) ASTNode.copySubtree(ast, node.getRightHandSide());
+		//
+		// // 05 - Add the old bindings to the newly created objects.
+		// getCallGraph().addBinding(left, leftHandSide);
+		//
+		// switch (rightHandSide.getNodeType()) {
+		// case ASTNode.SIMPLE_NAME:
+		// getCallGraph().addBinding(right, rightHandSide);
+		// break;
+		// case ASTNode.INFIX_EXPRESSION:
+		// InfixExpression infixExpression = (InfixExpression) rightHandSide;
+		// Expression leftOperand = infixExpression.getLeftOperand();
+		// Expression rightOperand = infixExpression.getRightOperand();
+		//
+		// List<Expression> extendedOperands = BindingResolver.getParameters(infixExpression);
+		// getCallGraph().addBinding(leftOperand, leftOperand);
+		// getCallGraph().addBinding(rightOperand, rightOperand);
+		//
+		// for (Expression current : extendedOperands) {
+		// getCallGraph().addBinding(current, current);
+		// }
+		// break;
+		// }
+		//
+		// // String message = "a";
+		// // message += "b" + c + getMessage();
+		// // Result: message = message + "b"
+		// // 06 - Add the values to the InfixExpression.
+		// expr.setLeftOperand(left);
+		// expr.setOperator(InfixExpression.Operator.PLUS);
+		// expr.setRightOperand(right);
+		//
+		// rightHandSide = expr;
+		// } else {
+		// rightHandSide = node.getRightHandSide();
+		// }
 
 		// 02 - Add the new variable to the callGraph.
 		addVariableToCallGraphAndInspectInitializer(depth, dataFlow, leftHandSide, rightHandSide);

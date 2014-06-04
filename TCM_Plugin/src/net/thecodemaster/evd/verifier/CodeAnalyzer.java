@@ -36,6 +36,7 @@ import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
@@ -199,7 +200,7 @@ public abstract class CodeAnalyzer {
 		return false;
 	}
 
-	protected void inspectNode(int depth, DataFlow dataFlow, ASTNode node) {
+	protected void inspectNode(int depth, DataFlow dataFlow, Expression node) {
 		if (null == node) {
 			return;
 		}
@@ -217,36 +218,21 @@ public abstract class CodeAnalyzer {
 			case ASTNode.ASSIGNMENT: // 07
 				inspectAssignment(depth, dataFlow, (Assignment) node);
 				break;
-			case ASTNode.BLOCK: // 08
-				inspectBlock(depth, dataFlow, (Block) node);
-				break;
 			case ASTNode.CAST_EXPRESSION: // 11
 				inspectCastExpression(depth, dataFlow, (CastExpression) node);
 				break;
 			case ASTNode.CONDITIONAL_EXPRESSION: // 16
 				inspectConditionExpression(depth, dataFlow, (ConditionalExpression) node);
 				break;
-			case ASTNode.DO_STATEMENT: // 19
-				inspectDoStatement(depth, dataFlow, (DoStatement) node);
-				break;
-			case ASTNode.EXPRESSION_STATEMENT: // 21
-				inspectExpressionStatement(depth, dataFlow, (ExpressionStatement) node);
-				break;
 			case ASTNode.FIELD_ACCESS: // 22
 				inspectFieldAccess(depth, dataFlow, (FieldAccess) node);
-				break;
-			case ASTNode.FOR_STATEMENT: // 24
-				inspectForStatement(depth, dataFlow, (ForStatement) node);
-				break;
-			case ASTNode.IF_STATEMENT: // 25
-				inspectIfStatement(depth, dataFlow, (IfStatement) node);
 				break;
 			case ASTNode.INFIX_EXPRESSION: // 27
 				inspectInfixExpression(depth, dataFlow, (InfixExpression) node);
 				break;
 			case ASTNode.CLASS_INSTANCE_CREATION: // 14
 			case ASTNode.METHOD_INVOCATION: // 32
-				Expression method = (Expression) node;
+				Expression method = node;
 				inspectMethodInvocation(depth, dataFlow.addNodeToPath(method), method);
 				break;
 			case ASTNode.PARENTHESIZED_EXPRESSION: // 36
@@ -261,12 +247,50 @@ public abstract class CodeAnalyzer {
 			case ASTNode.QUALIFIED_NAME: // 40
 				inspectQualifiedName(depth, dataFlow, (QualifiedName) node);
 				break;
-			case ASTNode.RETURN_STATEMENT: // 41
-				inspectReturnStatement(depth, dataFlow, (ReturnStatement) node);
-				break;
 			case ASTNode.SIMPLE_NAME: // 42
 				SimpleName simpleName = (SimpleName) node;
 				inspectSimpleName(depth, dataFlow.addNodeToPath(simpleName), simpleName);
+				break;
+			case ASTNode.CHARACTER_LITERAL: // 13
+			case ASTNode.NULL_LITERAL: // 33
+			case ASTNode.NUMBER_LITERAL: // 34
+			case ASTNode.STRING_LITERAL: // 45
+				inspectLiteral(depth, dataFlow, node);
+				break;
+			default:
+				PluginLogger.logError("inspectExpression Default Node Type: " + node.getNodeType() + " - " + node, null);
+		}
+	}
+
+	protected void inspectNode(int depth, DataFlow dataFlow, Statement node) {
+		if (null == node) {
+			return;
+		}
+
+		// 01 - To avoid infinitive loop, this check is necessary.
+		if (hasReachedMaximumDepth(depth++)) {
+			PluginLogger.logError("hasReachedMaximumDepth: " + dataFlow + " - " + node + " - " + depth, null);
+			return;
+		}
+
+		switch (node.getNodeType()) {
+			case ASTNode.BLOCK: // 08
+				inspectBlock(depth, dataFlow, (Block) node);
+				break;
+			case ASTNode.DO_STATEMENT: // 19
+				inspectDoStatement(depth, dataFlow, (DoStatement) node);
+				break;
+			case ASTNode.EXPRESSION_STATEMENT: // 21
+				inspectExpressionStatement(depth, dataFlow, (ExpressionStatement) node);
+				break;
+			case ASTNode.FOR_STATEMENT: // 24
+				inspectForStatement(depth, dataFlow, (ForStatement) node);
+				break;
+			case ASTNode.IF_STATEMENT: // 25
+				inspectIfStatement(depth, dataFlow, (IfStatement) node);
+				break;
+			case ASTNode.RETURN_STATEMENT: // 41
+				inspectReturnStatement(depth, dataFlow, (ReturnStatement) node);
 				break;
 			case ASTNode.SWITCH_CASE: // 49
 				inspectSwitchCase(depth, dataFlow, (SwitchCase) node);
@@ -285,12 +309,6 @@ public abstract class CodeAnalyzer {
 				break;
 			case ASTNode.ENHANCED_FOR_STATEMENT: // 70
 				inspectEnhancedForStatement(depth, dataFlow, (EnhancedForStatement) node);
-				break;
-			case ASTNode.CHARACTER_LITERAL: // 13
-			case ASTNode.NULL_LITERAL: // 33
-			case ASTNode.NUMBER_LITERAL: // 34
-			case ASTNode.STRING_LITERAL: // 45
-				inspectLiteral(depth, dataFlow, (Expression) node);
 				break;
 			default:
 				PluginLogger.logError("inspectStatement Default Node Type: " + node.getNodeType() + " - " + node, null);
@@ -636,10 +654,8 @@ public abstract class CodeAnalyzer {
 					addReferenceParenthesizedExpression(expression, (ParenthesizedExpression) initializer);
 					break;
 				case ASTNode.QUALIFIED_NAME: // 40
-					addReferenceQualifiedName(expression, (QualifiedName) initializer);
-					break;
 				case ASTNode.SIMPLE_NAME: // 42
-					addReferenceSimpleName(expression, (SimpleName) initializer);
+					addReferenceName(expression, (Name) initializer);
 					break;
 			}
 		}
@@ -652,12 +668,8 @@ public abstract class CodeAnalyzer {
 		}
 	}
 
-	protected void addReferenceSimpleName(Expression expression, SimpleName initializer) {
-		addReference(expression, initializer.resolveBinding());
-	}
-
-	protected void addReferenceQualifiedName(Expression expression, QualifiedName initializer) {
-		addReference(expression, initializer.resolveBinding());
+	protected void addReferenceName(Expression expression, Name initializer) {
+		addReference(expression, getCallGraph().resolveBinding(initializer));
 	}
 
 	protected void addReferenceAssgnment(Expression expression, Assignment initializer) {
