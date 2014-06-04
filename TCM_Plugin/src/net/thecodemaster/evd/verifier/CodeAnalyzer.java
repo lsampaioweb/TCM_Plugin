@@ -10,9 +10,11 @@ import net.thecodemaster.evd.graph.VariableBindingManager;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.marker.annotation.AnnotationManager;
 import net.thecodemaster.evd.point.EntryPoint;
+import net.thecodemaster.evd.point.SanitizationPoint;
 import net.thecodemaster.evd.ui.enumeration.EnumStatusVariable;
 import net.thecodemaster.evd.ui.l10n.Message;
 import net.thecodemaster.evd.xmlloader.LoaderEntryPoint;
+import net.thecodemaster.evd.xmlloader.LoaderSanitizationPoint;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -55,15 +57,19 @@ public abstract class CodeAnalyzer {
 	/**
 	 * The current resource that is being analyzed.
 	 */
-	private IResource								currentResource;
+	private IResource												currentResource;
 	/**
 	 * This object contains all the methods, variables and their interactions, on the project that is being analyzed.
 	 */
-	private CallGraph								callGraph;
+	private CallGraph												callGraph;
 	/**
 	 * List with all the EntryPoints (shared among other instances of the verifiers).
 	 */
-	private static List<EntryPoint>	entryPoints;
+	private static List<EntryPoint>					entryPoints;
+	/**
+	 * List with all the Sanitizers (shared among other instances of the verifiers).
+	 */
+	private static List<SanitizationPoint>	sanitizers;
 
 	protected void setCurrentResource(IResource currentResource) {
 		this.currentResource = currentResource;
@@ -97,6 +103,22 @@ public abstract class CodeAnalyzer {
 		entryPoints = (new LoaderEntryPoint()).load();
 	}
 
+	protected static List<SanitizationPoint> getSanitizationPoints() {
+		if (null == sanitizers) {
+			// Loads all the EntryPoints.
+			loadSanitizationPoints();
+		}
+
+		return sanitizers;
+	}
+
+	/**
+	 * Load all the Sanitizers that the plug-in will use.
+	 */
+	protected static void loadSanitizationPoints() {
+		sanitizers = (new LoaderSanitizationPoint()).load();
+	}
+
 	protected String getMessageEntryPoint(String value) {
 		return String.format(Message.VerifierSecurityVulnerability.ENTRY_POINT_METHOD, value);
 	}
@@ -109,15 +131,45 @@ public abstract class CodeAnalyzer {
 		return AnnotationManager.hasAnnotationAtPosition(expression);
 	}
 
-	protected boolean isMethodASanitizationPoint(Expression method) {
-		return false;
-	}
-
 	protected boolean isMethodAnEntryPoint(Expression method) {
 		for (EntryPoint currentEntryPoint : getEntryPoints()) {
 			if (BindingResolver.methodsHaveSameNameAndPackage(currentEntryPoint, method)) {
 				// 01 - Get the expected arguments of this method.
 				List<String> expectedParameters = currentEntryPoint.getParameters();
+
+				// 02 - Get the received parameters of the current method.
+				List<Expression> receivedParameters = BindingResolver.getParameters(method);
+
+				// 03 - It is necessary to check the number of parameters and its types
+				// because it may exist methods with the same names but different parameters.
+				if (expectedParameters.size() == receivedParameters.size()) {
+					boolean isMethodAnEntryPoint = true;
+					int index = 0;
+					for (String expectedParameter : expectedParameters) {
+						ITypeBinding typeBinding = receivedParameters.get(index++).resolveTypeBinding();
+
+						// Verify if all the parameters are the ones expected.
+						if (!BindingResolver.parametersHaveSameType(expectedParameter, typeBinding)) {
+							isMethodAnEntryPoint = false;
+							break;
+						}
+					}
+
+					if (isMethodAnEntryPoint) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
+	protected boolean isMethodASanitizationPoint(Expression method) {
+		for (SanitizationPoint sanitizer : getSanitizationPoints()) {
+			if (BindingResolver.methodsHaveSameNameAndPackage(sanitizer, method)) {
+				// 01 - Get the expected arguments of this method.
+				List<String> expectedParameters = sanitizer.getParameters();
 
 				// 02 - Get the received parameters of the current method.
 				List<Expression> receivedParameters = BindingResolver.getParameters(method);

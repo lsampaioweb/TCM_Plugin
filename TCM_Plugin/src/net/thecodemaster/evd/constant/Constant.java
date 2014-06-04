@@ -42,14 +42,17 @@ public abstract class Constant {
 	}
 
 	public abstract class Folder {
-		public static final String	ICON						= "icon/";
-		public static final String	KNOWLEDGE_BASE	= "knowledge_base/";
-		public static final String	ENTRY_POINT			= KNOWLEDGE_BASE + "entry_point/";
-		public static final String	EXIT_POINT			= KNOWLEDGE_BASE + "exit_point/";
-		public static final String	RESOLUTION			= KNOWLEDGE_BASE + "resolution/";
+		public static final String	ICON								= "icon/";
+		public static final String	KNOWLEDGE_BASE			= "knowledge_base/";
+		public static final String	ENTRY_POINT					= KNOWLEDGE_BASE + "entry_point/";
+		public static final String	EXIT_POINT					= KNOWLEDGE_BASE + "exit_point/";
+		public static final String	RESOLUTION					= KNOWLEDGE_BASE + "resolution/";
+		public static final String	SANITIZATION_POINT	= KNOWLEDGE_BASE + "sanitization_point/";
 	}
 
 	public abstract class File {
+		public static final String	FILE_SANITIZATION_POINT										= Folder.SANITIZATION_POINT
+																																							+ "sanitization_point.xml";
 		public static final String	FILE_ENTRY_POINT													= Folder.ENTRY_POINT + "entry_point.xml";
 		public static final String	FILE_RESOLUTION														= Folder.RESOLUTION + "resolution.xml";
 
@@ -99,6 +102,7 @@ public abstract class Constant {
 	}
 
 	public abstract class XMLLoader {
+		public static final String	TAG_SANITIZATION_POINT			= "sanitizer";
 		public static final String	TAG_ENTRY_POINT							= "entrypoint";
 		public static final String	TAG_EXIT_POINT							= "exitpoint";
 		public static final String	TAG_QUALIFIED_NAME					= "qualifiedname";

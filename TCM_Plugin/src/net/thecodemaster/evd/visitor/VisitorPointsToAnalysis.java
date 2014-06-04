@@ -211,7 +211,8 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 			// 01 - Add a reference to this variable (if it is a variable).
 			addReferenceToInitializer(variableName, initializer);
 
-			DataFlow newDataFlow = dataFlow.addNodeToPath(variableName);
+			// DataFlow newDataFlow = dataFlow.addNodeToPath(variableName);
+			DataFlow newDataFlow = new DataFlow(variableName);
 			// 01 - Inspect the Initializer to verify if this variable is vulnerable.
 			inspectNode(depth, newDataFlow, initializer);
 

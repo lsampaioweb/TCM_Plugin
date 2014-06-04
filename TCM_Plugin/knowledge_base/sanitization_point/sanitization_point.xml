@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sanitizers xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="sanitization_point_schema.xsd">
+	<!-- org.owasp.encoder.Encode -->
+	<sanitizer id="01">
+		<qualifiedname>org.owasp.encoder.Encode</qualifiedname>
+		<methodname>forHtml</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="02">
+		<qualifiedname>org.owasp.encoder.Encode</qualifiedname>
+		<methodname>forHtmlContent</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="03">
+		<qualifiedname>org.owasp.encoder.Encode</qualifiedname>
+		<methodname>forHtmlAttribute</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="04">
+		<qualifiedname>org.owasp.encoder.Encode</qualifiedname>
+		<methodname>forHtmlUnquotedAttribute</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="05">
+		<qualifiedname>org.owasp.encoder.Encode</qualifiedname>
+		<methodname>forCssString</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="06">
+		<qualifiedname>org.owasp.encoder.Encode</qualifiedname>
+		<methodname>forCssUrl</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="07">
+		<qualifiedname>org.owasp.encoder.Encode</qualifiedname>
+		<methodname>forUri</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="08">
+		<qualifiedname>org.owasp.encoder.Encode</qualifiedname>
+		<methodname>forUriComponent</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="09">
+		<qualifiedname>org.owasp.encoder.Encode</qualifiedname>
+		<methodname>forXml</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="10">
+		<qualifiedname>org.owasp.encoder.Encode</qualifiedname>
+		<methodname>forXmlContent</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="11">
+		<qualifiedname>org.owasp.encoder.Encode</qualifiedname>
+		<methodname>forXmlAttribute</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="12">
+		<qualifiedname>org.owasp.encoder.Encode</qualifiedname>
+		<methodname>forXmlComment</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="13">
+		<qualifiedname>org.owasp.encoder.Encode</qualifiedname>
+		<methodname>forCDATA</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="14">
+		<qualifiedname>org.owasp.encoder.Encode</qualifiedname>
+		<methodname>forJava</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="15">
+		<qualifiedname>org.owasp.encoder.Encode</qualifiedname>
+		<methodname>forJavaScript</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="16">
+		<qualifiedname>org.owasp.encoder.Encode</qualifiedname>
+		<methodname>forJavaScriptAttribute</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="17">
+		<qualifiedname>org.owasp.encoder.Encode</qualifiedname>
+		<methodname>forJavaScriptBlock</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="18">
+		<qualifiedname>org.owasp.encoder.Encode</qualifiedname>
+		<methodname>forJavaScriptSource</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<!-- java.net.URLEncoder -->
+	<sanitizer id="19">
+		<qualifiedname>java.net.URLEncoder</qualifiedname>
+		<methodname>encode</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="20">
+		<qualifiedname>java.net.URLEncoder</qualifiedname>
+		<methodname>encode</methodname>
+		<parameters type="java.lang.String" />
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<!-- java.net.URLDecoder -->
+	<sanitizer id="21">
+		<qualifiedname>java.net.URLDecoder</qualifiedname>
+		<methodname>decode</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="22">
+		<qualifiedname>java.net.URLDecoder</qualifiedname>
+		<methodname>decode</methodname>
+		<parameters type="java.lang.String" />
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<!-- org.apache.commons.lang.StringEscapeUtils -->
+	<sanitizer id="23">
+		<qualifiedname>org.apache.commons.lang.StringEscapeUtils</qualifiedname>
+		<methodname>escapeJava</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="24">
+		<qualifiedname>org.apache.commons.lang.StringEscapeUtils</qualifiedname>
+		<methodname>escapeJavaScript</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="25">
+		<qualifiedname>org.apache.commons.lang.StringEscapeUtils</qualifiedname>
+		<methodname>unescapeJava</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="26">
+		<qualifiedname>org.apache.commons.lang.StringEscapeUtils</qualifiedname>
+		<methodname>unescapeJavaScript</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="27">
+		<qualifiedname>org.apache.commons.lang.StringEscapeUtils</qualifiedname>
+		<methodname>escapeHtml</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="28">
+		<qualifiedname>org.apache.commons.lang.StringEscapeUtils</qualifiedname>
+		<methodname>unescapeHtml</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="29">
+		<qualifiedname>org.apache.commons.lang.StringEscapeUtils</qualifiedname>
+		<methodname>escapeXml</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="30">
+		<qualifiedname>org.apache.commons.lang.StringEscapeUtils</qualifiedname>
+		<methodname>unescapeXml</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="31">
+		<qualifiedname>org.apache.commons.lang.StringEscapeUtils</qualifiedname>
+		<methodname>escapeSql</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="32">
+		<qualifiedname>org.apache.commons.lang.StringEscapeUtils</qualifiedname>
+		<methodname>escapeCsv</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="33">
+		<qualifiedname>org.apache.commons.lang.StringEscapeUtils</qualifiedname>
+		<methodname>unescapeCsv</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+</sanitizers>

@@ -135,7 +135,7 @@ public class BuilderJob extends Job {
 					}
 
 					if (!userCanceledProcess(monitor)) {
-						Timer timerPA = (new Timer("01.2 - : Points-to Analysis: ")).start();
+						Timer timerPA = (new Timer("01.2 - Points-to Analysis: ")).start();
 						// 04 - Link variables and methods to content.
 						VisitorPointsToAnalysis pointToAnalysis = new VisitorPointsToAnalysis();
 						pointToAnalysis.run(resourcesUpdated, callGraph);
