@@ -17,27 +17,51 @@ class ViewSorter extends ViewerSorter {
 
 	// Simple data structure for grouping sort information by column.
 	private class SortInfo {
+		String										columnName;
 		Comparator<ViewDataModel>	comparator;
 		boolean										descending;
 	}
 
-	private final TreeViewer			viewer;
-	private final List<SortInfo>	infos;
-	private SortInfo							currentSorter;
+	private final TreeViewer	viewer;
+	private List<SortInfo>		sorters;
+	private SortInfo					currentSorter;
 
 	public ViewSorter(TreeViewer viewer) {
 		this.viewer = viewer;
-		infos = Creator.newList();
+		addSorters();
+	}
+
+	private final void addSorters() {
+		sorters = Creator.newList();
+
+		setSorterOrder(Message.View.RESOURCE);
+		setSorterOrder(Message.View.LOCATION);
+		setSorterOrder(Message.View.DESCRIPTION);
+		setSorterOrder(Message.View.VULNERABILITY);
+		setSorterOrder(Message.View.PATH);
+	}
+
+	private void setSorterOrder(String columnName) {
+		SortInfo sortInfo = new SortInfo();
+		sortInfo.columnName = columnName;
+		sortInfo.comparator = getComparator(columnName);
+		sortInfo.descending = false;
+
+		sorters.add(sortInfo);
+	}
+
+	private SortInfo getSorter(String columnName) {
+		for (SortInfo sortInfo : sorters) {
+			if (sortInfo.columnName.equals(columnName)) {
+				return sortInfo;
+			}
+		}
+
+		return null;
 	}
 
 	public void addColumn(TreeColumn column) {
-		SortInfo sortInfo = new SortInfo();
-		sortInfo.comparator = getComparator(column.getText());
-		sortInfo.descending = false;
-
-		infos.add(sortInfo);
-
-		createSelectionListener(column, sortInfo);
+		createSelectionListener(column, getSorter(column.getText()));
 	}
 
 	private Comparator<ViewDataModel> getComparator(String text) {
@@ -97,9 +121,9 @@ class ViewSorter extends ViewerSorter {
 		});
 	}
 
-	protected void sortUsing(SortInfo info) {
-		for (SortInfo sortInfo : infos) {
-			if (sortInfo == info) {
+	private void sortUsing(SortInfo info) {
+		for (SortInfo sortInfo : sorters) {
+			if (sortInfo.equals(info)) {
 				currentSorter = sortInfo;
 				sortInfo.descending = !sortInfo.descending;
 				break;
@@ -120,7 +144,7 @@ class ViewSorter extends ViewerSorter {
 			}
 		}
 
-		for (SortInfo sortInfo : infos) {
+		for (SortInfo sortInfo : sorters) {
 			int result = sortInfo.comparator.compare((ViewDataModel) obj1, (ViewDataModel) obj2);
 			if (result != 0) {
 				if (sortInfo.descending) {
