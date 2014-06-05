@@ -75,6 +75,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 			}
 
 			if (shouldProcess) {
+				setCurrentCompilationUnit(BindingResolver.getParentCompilationUnit(methodDeclaration));
 				run(methodDeclaration);
 			}
 		}

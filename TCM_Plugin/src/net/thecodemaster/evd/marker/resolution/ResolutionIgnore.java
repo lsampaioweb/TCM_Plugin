@@ -1,7 +1,7 @@
 package net.thecodemaster.evd.marker.resolution;
 
 import net.thecodemaster.evd.logger.PluginLogger;
-import net.thecodemaster.evd.marker.annotation.AnnotationManager;
+import net.thecodemaster.evd.marker.MarkerManager;
 import net.thecodemaster.evd.ui.view.ViewDataModel;
 
 import org.eclipse.core.resources.IMarker;
@@ -78,7 +78,7 @@ public class ResolutionIgnore extends AbstractResolution {
 
 	private void runIgnoreResolution(ViewDataModel vdm, ASTNode node, boolean removeChildren) {
 		// 01 - Add our invisible annotation into the source code for this element.
-		AnnotationManager.addInvisibleAnnotation(node);
+		MarkerManager.addInvisible(node);
 
 		// 01 - Remove the Markers and the lines from our Security Vulnerability View.
 		clearProblem(vdm, removeChildren);

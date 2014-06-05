@@ -8,7 +8,7 @@ import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.graph.VariableBindingManager;
 import net.thecodemaster.evd.logger.PluginLogger;
-import net.thecodemaster.evd.marker.annotation.AnnotationManager;
+import net.thecodemaster.evd.marker.MarkerManager;
 import net.thecodemaster.evd.point.EntryPoint;
 import net.thecodemaster.evd.point.SanitizationPoint;
 import net.thecodemaster.evd.ui.enumeration.EnumStatusVariable;
@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.CatchClause;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.EnhancedForStatement;
@@ -56,6 +57,10 @@ import org.eclipse.jdt.core.dom.WhileStatement;
 public abstract class CodeAnalyzer {
 
 	/**
+	 * The current compilation unit that is being analyzed.
+	 */
+	private CompilationUnit									currentCompilationUnit;
+	/**
 	 * The current resource that is being analyzed.
 	 */
 	private IResource												currentResource;
@@ -71,6 +76,14 @@ public abstract class CodeAnalyzer {
 	 * List with all the Sanitizers (shared among other instances of the verifiers).
 	 */
 	private static List<SanitizationPoint>	sanitizers;
+
+	public CompilationUnit getCurrentCompilationUnit() {
+		return currentCompilationUnit;
+	}
+
+	public void setCurrentCompilationUnit(CompilationUnit currentCompilationUnit) {
+		this.currentCompilationUnit = currentCompilationUnit;
+	}
 
 	protected void setCurrentResource(IResource currentResource) {
 		this.currentResource = currentResource;
@@ -128,8 +141,8 @@ public abstract class CodeAnalyzer {
 		return Constant.MAXIMUM_VERIFICATION_DEPTH == depth;
 	}
 
-	protected boolean hasAnnotationAtPosition(Expression expression) {
-		return AnnotationManager.hasAnnotationAtPosition(expression);
+	protected boolean hasMarkerAtPosition(Expression expression) {
+		return MarkerManager.hasMarkerAtPosition(getCurrentCompilationUnit(), getCurrentResource(), expression);
 	}
 
 	protected boolean isMethodAnEntryPoint(Expression method) {
@@ -427,8 +440,8 @@ public abstract class CodeAnalyzer {
 			return;
 		}
 
-		// 02 - Check if there is an annotation, in case there is, we should BELIEVE it is not vulnerable.
-		if (hasAnnotationAtPosition(methodInvocation)) {
+		// 02 - Check if there is a marker, in case there is, we should BELIEVE it is not vulnerable.
+		if (hasMarkerAtPosition(methodInvocation)) {
 			return;
 		}
 

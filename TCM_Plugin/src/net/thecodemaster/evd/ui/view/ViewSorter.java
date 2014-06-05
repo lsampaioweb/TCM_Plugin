@@ -49,19 +49,19 @@ class ViewSorter extends ViewerSorter {
 				}
 			};
 		}
-		if (text.equals(Message.View.VULNERABILITY)) {
-			return new Comparator<ViewDataModel>() {
-				@Override
-				public int compare(ViewDataModel i1, ViewDataModel i2) {
-					return i1.getTypeVulnerability() - i2.getTypeVulnerability();
-				}
-			};
-		}
 		if (text.equals(Message.View.LOCATION)) {
 			return new Comparator<ViewDataModel>() {
 				@Override
 				public int compare(ViewDataModel i1, ViewDataModel i2) {
 					return i1.getLineNumber() - i2.getLineNumber();
+				}
+			};
+		}
+		if (text.equals(Message.View.VULNERABILITY)) {
+			return new Comparator<ViewDataModel>() {
+				@Override
+				public int compare(ViewDataModel i1, ViewDataModel i2) {
+					return i1.getTypeVulnerability() - i2.getTypeVulnerability();
 				}
 			};
 		}

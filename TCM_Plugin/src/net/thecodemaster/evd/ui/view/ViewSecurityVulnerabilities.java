@@ -15,12 +15,8 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
-import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchPage;
@@ -67,9 +63,9 @@ public class ViewSecurityVulnerabilities extends ViewPart {
 	 * Creates columns for the table
 	 */
 	private void createColumns(Tree tree, ViewSorter sorter) {
-		String[] titles = { Message.View.RESOURCE, Message.View.LOCATION, Message.View.VULNERABILITY,
-				Message.View.DESCRIPTION, Message.View.PATH };
-		int[] bounds = { 200, 55, 150, 450, 200 };
+		String[] titles = { Message.View.DESCRIPTION, Message.View.LOCATION, Message.View.VULNERABILITY,
+				Message.View.RESOURCE, Message.View.PATH };
+		int[] bounds = { 500, 55, 150, 150, 400 };
 
 		for (int i = 0; i < titles.length; i++) {
 			TreeColumn column = new TreeColumn(tree, SWT.NONE);
@@ -82,35 +78,35 @@ public class ViewSecurityVulnerabilities extends ViewPart {
 		tree.setHeaderVisible(true);
 		tree.setLinesVisible(true);
 
-		hookListener(tree);
+		// hookListener(tree);
 	}
 
-	private static void hookListener(Tree tree) {
-		Listener listener = new Listener() {
-			@Override
-			public void handleEvent(Event e) {
-				final TreeItem treeItem = (TreeItem) e.item;
-				// Update the user interface asynchronously.
-				Display.getDefault().asyncExec(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							if ((null != treeItem) && (!treeItem.isDisposed())) {
-								for (TreeColumn tc : treeItem.getParent().getColumns()) {
-									tc.pack();
-								}
-							}
-						} catch (Exception e) {
-							PluginLogger.logError(e);
-						}
-					}
-				});
-			}
-		};
-
-		tree.addListener(SWT.Collapse, listener);
-		tree.addListener(SWT.Expand, listener);
-	}
+	// private static void hookListener(Tree tree) {
+	// Listener listener = new Listener() {
+	// @Override
+	// public void handleEvent(Event e) {
+	// final TreeItem treeItem = (TreeItem) e.item;
+	// // Update the user interface asynchronously.
+	// Display.getDefault().asyncExec(new Runnable() {
+	// @Override
+	// public void run() {
+	// try {
+	// if ((null != treeItem) && (!treeItem.isDisposed())) {
+	// for (TreeColumn tc : treeItem.getParent().getColumns()) {
+	// tc.pack();
+	// }
+	// }
+	// } catch (Exception e) {
+	// PluginLogger.logError(e);
+	// }
+	// }
+	// });
+	// }
+	// };
+	//
+	// tree.addListener(SWT.Collapse, listener);
+	// tree.addListener(SWT.Expand, listener);
+	// }
 
 	private void hookDoubleClick() {
 		viewer.addDoubleClickListener(new IDoubleClickListener() {

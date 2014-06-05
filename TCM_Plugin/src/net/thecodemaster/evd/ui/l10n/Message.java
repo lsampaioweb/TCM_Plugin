@@ -138,6 +138,7 @@ public abstract class Message extends NLS {
 		public static String				PATH;
 		public static String				SINGLE_VULNERABILITY;
 		public static String				MULTIPLE_VULNERABILITIES;
+		public static String				FALSE_POSITIVE;
 
 		public static String				SINGLE_TOTAL_NUMBER_OF_VULNERABILITIES;
 		public static String				MULTIPLE_TOTAL_NUMBER_OF_VULNERABILITIES;

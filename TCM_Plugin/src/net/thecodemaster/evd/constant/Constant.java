@@ -15,8 +15,7 @@ public abstract class Constant {
 	public static final String	BUILDER_ID														= Activator.PLUGIN_ID + ".TCM_EVD_BUILDER";
 	public static final String	VIEW_ID																= Activator.PLUGIN_ID + ".TCM_EVD_VIEW";
 	public static final String	MARKER_ID															= Activator.PLUGIN_ID + ".TCM_EVD_MARKER";
-	public static final String	MARKER_ID_ANNOTATION_INVISIBLE				= Activator.PLUGIN_ID
-																																				+ ".TCM_EVD_MARKER_ANNOTATION_INVISIBLE";
+	public static final String	MARKER_ID_INVISIBLE										= Activator.PLUGIN_ID + ".TCM_EVD_MARKER_INVISIBLE";
 
 	public static final String	SEPARATOR_RESOURCES_TYPE							= ";";
 	public static final String	SEPARATOR_FULL_PATH										= " - ";

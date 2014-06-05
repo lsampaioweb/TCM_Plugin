@@ -162,7 +162,8 @@ public abstract class Verifier extends CodeAnalyzer {
 
 		// 01 - Run the vulnerability detection on all the provided resources.
 		for (IResource resource : resources) {
-			// We need this information when we are going to display the vulnerabilities.
+			// 02 - Some methods will need to have access to the resource that is currently being analyzed.
+			// but we do not want to pass it to all these methods as a parameter.
 			setCurrentResource(resource);
 
 			run(allVulnerablePaths, resource);
@@ -189,11 +190,9 @@ public abstract class Verifier extends CodeAnalyzer {
 				ExitPoint exitPoint = getExitPointIfMethodIsOne(method);
 
 				if (null != exitPoint) {
-					// 04 - Some methods will need to have access to the resource that is currently being analyzed.
-					// but we do not want to pass it to all these methods as a parameter.
-					setCurrentResource(resource);
+					setCurrentCompilationUnit(BindingResolver.getParentCompilationUnit(method));
 
-					// 05 - This is an ExitPoint method and it needs to be verified.
+					// 04 - This is an ExitPoint method and it needs to be verified.
 					run(allVulnerablePaths, method, exitPoint);
 				}
 			}
