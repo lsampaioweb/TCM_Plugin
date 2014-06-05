@@ -28,7 +28,7 @@ public class SQLInjection extends AbstractTestVerifier {
 		Assert.assertEquals(1, vulnerablePaths01.size());
 
 		List<DataFlow> vulnerablePaths02 = allVulnerablePaths.get(1);
-		Assert.assertEquals(16, vulnerablePaths02.size());
+		Assert.assertEquals(19, vulnerablePaths02.size());
 	}
 
 }
