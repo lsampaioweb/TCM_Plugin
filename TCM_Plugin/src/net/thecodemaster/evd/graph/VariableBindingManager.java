@@ -110,7 +110,7 @@ public class VariableBindingManager {
 
 	@Override
 	public String toString() {
-		return getBinding().toString() + " - " + getInitializer().toString();
+		return String.format("%s - %s - %s", getBinding().toString(), getInitializer().toString(), status());
 	}
 
 }

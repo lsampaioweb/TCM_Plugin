@@ -10,7 +10,6 @@ import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.graph.VariableBindingManager;
 import net.thecodemaster.evd.helper.Creator;
-import net.thecodemaster.evd.ui.enumeration.EnumStatusVariable;
 import net.thecodemaster.evd.verifier.CodeAnalyzer;
 
 import org.eclipse.core.resources.IResource;
@@ -262,25 +261,6 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
 			// 01 - Add the new variable to the callGraph.
 			addVariableToCallGraphAndInspectInitializer(depth, dataFlow, fragment.getName(), fragment.getInitializer());
-		}
-	}
-
-	private void addVariableToCallGraphAndInspectInitializer(int depth, DataFlow dataFlow, Expression variableName,
-			Expression initializer) {
-		VariableBindingManager manager = getCallGraph().addVariableToCallGraph(variableName, initializer);
-		if (null != manager) {
-			// 01 - Add a reference to this variable (if it is a variable).
-			addReferenceToInitializer(variableName, initializer);
-
-			// DataFlow newDataFlow = dataFlow.addNodeToPath(variableName);
-			DataFlow newDataFlow = new DataFlow(variableName);
-			// 01 - Inspect the Initializer to verify if this variable is vulnerable.
-			inspectNode(depth, newDataFlow, initializer);
-
-			// 02 - If there a vulnerable path, then this variable is vulnerable.
-			EnumStatusVariable status = (newDataFlow.isVulnerable()) ? EnumStatusVariable.VULNERABLE
-					: EnumStatusVariable.NOT_VULNERABLE;
-			manager.setStatus(newDataFlow, status);
 		}
 	}
 
