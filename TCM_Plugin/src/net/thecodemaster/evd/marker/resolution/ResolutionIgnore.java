@@ -19,10 +19,26 @@ public class ResolutionIgnore extends AbstractResolution {
 		ViewDataModel vdm = getViewDataModelFromMarker(marker);
 
 		String expression = (null != vdm.getExpr()) ? vdm.getExpr().toString() : "";
-		String description = String.format(resolutionMessage.getDescription(), expression, vdm.getFullPath());
+		String fullPath = getFullPath(vdm);
+		String description = String.format(resolutionMessage.getDescription(), expression, fullPath);
 
 		setLabel(resolutionMessage.getLabel());
 		setDescription(description);
+	}
+
+	private String getFullPath(ViewDataModel vdm) {
+		if (0 >= getNrChildren(vdm)) {
+			// 01 - EntryPoint.
+			return vdm.getFullPath();
+		} else {
+			// 02 - ExitPoint.
+			StringBuilder sb = new StringBuilder();
+			for (ViewDataModel vdmChildren : vdm.getChildren()) {
+				sb.append(vdmChildren.getFullPath());
+				sb.append("<br/>");
+			}
+			return sb.toString();
+		}
 	}
 
 	/**
