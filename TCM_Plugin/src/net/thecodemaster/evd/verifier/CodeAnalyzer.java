@@ -47,6 +47,7 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchStatement;
+import org.eclipse.jdt.core.dom.ThrowStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
@@ -310,6 +311,9 @@ public abstract class CodeAnalyzer {
 				break;
 			case ASTNode.SWITCH_STATEMENT: // 50
 				inspectSwitchStatement(depth, dataFlow, (SwitchStatement) node);
+				break;
+			case ASTNode.THROW_STATEMENT: // 53
+				inspectThrowStatement(depth, dataFlow, (ThrowStatement) node);
 				break;
 			case ASTNode.TRY_STATEMENT: // 54
 				inspectTryStatement(depth, dataFlow, (TryStatement) node);
@@ -604,6 +608,13 @@ public abstract class CodeAnalyzer {
 		for (Object switchCases : switchStatements) {
 			inspectNode(depth, dataFlow, (Statement) switchCases);
 		}
+	}
+
+	/**
+	 * 53
+	 */
+	protected void inspectThrowStatement(int depth, DataFlow dataFlow, ThrowStatement statement) {
+		inspectNode(depth, dataFlow, statement.getExpression());
 	}
 
 	/**
