@@ -23,7 +23,7 @@ public class ResolutionEntryPointNotSanitized extends AbstractResolution {
 	public void run(IMarker marker) {
 		try {
 			// 01 - The comment that will be insert into the source code.
-			String comment = "// FIXME - Sanitize this content before use it.";
+			String comment = String.format("// FIXME - %s", marker.getAttribute(IMarker.MESSAGE, ""));
 
 			runInsertComment(marker, comment);
 		} catch (Exception e) {
