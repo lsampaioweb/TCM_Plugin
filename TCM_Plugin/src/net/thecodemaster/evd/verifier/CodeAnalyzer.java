@@ -1,6 +1,7 @@
 package net.thecodemaster.evd.verifier;
 
 import java.util.List;
+import java.util.Map;
 
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.BindingResolver;
@@ -588,9 +589,43 @@ public abstract class CodeAnalyzer {
 				manager.setStatus(dataFlow, status);
 			}
 		} else {
-			// If I don't know this variable, it is a parameter.
-			PluginLogger.logError("inspectSimpleName manager == null " + expression, null);
-			// TODO do what here ?
+			// If a method is scanned after a method invocation, all the parameters are provided, but
+			// if a method is scanned from the initial block declarations loop, some parameter might not be known
+			// so it is necessary to investigate WHO invoked this method and what were the provided parameters.
+			inspectSimpleNameFromInvokers(depth, dataFlow, expression, manager);
+			// PluginLogger.logError("inspectSimpleName manager == null " + expression, null);
+		}
+	}
+
+	private void inspectSimpleNameFromInvokers(int depth, DataFlow dataFlow, SimpleName expression,
+			VariableBindingManager manager) {
+		// This is the case where the variable is an argument of the method.
+		// 01 - Get the method signature that is using this parameter.
+		MethodDeclaration methodDeclaration = BindingResolver.getParentMethodDeclaration(expression);
+
+		// 02 - Get the index position where this parameter appear.
+		int parameterIndex = BindingResolver.getParameterIndex(methodDeclaration, expression);
+		if (parameterIndex >= 0) {
+			// 03 - Get the list of methods that invokes this method.
+			Map<MethodDeclaration, List<Expression>> invokers = getCallGraph().getInvokers(methodDeclaration);
+
+			if (null != invokers) {
+				// 04 - Iterate over all the methods that invokes this method.
+				for (List<Expression> currentInvocations : invokers.values()) {
+
+					// 05 - Care only about the invocations to this method.
+					for (Expression invocations : currentInvocations) {
+						if (BindingResolver.areMethodsEqual(methodDeclaration, invocations)) {
+							// 06 - Get the parameter at the index position.
+							Expression parameter = BindingResolver.getParameterAtIndex(invocations, parameterIndex);
+
+							// 07 - Run detection on this parameter.
+							inspectNode(depth, dataFlow, parameter);
+						}
+					}
+
+				}
+			}
 		}
 	}
 

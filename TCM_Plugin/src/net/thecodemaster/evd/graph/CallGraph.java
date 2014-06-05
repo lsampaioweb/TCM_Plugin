@@ -68,6 +68,58 @@ public class CallGraph {
 		variablesPerFile.remove(resource);
 	}
 
+	private MethodDeclaration getMethod(Map<MethodDeclaration, List<Expression>> mapMethods, Expression expr) {
+		// 01 - Iterate through the list to verify if we have the implementation of this method in our list.
+		for (MethodDeclaration methodDeclaration : mapMethods.keySet()) {
+			// 02 - Verify if these methods are the same.
+			if (BindingResolver.areMethodsEqual(methodDeclaration, expr)) {
+				return methodDeclaration;
+			}
+		}
+
+		return null;
+	}
+
+	public Map<MethodDeclaration, List<Expression>> getMethods(IResource resource) {
+		Map<MethodDeclaration, List<Expression>> emptyList = Creator.newMap();
+
+		Map<MethodDeclaration, List<Expression>> methods = methodsPerFile.get(resource);
+
+		return (null != methods) ? methods : emptyList;
+	}
+
+	/**
+	 * Get the implementation (MethodDeclaration) of the method.
+	 * 
+	 * @param resource
+	 * @param expr
+	 * @return
+	 */
+	public MethodDeclaration getMethod(IResource resource, Expression expr) {
+		// 01 - Get all the methods from this resource.
+		// 02 - From that list, try to find this method (Expression).
+		MethodDeclaration method = getMethod(getMethods(resource), expr);
+
+		// 03 - If method is different from null, it means we found it.
+		if (null != method) {
+			return method;
+		}
+
+		// 04 - If it reaches this point, it means that this method was not implemented into this resource.
+		// We now have to try to find its implementation in other resources of this project.
+		for (Entry<IResource, Map<MethodDeclaration, List<Expression>>> entry : methodsPerFile.entrySet()) {
+			method = getMethod(entry.getValue(), expr);
+
+			// 05 - If method is different from null, it means we found it.
+			if (null != method) {
+				return method;
+			}
+		}
+
+		// We did not find this method into our list of methods. (We do not have this method's implementation)
+		return null;
+	}
+
 	public void addMethod(MethodDeclaration method) {
 		// 01 - Check if the current file is already in the list.
 		if (!methodsPerFile.containsKey(getCurrentResource())) {
@@ -103,58 +155,6 @@ public class CallGraph {
 		// 03 - Add the method invocation for the current method (caller).
 		List<Expression> invocations = methods.get(caller);
 		invocations.add(callee);
-	}
-
-	public Map<MethodDeclaration, List<Expression>> getMethods(IResource resource) {
-		Map<MethodDeclaration, List<Expression>> emptyList = Creator.newMap();
-
-		Map<MethodDeclaration, List<Expression>> methods = methodsPerFile.get(resource);
-
-		return (null != methods) ? methods : emptyList;
-	}
-
-	/**
-	 * Get the implementation (MethodDeclaration) of the method.
-	 * 
-	 * @param resource
-	 * @param expr
-	 * @return
-	 */
-	public MethodDeclaration getMethod(IResource resource, Expression expr) {
-		// 01 - Get all the methods from this resource.
-		// 02 - From that list, try to find this method (expr).
-		MethodDeclaration method = getMethod(getMethods(resource), expr);
-
-		// 03 - If method is different from null, it means we found it.
-		if (null != method) {
-			return method;
-		}
-
-		// 04 - If it reaches this point, it means that this method was not implemented into this resource.
-		// We now have to try to find its implementation in other resources of this project.
-		for (Entry<IResource, Map<MethodDeclaration, List<Expression>>> entry : methodsPerFile.entrySet()) {
-			method = getMethod(entry.getValue(), expr);
-
-			// 05 - If method is different from null, it means we found it.
-			if (null != method) {
-				return method;
-			}
-		}
-
-		// We did not find this method into our list of methods. (We do not have this method's implementation)
-		return null;
-	}
-
-	private MethodDeclaration getMethod(Map<MethodDeclaration, List<Expression>> mapMethods, Expression expr) {
-		// 01 - Iterate through the list to verify if we have the implementation of this method in our list.
-		for (MethodDeclaration methodDeclaration : mapMethods.keySet()) {
-			// 02 - Verify if these methods are the same.
-			if (BindingResolver.areMethodsEqual(methodDeclaration, expr)) {
-				return methodDeclaration;
-			}
-		}
-
-		return null;
 	}
 
 	public Map<MethodDeclaration, List<Expression>> getInvokers(MethodDeclaration methodToSearch) {
