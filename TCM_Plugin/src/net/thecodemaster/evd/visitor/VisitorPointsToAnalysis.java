@@ -13,6 +13,7 @@ import net.thecodemaster.evd.ui.enumeration.EnumStatusVariable;
 import net.thecodemaster.evd.verifier.CodeAnalyzer;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.Expression;
@@ -175,11 +176,11 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		// getServletContext().getRequestDispatcher(login).forward(request, response);
 		List<Expression> expressions = Creator.newList();
 
-		Expression Optionalexpression = methodInvocation;
-		while (null != Optionalexpression) {
-			expressions.add(Optionalexpression);
+		Expression optionalexpression = methodInvocation;
+		while ((null != optionalexpression) && (optionalexpression.getNodeType() != ASTNode.SIMPLE_NAME)) {
+			expressions.add(optionalexpression);
 
-			Optionalexpression = BindingResolver.getExpression(Optionalexpression);
+			optionalexpression = BindingResolver.getExpression(optionalexpression);
 		}
 
 		for (Expression expression : expressions) {
