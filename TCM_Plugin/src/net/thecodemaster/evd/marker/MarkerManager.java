@@ -2,17 +2,21 @@ package net.thecodemaster.evd.marker;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.BindingResolver;
+import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.ui.l10n.Message;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.Expression;
 
 /**
  * This class knows where and how to report the vulnerabilities.
@@ -21,10 +25,29 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
  */
 public class MarkerManager {
 
+	private static IMarker addMarkers(IResource resource, String type, Map<String, Object> markerAttributes) {
+		try {
+			IMarker marker = resource.createMarker(type);
+			marker.setAttributes(markerAttributes);
+
+			return marker;
+		} catch (CoreException e) {
+			PluginLogger.logError(e);
+		}
+
+		return null;
+	}
+
+	public static IMarker addVulnerableMarker(IResource resource, Map<String, Object> markerAttributes) {
+		return addMarkers(resource, Constant.MARKER_ID, markerAttributes);
+	}
+
 	/**
 	 * Add our invisible marker into the source code.
+	 * 
+	 * @return
 	 */
-	public static void addInvisible(ASTNode node) {
+	public static IMarker addInvisible(ASTNode node) {
 		try {
 			IResource resource = null;
 			int lineNumber = 0;
@@ -38,21 +61,23 @@ public class MarkerManager {
 				resource = cUnit.getJavaElement().getCorrespondingResource();
 			}
 
-			IMarker marker = resource.createMarker(Constant.MARKER_ID_INVISIBLE);
+			Map<String, Object> markerAttributes = Creator.newMap();
+			markerAttributes.put(IMarker.MESSAGE, Message.View.FALSE_POSITIVE);
+			markerAttributes.put(IMarker.LINE_NUMBER, lineNumber);
+			markerAttributes.put(IMarker.CHAR_START, startPosition);
+			markerAttributes.put(IMarker.CHAR_END, endPosition);
 
-			marker.setAttribute(IMarker.MESSAGE, Message.View.FALSE_POSITIVE);
-			marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
-			marker.setAttribute(IMarker.CHAR_START, startPosition);
-			marker.setAttribute(IMarker.CHAR_END, endPosition);
-
-		} catch (CoreException e) {
+			return addMarkers(resource, Constant.MARKER_ID_INVISIBLE, markerAttributes);
+		} catch (JavaModelException e) {
 			PluginLogger.logError(e);
 		}
+
+		return null;
 	}
 
-	public static boolean hasMarkerAtPosition(CompilationUnit cUnit, IResource resource, ASTNode node) {
+	private static IMarker hasMarkerAtPosition(CompilationUnit cUnit, IResource resource, Expression node, String type) {
 		try {
-			List<IMarker> markers = Arrays.asList(resource.findMarkers(Constant.MARKER_ID_INVISIBLE, false, 0));
+			List<IMarker> markers = Arrays.asList(resource.findMarkers(type, false, 0));
 
 			int startPosition = node.getStartPosition();
 			int lineNumber = cUnit.getLineNumber(startPosition);
@@ -64,14 +89,22 @@ public class MarkerManager {
 				int nodeEndPosition = marker.getAttribute(IMarker.CHAR_END, 0);
 
 				if ((lineNumber == nodeLineNumber) && (startPosition == nodeStartPosition) && (endPosition == nodeEndPosition)) {
-					return true;
+					return marker;
 				}
 			}
 		} catch (CoreException e) {
 			PluginLogger.logError(e);
 		}
 
-		return false;
+		return null;
+	}
+
+	public static IMarker hasInvisibleMarkerAtPosition(CompilationUnit cUnit, IResource resource, Expression node) {
+		return hasMarkerAtPosition(cUnit, resource, node, Constant.MARKER_ID_INVISIBLE);
+	}
+
+	public static IMarker hasVulnerableMarkerAtPosition(CompilationUnit cUnit, IResource resource, Expression node) {
+		return hasMarkerAtPosition(cUnit, resource, node, Constant.MARKER_ID);
 	}
 
 }

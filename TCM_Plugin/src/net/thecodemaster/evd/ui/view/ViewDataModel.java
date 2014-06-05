@@ -166,19 +166,22 @@ public class ViewDataModel {
 		return true;
 	}
 
-	public ViewDataModel getBy(IMarker marker) {
+	public List<ViewDataModel> getBy(IMarker marker) {
+		List<ViewDataModel> matches = Creator.newList();
+
 		if ((null != getMarker()) && (getMarker().equals(marker))) {
-			return this;
+			matches.add(this);
+			return matches;
 		}
 
 		for (ViewDataModel vdm : getChildren()) {
-			ViewDataModel current = vdm.getBy(marker);
-			if (null != current) {
-				return current;
+			List<ViewDataModel> current = vdm.getBy(marker);
+			if (0 < current.size()) {
+				matches.addAll(current);
 			}
 		}
 
-		return null;
+		return matches;
 	}
 
 	public void removeMarker(boolean removeChildren) throws CoreException {
@@ -204,13 +207,20 @@ public class ViewDataModel {
 		if (removeChildren) {
 			// It will iterate only on the children that were not removed.
 			for (ViewDataModel vdm : getChildren()) {
-				vdm.removeChildren(childrenToRemove, removeChildren);
+				if (vdm.getExpr().equals(childrenToRemove.get(0).getParent().getExpr())) {
+					vdm.removeChildren(childrenToRemove, removeChildren);
+				}
 			}
 		}
 	}
 
 	private String getMessageByNumberOfVulnerablePaths() {
 		return HelperViewDataModel.getMessageByNumberOfVulnerablePaths(getExpr().toString(), getChildren().size());
+	}
+
+	@Override
+	public String toString() {
+		return String.format("%s - %s", getExpr(), getFullPath());
 	}
 
 }

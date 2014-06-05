@@ -52,6 +52,11 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 	 */
 	@Override
 	protected void inspectLiteral(int depth, DataFlow dataFlow, Expression node) {
+		// 01 - Check if there is a marker, in case there is, we should BELIEVE it is not vulnerable.
+		if (hasMarkerAtPosition(node)) {
+			return;
+		}
+
 		String message = null;
 		switch (node.getNodeType()) {
 			case ASTNode.STRING_LITERAL:
@@ -68,7 +73,7 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 				break;
 		}
 
-		// 01 - Informs that this node is a vulnerability.
+		// 02 - Informs that this node is a vulnerability.
 		dataFlow.addNodeToPath(node).isVulnerable(Constant.Vulnerability.SECURITY_MISCONFIGURATION_HARD_CODED_CONTENT,
 				message);
 	}

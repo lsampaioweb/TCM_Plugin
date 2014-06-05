@@ -50,6 +50,11 @@ public class VerifierSQLInjection extends Verifier {
 	}
 
 	private void processStringConcatenation(DataFlow dataFlow, Expression expression) {
+		// 01 - Check if there is a marker, in case there is, we should BELIEVE it is not vulnerable.
+		if (hasMarkerAtPosition(expression)) {
+			return;
+		}
+
 		// 01 - Informs that this node is a vulnerability.
 		dataFlow.addNodeToPath(expression).isVulnerable(Constant.Vulnerability.SQL_INJECTION_STRING_CONCATENATION,
 				getStringConcatenationMessage());

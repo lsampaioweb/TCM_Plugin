@@ -215,10 +215,13 @@ public abstract class Verifier extends CodeAnalyzer {
 				Expression expression = receivedParameters.get(index);
 				DataFlow dataFlow = new DataFlow(expression);
 
-				inspectNode(depth, dataFlow, expression);
-				if (dataFlow.isVulnerable()) {
-					allVulnerablePaths.add(dataFlow);
-					reportVulnerability(dataFlow);
+				// 03 - Check if there is a marker, in case there is, we should BELIEVE it is not vulnerable.
+				if (!hasMarkerAtPosition(expression)) {
+					inspectNode(depth, dataFlow, expression);
+					if (dataFlow.isVulnerable()) {
+						allVulnerablePaths.add(dataFlow);
+						reportVulnerability(dataFlow);
+					}
 				}
 			}
 			index++;

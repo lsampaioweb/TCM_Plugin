@@ -1,6 +1,7 @@
 package net.thecodemaster.evd.reporter;
 
 import java.util.List;
+import java.util.Map;
 
 import net.thecodemaster.evd.Activator;
 import net.thecodemaster.evd.constant.Constant;
@@ -9,6 +10,7 @@ import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.helper.HelperViewDataModel;
 import net.thecodemaster.evd.logger.PluginLogger;
+import net.thecodemaster.evd.marker.MarkerManager;
 import net.thecodemaster.evd.ui.view.ViewDataModel;
 import net.thecodemaster.evd.ui.view.ViewSecurityVulnerabilities;
 
@@ -225,13 +227,22 @@ public class ReporterView implements IReporter {
 				resource = cUnit.getJavaElement().getCorrespondingResource();
 			}
 
-			IMarker marker = resource.createMarker(Constant.MARKER_ID);
-			marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
-			marker.setAttribute(Constant.Marker.TYPE_SECURITY_VULNERABILITY, typeProblem);
-			marker.setAttribute(IMarker.MESSAGE, message);
-			marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
-			marker.setAttribute(IMarker.CHAR_START, startPosition);
-			marker.setAttribute(IMarker.CHAR_END, endPosition);
+			// Before I add a new Markers I have to check if this element does not already have one.
+			// If the element already has one, we have to add the VulnerabilityType to it and return the same marker.
+			// If the element DOES NOT have one, we create one for it.
+
+			IMarker marker = MarkerManager.hasVulnerableMarkerAtPosition(cUnit, resource, expr);
+			if (null == marker) {
+				Map<String, Object> markerAttributes = Creator.newMap();
+				markerAttributes.put(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
+				markerAttributes.put(Constant.Marker.TYPE_SECURITY_VULNERABILITY, typeProblem);
+				markerAttributes.put(IMarker.MESSAGE, message);
+				markerAttributes.put(IMarker.LINE_NUMBER, lineNumber);
+				markerAttributes.put(IMarker.CHAR_START, startPosition);
+				markerAttributes.put(IMarker.CHAR_END, endPosition);
+
+				marker = MarkerManager.addVulnerableMarker(resource, markerAttributes);
+			}
 
 			ViewDataModel vdm = new ViewDataModel();
 			vdm.setMarker(marker);
@@ -268,7 +279,7 @@ public class ReporterView implements IReporter {
 	 *          The marker that will be used to find the ViewDataModel.
 	 * @return The ViewDataModel that has the provided marker.
 	 */
-	public ViewDataModel getViewDataModel(IMarker marker) {
+	public List<ViewDataModel> getViewDataModels(IMarker marker) {
 		return rootVdm.getBy(marker);
 	}
 

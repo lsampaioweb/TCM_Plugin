@@ -1,5 +1,7 @@
 package net.thecodemaster.evd.marker.resolution;
 
+import java.util.List;
+
 import net.thecodemaster.evd.Activator;
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.BindingResolver;
@@ -93,8 +95,8 @@ public abstract class AbstractResolution implements IMarkerResolution2 {
 	 *          The marker that will be used to retrieve the ViewDataModel.
 	 * @return the ViewDataModel of this marker.
 	 */
-	protected ViewDataModel getViewDataModelFromMarker(IMarker marker) {
-		return getReporter().getViewDataModel(marker);
+	protected List<ViewDataModel> getViewDataModelsFromMarker(IMarker marker) {
+		return getReporter().getViewDataModels(marker);
 	}
 
 	protected void clearProblem(ViewDataModel vdm, boolean removeChildren) {
@@ -132,7 +134,9 @@ public abstract class AbstractResolution implements IMarkerResolution2 {
 
 	protected void runInsertComment(IMarker marker, String comment) {
 		// 01 - Get the ViewDataModel of this marker.
-		ViewDataModel vdm = getViewDataModelFromMarker(marker);
+		List<ViewDataModel> vdms = getViewDataModelsFromMarker(marker);
+
+		ViewDataModel vdm = vdms.get(0);
 
 		// 02 - The node that was clicked at.
 		Expression node = vdm.getExpr();

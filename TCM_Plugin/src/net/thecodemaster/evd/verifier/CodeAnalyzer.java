@@ -143,7 +143,8 @@ public abstract class CodeAnalyzer {
 	}
 
 	protected boolean hasMarkerAtPosition(Expression expression) {
-		return MarkerManager.hasMarkerAtPosition(getCurrentCompilationUnit(), getCurrentResource(), expression);
+		return (null != MarkerManager.hasInvisibleMarkerAtPosition(getCurrentCompilationUnit(), getCurrentResource(),
+				expression));
 	}
 
 	protected boolean isMethodAnEntryPoint(Expression method) {

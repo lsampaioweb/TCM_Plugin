@@ -1,5 +1,7 @@
 package net.thecodemaster.evd.marker.resolution;
 
+import java.util.List;
+
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.marker.MarkerManager;
 import net.thecodemaster.evd.ui.view.ViewDataModel;
@@ -16,7 +18,9 @@ public class ResolutionIgnore extends AbstractResolution {
 		super(position, marker);
 
 		// 03 - Get the ViewDataModel of this marker.
-		ViewDataModel vdm = getViewDataModelFromMarker(marker);
+		List<ViewDataModel> vdms = getViewDataModelsFromMarker(marker);
+
+		ViewDataModel vdm = vdms.get(0);
 
 		String expression = (null != vdm.getExpr()) ? vdm.getExpr().toString() : "";
 		String fullPath = getFullPath(vdm);
@@ -48,16 +52,23 @@ public class ResolutionIgnore extends AbstractResolution {
 	public void run(IMarker marker) {
 		try {
 			// 01 - Get the ViewDataModel of this marker.
-			ViewDataModel vdm = getViewDataModelFromMarker(marker);
+			List<ViewDataModel> vdms = getViewDataModelsFromMarker(marker);
 
-			if (null != vdm) {
-				// We have 02 cases: The user clicked on the EntryPoint or on the ExitPoint.
-				if (0 >= getNrChildren(vdm)) {
-					// 01 - EntryPoint.
-					handleEntryPoint(vdm);
-				} else {
-					// 02 - ExitPoint.
-					handleExitPoint(vdm);
+			if (vdms.size() > 0) {
+				// 02 - Add our invisible annotation into the source code for this element.
+				MarkerManager.addInvisible(vdms.get(0).getExpr());
+
+				for (ViewDataModel vdm : vdms) {
+					if (null != vdm) {
+						// We have 02 cases: The user clicked on the EntryPoint or on the ExitPoint.
+						if (0 >= getNrChildren(vdm)) {
+							// 01 - EntryPoint.
+							handleEntryPoint(vdm);
+						} else {
+							// 02 - ExitPoint.
+							handleExitPoint(vdm);
+						}
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -93,9 +104,6 @@ public class ResolutionIgnore extends AbstractResolution {
 	}
 
 	private void runIgnoreResolution(ViewDataModel vdm, ASTNode node, boolean removeChildren) {
-		// 01 - Add our invisible annotation into the source code for this element.
-		MarkerManager.addInvisible(node);
-
 		// 01 - Remove the Markers and the lines from our Security Vulnerability View.
 		clearProblem(vdm, removeChildren);
 	}
