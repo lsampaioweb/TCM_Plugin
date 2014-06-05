@@ -597,7 +597,7 @@ public abstract class CodeAnalyzer {
 		}
 	}
 
-	private void inspectSimpleNameFromInvokers(int depth, DataFlow dataFlow, SimpleName expression,
+	protected void inspectSimpleNameFromInvokers(int depth, DataFlow dataFlow, SimpleName expression,
 			VariableBindingManager manager) {
 		// This is the case where the variable is an argument of the method.
 		// 01 - Get the method signature that is using this parameter.

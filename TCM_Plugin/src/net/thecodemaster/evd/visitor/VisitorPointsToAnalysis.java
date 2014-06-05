@@ -3,6 +3,7 @@ package net.thecodemaster.evd.visitor;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import net.thecodemaster.evd.graph.BindingResolver;
 import net.thecodemaster.evd.graph.CallGraph;
@@ -54,31 +55,31 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
 		// 02 - Iterate over all the method declarations of the current resource.
 		for (MethodDeclaration methodDeclaration : methods.keySet()) {
+			// 03 - We need the compilation unit to check if there are markers in the current resource.
+			setCurrentCompilationUnit(BindingResolver.getParentCompilationUnit(methodDeclaration));
+
 			// To avoid unnecessary processing, we only process methods that are
 			// not invoked by any other method in the same file. Because if the method
 			// is invoked, eventually it will be processed.
-			// 03 - Get the list of methods that invokes this method.
+			// 04 - Get the list of methods that invokes this method.
 			Map<MethodDeclaration, List<Expression>> invokers = getCallGraph().getInvokers(methodDeclaration);
-			boolean shouldProcess = false;
 			if (invokers.size() > 0) {
-				// 04 - Iterate over all the methods that invokes this method.
-				for (MethodDeclaration callers : invokers.keySet()) {
+				// 05 - Iterate over all the methods that invokes this method.
+				for (Entry<MethodDeclaration, List<Expression>> caller : invokers.entrySet()) {
 
-					IResource resourceCaller = BindingResolver.getResource(callers);
-					// If it is a method invocation from another file.
+					IResource resourceCaller = BindingResolver.getResource(caller.getKey());
+					// 06 - If it is a method invocation from another file.
 					if (!resourceCaller.equals(resource)) {
-						shouldProcess = true;
-						break;
+
+						// If this method declaration has parameters, we have to add the values from
+						// the invocation to these parameters.
+						addParametersToCallGraph(caller.getValue(), methodDeclaration);
 					}
 				}
 			} else {
-				shouldProcess = true;
-			}
-
-			if (shouldProcess) {
-				setCurrentCompilationUnit(BindingResolver.getParentCompilationUnit(methodDeclaration));
 				run(methodDeclaration);
 			}
+
 		}
 	}
 
@@ -193,7 +194,25 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 			MethodDeclaration methodDeclaration) {
 		// If this method declaration has parameters, we have to add the values from
 		// the invocation to these parameters.
+		addParametersToCallGraph(methodInvocation, methodDeclaration);
 
+		// 01 - Now I inspect the body of the method.
+		super.inspectMethodWithSourceCode(depth, dataFlow, methodInvocation, methodDeclaration);
+	}
+
+	private void addParametersToCallGraph(List<Expression> currentInvocations, MethodDeclaration methodDeclaration) {
+		// 01 - Care only about the invocations to this method.
+		for (Expression invocation : currentInvocations) {
+			if (BindingResolver.areMethodsEqual(methodDeclaration, invocation)) {
+
+				addParametersToCallGraph(invocation, methodDeclaration);
+
+				run(methodDeclaration);
+			}
+		}
+	}
+
+	private void addParametersToCallGraph(Expression methodInvocation, MethodDeclaration methodDeclaration) {
 		// 01 - Get the parameters of this method declaration.
 		List<SingleVariableDeclaration> parameters = BindingResolver.getParameters(methodDeclaration);
 
@@ -213,9 +232,6 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 				addReferenceToInitializer(methodInvocation, initializer);
 			}
 		}
-
-		// 05 - Now I inspect the body of the method.
-		super.inspectMethodWithSourceCode(depth, dataFlow, methodInvocation, methodDeclaration);
 	}
 
 	@Override
