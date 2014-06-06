@@ -8,6 +8,7 @@ import net.thecodemaster.evd.helper.HelperProjects;
 import net.thecodemaster.evd.helper.Timer;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.reporter.Reporter;
+import net.thecodemaster.evd.ui.l10n.Message;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -16,6 +17,7 @@ import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
@@ -41,10 +43,32 @@ public class VisitorCallGraph implements IResourceVisitor, IResourceDeltaVisitor
 	 * any given time, we should only have on call graph of the code.
 	 */
 	private final CallGraph				callGraph;
+	private IProgressMonitor			progressMonitor;
 
-	public VisitorCallGraph(CallGraph callGraph) {
+	public VisitorCallGraph(IProgressMonitor monitor, CallGraph callGraph) {
 		this.callGraph = callGraph;
+		setProgressMonitor(monitor);
 		resourcesUpdated = Creator.newList();
+	}
+
+	private IProgressMonitor getProgressMonitor() {
+		return progressMonitor;
+	}
+
+	private final void setProgressMonitor(IProgressMonitor progressMonitor) {
+		this.progressMonitor = progressMonitor;
+	}
+
+	/**
+	 * Notifies that a subtask of the main task is beginning.
+	 * 
+	 * @param taskName
+	 *          The text that will be displayed to the user.
+	 */
+	private void setSubTask(String taskName) {
+		if (null != getProgressMonitor()) {
+			getProgressMonitor().subTask(taskName);
+		}
 	}
 
 	/**
@@ -102,6 +126,7 @@ public class VisitorCallGraph implements IResourceVisitor, IResourceDeltaVisitor
 			ICompilationUnit cu = JavaCore.createCompilationUnitFrom((IFile) resource);
 
 			if (cu.isStructureKnown()) {
+				setSubTask(Message.Plugin.VISITOR_CALL_GRAPH_SUB_TASK + resource.getName());
 				// Creates the AST for the ICompilationUnits.
 				Timer timer = (new Timer("01.1.1 - Parsing: " + resource.getName())).start();
 				CompilationUnit cUnit = parse(cu);

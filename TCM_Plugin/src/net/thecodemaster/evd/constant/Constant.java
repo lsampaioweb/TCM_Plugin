@@ -10,6 +10,7 @@ import net.thecodemaster.evd.Activator;
 public abstract class Constant {
 
 	public static final boolean	IS_DEBUGGING													= false;
+	public static final int			MAXIMUM_VERIFICATION_DEPTH						= 20;
 	public static final String	JDT_NATURE														= "org.eclipse.jdt.core.javanature";
 	public static final String	NATURE_ID															= Activator.PLUGIN_ID + ".TCM_EVD_NATURE";
 	public static final String	BUILDER_ID														= Activator.PLUGIN_ID + ".TCM_EVD_BUILDER";
@@ -19,8 +20,7 @@ public abstract class Constant {
 
 	public static final String	SEPARATOR_RESOURCES_TYPE							= ";";
 	public static final String	SEPARATOR_FULL_PATH										= " - ";
-	public static final String	RESOURCE_TYPE_TO_PERFORM_DETECTION		= "java" + SEPARATOR_RESOURCES_TYPE + "jsp";
-	public static final int			MAXIMUM_VERIFICATION_DEPTH						= 20;
+	public static final String	RESOURCE_TYPE_TO_PERFORM_DETECTION		= "java";
 
 	public static final int			VERIFIER_ID_COMMAND_INJECTION					= 1;
 	public static final int			VERIFIER_ID_COOKIE_POISONING					= 2;

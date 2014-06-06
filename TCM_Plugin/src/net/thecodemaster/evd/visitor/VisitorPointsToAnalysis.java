@@ -10,9 +10,11 @@ import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.graph.VariableBindingManager;
 import net.thecodemaster.evd.helper.Creator;
+import net.thecodemaster.evd.ui.l10n.Message;
 import net.thecodemaster.evd.verifier.CodeAnalyzer;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
@@ -31,13 +33,37 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
  */
 public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
-	public void run(List<IResource> resources, CallGraph callGraph) {
+	private IProgressMonitor	progressMonitor;
+
+	private IProgressMonitor getProgressMonitor() {
+		return progressMonitor;
+	}
+
+	private void setProgressMonitor(IProgressMonitor progressMonitor) {
+		this.progressMonitor = progressMonitor;
+	}
+
+	/**
+	 * Notifies that a subtask of the main task is beginning.
+	 * 
+	 * @param taskName
+	 *          The text that will be displayed to the user.
+	 */
+	private void setSubTask(String taskName) {
+		if (null != getProgressMonitor()) {
+			getProgressMonitor().subTask(taskName);
+		}
+	}
+
+	public void run(IProgressMonitor monitor, List<IResource> resources, CallGraph callGraph) {
 		setCallGraph(callGraph);
+		setProgressMonitor(monitor);
 
 		// 01 - Iterate over all the resources.
 		for (IResource resource : resources) {
 			// We need this information when we are going retrieve the variable bindings in the callGraph.
 			setCurrentResource(resource);
+			setSubTask(Message.Plugin.VISITOR_POINTS_TO_ANALYSIS_SUB_TASK + resource.getName());
 
 			run(resource);
 		}
@@ -57,26 +83,29 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 			// 03 - We need the compilation unit to check if there are markers in the current resource.
 			setCurrentCompilationUnit(BindingResolver.getParentCompilationUnit(methodDeclaration));
 
+			// 04 - The depth control the investigation mechanism to avoid infinitive loops.
+			int depth = 0;
+
 			// To avoid unnecessary processing, we only process methods that are
 			// not invoked by any other method in the same file. Because if the method
 			// is invoked, eventually it will be processed.
-			// 04 - Get the list of methods that invokes this method.
+			// 05 - Get the list of methods that invokes this method.
 			Map<MethodDeclaration, List<Expression>> invokers = getCallGraph().getInvokers(methodDeclaration);
 			if (invokers.size() > 0) {
-				// 05 - Iterate over all the methods that invokes this method.
+				// 06 - Iterate over all the methods that invokes this method.
 				for (Entry<MethodDeclaration, List<Expression>> caller : invokers.entrySet()) {
 
 					IResource resourceCaller = BindingResolver.getResource(caller.getKey());
-					// 06 - If it is a method invocation from another file.
+					// 07 - If it is a method invocation from another file.
 					if (!resourceCaller.equals(resource)) {
 
 						// If this method declaration has parameters, we have to add the values from
 						// the invocation to these parameters.
-						addParametersToCallGraph(caller.getValue(), methodDeclaration);
+						addParametersToCallGraph(depth, caller.getValue(), methodDeclaration);
 					}
 				}
 			} else {
-				run(methodDeclaration);
+				run(depth, methodDeclaration);
 			}
 
 		}
@@ -87,9 +116,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	 * 
 	 * @param methodDeclaration
 	 */
-	protected void run(MethodDeclaration methodDeclaration) {
-		// The depth control the investigation mechanism to avoid infinitive loops.
-		int depth = 0;
+	protected void run(int depth, MethodDeclaration methodDeclaration) {
 		Block block = methodDeclaration.getBody();
 		if (null != block) {
 			for (Object object : block.statements()) {
@@ -177,7 +204,8 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		List<Expression> expressions = Creator.newList();
 
 		Expression optionalexpression = methodInvocation;
-		while ((null != optionalexpression) && (optionalexpression.getNodeType() != ASTNode.SIMPLE_NAME)) {
+		while ((null != optionalexpression) && (optionalexpression.getNodeType() != ASTNode.SIMPLE_NAME)
+				&& (optionalexpression.getNodeType() != ASTNode.QUALIFIED_NAME)) {
 			expressions.add(optionalexpression);
 
 			optionalexpression = BindingResolver.getExpression(optionalexpression);
@@ -193,25 +221,26 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 			MethodDeclaration methodDeclaration) {
 		// If this method declaration has parameters, we have to add the values from
 		// the invocation to these parameters.
-		addParametersToCallGraph(methodInvocation, methodDeclaration);
+		addParametersToCallGraph(depth, methodInvocation, methodDeclaration);
 
 		// 01 - Now I inspect the body of the method.
 		super.inspectMethodWithSourceCode(depth, dataFlow, methodInvocation, methodDeclaration);
 	}
 
-	private void addParametersToCallGraph(List<Expression> currentInvocations, MethodDeclaration methodDeclaration) {
+	private void addParametersToCallGraph(int depth, List<Expression> currentInvocations,
+			MethodDeclaration methodDeclaration) {
 		// 01 - Care only about the invocations to this method.
 		for (Expression invocation : currentInvocations) {
 			if (BindingResolver.areMethodsEqual(methodDeclaration, invocation)) {
 
-				addParametersToCallGraph(invocation, methodDeclaration);
+				addParametersToCallGraph(depth, invocation, methodDeclaration);
 
-				run(methodDeclaration);
+				run(depth, methodDeclaration);
 			}
 		}
 	}
 
-	private void addParametersToCallGraph(Expression methodInvocation, MethodDeclaration methodDeclaration) {
+	private void addParametersToCallGraph(int depth, Expression methodInvocation, MethodDeclaration methodDeclaration) {
 		// 01 - Get the parameters of this method declaration.
 		List<SingleVariableDeclaration> parameters = BindingResolver.getParameters(methodDeclaration);
 
@@ -228,7 +257,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 				getCallGraph().addVariableToCallGraph(parameterName, initializer);
 
 				// 05 - Add a method reference to this variable (if it is a variable).
-				addReferenceToInitializer(methodInvocation, initializer);
+				addReferenceToInitializer(depth, methodInvocation, initializer);
 			}
 		}
 	}
@@ -241,7 +270,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		List<Expression> parameters = BindingResolver.getParameters(expression);
 		for (Expression parameter : parameters) {
 			// 01 - Add a method reference to this variable (if it is a variable).
-			addReferenceToInitializer(expression, parameter);
+			addReferenceToInitializer(depth, expression, parameter);
 
 			inspectNode(depth, dataFlow, parameter);
 		}

@@ -12,6 +12,7 @@ import net.thecodemaster.evd.point.AbstractPoint;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ArrayAccess;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
@@ -29,6 +30,8 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
+import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 /**
@@ -94,21 +97,28 @@ public class BindingResolver {
 	}
 
 	public static IBinding resolveBinding(ASTNode node) {
-		switch (node.getNodeType()) {
-			case ASTNode.CLASS_INSTANCE_CREATION: // 14
-				return ((ClassInstanceCreation) node).resolveConstructorBinding();
-			case ASTNode.FIELD_ACCESS: // 22
-				return ((FieldAccess) node).resolveFieldBinding();
-			case ASTNode.METHOD_DECLARATION: // 31
-				return ((MethodDeclaration) node).resolveBinding();
-			case ASTNode.METHOD_INVOCATION: // 32
-				return ((MethodInvocation) node).resolveMethodBinding();
-			case ASTNode.QUALIFIED_NAME: // 40
-			case ASTNode.SIMPLE_NAME: // 42
-				return ((Name) node).resolveBinding();
-			default:
-				return null;
+		while (null != node) {
+			switch (node.getNodeType()) {
+				case ASTNode.ARRAY_ACCESS: // 02
+					node = ((ArrayAccess) node).getArray();
+					break;
+				case ASTNode.CLASS_INSTANCE_CREATION: // 14
+					return ((ClassInstanceCreation) node).resolveConstructorBinding();
+				case ASTNode.FIELD_ACCESS: // 22
+					return ((FieldAccess) node).resolveFieldBinding();
+				case ASTNode.METHOD_DECLARATION: // 31
+					return ((MethodDeclaration) node).resolveBinding();
+				case ASTNode.METHOD_INVOCATION: // 32
+					return ((MethodInvocation) node).resolveMethodBinding();
+				case ASTNode.QUALIFIED_NAME: // 40
+				case ASTNode.SIMPLE_NAME: // 42
+					return ((Name) node).resolveBinding();
+				default:
+					PluginLogger.logError("resolveBinding default:" + node.getNodeType() + " - " + node, null);
+					node = null;
+			}
 		}
+		return null;
 	}
 
 	private static ITypeBinding getDeclaringClass(IMethodBinding methodBinding) {
@@ -138,15 +148,17 @@ public class BindingResolver {
 		return getQualifiedName((IMethodBinding) resolveBinding(node));
 	}
 
-	public static String getFullName(Expression expr) {
+	public static String getFullName(Expression node) {
 		// Cases:
 		// 01 - getPassword();
 		// 02 - request.getParameter("password");
-		if (expr.getNodeType() == ASTNode.METHOD_INVOCATION) {
-			return ((MethodInvocation) expr).toString();
+		switch (node.getNodeType()) {
+			case ASTNode.METHOD_INVOCATION: // 32
+				return ((MethodInvocation) node).toString();
+			default:
+				PluginLogger.logError("getFullName default:" + node.getNodeType() + " - " + node, null);
+				return null;
 		}
-
-		return null;
 	}
 
 	/**
@@ -167,20 +179,26 @@ public class BindingResolver {
 		return expressions;
 	}
 
-	public static List<Expression> getParameters(Expression expression) {
+	public static List<Expression> getParameters(ASTNode node) {
 		List<Expression> parameters = Creator.newList();
 
-		if (null != expression) {
-			if (expression.getNodeType() == ASTNode.METHOD_INVOCATION) {
-				parameters = getParameters(((MethodInvocation) expression).arguments());
-			} else if (expression.getNodeType() == ASTNode.CLASS_INSTANCE_CREATION) {
-				parameters = getParameters(((ClassInstanceCreation) expression).arguments());
-			} else if (expression.getNodeType() == ASTNode.INFIX_EXPRESSION) {
-				parameters = getParameters(((InfixExpression) expression).extendedOperands());
-			} else if (expression.getNodeType() == ASTNode.ARRAY_INITIALIZER) {
-				parameters = getParameters(((ArrayInitializer) expression).expressions());
+		if (null != node) {
+			switch (node.getNodeType()) {
+				case ASTNode.ARRAY_INITIALIZER: // 04
+					return getParameters(((ArrayInitializer) node).expressions());
+				case ASTNode.CLASS_INSTANCE_CREATION: // 14
+					return getParameters(((ClassInstanceCreation) node).arguments());
+				case ASTNode.INFIX_EXPRESSION: // 27
+					return getParameters(((InfixExpression) node).extendedOperands());
+				case ASTNode.METHOD_INVOCATION: // 32
+					return getParameters(((MethodInvocation) node).arguments());
+				case ASTNode.SUPER_CONSTRUCTOR_INVOCATION: // 46
+					return getParameters(((SuperConstructorInvocation) node).arguments());
+				case ASTNode.SUPER_METHOD_INVOCATION: // 48
+					return getParameters(((SuperMethodInvocation) node).arguments());
+				default:
+					PluginLogger.logError("getParameters default:" + node.getNodeType() + " - " + node, null);
 			}
-
 		}
 		return parameters;
 	}
@@ -191,8 +209,10 @@ public class BindingResolver {
 				return ((ClassInstanceCreation) expression).getExpression();
 			case ASTNode.METHOD_INVOCATION: // 32
 				return ((MethodInvocation) expression).getExpression();
+			default:
+				PluginLogger.logError("getExpression default:" + expression.getNodeType() + " - " + expression, null);
+				return null;
 		}
-		return null;
 	}
 
 	@SuppressWarnings("unchecked")

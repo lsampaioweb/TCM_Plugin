@@ -119,7 +119,7 @@ public class BuilderJob extends Job {
 				} else {
 					monitor.beginTask(Message.Plugin.TASK, IProgressMonitor.UNKNOWN);
 
-					VisitorCallGraph visitorCallGraph = new VisitorCallGraph(callGraph);
+					VisitorCallGraph visitorCallGraph = new VisitorCallGraph(monitor, callGraph);
 					List<IResource> resourcesUpdated = Creator.newList();
 
 					if (null != delta) {
@@ -138,7 +138,7 @@ public class BuilderJob extends Job {
 						Timer timerPA = (new Timer("01.2 - Points-to Analysis: ")).start();
 						// 04 - Link variables and methods to content.
 						VisitorPointsToAnalysis pointToAnalysis = new VisitorPointsToAnalysis();
-						pointToAnalysis.run(resourcesUpdated, callGraph);
+						pointToAnalysis.run(monitor, resourcesUpdated, callGraph);
 						PluginLogger.logIfDebugging(timerPA.stop().toString());
 					}
 

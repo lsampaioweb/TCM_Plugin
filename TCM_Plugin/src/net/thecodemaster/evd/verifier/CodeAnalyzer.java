@@ -19,13 +19,17 @@ import net.thecodemaster.evd.xmlloader.LoaderSanitizationPoint;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ArrayAccess;
+import org.eclipse.jdt.core.dom.ArrayCreation;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.BreakStatement;
 import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
+import org.eclipse.jdt.core.dom.ContinueStatement;
 import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.EnhancedForStatement;
 import org.eclipse.jdt.core.dom.Expression;
@@ -47,8 +51,12 @@ import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
+import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchStatement;
+import org.eclipse.jdt.core.dom.SynchronizedStatement;
+import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.ThrowStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -235,6 +243,12 @@ public abstract class CodeAnalyzer {
 		}
 
 		switch (node.getNodeType()) {
+			case ASTNode.ARRAY_ACCESS: // 02
+				inspectArrayAccess(depth, dataFlow, (ArrayAccess) node);
+				break;
+			case ASTNode.ARRAY_CREATION: // 03
+				inspectArrayCreation(depth, dataFlow, (ArrayCreation) node);
+				break;
 			case ASTNode.ARRAY_INITIALIZER: // 04
 				inspectArrayInitializer(depth, dataFlow, (ArrayInitializer) node);
 				break;
@@ -274,6 +288,13 @@ public abstract class CodeAnalyzer {
 				SimpleName simpleName = (SimpleName) node;
 				inspectSimpleName(depth, dataFlow.addNodeToPath(simpleName), simpleName);
 				break;
+			case ASTNode.SUPER_METHOD_INVOCATION: // 48
+				inspectSuperMethodInvocation(depth, dataFlow, (SuperMethodInvocation) node);
+				break;
+			case ASTNode.THIS_EXPRESSION: // 52
+				inspectThisExpression(depth, dataFlow, (ThisExpression) node);
+				break;
+			case ASTNode.BOOLEAN_LITERAL: // 09
 			case ASTNode.CHARACTER_LITERAL: // 13
 			case ASTNode.NULL_LITERAL: // 33
 			case ASTNode.NUMBER_LITERAL: // 34
@@ -300,6 +321,12 @@ public abstract class CodeAnalyzer {
 			case ASTNode.BLOCK: // 08
 				inspectBlock(depth, dataFlow, (Block) node);
 				break;
+			case ASTNode.BREAK_STATEMENT: // 10
+				inspectBreakStatement(depth, dataFlow, (BreakStatement) node);
+				break;
+			case ASTNode.CONTINUE_STATEMENT: // 18
+				inspectContinueStatement(depth, dataFlow, (ContinueStatement) node);
+				break;
 			case ASTNode.DO_STATEMENT: // 19
 				inspectDoStatement(depth, dataFlow, (DoStatement) node);
 				break;
@@ -315,11 +342,17 @@ public abstract class CodeAnalyzer {
 			case ASTNode.RETURN_STATEMENT: // 41
 				inspectReturnStatement(depth, dataFlow, (ReturnStatement) node);
 				break;
+			case ASTNode.SUPER_CONSTRUCTOR_INVOCATION: // 46
+				inspectSuperConstructorInvocation(depth, dataFlow, (SuperConstructorInvocation) node);
+				break;
 			case ASTNode.SWITCH_CASE: // 49
 				inspectSwitchCase(depth, dataFlow, (SwitchCase) node);
 				break;
 			case ASTNode.SWITCH_STATEMENT: // 50
 				inspectSwitchStatement(depth, dataFlow, (SwitchStatement) node);
+				break;
+			case ASTNode.SYNCHRONIZED_STATEMENT: // 51
+				inspectSynchronizedStatement(depth, dataFlow, (SynchronizedStatement) node);
 				break;
 			case ASTNode.THROW_STATEMENT: // 53
 				inspectThrowStatement(depth, dataFlow, (ThrowStatement) node);
@@ -338,6 +371,23 @@ public abstract class CodeAnalyzer {
 				break;
 			default:
 				PluginLogger.logError("inspectStatement Default Node Type: " + node.getNodeType() + " - " + node, null);
+		}
+	}
+
+	/**
+	 * 02
+	 */
+	protected void inspectArrayAccess(int depth, DataFlow dataFlow, ArrayAccess expression) {
+		inspectNode(depth, dataFlow, expression.getArray());
+	}
+
+	/**
+	 * 03
+	 */
+	protected void inspectArrayCreation(int depth, DataFlow dataFlow, ArrayCreation expression) {
+		List<Expression> parameters = BindingResolver.getParameters(expression.getInitializer());
+		for (Expression parameter : parameters) {
+			inspectNode(depth, dataFlow, parameter);
 		}
 	}
 
@@ -371,6 +421,20 @@ public abstract class CodeAnalyzer {
 				inspectNode(depth, dataFlow, (Statement) object);
 			}
 		}
+	}
+
+	/**
+	 * 10
+	 */
+	protected void inspectBreakStatement(int depth, DataFlow dataFlow, BreakStatement statement) {
+		// Nothing to do.
+	}
+
+	/**
+	 * 18
+	 */
+	protected void inspectContinueStatement(int depth, DataFlow dataFlow, ContinueStatement statement) {
+		// Nothing to do.
 	}
 
 	/**
@@ -533,7 +597,16 @@ public abstract class CodeAnalyzer {
 
 		while (null != expression) {
 			switch (expression.getNodeType()) {
-				case ASTNode.METHOD_INVOCATION: // 40
+				case ASTNode.ARRAY_ACCESS: // 02
+					expression = null;
+					break;
+				case ASTNode.CLASS_INSTANCE_CREATION: // 14
+					expression = null;
+					break;
+				case ASTNode.FIELD_ACCESS: // 22
+					expression = null;
+					break;
+				case ASTNode.METHOD_INVOCATION: // 32
 					MethodInvocation methodInvocation = (MethodInvocation) expression;
 					expression = methodInvocation.getExpression();
 					break;
@@ -543,7 +616,11 @@ public abstract class CodeAnalyzer {
 					break;
 				case ASTNode.SIMPLE_NAME: // 42
 					return getCallGraph().getLastReference((SimpleName) expression);
-				case ASTNode.STRING_LITERAL: // 42
+				case ASTNode.STRING_LITERAL: // 45
+					expression = null;
+					break;
+				case ASTNode.THIS_EXPRESSION: // 52
+					// 01 - We have to get the parent class
 					expression = null;
 					break;
 				default:
@@ -593,10 +670,42 @@ public abstract class CodeAnalyzer {
 	}
 
 	/**
+	 * 46
+	 */
+	protected void inspectSuperConstructorInvocation(int depth, DataFlow dataFlow, SuperConstructorInvocation statement) {
+		List<Expression> parameters = BindingResolver.getParameters(statement);
+		for (Expression parameter : parameters) {
+			inspectNode(depth, dataFlow, parameter);
+		}
+
+		// TODO - Inspect the source code if we have it.
+	}
+
+	/**
 	 * 42
 	 */
 	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression) {
 
+	}
+
+	/**
+	 * 48
+	 */
+	protected void inspectSuperMethodInvocation(int depth, DataFlow dataFlow, SuperMethodInvocation expression) {
+		List<Expression> parameters = BindingResolver.getParameters(expression);
+		for (Expression parameter : parameters) {
+			inspectNode(depth, dataFlow, parameter);
+		}
+
+		// TODO - Inspect the source code if we have it.
+	}
+
+	/**
+	 * 52
+	 */
+	protected void inspectThisExpression(int depth, DataFlow dataFlow, ThisExpression expression) {
+		// TODO - Get the reference to the class of this THIS.
+		inspectNode(depth, dataFlow, expression.getQualifier());
 	}
 
 	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression, VariableBindingManager manager) {
@@ -616,7 +725,7 @@ public abstract class CodeAnalyzer {
 		VariableBindingManager manager = getCallGraph().addVariableToCallGraph(variableName, initializer);
 		if (null != manager) {
 			// 01 - Add a reference to this variable (if it is a variable).
-			addReferenceToInitializer(variableName, initializer);
+			addReferenceToInitializer(depth, variableName, initializer);
 
 			// 02 - Inspect the Initializer to verify if this variable is vulnerable.
 			DataFlow newDataFlow = new DataFlow(variableName);
@@ -639,21 +748,18 @@ public abstract class CodeAnalyzer {
 			// 03 - Get the list of methods that invokes this method.
 			Map<MethodDeclaration, List<Expression>> invokers = getCallGraph().getInvokers(methodDeclaration);
 
-			if (null != invokers) {
-				// 04 - Iterate over all the methods that invokes this method.
-				for (List<Expression> currentInvocations : invokers.values()) {
+			// 04 - Iterate over all the methods that invokes this method.
+			for (List<Expression> currentInvocations : invokers.values()) {
 
-					// 05 - Care only about the invocations to this method.
-					for (Expression invocations : currentInvocations) {
-						if (BindingResolver.areMethodsEqual(methodDeclaration, invocations)) {
-							// 06 - Get the parameter at the index position.
-							Expression parameter = BindingResolver.getParameterAtIndex(invocations, parameterIndex);
+				// 05 - Care only about the invocations to this method.
+				for (Expression invocations : currentInvocations) {
+					if (BindingResolver.areMethodsEqual(methodDeclaration, invocations)) {
+						// 06 - Get the parameter at the index position.
+						Expression parameter = BindingResolver.getParameterAtIndex(invocations, parameterIndex);
 
-							// 07 - Run detection on this parameter.
-							inspectNode(depth, dataFlow, parameter);
-						}
+						// 07 - Run detection on this parameter.
+						inspectNode(depth, dataFlow, parameter);
 					}
-
 				}
 			}
 		}
@@ -674,6 +780,13 @@ public abstract class CodeAnalyzer {
 		for (Object switchCases : switchStatements) {
 			inspectNode(depth, dataFlow, (Statement) switchCases);
 		}
+	}
+
+	/**
+	 * 51
+	 */
+	protected void inspectSynchronizedStatement(int depth, DataFlow dataFlow, SynchronizedStatement statement) {
+		inspectNode(depth, dataFlow, statement.getBody());
 	}
 
 	/**
@@ -702,7 +815,7 @@ public abstract class CodeAnalyzer {
 	 */
 	protected void inspectVariableDeclarationStatement(int depth, DataFlow dataFlow,
 			VariableDeclarationStatement statement) {
-		PluginLogger.logError("inspectVariableDeclarationStatement not implemented.", null);
+		PluginLogger.logError("inspectVariableDeclarationStatement not implemented. " + statement, null);
 	}
 
 	/**
@@ -730,27 +843,36 @@ public abstract class CodeAnalyzer {
 	protected void inspectLiteral(int depth, DataFlow dataFlow, Expression node) {
 	}
 
-	protected void addReferenceToInitializer(Expression expression, Expression initializer) {
+	protected void addReferenceToInitializer(int depth, Expression expression, Expression initializer) {
+		// 01 - To avoid infinitive loop, this check is necessary.
+		if (hasReachedMaximumDepth(depth++)) {
+			PluginLogger.logError("addReferenceToInitializer: " + expression + " - " + initializer + " - " + depth, null);
+			return;
+		}
+
 		if (null != initializer) {
 			switch (initializer.getNodeType()) {
+				case ASTNode.ARRAY_ACCESS: // 02
+					addReferenceArrayAccess(depth, expression, (ArrayAccess) initializer);
+					break;
 				case ASTNode.ARRAY_INITIALIZER: // 04
-					addReferenceArrayInitializer(expression, (ArrayInitializer) initializer);
+					addReferenceArrayInitializer(depth, expression, (ArrayInitializer) initializer);
 					break;
 				case ASTNode.ASSIGNMENT: // 07
-					addReferenceAssgnment(expression, (Assignment) initializer);
+					addReferenceAssgnment(depth, expression, (Assignment) initializer);
 					break;
 				case ASTNode.CONDITIONAL_EXPRESSION: // 16
-					addReferenceConditionalExpression(expression, (ConditionalExpression) initializer);
+					addReferenceConditionalExpression(depth, expression, (ConditionalExpression) initializer);
 					break;
 				case ASTNode.INFIX_EXPRESSION: // 27
-					addReferenceInfixExpression(expression, (InfixExpression) initializer);
+					addReferenceInfixExpression(depth, expression, (InfixExpression) initializer);
 					break;
 				case ASTNode.PARENTHESIZED_EXPRESSION: // 36
-					addReferenceParenthesizedExpression(expression, (ParenthesizedExpression) initializer);
+					addReferenceParenthesizedExpression(depth, expression, (ParenthesizedExpression) initializer);
 					break;
 				case ASTNode.QUALIFIED_NAME: // 40
 				case ASTNode.SIMPLE_NAME: // 42
-					addReferenceName(expression, (Name) initializer);
+					addReferenceName(depth, expression, (Name) initializer);
 					break;
 			}
 		}
@@ -763,41 +885,46 @@ public abstract class CodeAnalyzer {
 		}
 	}
 
-	protected void addReferenceName(Expression expression, Name initializer) {
+	protected void addReferenceName(int depth, Expression expression, Name initializer) {
 		addReference(expression, getCallGraph().resolveBinding(initializer));
 	}
 
-	protected void addReferenceAssgnment(Expression expression, Assignment initializer) {
-		addReferenceToInitializer(expression, initializer.getLeftHandSide());
-		addReferenceToInitializer(expression, initializer.getRightHandSide());
+	protected void addReferenceArrayAccess(int depth, Expression expression, ArrayAccess initializer) {
+		addReference(expression, getCallGraph().resolveBinding(initializer));
 	}
 
-	protected void addReferenceInfixExpression(Expression expression, InfixExpression initializer) {
-		addReferenceToInitializer(expression, initializer.getLeftOperand());
-		addReferenceToInitializer(expression, initializer.getRightOperand());
+	protected void addReferenceArrayInitializer(int depth, Expression expression, ArrayInitializer initializer) {
+		List<Expression> expressions = BindingResolver.getParameters(initializer);
+
+		for (Expression current : expressions) {
+			addReferenceToInitializer(depth, expression, current);
+		}
+	}
+
+	protected void addReferenceAssgnment(int depth, Expression expression, Assignment initializer) {
+		addReferenceToInitializer(depth, expression, initializer.getLeftHandSide());
+		addReferenceToInitializer(depth, expression, initializer.getRightHandSide());
+	}
+
+	protected void addReferenceConditionalExpression(int depth, Expression expression, ConditionalExpression initializer) {
+		addReferenceToInitializer(depth, expression, initializer.getThenExpression());
+		addReferenceToInitializer(depth, expression, initializer.getElseExpression());
+	}
+
+	protected void addReferenceInfixExpression(int depth, Expression expression, InfixExpression initializer) {
+		addReferenceToInitializer(depth, expression, initializer.getLeftOperand());
+		addReferenceToInitializer(depth, expression, initializer.getRightOperand());
 
 		List<Expression> extendedOperands = BindingResolver.getParameters(initializer);
 
 		for (Expression current : extendedOperands) {
-			addReferenceToInitializer(expression, current);
+			addReferenceToInitializer(depth, expression, current);
 		}
 	}
 
-	protected void addReferenceConditionalExpression(Expression expression, ConditionalExpression initializer) {
-		addReferenceToInitializer(expression, initializer.getThenExpression());
-		addReferenceToInitializer(expression, initializer.getElseExpression());
-	}
-
-	protected void addReferenceArrayInitializer(Expression expression, ArrayInitializer initializer) {
-		List<Expression> expressions = BindingResolver.getParameters(initializer);
-
-		for (Expression current : expressions) {
-			addReferenceToInitializer(expression, current);
-		}
-	}
-
-	protected void addReferenceParenthesizedExpression(Expression expression, ParenthesizedExpression initializer) {
-		addReferenceToInitializer(expression, initializer.getExpression());
+	protected void addReferenceParenthesizedExpression(int depth, Expression expression,
+			ParenthesizedExpression initializer) {
+		addReferenceToInitializer(depth, expression, initializer.getExpression());
 	}
 
 }

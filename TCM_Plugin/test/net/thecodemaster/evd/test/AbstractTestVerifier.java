@@ -117,7 +117,7 @@ public abstract class AbstractTestVerifier {
 			CallGraph callGraph = new CallGraph();
 
 			// 02 - The visitor that will populate the callGraph.
-			VisitorCallGraph visitorCallGraph = new VisitorCallGraph(callGraph);
+			VisitorCallGraph visitorCallGraph = new VisitorCallGraph(null, callGraph);
 
 			// 03 - The files that will be processed.
 			List<IResource> resources = getResources();
@@ -126,7 +126,7 @@ public abstract class AbstractTestVerifier {
 
 				// 04 - The class that will set the status(VULNERABLE, NOT_VULNERABLE) of all the variables.
 				VisitorPointsToAnalysis pointToAnalysis = new VisitorPointsToAnalysis();
-				pointToAnalysis.run(resources, callGraph);
+				pointToAnalysis.run(null, resources, callGraph);
 
 				// 05 - Get the list of verifiers that will be executed.
 				List<Verifier> verifiers = createListVerifiers();
