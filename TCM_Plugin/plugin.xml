@@ -165,7 +165,7 @@
    </extension>
    <extension
          id="TCM_EVD_BUILDER"
-         name="TCM_EVD Builder"
+         name="%tcm_evd.builder"
          point="org.eclipse.core.resources.builders">
       <builder
             hasNature="true">
@@ -176,7 +176,7 @@
    </extension>
    <extension
          id="TCM_EVD_NATURE"
-         name="TCM_EVD Nature"
+         name="%tcm_evd.nature"
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run
@@ -189,7 +189,7 @@
    </extension>
    <extension
          id="TCM_EVD_MARKER"
-         name="Security Vulnerability"
+         name="%tcm_evd.marker"
          point="org.eclipse.core.resources.markers">
       <persistent
             value="true">
@@ -203,7 +203,7 @@
    </extension>
    <extension
          id="TCM_EVD_MARKER_INVISIBLE"
-         name="Ignored Warnings"
+         name="%tcm_evd.marker.invisible"
          point="org.eclipse.core.resources.markers">
       <persistent
             value="true">
@@ -241,7 +241,7 @@
 			isGoToNextNavigationTargetKey="TCM_EVD_IsGoToNextNavigationTarget"
 			isGoToPreviousNavigationTarget="true"
 			isGoToPreviousNavigationTargetKey="TCM_EVD_IsGoToPreviousNavigationTarget"
-			label="TCM Early Vulnerability Detector Warnings" overviewRulerPreferenceKey="org.eclipse.viatra2.slice.overview"
+			label="%tcm_evd.marker.label" overviewRulerPreferenceKey="org.eclipse.viatra2.slice.overview"
 			overviewRulerPreferenceValue="true" presentationLayer="0"
 			quickFixIcon="icon/QuickFix.png" showInNextPrevDropdownToolbarAction="true"
 			showInNextPrevDropdownToolbarActionKey="TCM_EVD_ShowInNextPrevDropdownToolbarAction"
