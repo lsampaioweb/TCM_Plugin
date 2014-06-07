@@ -16,6 +16,7 @@ import org.eclipse.jdt.core.dom.ArrayAccess;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
@@ -28,10 +29,13 @@ import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.ParenthesizedExpression;
+import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 /**
@@ -51,6 +55,10 @@ public class BindingResolver {
 
 	public static CompilationUnit getParentCompilationUnit(ASTNode node) {
 		return (CompilationUnit) findAncestor(node, ASTNode.COMPILATION_UNIT);
+	}
+
+	public static TypeDeclaration getTypeDeclaration(ASTNode node) {
+		return (TypeDeclaration) findAncestor(node, ASTNode.TYPE_DECLARATION);
 	}
 
 	public static Block getParentBlock(ASTNode node) {
@@ -89,7 +97,7 @@ public class BindingResolver {
 	}
 
 	private static String getName(IBinding binding) {
-		return (null != binding) ? binding.getName() : null;
+		return (null != binding) ? binding.getName() : "";
 	}
 
 	private static String getName(ASTNode node) {
@@ -118,6 +126,45 @@ public class BindingResolver {
 					node = null;
 			}
 		}
+		return null;
+	}
+
+	public static ITypeBinding resolveTypeBinding(Expression expression) {
+		return expression.resolveTypeBinding();
+	}
+
+	public static Expression getNameIfItIsAnObject(Expression method) {
+		Expression expression = getExpression(method);
+
+		while (null != expression) {
+			switch (expression.getNodeType()) {
+				case ASTNode.SIMPLE_NAME: // 42 - This is the one we want to find.
+					return expression;
+
+				case ASTNode.ARRAY_ACCESS: // 02
+					expression = ((ArrayAccess) expression).getArray();
+					break;
+				// case ASTNode.CLASS_INSTANCE_CREATION: // 14
+				// expression = null;
+				// break;
+				// case ASTNode.METHOD_INVOCATION: // 32
+				// MethodInvocation methodInvocation = (MethodInvocation) expression;
+				// expression = methodInvocation.getExpression();
+				// break;
+				case ASTNode.QUALIFIED_NAME: // 40
+					QualifiedName qualifiedName = (QualifiedName) expression;
+					expression = qualifiedName.getQualifier();
+					break;
+				case ASTNode.FIELD_ACCESS: // 22
+				case ASTNode.STRING_LITERAL: // 45
+				case ASTNode.THIS_EXPRESSION: // 52
+					// break;
+				default:
+					expression = getExpression(expression);
+					break;
+			}
+		}
+
 		return null;
 	}
 
@@ -204,15 +251,22 @@ public class BindingResolver {
 	}
 
 	public static Expression getExpression(Expression expression) {
-		switch (expression.getNodeType()) {
-			case ASTNode.CLASS_INSTANCE_CREATION: // 14
-				return ((ClassInstanceCreation) expression).getExpression();
-			case ASTNode.METHOD_INVOCATION: // 32
-				return ((MethodInvocation) expression).getExpression();
-			default:
-				PluginLogger.logError("getExpression default:" + expression.getNodeType() + " - " + expression, null);
-				return null;
+		if (null != expression) {
+			switch (expression.getNodeType()) {
+				case ASTNode.CAST_EXPRESSION: // 11
+					return ((CastExpression) expression).getExpression();
+				case ASTNode.CLASS_INSTANCE_CREATION: // 14
+					return ((ClassInstanceCreation) expression).getExpression();
+				case ASTNode.METHOD_INVOCATION: // 32
+					return ((MethodInvocation) expression).getExpression();
+				case ASTNode.PARENTHESIZED_EXPRESSION: // 36
+					return ((ParenthesizedExpression) expression).getExpression();
+				default:
+					PluginLogger.logError("getExpression default:" + expression.getNodeType() + " - " + expression, null);
+					return null;
+			}
 		}
+		return null;
 	}
 
 	@SuppressWarnings("unchecked")

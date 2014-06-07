@@ -55,6 +55,41 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		}
 	}
 
+	private void addParametersToCallGraph(int depth, List<Expression> currentInvocations,
+			MethodDeclaration methodDeclaration) {
+		// 01 - Care only about the invocations to this method.
+		for (Expression invocation : currentInvocations) {
+			if (BindingResolver.areMethodsEqual(methodDeclaration, invocation)) {
+
+				addParametersToCallGraph(depth, invocation, methodDeclaration);
+
+				run(depth, methodDeclaration);
+			}
+		}
+	}
+
+	private void addParametersToCallGraph(int depth, Expression methodInvocation, MethodDeclaration methodDeclaration) {
+		// 01 - Get the parameters of this method declaration.
+		List<SingleVariableDeclaration> parameters = BindingResolver.getParameters(methodDeclaration);
+
+		if (parameters.size() > 0) {
+			int parameterIndex = 0;
+			for (SingleVariableDeclaration parameter : parameters) {
+				// 02 - The SimpleName of this parameter will be used for the addVariableToCallGraph.
+				SimpleName parameterName = parameter.getName();
+
+				// 03 - Retrieve the variable binding of this parameter from the callGraph.
+				Expression initializer = BindingResolver.getParameterAtIndex(methodInvocation, parameterIndex++);
+
+				// 04 - We add the content with the one that came from the method invocation.
+				getCallGraph().addVariableToCallGraph(parameterName, initializer);
+
+				// 05 - Add a method reference to this variable (if it is a variable).
+				addReferenceToInitializer(depth, methodInvocation, initializer);
+			}
+		}
+	}
+
 	public void run(IProgressMonitor monitor, List<IResource> resources, CallGraph callGraph) {
 		setCallGraph(callGraph);
 		setProgressMonitor(monitor);
@@ -185,16 +220,8 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	}
 
 	/**
-	 * 42
+	 * 32
 	 */
-	@Override
-	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression) {
-		// 01 - Try to retrieve the variable from the list of variables.
-		VariableBindingManager manager = getCallGraph().getLastReference(expression);
-
-		inspectSimpleName(depth, dataFlow, expression, manager);
-	}
-
 	@Override
 	protected void inspectMethodInvocationWithOrWithOutSourceCode(int depth, DataFlow dataFlow,
 			Expression methodInvocation) {
@@ -204,8 +231,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		List<Expression> expressions = Creator.newList();
 
 		Expression optionalexpression = methodInvocation;
-		while ((null != optionalexpression) && (optionalexpression.getNodeType() != ASTNode.SIMPLE_NAME)
-				&& (optionalexpression.getNodeType() != ASTNode.QUALIFIED_NAME)) {
+		while ((null != optionalexpression) && (optionalexpression.getNodeType() == ASTNode.METHOD_INVOCATION)) {
 			expressions.add(optionalexpression);
 
 			optionalexpression = BindingResolver.getExpression(optionalexpression);
@@ -227,41 +253,6 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		super.inspectMethodWithSourceCode(depth, dataFlow, methodInvocation, methodDeclaration);
 	}
 
-	private void addParametersToCallGraph(int depth, List<Expression> currentInvocations,
-			MethodDeclaration methodDeclaration) {
-		// 01 - Care only about the invocations to this method.
-		for (Expression invocation : currentInvocations) {
-			if (BindingResolver.areMethodsEqual(methodDeclaration, invocation)) {
-
-				addParametersToCallGraph(depth, invocation, methodDeclaration);
-
-				run(depth, methodDeclaration);
-			}
-		}
-	}
-
-	private void addParametersToCallGraph(int depth, Expression methodInvocation, MethodDeclaration methodDeclaration) {
-		// 01 - Get the parameters of this method declaration.
-		List<SingleVariableDeclaration> parameters = BindingResolver.getParameters(methodDeclaration);
-
-		if (parameters.size() > 0) {
-			int parameterIndex = 0;
-			for (SingleVariableDeclaration parameter : parameters) {
-				// 02 - The SimpleName of this parameter will be used for the addVariableToCallGraph.
-				SimpleName parameterName = parameter.getName();
-
-				// 03 - Retrieve the variable binding of this parameter from the callGraph.
-				Expression initializer = BindingResolver.getParameterAtIndex(methodInvocation, parameterIndex++);
-
-				// 04 - We add the content with the one that came from the method invocation.
-				getCallGraph().addVariableToCallGraph(parameterName, initializer);
-
-				// 05 - Add a method reference to this variable (if it is a variable).
-				addReferenceToInitializer(depth, methodInvocation, initializer);
-			}
-		}
-	}
-
 	@Override
 	protected void inspectMethodWithOutSourceCode(int depth, DataFlow dataFlow, Expression expression) {
 		// We have to iterate over its parameters to see if any is vulnerable.
@@ -274,6 +265,17 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
 			inspectNode(depth, dataFlow, parameter);
 		}
+	}
+
+	/**
+	 * 42
+	 */
+	@Override
+	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression) {
+		// 01 - Try to retrieve the variable from the list of variables.
+		VariableBindingManager variableBinding = getCallGraph().getLastReference(expression);
+
+		inspectSimpleName(depth, dataFlow, expression, variableBinding);
 	}
 
 	/**

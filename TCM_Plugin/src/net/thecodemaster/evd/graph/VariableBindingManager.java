@@ -55,8 +55,12 @@ public class VariableBindingManager {
 		return status;
 	}
 
-	public void setStatus(DataFlow dataFlow, EnumStatusVariable status) {
+	public void setStatus(EnumStatusVariable status) {
 		this.status = status;
+	}
+
+	public void setStatus(DataFlow dataFlow, EnumStatusVariable status) {
+		setStatus(status);
 		setDataFlow(dataFlow);
 	}
 

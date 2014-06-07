@@ -38,12 +38,13 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 	 * 42
 	 */
 	@Override
-	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression, VariableBindingManager manager) {
-		if ((null != manager) && (manager.status().equals(EnumStatusVariable.NOT_VULNERABLE))) {
+	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression,
+			VariableBindingManager variableBinding) {
+		if ((null != variableBinding) && (variableBinding.status().equals(EnumStatusVariable.NOT_VULNERABLE))) {
 			// The SQL Injection verifier also needs to know if the variable has its content from a string concatenation.
-			inspectNode(depth, dataFlow, manager.getInitializer());
+			inspectNode(depth, dataFlow, variableBinding.getInitializer());
 		} else {
-			super.inspectSimpleName(depth, dataFlow, expression, manager);
+			super.inspectSimpleName(depth, dataFlow, expression, variableBinding);
 		}
 	}
 

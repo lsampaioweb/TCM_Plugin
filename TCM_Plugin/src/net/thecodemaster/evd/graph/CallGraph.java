@@ -217,9 +217,9 @@ public class CallGraph {
 
 		// 03 - Add the variable to the list.
 		List<VariableBindingManager> vbms = variableBindings.get(binding);
-		if (!vbms.contains(variableBinding)) {
-			vbms.add(variableBinding);
-		}
+		// if (!vbms.contains(variableBinding)) {
+		vbms.add(variableBinding);
+		// }
 	}
 
 	private Map<IBinding, List<VariableBindingManager>> getVariables(IResource resource) {

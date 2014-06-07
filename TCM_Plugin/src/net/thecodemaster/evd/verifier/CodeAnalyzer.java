@@ -41,7 +41,6 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.PostfixExpression;
@@ -225,10 +224,20 @@ public abstract class CodeAnalyzer {
 		return false;
 	}
 
-	private void updateManagerStatus(VariableBindingManager manager, DataFlow newDataFlow) {
+	protected void updateVariableBindingStatus(VariableBindingManager variableBinding, DataFlow newDataFlow) {
 		EnumStatusVariable status = (newDataFlow.isVulnerable()) ? EnumStatusVariable.VULNERABLE
 				: EnumStatusVariable.NOT_VULNERABLE;
-		manager.setStatus(newDataFlow, status);
+		variableBinding.setStatus(newDataFlow, status);
+	}
+
+	protected void updateVariableBindingStatusToPrimitive(VariableBindingManager variableBinding) {
+		variableBinding.setStatus(EnumStatusVariable.NOT_VULNERABLE);
+	}
+
+	protected boolean isPrimitive(Expression variableName) {
+		ITypeBinding typeBinding = BindingResolver.resolveTypeBinding(variableName);
+
+		return (null != typeBinding) ? typeBinding.isPrimitive() : false;
 	}
 
 	protected void inspectNode(int depth, DataFlow dataFlow, Expression node) {
@@ -385,9 +394,16 @@ public abstract class CodeAnalyzer {
 	 * 03
 	 */
 	protected void inspectArrayCreation(int depth, DataFlow dataFlow, ArrayCreation expression) {
-		List<Expression> parameters = BindingResolver.getParameters(expression.getInitializer());
+		iterateOverParameters(depth, dataFlow, expression.getInitializer());
+	}
+
+	/**
+	 * 03, 04, 32, 46, 48
+	 */
+	protected void iterateOverParameters(int depth, DataFlow dataFlow, ASTNode expression) {
+		List<Expression> parameters = BindingResolver.getParameters(expression);
 		for (Expression parameter : parameters) {
-			inspectNode(depth, dataFlow, parameter);
+			inspectNode(depth, dataFlow.addNodeToPath(parameter), parameter);
 		}
 	}
 
@@ -395,10 +411,7 @@ public abstract class CodeAnalyzer {
 	 * 04
 	 */
 	protected void inspectArrayInitializer(int depth, DataFlow dataFlow, ArrayInitializer expression) {
-		List<Expression> parameters = BindingResolver.getParameters(expression);
-		for (Expression parameter : parameters) {
-			inspectNode(depth, dataFlow, parameter);
-		}
+		iterateOverParameters(depth, dataFlow, expression);
 	}
 
 	/**
@@ -431,13 +444,6 @@ public abstract class CodeAnalyzer {
 	}
 
 	/**
-	 * 18
-	 */
-	protected void inspectContinueStatement(int depth, DataFlow dataFlow, ContinueStatement statement) {
-		// Nothing to do.
-	}
-
-	/**
 	 * 11
 	 */
 	protected void inspectCastExpression(int depth, DataFlow dataFlow, CastExpression expression) {
@@ -453,6 +459,13 @@ public abstract class CodeAnalyzer {
 
 		inspectNode(depth, dataFlow.addNodeToPath(thenExpression), thenExpression);
 		inspectNode(depth, dataFlow.addNodeToPath(elseExpression), elseExpression);
+	}
+
+	/**
+	 * 18
+	 */
+	protected void inspectContinueStatement(int depth, DataFlow dataFlow, ContinueStatement statement) {
+		// Nothing to do.
 	}
 
 	/**
@@ -473,7 +486,8 @@ public abstract class CodeAnalyzer {
 	 * 22
 	 */
 	protected void inspectFieldAccess(int depth, DataFlow dataFlow, FieldAccess expression) {
-		inspectNode(depth, dataFlow, expression.getExpression());
+		inspectNode(depth, dataFlow, expression.getName());
+		// inspectNode(depth, dataFlow, expression.getExpression());
 	}
 
 	/**
@@ -535,6 +549,9 @@ public abstract class CodeAnalyzer {
 		inspectMethodInvocationWithOrWithOutSourceCode(depth, dataFlow, methodInvocation);
 	}
 
+	/**
+	 * 32
+	 */
 	protected void inspectMethodInvocationWithOrWithOutSourceCode(int depth, DataFlow dataFlow,
 			Expression methodInvocation) {
 		// Some method invocations can be in a chain call, we have to investigate them all.
@@ -549,7 +566,7 @@ public abstract class CodeAnalyzer {
 			inspectMethodWithOutSourceCode(depth, dataFlow, methodInvocation);
 		}
 
-		VariableBindingManager manager = getVariableBindingIfItIsAnObject(methodInvocation);
+		VariableBindingManager variableBinding = getVariableBindingIfItIsAnObject(methodInvocation);
 		// We found a vulnerability.
 		if (dataFlow.isVulnerable()) {
 			// There are 2 sub-cases: When is a method from an object and when is a method from a library.
@@ -557,81 +574,59 @@ public abstract class CodeAnalyzer {
 			// 02 - System.out.println("..."); Nothing else to do.
 
 			// 02 - Check if this method invocation is being call from a vulnerable object.
-			if (null != manager) {
-				manager.setStatus(dataFlow, EnumStatusVariable.VULNERABLE);
+			if (null != variableBinding) {
+				variableBinding.setStatus(dataFlow, EnumStatusVariable.VULNERABLE);
 			}
 		} else {
 			// 01 - Check if this method invocation is being call from a vulnerable object.
-			if (null != manager) { // && (manager.status().equals(EnumStatusVariable.VULNERABLE))) {
-				processIfStatusUnknownOrUpdateIfVulnerable(depth, dataFlow, manager);
+			if (null != variableBinding) {
+				processIfStatusUnknownOrUpdateIfVulnerable(depth, dataFlow, variableBinding);
 			}
 		}
 	}
 
-	private void processIfStatusUnknownOrUpdateIfVulnerable(int depth, DataFlow dataFlow, VariableBindingManager manager) {
-		if (manager.status().equals(EnumStatusVariable.VULNERABLE)) {
-			dataFlow.replace(manager.getDataFlow());
-		} else if (manager.status().equals(EnumStatusVariable.UNKNOWN)) {
-			// 01 - This is the case where we have to go deeper into the variable's path.
-			inspectNode(depth, dataFlow, manager.getInitializer());
-
-			// 02 - If there is a vulnerable path, then this variable is vulnerable.
-			updateManagerStatus(manager, dataFlow);
-		}
-	}
-
+	/**
+	 * 32
+	 */
 	protected void inspectMethodWithSourceCode(int depth, DataFlow dataFlow, Expression methodInvocation,
 			MethodDeclaration methodDeclaration) {
 		inspectNode(depth, dataFlow, methodDeclaration.getBody());
 	}
 
+	/**
+	 * 32
+	 */
 	protected void inspectMethodWithOutSourceCode(int depth, DataFlow dataFlow, Expression methodInvocation) {
-		List<Expression> parameters = BindingResolver.getParameters(methodInvocation);
-		for (Expression parameter : parameters) {
-			inspectNode(depth, dataFlow, parameter);
-		}
+		iterateOverParameters(depth, dataFlow, methodInvocation);
 	}
 
+	/**
+	 * 32
+	 */
 	protected VariableBindingManager getVariableBindingIfItIsAnObject(Expression method) {
-		Expression expression = BindingResolver.getExpression(method);
+		Expression expression = BindingResolver.getNameIfItIsAnObject(method);
 
-		while (null != expression) {
-			switch (expression.getNodeType()) {
-				case ASTNode.ARRAY_ACCESS: // 02
-					expression = null;
-					break;
-				case ASTNode.CLASS_INSTANCE_CREATION: // 14
-					expression = null;
-					break;
-				case ASTNode.FIELD_ACCESS: // 22
-					expression = null;
-					break;
-				case ASTNode.METHOD_INVOCATION: // 32
-					MethodInvocation methodInvocation = (MethodInvocation) expression;
-					expression = methodInvocation.getExpression();
-					break;
-				case ASTNode.QUALIFIED_NAME: // 40
-					QualifiedName qualifiedName = (QualifiedName) expression;
-					expression = qualifiedName.getQualifier();
-					break;
-				case ASTNode.SIMPLE_NAME: // 42
-					return getCallGraph().getLastReference((SimpleName) expression);
-				case ASTNode.STRING_LITERAL: // 45
-					expression = null;
-					break;
-				case ASTNode.THIS_EXPRESSION: // 52
-					// 01 - We have to get the parent class
-					expression = null;
-					break;
-				default:
-					PluginLogger.logError(
-							"getVariableBindingIfItIsAnObject default: " + expression + " - " + expression.getNodeType(), null);
-					expression = null;
-					break;
-			}
+		if (null != expression) {
+			return getCallGraph().getLastReference((SimpleName) expression);
 		}
 
 		return null;
+	}
+
+	/**
+	 * 32 , 42
+	 */
+	protected void processIfStatusUnknownOrUpdateIfVulnerable(int depth, DataFlow dataFlow,
+			VariableBindingManager variableBinding) {
+		if (variableBinding.status().equals(EnumStatusVariable.VULNERABLE)) {
+			dataFlow.replace(variableBinding.getDataFlow());
+		} else if (variableBinding.status().equals(EnumStatusVariable.UNKNOWN)) {
+			// 01 - This is the case where we have to go deeper into the variable's path.
+			inspectNode(depth, dataFlow, variableBinding.getInitializer());
+
+			// 02 - If there is a vulnerable path, then this variable is vulnerable.
+			updateVariableBindingStatus(variableBinding, dataFlow);
+		}
 	}
 
 	/**
@@ -670,74 +665,31 @@ public abstract class CodeAnalyzer {
 	}
 
 	/**
-	 * 46
+	 * 42
 	 */
-	protected void inspectSuperConstructorInvocation(int depth, DataFlow dataFlow, SuperConstructorInvocation statement) {
-		List<Expression> parameters = BindingResolver.getParameters(statement);
-		for (Expression parameter : parameters) {
-			inspectNode(depth, dataFlow, parameter);
-		}
-
-		// TODO - Inspect the source code if we have it.
+	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression) {
 	}
 
 	/**
 	 * 42
 	 */
-	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression) {
-
-	}
-
-	/**
-	 * 48
-	 */
-	protected void inspectSuperMethodInvocation(int depth, DataFlow dataFlow, SuperMethodInvocation expression) {
-		List<Expression> parameters = BindingResolver.getParameters(expression);
-		for (Expression parameter : parameters) {
-			inspectNode(depth, dataFlow, parameter);
-		}
-
-		// TODO - Inspect the source code if we have it.
-	}
-
-	/**
-	 * 52
-	 */
-	protected void inspectThisExpression(int depth, DataFlow dataFlow, ThisExpression expression) {
-		// TODO - Get the reference to the class of this THIS.
-		inspectNode(depth, dataFlow, expression.getQualifier());
-	}
-
-	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression, VariableBindingManager manager) {
-		if (null != manager) {
-			processIfStatusUnknownOrUpdateIfVulnerable(depth, dataFlow, manager);
+	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression,
+			VariableBindingManager variableBinding) {
+		if (null != variableBinding) {
+			processIfStatusUnknownOrUpdateIfVulnerable(depth, dataFlow, variableBinding);
 		} else {
 			// If a method is scanned after a method invocation, all the parameters are provided, but
 			// if a method is scanned from the initial block declarations loop, some parameter might not be known
 			// so it is necessary to investigate WHO invoked this method and what were the provided parameters.
-			inspectSimpleNameFromInvokers(depth, dataFlow, expression, manager);
-			// PluginLogger.logError("inspectSimpleName manager == null " + expression, null);
+			inspectSimpleNameFromInvokers(depth, dataFlow, expression, variableBinding);
 		}
 	}
 
-	protected void addVariableToCallGraphAndInspectInitializer(int depth, DataFlow dataFlow, Expression variableName,
-			Expression initializer) {
-		VariableBindingManager manager = getCallGraph().addVariableToCallGraph(variableName, initializer);
-		if (null != manager) {
-			// 01 - Add a reference to this variable (if it is a variable).
-			addReferenceToInitializer(depth, variableName, initializer);
-
-			// 02 - Inspect the Initializer to verify if this variable is vulnerable.
-			DataFlow newDataFlow = new DataFlow(variableName);
-			inspectNode(depth, newDataFlow, initializer);
-
-			// 03 - If there is a vulnerable path, then this variable is vulnerable.
-			updateManagerStatus(manager, newDataFlow);
-		}
-	}
-
+	/**
+	 * 42
+	 */
 	protected void inspectSimpleNameFromInvokers(int depth, DataFlow dataFlow, SimpleName expression,
-			VariableBindingManager manager) {
+			VariableBindingManager variableBinding) {
 		// This is the case where the variable is an argument of the method.
 		// 01 - Get the method signature that is using this parameter.
 		MethodDeclaration methodDeclaration = BindingResolver.getParentMethodDeclaration(expression);
@@ -758,9 +710,90 @@ public abstract class CodeAnalyzer {
 						Expression parameter = BindingResolver.getParameterAtIndex(invocations, parameterIndex);
 
 						// 07 - Run detection on this parameter.
-						inspectNode(depth, dataFlow, parameter);
+						inspectNode(depth, dataFlow.addNodeToPath(parameter), parameter);
 					}
 				}
+			}
+		}
+	}
+
+	/**
+	 * 46
+	 */
+	protected void inspectSuperConstructorInvocation(int depth, DataFlow dataFlow, SuperConstructorInvocation statement) {
+		iterateOverParameters(depth, dataFlow, statement);
+
+		// TODO - Inspect the source code if we have it.
+		Expression superInvocation = statement.getExpression();
+	}
+
+	/**
+	 * 48
+	 */
+	protected void inspectSuperMethodInvocation(int depth, DataFlow dataFlow, SuperMethodInvocation expression) {
+		// iterateOverParameters(depth, dataFlow, expression);
+
+		// TODO - Inspect the source code if we have it.
+		// super.methodName(...);
+		// We have to get the name of this method, then get the name of the SuperClass.
+		// optionalSuperclassType SimpleType
+
+		// // 01 - Get the name of the method being invoked.
+		// Expression superInvocation = expression.getName();
+		//
+		// // 02 - Get the name of the SuperClass.
+		// TypeDeclaration typeDeclaration = BindingResolver.getTypeDeclaration(expression);
+		// // 02.1
+		// SimpleType superClass = (SimpleType) typeDeclaration.getSuperclassType();
+		// // 02.1
+		// Name superClassName = superClass.getName();
+		//
+		// // 03 - Get the list of imports.
+		//
+		// // 03.1 - Iterate over the list and try to find the superclass import.
+		// // If it finds, it means the superclass is in another package.
+		// // If it does not find, it means the superclass is in the same package.
+		//
+		// // 01 - .
+		// IResource resource = BindingResolver.getResource(typeDeclaration);
+		//
+		// // 01 - Get the list of methods in the current resource and its invocations.
+		// Map<MethodDeclaration, List<Expression>> methods = getCallGraph().getMethods(resource);
+
+		// 03 - Check if we have the source code of this SuperClass.
+
+		// 04 - Now that we have the class, we try to find the implementation of the method.
+		// inspectMethodInvocationWithOrWithOutSourceCode(depth, dataFlow, methodInvocation);
+	}
+
+	/**
+	 * 52
+	 */
+	protected void inspectThisExpression(int depth, DataFlow dataFlow, ThisExpression expression) {
+		// TODO - Get the reference to the class of this THIS.
+		// inspectNode(depth, dataFlow, (Expression) expression.getParent());
+	}
+
+	/**
+	 * 07, 60, 70
+	 */
+	protected void addVariableToCallGraphAndInspectInitializer(int depth, DataFlow dataFlow, Expression variableName,
+			Expression initializer) {
+		VariableBindingManager variableBinding = getCallGraph().addVariableToCallGraph(variableName, initializer);
+		if (null != variableBinding) {
+			// 01 - Add a reference to this variable (if it is a variable).
+			addReferenceToInitializer(depth, variableName, initializer);
+
+			// 02 - Inspect the Initializer to verify if this variable is vulnerable.
+			DataFlow newDataFlow = new DataFlow(variableName);
+			inspectNode(depth, newDataFlow, initializer);
+
+			// 03 - If there is a vulnerable path, then this variable is vulnerable.
+			// But if this variable is of primitive type, then there is nothing to do because they can not be vulnerable.
+			if (!isPrimitive(variableName)) {
+				updateVariableBindingStatus(variableBinding, newDataFlow);
+			} else {
+				updateVariableBindingStatusToPrimitive(variableBinding);
 			}
 		}
 	}

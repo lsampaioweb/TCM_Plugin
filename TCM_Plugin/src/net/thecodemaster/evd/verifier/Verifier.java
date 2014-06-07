@@ -146,6 +146,40 @@ public abstract class Verifier extends CodeAnalyzer {
 	}
 
 	/**
+	 * An exit point might have more that one parameter and each of these parameter might have different rules (acceptable
+	 * values). That is why we need to check.
+	 * 
+	 * @param rules
+	 * @param parameter
+	 * @return
+	 */
+	protected boolean matchRules(List<Integer> rules, Expression parameter) {
+		if (null == parameter) {
+			// There is nothing we can do to verify it.
+			return true;
+		}
+
+		// -1 Anything is valid.
+		// 0 Only sanitized values are valid.
+		// 1 LITERAL and sanitized values are valid.
+		for (Integer astNodeValue : rules) {
+			if (astNodeValue == Constant.LITERAL) {
+				switch (parameter.getNodeType()) {
+					case ASTNode.STRING_LITERAL:
+					case ASTNode.CHARACTER_LITERAL:
+					case ASTNode.NUMBER_LITERAL:
+					case ASTNode.NULL_LITERAL:
+						return true;
+				}
+			} else if (astNodeValue == parameter.getNodeType()) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * The public run method that will be invoked by the Analyzer.
 	 * 
 	 * @param resources
@@ -249,42 +283,9 @@ public abstract class Verifier extends CodeAnalyzer {
 	@Override
 	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression) {
 		// 01 - Try to retrieve the variable from the list of variables.
-		VariableBindingManager manager = getCallGraph().getVariableBinding(expression);
+		VariableBindingManager variableBinding = getCallGraph().getVariableBinding(expression);
 
-		inspectSimpleName(depth, dataFlow, expression, manager);
+		inspectSimpleName(depth, dataFlow, expression, variableBinding);
 	}
 
-	/**
-	 * An exit point might have more that one parameter and each of these parameter might have different rules (acceptable
-	 * values). That is why we need to check.
-	 * 
-	 * @param rules
-	 * @param parameter
-	 * @return
-	 */
-	protected boolean matchRules(List<Integer> rules, Expression parameter) {
-		if (null == parameter) {
-			// There is nothing we can do to verify it.
-			return true;
-		}
-
-		// -1 Anything is valid.
-		// 0 Only sanitized values are valid.
-		// 1 LITERAL and sanitized values are valid.
-		for (Integer astNodeValue : rules) {
-			if (astNodeValue == Constant.LITERAL) {
-				switch (parameter.getNodeType()) {
-					case ASTNode.STRING_LITERAL:
-					case ASTNode.CHARACTER_LITERAL:
-					case ASTNode.NUMBER_LITERAL:
-					case ASTNode.NULL_LITERAL:
-						return true;
-				}
-			} else if (astNodeValue == parameter.getNodeType()) {
-				return true;
-			}
-		}
-
-		return false;
-	}
 }
