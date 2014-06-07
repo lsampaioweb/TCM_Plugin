@@ -4,15 +4,15 @@
    <extension
          point="org.eclipse.ui.views">
       <category
-            id="THE_CODE_MASTER_EARLY_VULNERABILITY_DETECTOR.TCM_EVD_VIEW_CATEGORY"
+            id="tcm.early.vulnerability.detector.TCM_EVD_VIEW_CATEGORY"
             name="%view.category.name">
       </category>
       <view
             allowMultiple="false"
-            category="THE_CODE_MASTER_EARLY_VULNERABILITY_DETECTOR.TCM_EVD_VIEW_CATEGORY"
+            category="tcm.early.vulnerability.detector.TCM_EVD_VIEW_CATEGORY"
             class="net.thecodemaster.evd.ui.view.ViewSecurityVulnerabilities"
             icon="icon/View.png"
-            id="THE_CODE_MASTER_EARLY_VULNERABILITY_DETECTOR.TCM_EVD_VIEW"
+            id="tcm.early.vulnerability.detector.TCM_EVD_VIEW"
             name="%view.name"
             restorable="true">
       </view>
@@ -22,7 +22,7 @@
       <perspectiveExtension
             targetID="org.eclipse.jdt.ui.JavaPerspective">
          <view
-               id="THE_CODE_MASTER_EARLY_VULNERABILITY_DETECTOR.TCM_EVD_VIEW"
+               id="tcm.early.vulnerability.detector.TCM_EVD_VIEW"
                minimized="false"
                ratio="0.5"
                relationship="bottom"
@@ -184,7 +184,7 @@
          </run>
       </runtime>
       <builder
-            id="THE_CODE_MASTER_EARLY_VULNERABILITY_DETECTOR.TCM_EVD_BUILDER">
+            id="tcm.early.vulnerability.detector.TCM_EVD_BUILDER">
       </builder>
    </extension>
    <extension
@@ -217,7 +217,7 @@
          point="org.eclipse.ui.ide.markerResolution">
       <markerResolutionGenerator
             class="net.thecodemaster.evd.marker.resolution.GeneratorResolutionSecurityVulnerability"
-            markerType="THE_CODE_MASTER_EARLY_VULNERABILITY_DETECTOR.TCM_EVD_MARKER">
+            markerType="tcm.early.vulnerability.detector.TCM_EVD_MARKER">
       </markerResolutionGenerator>
    </extension>
    <extension
@@ -225,7 +225,7 @@
          point="org.eclipse.ui.editors.annotationTypes">
       <type
             markerSeverity="1"
-            markerType="THE_CODE_MASTER_EARLY_VULNERABILITY_DETECTOR.TCM_EVD_MARKER"
+            markerType="tcm.early.vulnerability.detector.TCM_EVD_MARKER"
             name="TCM_EVD_MARKER_ANNOTATION">
       </type>
    </extension>
