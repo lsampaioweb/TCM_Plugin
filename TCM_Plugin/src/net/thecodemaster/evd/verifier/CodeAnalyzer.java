@@ -129,7 +129,7 @@ public abstract class CodeAnalyzer {
 
 	protected static List<SanitizationPoint> getSanitizationPoints() {
 		if (null == sanitizers) {
-			// Loads all the EntryPoints.
+			// Loads all the Sanitizers.
 			loadSanitizationPoints();
 		}
 
@@ -398,7 +398,7 @@ public abstract class CodeAnalyzer {
 	}
 
 	/**
-	 * 03, 04, 32, 46, 48
+	 * 03, 04, 27, 32, 46, 48
 	 */
 	protected void iterateOverParameters(int depth, DataFlow dataFlow, ASTNode expression) {
 		List<Expression> parameters = BindingResolver.getParameters(expression);
@@ -515,10 +515,7 @@ public abstract class CodeAnalyzer {
 		inspectNode(depth, dataFlow.addNodeToPath(leftOperand), leftOperand);
 		inspectNode(depth, dataFlow.addNodeToPath(rightOperand), rightOperand);
 
-		List<Expression> extendedOperands = BindingResolver.getParameters(expression);
-		for (Expression extendedOperand : extendedOperands) {
-			inspectNode(depth, dataFlow.addNodeToPath(extendedOperand), extendedOperand);
-		}
+		iterateOverParameters(depth, dataFlow, expression);
 	}
 
 	/**
