@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="TCM_EVD_Feature"
+      label="Detector and Security View"
+      version="1.0.0.qualifier"
+      provider-name="thecodemaster.net">
+
+   <description>
+      Supported vulnerabilities:
+01 - Command Injection
+02 - Cookie Poisoning
+03 - Cross-Site Scription (XSS)
+04 - Path Traversal
+05 - Security Misconfiguration
+06 - SQL Injection
+07 - Unvalidated Redirecting
+   </description>
+
+   <copyright>
+      Free to use.
+   </copyright>
+
+   <license url="">
+      Free to use.
+   </license>
+
+   <plugin
+         id="tcm.early.vulnerability.detector"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+</feature>
