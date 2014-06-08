@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -35,6 +36,7 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
+import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
@@ -141,16 +143,12 @@ public class BindingResolver {
 				case ASTNode.SIMPLE_NAME: // 42 - This is the one we want to find.
 					return expression;
 
-				case ASTNode.ARRAY_ACCESS: // 02
-					expression = ((ArrayAccess) expression).getArray();
-					break;
 				case ASTNode.QUALIFIED_NAME: // 40
 					expression = ((QualifiedName) expression).getQualifier();
 					break;
-				case ASTNode.FIELD_ACCESS: // 22
-				case ASTNode.STRING_LITERAL: // 45
 				case ASTNode.THIS_EXPRESSION: // 52
-					// break;
+					expression = ((ThisExpression) expression).getQualifier();
+					break;
 				default:
 					expression = getExpression(expression);
 					break;
@@ -227,6 +225,8 @@ public class BindingResolver {
 					return getParameters(((ArrayInitializer) node).expressions());
 				case ASTNode.CLASS_INSTANCE_CREATION: // 14
 					return getParameters(((ClassInstanceCreation) node).arguments());
+				case ASTNode.CONSTRUCTOR_INVOCATION: // 17
+					return getParameters(((ConstructorInvocation) node).arguments());
 				case ASTNode.INFIX_EXPRESSION: // 27
 					return getParameters(((InfixExpression) node).extendedOperands());
 				case ASTNode.METHOD_INVOCATION: // 32
@@ -245,10 +245,16 @@ public class BindingResolver {
 	public static Expression getExpression(Expression expression) {
 		if (null != expression) {
 			switch (expression.getNodeType()) {
+				case ASTNode.ARRAY_ACCESS: // 02
+					return ((ArrayAccess) expression).getArray();
 				case ASTNode.CAST_EXPRESSION: // 11
 					return ((CastExpression) expression).getExpression();
 				case ASTNode.CLASS_INSTANCE_CREATION: // 14
 					return ((ClassInstanceCreation) expression).getExpression();
+				case ASTNode.FIELD_ACCESS: // 22
+					return ((FieldAccess) expression).getExpression();
+				case ASTNode.INFIX_EXPRESSION: // 27
+					return null;
 				case ASTNode.METHOD_INVOCATION: // 32
 					return ((MethodInvocation) expression).getExpression();
 				case ASTNode.PARENTHESIZED_EXPRESSION: // 36
@@ -256,6 +262,7 @@ public class BindingResolver {
 				case ASTNode.QUALIFIED_NAME: // 40
 				case ASTNode.SIMPLE_NAME: // 42
 				case ASTNode.STRING_LITERAL: // 45
+				case ASTNode.THIS_EXPRESSION: // 52
 					return null;
 				default:
 					PluginLogger.logError("getExpression default:" + expression.getNodeType() + " - " + expression, null);

@@ -29,8 +29,10 @@ import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
+import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.ContinueStatement;
 import org.eclipse.jdt.core.dom.DoStatement;
+import org.eclipse.jdt.core.dom.EmptyStatement;
 import org.eclipse.jdt.core.dom.EnhancedForStatement;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
@@ -40,6 +42,7 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
@@ -58,6 +61,7 @@ import org.eclipse.jdt.core.dom.SynchronizedStatement;
 import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.ThrowStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
+import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
 
@@ -308,6 +312,12 @@ public abstract class CodeAnalyzer {
 			case ASTNode.THIS_EXPRESSION: // 52
 				inspectThisExpression(depth, dataFlow, (ThisExpression) node);
 				break;
+			case ASTNode.TYPE_LITERAL: // 57
+				inspectTypeLiteral(depth, dataFlow, (TypeLiteral) node);
+				break;
+			case ASTNode.INSTANCEOF_EXPRESSION: // 62
+				inspectInstanceofExpression(depth, dataFlow, (InstanceofExpression) node);
+				break;
 			case ASTNode.BOOLEAN_LITERAL: // 09
 			case ASTNode.CHARACTER_LITERAL: // 13
 			case ASTNode.NULL_LITERAL: // 33
@@ -338,11 +348,17 @@ public abstract class CodeAnalyzer {
 			case ASTNode.BREAK_STATEMENT: // 10
 				inspectBreakStatement(depth, dataFlow, (BreakStatement) node);
 				break;
+			case ASTNode.CONSTRUCTOR_INVOCATION: // 17
+				inspectConstructorInvocation(depth, dataFlow, (ConstructorInvocation) node);
+				break;
 			case ASTNode.CONTINUE_STATEMENT: // 18
 				inspectContinueStatement(depth, dataFlow, (ContinueStatement) node);
 				break;
 			case ASTNode.DO_STATEMENT: // 19
 				inspectDoStatement(depth, dataFlow, (DoStatement) node);
+				break;
+			case ASTNode.EMPTY_STATEMENT: // 20
+				inspectEmptyStatement(depth, dataFlow, (EmptyStatement) node);
 				break;
 			case ASTNode.EXPRESSION_STATEMENT: // 21
 				inspectExpressionStatement(depth, dataFlow, (ExpressionStatement) node);
@@ -403,7 +419,7 @@ public abstract class CodeAnalyzer {
 	}
 
 	/**
-	 * 03, 04, 27, 32, 46, 48
+	 * 03, 04, 17, 27, 32, 46, 48
 	 */
 	protected void iterateOverParameters(int depth, DataFlow dataFlow, ASTNode expression) {
 		List<Expression> parameters = BindingResolver.getParameters(expression);
@@ -473,6 +489,13 @@ public abstract class CodeAnalyzer {
 	}
 
 	/**
+	 * 17
+	 */
+	protected void inspectConstructorInvocation(int depth, DataFlow dataFlow, ConstructorInvocation statement) {
+		iterateOverParameters(depth, dataFlow, statement);
+	}
+
+	/**
 	 * 18
 	 */
 	protected void inspectContinueStatement(int depth, DataFlow dataFlow, ContinueStatement statement) {
@@ -484,6 +507,13 @@ public abstract class CodeAnalyzer {
 	 */
 	protected void inspectDoStatement(int depth, DataFlow dataFlow, DoStatement statement) {
 		inspectNode(depth, dataFlow, statement.getBody());
+	}
+
+	/**
+	 * 20
+	 */
+	protected void inspectEmptyStatement(int depth, DataFlow dataFlow, EmptyStatement expression) {
+		// Nothing to do.
 	}
 
 	/**
@@ -794,6 +824,21 @@ public abstract class CodeAnalyzer {
 	 */
 	protected void inspectThisExpression(int depth, DataFlow dataFlow, ThisExpression expression) {
 		// TODO - Get the reference to the class of this THIS.
+		// inspectNode(depth, dataFlow, (Expression) expression.getParent());
+	}
+
+	/**
+	 * 57
+	 */
+	protected void inspectTypeLiteral(int depth, DataFlow dataFlow, TypeLiteral expression) {
+		// Nothing to do.
+	}
+
+	/**
+	 * 62
+	 */
+	protected void inspectInstanceofExpression(int depth, DataFlow dataFlow, InstanceofExpression expression) {
+		PluginLogger.logIfDebugging(expression.toString());
 		// inspectNode(depth, dataFlow, (Expression) expression.getParent());
 	}
 
