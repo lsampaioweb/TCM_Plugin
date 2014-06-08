@@ -498,7 +498,6 @@ public abstract class CodeAnalyzer {
 	 */
 	protected void inspectFieldAccess(int depth, DataFlow dataFlow, FieldAccess expression) {
 		inspectNode(depth, dataFlow, expression.getName());
-		// inspectNode(depth, dataFlow, expression.getExpression());
 	}
 
 	/**
@@ -872,7 +871,6 @@ public abstract class CodeAnalyzer {
 	 */
 	protected void inspectVariableDeclarationStatement(int depth, DataFlow dataFlow,
 			VariableDeclarationStatement statement) {
-		PluginLogger.logError("inspectVariableDeclarationStatement not implemented. " + statement, null);
 	}
 
 	/**

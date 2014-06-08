@@ -255,6 +255,7 @@ public class BindingResolver {
 					return ((ParenthesizedExpression) expression).getExpression();
 				case ASTNode.QUALIFIED_NAME: // 40
 				case ASTNode.SIMPLE_NAME: // 42
+				case ASTNode.STRING_LITERAL: // 45
 					return null;
 				default:
 					PluginLogger.logError("getExpression default:" + expression.getNodeType() + " - " + expression, null);
