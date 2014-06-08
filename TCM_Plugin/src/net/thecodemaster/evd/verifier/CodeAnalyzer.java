@@ -224,20 +224,27 @@ public abstract class CodeAnalyzer {
 		return false;
 	}
 
-	protected void updateVariableBindingStatus(VariableBindingManager variableBinding, DataFlow newDataFlow) {
-		EnumStatusVariable status = (newDataFlow.isVulnerable()) ? EnumStatusVariable.VULNERABLE
+	protected void updateVariableBindingStatus(VariableBindingManager variableBinding, DataFlow dataFlow) {
+		EnumStatusVariable status = (dataFlow.isVulnerable()) ? EnumStatusVariable.VULNERABLE
 				: EnumStatusVariable.NOT_VULNERABLE;
-		variableBinding.setStatus(newDataFlow, status);
+		variableBinding.setStatus(dataFlow, status);
 	}
 
 	protected void updateVariableBindingStatusToPrimitive(VariableBindingManager variableBinding) {
 		variableBinding.setStatus(EnumStatusVariable.NOT_VULNERABLE);
 	}
 
-	protected boolean isPrimitive(Expression variableName) {
-		ITypeBinding typeBinding = BindingResolver.resolveTypeBinding(variableName);
+	protected boolean isPrimitive(Expression expression) {
+		// 01 - Get the type if it is a variable or the return type if it is a method.
+		ITypeBinding typeBinding = BindingResolver.resolveTypeBinding(expression);
 
-		return (null != typeBinding) ? typeBinding.isPrimitive() : false;
+		// 02 - If the type is primitive, we return and that's it.
+		if (typeBinding.isPrimitive()) {
+			return true;
+		}
+
+		// 03 - If the type is a Wrapper, the method isPrimitive returns false, so we have to check that.
+		return BindingResolver.isWrapperOfPrimitive(typeBinding);
 	}
 
 	protected void inspectNode(int depth, DataFlow dataFlow, Expression node) {
@@ -278,8 +285,7 @@ public abstract class CodeAnalyzer {
 				break;
 			case ASTNode.CLASS_INSTANCE_CREATION: // 14
 			case ASTNode.METHOD_INVOCATION: // 32
-				Expression method = node;
-				inspectMethodInvocation(depth, dataFlow.addNodeToPath(method), method);
+				inspectMethodInvocation(depth, dataFlow, node);
 				break;
 			case ASTNode.PARENTHESIZED_EXPRESSION: // 36
 				inspectParenthesizedExpression(depth, dataFlow, (ParenthesizedExpression) node);
@@ -294,8 +300,7 @@ public abstract class CodeAnalyzer {
 				inspectQualifiedName(depth, dataFlow, (QualifiedName) node);
 				break;
 			case ASTNode.SIMPLE_NAME: // 42
-				SimpleName simpleName = (SimpleName) node;
-				inspectSimpleName(depth, dataFlow.addNodeToPath(simpleName), simpleName);
+				inspectSimpleName(depth, dataFlow, (SimpleName) node);
 				break;
 			case ASTNode.SUPER_METHOD_INVOCATION: // 48
 				inspectSuperMethodInvocation(depth, dataFlow, (SuperMethodInvocation) node);
@@ -431,7 +436,13 @@ public abstract class CodeAnalyzer {
 	protected void inspectBlock(int depth, DataFlow dataFlow, Block block) {
 		if (null != block) {
 			for (Object object : block.statements()) {
-				inspectNode(depth, dataFlow, (Statement) object);
+				DataFlow newDataFlow = new DataFlow();
+
+				inspectNode(depth, newDataFlow, (Statement) object);
+
+				if (newDataFlow.isVulnerable()) {
+					dataFlow.addNodeToPath(newDataFlow.getRoot()).replace(newDataFlow);
+				}
 			}
 		}
 	}
@@ -533,17 +544,30 @@ public abstract class CodeAnalyzer {
 			return;
 		}
 
+		// 03 - Even if this method is vulnerable now, if the return type is primitive,
+		// the vulnerability can not be propagated.
+		// 03.1 request.getParameter("b");
+		// 03.1 boolean b = Boolean.valueOf(request.getParameter("b"));
+		// 03.2 String a = request.getParameter("a");
+		// 03.2 return request.getParameter("b");
+		DataFlow newDataFlow = null;
+		if ((null == dataFlow.getRoot()) || (isPrimitive(methodInvocation))) {
+			newDataFlow = new DataFlow(methodInvocation); // 1
+		} else {
+			newDataFlow = dataFlow.addNodeToPath(methodInvocation); // 2
+		}
+
 		// 03 - Check if this method is an Entry-Point.
 		if (isMethodAnEntryPoint(methodInvocation)) {
 			String message = getMessageEntryPoint(BindingResolver.getFullName(methodInvocation));
 
 			// We found a invocation to a entry point method.
-			dataFlow.isVulnerable(Constant.Vulnerability.ENTRY_POINT, message);
+			newDataFlow.isVulnerable(Constant.Vulnerability.ENTRY_POINT, message);
 			return;
 		}
 
 		// 04 - There are 2 cases: When we have the source code of this method and when we do not.
-		inspectMethodInvocationWithOrWithOutSourceCode(depth, dataFlow, methodInvocation);
+		inspectMethodInvocationWithOrWithOutSourceCode(depth, newDataFlow, methodInvocation);
 	}
 
 	/**
@@ -658,7 +682,8 @@ public abstract class CodeAnalyzer {
 	 * 41
 	 */
 	protected void inspectReturnStatement(int depth, DataFlow dataFlow, ReturnStatement statement) {
-		inspectNode(depth, dataFlow, statement.getExpression());
+		Expression expression = statement.getExpression();
+		inspectNode(depth, dataFlow.addNodeToPath(expression), expression);
 	}
 
 	/**
@@ -672,13 +697,15 @@ public abstract class CodeAnalyzer {
 	 */
 	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression,
 			VariableBindingManager variableBinding) {
+		DataFlow newDataFlow = dataFlow.addNodeToPath(expression);
+
 		if (null != variableBinding) {
-			processIfStatusUnknownOrUpdateIfVulnerable(depth, dataFlow, variableBinding);
+			processIfStatusUnknownOrUpdateIfVulnerable(depth, newDataFlow, variableBinding);
 		} else {
 			// If a method is scanned after a method invocation, all the parameters are provided, but
 			// if a method is scanned from the initial block declarations loop, some parameter might not be known
 			// so it is necessary to investigate WHO invoked this method and what were the provided parameters.
-			inspectSimpleNameFromInvokers(depth, dataFlow, expression, variableBinding);
+			inspectSimpleNameFromInvokers(depth, newDataFlow, expression, variableBinding);
 		}
 	}
 
@@ -889,7 +916,10 @@ public abstract class CodeAnalyzer {
 					addReferenceArrayInitializer(depth, expression, (ArrayInitializer) initializer);
 					break;
 				case ASTNode.ASSIGNMENT: // 07
-					addReferenceAssgnment(depth, expression, (Assignment) initializer);
+					addReferenceAssignment(depth, expression, (Assignment) initializer);
+					break;
+				case ASTNode.CAST_EXPRESSION: // 11
+					inspectCastExpression(depth, expression, (CastExpression) initializer);
 					break;
 				case ASTNode.CONDITIONAL_EXPRESSION: // 16
 					addReferenceConditionalExpression(depth, expression, (ConditionalExpression) initializer);
@@ -931,9 +961,13 @@ public abstract class CodeAnalyzer {
 		}
 	}
 
-	protected void addReferenceAssgnment(int depth, Expression expression, Assignment initializer) {
+	protected void addReferenceAssignment(int depth, Expression expression, Assignment initializer) {
 		addReferenceToInitializer(depth, expression, initializer.getLeftHandSide());
 		addReferenceToInitializer(depth, expression, initializer.getRightHandSide());
+	}
+
+	protected void inspectCastExpression(int depth, Expression expression, CastExpression initializer) {
+		addReferenceToInitializer(depth, expression, initializer.getExpression());
 	}
 
 	protected void addReferenceConditionalExpression(int depth, Expression expression, ConditionalExpression initializer) {

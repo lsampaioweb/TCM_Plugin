@@ -144,16 +144,8 @@ public class BindingResolver {
 				case ASTNode.ARRAY_ACCESS: // 02
 					expression = ((ArrayAccess) expression).getArray();
 					break;
-				// case ASTNode.CLASS_INSTANCE_CREATION: // 14
-				// expression = null;
-				// break;
-				// case ASTNode.METHOD_INVOCATION: // 32
-				// MethodInvocation methodInvocation = (MethodInvocation) expression;
-				// expression = methodInvocation.getExpression();
-				// break;
 				case ASTNode.QUALIFIED_NAME: // 40
-					QualifiedName qualifiedName = (QualifiedName) expression;
-					expression = qualifiedName.getQualifier();
+					expression = ((QualifiedName) expression).getQualifier();
 					break;
 				case ASTNode.FIELD_ACCESS: // 22
 				case ASTNode.STRING_LITERAL: // 45
@@ -261,6 +253,9 @@ public class BindingResolver {
 					return ((MethodInvocation) expression).getExpression();
 				case ASTNode.PARENTHESIZED_EXPRESSION: // 36
 					return ((ParenthesizedExpression) expression).getExpression();
+				case ASTNode.QUALIFIED_NAME: // 40
+				case ASTNode.SIMPLE_NAME: // 42
+					return null;
 				default:
 					PluginLogger.logError("getExpression default:" + expression.getNodeType() + " - " + expression, null);
 					return null;
@@ -402,6 +397,31 @@ public class BindingResolver {
 			PluginLogger.logError(e);
 		}
 		return null;
+	}
+
+	public static boolean isWrapperOfPrimitive(ITypeBinding typeBinding) {
+		String name = typeBinding.getQualifiedName();
+		if (null != name) {
+			// boolean, byte, char, short, int, long, float, and double,
+			if (name.equals("java.lang.Boolean")) {
+				return true;
+			} else if (name.equals("java.lang.Byte")) {
+				return true;
+			} else if (name.equals("java.lang.Character")) {
+				return true;
+			} else if (name.equals("java.lang.Short")) {
+				return true;
+			} else if (name.equals("java.lang.Integer")) {
+				return true;
+			} else if (name.equals("java.lang.Long")) {
+				return true;
+			} else if (name.equals("java.lang.Float")) {
+				return true;
+			} else if (name.equals("java.lang.Double")) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }

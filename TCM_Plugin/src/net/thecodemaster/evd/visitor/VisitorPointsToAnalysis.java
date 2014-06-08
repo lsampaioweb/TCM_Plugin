@@ -17,12 +17,10 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Assignment;
-import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
@@ -152,12 +150,13 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	 * @param methodDeclaration
 	 */
 	protected void run(int depth, MethodDeclaration methodDeclaration) {
-		Block block = methodDeclaration.getBody();
-		if (null != block) {
-			for (Object object : block.statements()) {
-				inspectNode(depth, new DataFlow(), (Statement) object);
-			}
-		}
+		// Block block = methodDeclaration.getBody();
+		// if (null != block) {
+		// for (Object object : block.statements()) {
+		// inspectNode(depth, new DataFlow(), (Statement) object);
+		// }
+		// }
+		inspectNode(depth, new DataFlow(), methodDeclaration.getBody());
 	}
 
 	/**
@@ -231,14 +230,19 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		List<Expression> expressions = Creator.newList();
 
 		Expression optionalexpression = methodInvocation;
-		while ((null != optionalexpression) && (optionalexpression.getNodeType() == ASTNode.METHOD_INVOCATION)) {
-			expressions.add(optionalexpression);
+		while (null != optionalexpression) {
+			switch (optionalexpression.getNodeType()) {
+				case ASTNode.CLASS_INSTANCE_CREATION: // 14
+				case ASTNode.METHOD_INVOCATION: // 32
+					expressions.add(optionalexpression);
+					break;
+			}
 
 			optionalexpression = BindingResolver.getExpression(optionalexpression);
 		}
 
 		for (Expression expression : expressions) {
-			super.inspectMethodInvocationWithOrWithOutSourceCode(depth, dataFlow, expression);
+			super.inspectMethodInvocationWithOrWithOutSourceCode(depth, dataFlow.addNodeToPath(expression), expression);
 		}
 	}
 
@@ -263,7 +267,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 			// 01 - Add a method reference to this variable (if it is a variable).
 			addReferenceToInitializer(depth, expression, parameter);
 
-			inspectNode(depth, dataFlow, parameter);
+			inspectNode(depth, dataFlow.addNodeToPath(parameter), parameter);
 		}
 	}
 
