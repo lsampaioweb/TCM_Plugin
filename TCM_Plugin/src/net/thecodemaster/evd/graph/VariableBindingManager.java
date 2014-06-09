@@ -102,10 +102,10 @@ public class VariableBindingManager {
 		}
 
 		VariableBindingManager other = (VariableBindingManager) obj;
-		if (getBinding() != other.getBinding()) {
+		if (!getBinding().equals(other.getBinding())) {
 			return false;
 		}
-		if (getInitializer() != other.getInitializer()) {
+		if (!getInitializer().equals(other.getInitializer())) {
 			return false;
 		}
 

@@ -452,13 +452,15 @@ public abstract class CodeAnalyzer {
 	protected void inspectBlock(int depth, DataFlow dataFlow, Block block) {
 		if (null != block) {
 			for (Object object : block.statements()) {
-				DataFlow newDataFlow = new DataFlow();
-
-				inspectNode(depth, newDataFlow, (Statement) object);
-
-				if (newDataFlow.isVulnerable()) {
-					dataFlow.addNodeToPath(newDataFlow.getRoot()).replace(newDataFlow);
+				DataFlow newDataFlow = (null != dataFlow.getRoot()) ? dataFlow : dataFlow.getParent();
+				if (null == newDataFlow) {
+					newDataFlow = new DataFlow();
 				}
+				inspectNode(depth, newDataFlow.addNodeToPath(null), (Statement) object);
+
+				// if (newDataFlow.isVulnerable()) {
+				// dataFlow.addNodeToPath(newDataFlow.getRoot()).replace(newDataFlow);
+				// }
 			}
 		}
 	}
@@ -541,8 +543,8 @@ public abstract class CodeAnalyzer {
 	 * 25
 	 */
 	protected void inspectIfStatement(int depth, DataFlow dataFlow, IfStatement statement) {
-		inspectNode(depth, dataFlow, statement.getThenStatement());
-		inspectNode(depth, dataFlow, statement.getElseStatement());
+		inspectNode(depth, dataFlow.addNodeToPath(null), statement.getThenStatement());
+		inspectNode(depth, dataFlow.addNodeToPath(null), statement.getElseStatement());
 	}
 
 	/**
@@ -839,7 +841,6 @@ public abstract class CodeAnalyzer {
 	 */
 	protected void inspectInstanceofExpression(int depth, DataFlow dataFlow, InstanceofExpression expression) {
 		PluginLogger.logIfDebugging(expression.toString());
-		// inspectNode(depth, dataFlow, (Expression) expression.getParent());
 	}
 
 	/**
@@ -847,10 +848,11 @@ public abstract class CodeAnalyzer {
 	 */
 	protected void addVariableToCallGraphAndInspectInitializer(int depth, DataFlow dataFlow, Expression variableName,
 			Expression initializer) {
+		// 01 - Add a reference to this variable (if it is a variable).
+		addReferenceToInitializer(depth, variableName, initializer);
+
 		VariableBindingManager variableBinding = getCallGraph().addVariableToCallGraph(variableName, initializer);
 		if (null != variableBinding) {
-			// 01 - Add a reference to this variable (if it is a variable).
-			addReferenceToInitializer(depth, variableName, initializer);
 
 			// 02 - Inspect the Initializer to verify if this variable is vulnerable.
 			DataFlow newDataFlow = new DataFlow(variableName);
@@ -858,10 +860,10 @@ public abstract class CodeAnalyzer {
 
 			// 03 - If there is a vulnerable path, then this variable is vulnerable.
 			// But if this variable is of primitive type, then there is nothing to do because they can not be vulnerable.
-			if (!isPrimitive(variableName)) {
-				updateVariableBindingStatus(variableBinding, newDataFlow);
-			} else {
+			if (isPrimitive(variableName)) {
 				updateVariableBindingStatusToPrimitive(variableBinding);
+			} else {
+				updateVariableBindingStatus(variableBinding, newDataFlow);
 			}
 		}
 	}
@@ -879,7 +881,7 @@ public abstract class CodeAnalyzer {
 	protected void inspectSwitchStatement(int depth, DataFlow dataFlow, SwitchStatement statement) {
 		List<?> switchStatements = statement.statements();
 		for (Object switchCases : switchStatements) {
-			inspectNode(depth, dataFlow, (Statement) switchCases);
+			inspectNode(depth, dataFlow.addNodeToPath(null), (Statement) switchCases);
 		}
 	}
 
@@ -901,14 +903,14 @@ public abstract class CodeAnalyzer {
 	 * 54
 	 */
 	protected void inspectTryStatement(int depth, DataFlow dataFlow, TryStatement statement) {
-		inspectNode(depth, dataFlow, statement.getBody());
+		inspectNode(depth, dataFlow.addNodeToPath(null), statement.getBody());
 
 		List<?> listCatches = statement.catchClauses();
 		for (Object catchClause : listCatches) {
-			inspectNode(depth, dataFlow, ((CatchClause) catchClause).getBody());
+			inspectNode(depth, dataFlow.addNodeToPath(null), ((CatchClause) catchClause).getBody());
 		}
 
-		inspectNode(depth, dataFlow, statement.getFinally());
+		inspectNode(depth, dataFlow.addNodeToPath(null), statement.getFinally());
 	}
 
 	/**

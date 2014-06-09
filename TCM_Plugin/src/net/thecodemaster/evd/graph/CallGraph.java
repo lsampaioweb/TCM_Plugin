@@ -287,6 +287,8 @@ public class CallGraph {
 					}
 				}
 			}
+
+			return getLastReference(simpleName);
 		}
 
 		return null;

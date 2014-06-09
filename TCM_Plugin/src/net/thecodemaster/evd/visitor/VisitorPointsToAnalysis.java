@@ -277,7 +277,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	@Override
 	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression) {
 		// 01 - Try to retrieve the variable from the list of variables.
-		VariableBindingManager variableBinding = getCallGraph().getLastReference(expression);
+		VariableBindingManager variableBinding = getCallGraph().getVariableBinding(expression);
 
 		inspectSimpleName(depth, dataFlow, expression, variableBinding);
 	}

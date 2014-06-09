@@ -61,6 +61,10 @@ public class DataFlow {
 		return root;
 	}
 
+	public DataFlow getParent() {
+		return parent;
+	}
+
 	public int getTypeProblem() {
 		return typeProblem;
 	}
