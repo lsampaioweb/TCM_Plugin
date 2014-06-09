@@ -8,8 +8,8 @@ import java.util.Map.Entry;
 import net.thecodemaster.evd.graph.BindingResolver;
 import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.DataFlow;
-import net.thecodemaster.evd.graph.VariableBindingManager;
 import net.thecodemaster.evd.helper.Creator;
+import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.ui.l10n.Message;
 import net.thecodemaster.evd.verifier.CodeAnalyzer;
 
@@ -79,10 +79,16 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 				// 03 - Retrieve the variable binding of this parameter from the callGraph.
 				Expression initializer = BindingResolver.getParameterAtIndex(methodInvocation, parameterIndex++);
 
-				// 04 - We add the content with the one that came from the method invocation.
+				// 04 - Add a reference to this variable (if it is a variable).
+				addReferenceToInitializer(depth, parameterName, initializer);
+
+				// 05 - Add the content with the one that came from the method invocation.
 				getCallGraph().addVariableToCallGraph(parameterName, initializer);
 
-				// 05 - Add a method reference to this variable (if it is a variable).
+				// 06 - Add a method reference to this variable (if it is a variable).
+				addReferenceToInitializer(depth, methodInvocation, parameterName);
+
+				// 07 - Add a method reference to this variable (if it is a variable).
 				addReferenceToInitializer(depth, methodInvocation, initializer);
 			}
 		}
@@ -108,6 +114,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	 * @param resource
 	 */
 	protected void run(IResource resource) {
+		PluginLogger.logIfDebugging("Resource:" + resource.getName());
 		// 01 - Get the list of methods in the current resource and its invocations.
 		Map<MethodDeclaration, List<Expression>> methods = getCallGraph().getMethods(resource);
 
@@ -150,13 +157,14 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	 * @param methodDeclaration
 	 */
 	protected void run(int depth, MethodDeclaration methodDeclaration) {
+		PluginLogger.logIfDebugging("MethodDeclaration:" + methodDeclaration.getName().getIdentifier());
 		// Block block = methodDeclaration.getBody();
 		// if (null != block) {
 		// for (Object object : block.statements()) {
 		// inspectNode(depth, new DataFlow(), (Statement) object);
 		// }
 		// }
-		inspectNode(depth, new DataFlow(), methodDeclaration.getBody());
+		inspectNode(depth, new DataFlow(methodDeclaration.getName()), methodDeclaration.getBody());
 	}
 
 	/**
@@ -269,17 +277,6 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
 			inspectNode(depth, dataFlow.addNodeToPath(parameter), parameter);
 		}
-	}
-
-	/**
-	 * 42
-	 */
-	@Override
-	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression) {
-		// 01 - Try to retrieve the variable from the list of variables.
-		VariableBindingManager variableBinding = getCallGraph().getVariableBinding(expression);
-
-		inspectSimpleName(depth, dataFlow, expression, variableBinding);
 	}
 
 	/**

@@ -5,6 +5,7 @@ import java.util.List;
 import net.thecodemaster.evd.Activator;
 
 import org.eclipse.core.resources.IResource;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -21,23 +22,14 @@ public class AllTests extends AbstractTestVerifier {
 		Activator.getDefault().getStateLocation();
 	}
 
-	// public static Test suite() {
-	// TestSuite suite = new TestSuite("jUnit for the TCM_EVD Plug-in");
-	// // $JUnit-BEGIN$
-	// suite.addTestSuite(CookiePoisoning.class);
-	// suite.addTestSuite(CrossSiteScripting.class);
-	// suite.addTestSuite(SecurityMisconfiguration.class);
-	// suite.addTestSuite(SQLInjection.class);
-	// suite.addTestSuite(UnvalidatedRedirecting.class);
-	// suite.addTestSuite(VariableDeclaration.class);
-	// suite.addTestSuite(VulnerabilityPathReporter.class);
-	// // $JUnit-END$
-	// return suite;
-	// }
-
 	@Override
 	protected List<IResource> getResources() {
 		return null;
+	}
+
+	@AfterClass
+	public static void cleanUp() {
+		System.out.println("Finished.");
 	}
 
 }

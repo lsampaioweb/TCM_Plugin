@@ -81,15 +81,15 @@ public class BindingResolver {
 	public static Expression getParentWhoHasAReference(ASTNode node) {
 		while (null != node) {
 			switch (node.getNodeType()) {
-				case ASTNode.METHOD_INVOCATION:
-				case ASTNode.CLASS_INSTANCE_CREATION:
+				case ASTNode.ASSIGNMENT: // 07
+					return ((Assignment) node).getLeftHandSide();
+				case ASTNode.CLASS_INSTANCE_CREATION: // 14
+				case ASTNode.METHOD_INVOCATION: // 32
 					return (Expression) node;
-				case ASTNode.VARIABLE_DECLARATION_FRAGMENT:
-					VariableDeclarationFragment vdf = (VariableDeclarationFragment) node;
-					return vdf.getName();
-				case ASTNode.ASSIGNMENT:
-					Assignment assignment = (Assignment) node;
-					return assignment.getLeftHandSide();
+					// case ASTNode.METHOD_DECLARATION: // 31
+					// return ((MethodDeclaration) node).getName();
+				case ASTNode.VARIABLE_DECLARATION_FRAGMENT: // 59
+					return ((VariableDeclarationFragment) node).getName();
 			}
 
 			node = node.getParent();

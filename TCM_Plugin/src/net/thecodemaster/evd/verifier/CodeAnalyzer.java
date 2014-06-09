@@ -721,6 +721,10 @@ public abstract class CodeAnalyzer {
 	 * 42
 	 */
 	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression) {
+		// 01 - Try to retrieve the variable from the list of variables.
+		VariableBindingManager variableBinding = getCallGraph().getVariableBinding(expression);
+
+		inspectSimpleName(depth, dataFlow, expression, variableBinding);
 	}
 
 	/**

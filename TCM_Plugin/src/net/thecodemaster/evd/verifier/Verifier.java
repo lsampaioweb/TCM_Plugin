@@ -8,7 +8,6 @@ import net.thecodemaster.evd.graph.BindingResolver;
 import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.graph.Parameter;
-import net.thecodemaster.evd.graph.VariableBindingManager;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.point.ExitPoint;
 import net.thecodemaster.evd.reporter.Reporter;
@@ -19,7 +18,6 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.SimpleName;
 
 /**
  * The verifier is the class that actually knows how to find the vulnerability and the one that performs this
@@ -275,17 +273,6 @@ public abstract class Verifier extends CodeAnalyzer {
 
 		// 02 - Invoke the inspectNode from the superclass.
 		super.inspectNode(depth, dataFlow, node);
-	}
-
-	/**
-	 * 42
-	 */
-	@Override
-	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression) {
-		// 01 - Try to retrieve the variable from the list of variables.
-		VariableBindingManager variableBinding = getCallGraph().getVariableBinding(expression);
-
-		inspectSimpleName(depth, dataFlow, expression, variableBinding);
 	}
 
 }
