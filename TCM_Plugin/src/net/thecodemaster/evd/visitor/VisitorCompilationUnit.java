@@ -12,7 +12,6 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 /**
@@ -48,20 +47,6 @@ public class VisitorCompilationUnit extends ASTVisitor {
 
 	private Stack<MethodDeclaration> getMethodStack() {
 		return methodStack;
-	}
-
-	@Override
-	public boolean visit(TypeDeclaration node) {
-		// Make sure we don't pick up the top level class.
-		// if (node.getParent().getNodeType() == ASTNode.COMPILATION_UNIT) {
-		// isInterface = node.isInterface();
-		// superclass = node.getSuperclassType();
-		// superInterfaceTypes = node.superInterfaceTypes();
-		return true;
-		// } else {
-		// newNodes.add(node);
-		// return false;
-		// }
 	}
 
 	@Override
@@ -116,5 +101,24 @@ public class VisitorCompilationUnit extends ASTVisitor {
 			getCallGraph().addMethodInvocation(getResource(), getMethodStack().peek(), method);
 		}
 	}
+
+	// TODO - Inner Class
+	// @Override
+	// public boolean visit(TypeDeclaration typeDeclarationStatement) {
+	// if (!typeDeclarationStatement.isPackageMemberTypeDeclaration()) {
+	// System.out.println(typeDeclarationStatement.getName());
+	// // Get more details from the type declaration.
+	// }
+	//
+	// return super.visit(typeDeclarationStatement);
+	// }
+
+	// TODO - Anonymous Class.
+	// @Override
+	// public boolean visit(AnonymousClassDeclaration anonymousClassDeclaration) {
+	// System.out.println(anonymousClassDeclaration.toString());
+	//
+	// return super.visit(anonymousClassDeclaration);
+	// }
 
 }

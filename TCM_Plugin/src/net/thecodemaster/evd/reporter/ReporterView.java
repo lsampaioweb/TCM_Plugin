@@ -221,7 +221,7 @@ public class ReporterView implements IReporter {
 			int lineNumber = 0;
 
 			// Get the Compilation Unit of this resource.
-			CompilationUnit cUnit = BindingResolver.getParentCompilationUnit(expr);
+			CompilationUnit cUnit = BindingResolver.getCompilationUnit(expr);
 			if (null != cUnit) {
 				lineNumber = cUnit.getLineNumber(startPosition);
 				resource = cUnit.getJavaElement().getCorrespondingResource();

@@ -1,13 +1,11 @@
-package net.thecodemaster.evd.verifier;
+package net.thecodemaster.evd.graph;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import net.thecodemaster.evd.constant.Constant;
-import net.thecodemaster.evd.graph.BindingResolver;
-import net.thecodemaster.evd.graph.CallGraph;
-import net.thecodemaster.evd.graph.DataFlow;
-import net.thecodemaster.evd.graph.VariableBinding;
+import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.marker.MarkerManager;
 import net.thecodemaster.evd.point.EntryPoint;
@@ -18,6 +16,7 @@ import net.thecodemaster.evd.xmlloader.LoaderEntryPoint;
 import net.thecodemaster.evd.xmlloader.LoaderSanitizationPoint;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ArrayAccess;
 import org.eclipse.jdt.core.dom.ArrayCreation;
@@ -90,13 +89,17 @@ public abstract class CodeAnalyzer {
 	 * List with all the Sanitizers (shared among other instances of the verifiers).
 	 */
 	private static List<SanitizationPoint>	sanitizers;
+	/**
+	 * The object is responsible to update the progress bar of the user interface.
+	 */
+	private IProgressMonitor								progressMonitor;
 
-	public CompilationUnit getCurrentCompilationUnit() {
-		return currentCompilationUnit;
+	protected void setCurrentCompilationUnit(CompilationUnit currentCompilationUnit) {
+		this.currentCompilationUnit = currentCompilationUnit;
 	}
 
-	public void setCurrentCompilationUnit(CompilationUnit currentCompilationUnit) {
-		this.currentCompilationUnit = currentCompilationUnit;
+	protected CompilationUnit getCurrentCompilationUnit() {
+		return currentCompilationUnit;
 	}
 
 	protected void setCurrentResource(IResource currentResource) {
@@ -118,37 +121,43 @@ public abstract class CodeAnalyzer {
 	protected static List<EntryPoint> getEntryPoints() {
 		if (null == entryPoints) {
 			// Loads all the EntryPoints.
-			loadEntryPoints();
+			entryPoints = (new LoaderEntryPoint()).load();
 		}
 
 		return entryPoints;
 	}
 
-	/**
-	 * Load all the EntryPoints that the plug-in will use.
-	 */
-	protected static void loadEntryPoints() {
-		entryPoints = (new LoaderEntryPoint()).load();
-	}
-
 	protected static List<SanitizationPoint> getSanitizationPoints() {
 		if (null == sanitizers) {
 			// Loads all the Sanitizers.
-			loadSanitizationPoints();
+			sanitizers = (new LoaderSanitizationPoint()).load();
 		}
 
 		return sanitizers;
 	}
 
-	/**
-	 * Load all the Sanitizers that the plug-in will use.
-	 */
-	protected static void loadSanitizationPoints() {
-		sanitizers = (new LoaderSanitizationPoint()).load();
+	protected void setProgressMonitor(IProgressMonitor progressMonitor) {
+		this.progressMonitor = progressMonitor;
 	}
 
-	protected String getMessageEntryPoint(String value) {
-		return String.format(Message.VerifierSecurityVulnerability.ENTRY_POINT_METHOD, value);
+	protected IProgressMonitor getProgressMonitor() {
+		return progressMonitor;
+	}
+
+	protected String getSubTaskMessage() {
+		return null;
+	}
+
+	/**
+	 * Notifies that a subtask of the main task is beginning.
+	 * 
+	 * @param taskName
+	 *          The text that will be displayed to the user.
+	 */
+	protected void setSubTask(String taskName) {
+		if (null != getProgressMonitor()) {
+			getProgressMonitor().subTask(taskName);
+		}
 	}
 
 	protected boolean hasReachedMaximumDepth(int depth) {
@@ -160,72 +169,18 @@ public abstract class CodeAnalyzer {
 				expression));
 	}
 
-	protected boolean isMethodAnEntryPoint(Expression method) {
-		for (EntryPoint currentEntryPoint : getEntryPoints()) {
-			if (BindingResolver.methodsHaveSameNameAndPackage(currentEntryPoint, method)) {
-				// 01 - Get the expected arguments of this method.
-				List<String> expectedParameters = currentEntryPoint.getParameters();
-
-				// 02 - Get the received parameters of the current method.
-				List<Expression> receivedParameters = BindingResolver.getParameters(method);
-
-				// 03 - It is necessary to check the number of parameters and its types
-				// because it may exist methods with the same names but different parameters.
-				if (expectedParameters.size() == receivedParameters.size()) {
-					boolean isMethodAnEntryPoint = true;
-					int index = 0;
-					for (String expectedParameter : expectedParameters) {
-						ITypeBinding typeBinding = receivedParameters.get(index++).resolveTypeBinding();
-
-						// Verify if all the parameters are the ones expected.
-						if (!BindingResolver.parametersHaveSameType(expectedParameter, typeBinding)) {
-							isMethodAnEntryPoint = false;
-							break;
-						}
-					}
-
-					if (isMethodAnEntryPoint) {
-						return true;
-					}
-				}
-			}
-		}
-
-		return false;
+	protected String getMessageEntryPoint(String value) {
+		return String.format(Message.VerifierSecurityVulnerability.ENTRY_POINT_METHOD, value);
 	}
 
-	protected boolean isMethodASanitizationPoint(Expression method) {
-		for (SanitizationPoint sanitizer : getSanitizationPoints()) {
-			if (BindingResolver.methodsHaveSameNameAndPackage(sanitizer, method)) {
-				// 01 - Get the expected arguments of this method.
-				List<String> expectedParameters = sanitizer.getParameters();
-
-				// 02 - Get the received parameters of the current method.
-				List<Expression> receivedParameters = BindingResolver.getParameters(method);
-
-				// 03 - It is necessary to check the number of parameters and its types
-				// because it may exist methods with the same names but different parameters.
-				if (expectedParameters.size() == receivedParameters.size()) {
-					boolean isMethodAnEntryPoint = true;
-					int index = 0;
-					for (String expectedParameter : expectedParameters) {
-						ITypeBinding typeBinding = receivedParameters.get(index++).resolveTypeBinding();
-
-						// Verify if all the parameters are the ones expected.
-						if (!BindingResolver.parametersHaveSameType(expectedParameter, typeBinding)) {
-							isMethodAnEntryPoint = false;
-							break;
-						}
-					}
-
-					if (isMethodAnEntryPoint) {
-						return true;
-					}
-				}
-			}
-		}
-
-		return false;
+	/**
+	 * Returns whether cancellation of current operation has been requested
+	 * 
+	 * @param reporter
+	 * @return true if cancellation has been requested, and false otherwise.
+	 */
+	protected boolean userCanceledProcess(IProgressMonitor monitor) {
+		return ((null != getProgressMonitor()) && (getProgressMonitor().isCanceled()));
 	}
 
 	protected void updateVariableBindingStatus(VariableBinding variableBinding, DataFlow dataFlow) {
@@ -249,6 +204,118 @@ public abstract class CodeAnalyzer {
 
 		// 03 - If the type is a Wrapper, the method isPrimitive returns false, so we have to check that.
 		return BindingResolver.isWrapperOfPrimitive(typeBinding);
+	}
+
+	protected void run(IProgressMonitor monitor, CallGraph callGraph, List<IResource> resources) {
+		setProgressMonitor(monitor);
+		setCallGraph(callGraph);
+
+		// 01 - Iterate over all the resources.
+		for (IResource resource : resources) {
+			if (!userCanceledProcess(getProgressMonitor())) {
+				// 02 - Set the current resource.
+				setCurrentResource(resource);
+
+				// 03 - Inform the user what is the current process of the plug-in.
+				setSubTask(getSubTaskMessage());
+
+				// 04 - Get the list of methods that will be processed from this resource.
+				Map<MethodDeclaration, List<Expression>> methodsToProcess = getMethodsToProcess(resources, resource);
+
+				// 05 - Process the detection on these methods.
+				run(methodsToProcess);
+			} else {
+				// 02 - The user has stopped the process.
+				return;
+			}
+		}
+	}
+
+	protected Map<MethodDeclaration, List<Expression>> getMethodsToProcess(List<IResource> resources, IResource resource) {
+		// This map contains the method that will be processed and its invokers.
+		Map<MethodDeclaration, List<Expression>> methodsToProcess = Creator.newMap();
+
+		// 01 - Get the list of methods in the current resource and its invocations.
+		Map<MethodDeclaration, List<Expression>> methods = getCallGraph().getMethods(resource);
+
+		// 02 - Iterate over all the method declarations of the current resource.
+		for (MethodDeclaration methodDeclaration : methods.keySet()) {
+
+			// To avoid unnecessary processing, we only process methods that are
+			// not invoked by any other method in the same file. Because if the method
+			// is invoked, eventually it will be processed.
+			// 03 - Get the list of methods that invokes this method.
+			Map<MethodDeclaration, List<Expression>> invokers = getCallGraph().getInvokers(methodDeclaration);
+			if (invokers.size() > 0) {
+				// 04 - Iterate over all the methods that invokes this method.
+				for (Entry<MethodDeclaration, List<Expression>> caller : invokers.entrySet()) {
+
+					// 05 - Get the resource of this method (caller).
+					IResource resourceCaller = BindingResolver.getResource(caller.getKey());
+
+					// 06 - If this method is invoked by a method from another resource
+					// and that resource is not in the list of resources that are going to be processed.
+					if ((!resourceCaller.equals(resource)) && (!resources.contains(resourceCaller))) {
+
+						// 07 - Care only about the invocations to this method.
+						if (!methodsToProcess.containsKey(methodDeclaration)) {
+							List<Expression> invocations = Creator.newList();
+
+							// Create a empty list of method invocations.
+							methodsToProcess.put(methodDeclaration, invocations);
+						}
+
+						// 08 - This method should be processed, add it to the list.
+						methodsToProcess.get(methodDeclaration).addAll(caller.getValue());
+					}
+				}
+			} else {
+				List<Expression> emptyInvokers = Creator.newList();
+
+				// 04 - This method should be processed, add it to the list.
+				methodsToProcess.put(methodDeclaration, emptyInvokers);
+			}
+
+		}
+
+		return methodsToProcess;
+	}
+
+	/**
+	 * Run the vulnerability detection on the provided method declaration.
+	 * 
+	 * @param methodDeclaration
+	 */
+	protected void run(Map<MethodDeclaration, List<Expression>> methodsToProcess) {
+		for (Entry<MethodDeclaration, List<Expression>> methodDeclaration : methodsToProcess.entrySet()) {
+			// 01 - The depth controls the investigation mechanism to avoid infinitive loops.
+			int depth = 0;
+
+			// 02 - We need the compilation unit to check if there are markers in the current resource.
+			setCurrentCompilationUnit(BindingResolver.getCompilationUnit(methodDeclaration.getKey()));
+
+			// 03 - If this method is not invoked by any other, this method can be an entry method.
+			// Main(), doGet or just a never used method.
+			if (0 == methodDeclaration.getValue().size()) {
+
+				// 03 - Process the detection on the current method.
+				run(depth, methodDeclaration.getKey(), null);
+			} else {
+				for (Expression invoker : methodDeclaration.getValue()) {
+
+					// 04 - Process the detection on the current method.
+					run(depth, methodDeclaration.getKey(), invoker);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Run the vulnerability detection on the current method declaration.
+	 * 
+	 * @param methodDeclaration
+	 */
+	protected void run(int depth, MethodDeclaration methodDeclaration, Expression invoker) {
 	}
 
 	protected void inspectNode(int depth, DataFlow dataFlow, Expression node) {
@@ -565,13 +632,8 @@ public abstract class CodeAnalyzer {
 	 */
 	protected void inspectMethodInvocation(int depth, DataFlow dataFlow, Expression methodInvocation) {
 		// 01 - Check if this method is a Sanitization-Point.
-		if (isMethodASanitizationPoint(methodInvocation)) {
+		if (BindingResolver.isMethodASanitizationPoint(getSanitizationPoints(), methodInvocation)) {
 			// If a sanitization method is being invoked, then we do not have a vulnerability.
-			return;
-		}
-
-		// 02 - Check if there is a marker, in case there is, we should BELIEVE it is not vulnerable.
-		if (hasMarkerAtPosition(methodInvocation)) {
 			return;
 		}
 
@@ -589,7 +651,12 @@ public abstract class CodeAnalyzer {
 		}
 
 		// 03 - Check if this method is an Entry-Point.
-		if (isMethodAnEntryPoint(methodInvocation)) {
+		if (BindingResolver.isMethodAnEntryPoint(getEntryPoints(), methodInvocation)) {
+			// 04 - Check if there is a marker, in case there is, we should BELIEVE it is not vulnerable.
+			if (hasMarkerAtPosition(methodInvocation)) {
+				return;
+			}
+
 			String message = getMessageEntryPoint(BindingResolver.getFullName(methodInvocation));
 
 			// We found a invocation to a entry point method.

@@ -48,15 +48,15 @@ public abstract class Analyzer {
 	/**
 	 * This method will iterate over all the Verifiers of this Analyzer and start invoking each of them.
 	 * 
-	 * @param resources
-	 *          The list of modified resources that needs to be verified.
+	 * @param reporter
+	 *          The object that know where and how to displayed the found vulnerabilities. {@link Reporter}
 	 * @param callGraph
 	 *          The object that contains the callGraph of all methods and variables of the analyzed source code.
 	 *          {@link CallGraph}
-	 * @param reporter
-	 *          The object that know where and how to displayed the found vulnerabilities. {@link Reporter}
+	 * @param resources
+	 *          The list of modified resources that needs to be verified.
 	 */
-	public void run(List<IResource> resources, CallGraph callGraph, Reporter reporter) {
+	public void run(Reporter reporter, CallGraph callGraph, List<IResource> resources) {
 		// 01 - Iterate over the list of verifiers.
 		for (Verifier verifier : getVerifiers()) {
 
@@ -64,7 +64,7 @@ public abstract class Analyzer {
 			// process.
 			if (!userCanceledProcess(reporter)) {
 				Timer timer = (new Timer("01.3.1 - Verifier: " + verifier.getName())).start();
-				verifier.run(resources, callGraph, reporter);
+				verifier.run(reporter, callGraph, resources);
 				PluginLogger.logIfDebugging(timer.stop().toString());
 			}
 		}

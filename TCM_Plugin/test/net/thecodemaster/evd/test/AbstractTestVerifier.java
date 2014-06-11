@@ -6,13 +6,13 @@ import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.verifier.Verifier;
-import net.thecodemaster.evd.verifier.VerifierCommandInjection;
-import net.thecodemaster.evd.verifier.VerifierCookiePoisoning;
-import net.thecodemaster.evd.verifier.VerifierCrossSiteScripting;
-import net.thecodemaster.evd.verifier.VerifierPathTraversal;
-import net.thecodemaster.evd.verifier.VerifierSQLInjection;
-import net.thecodemaster.evd.verifier.VerifierSecurityMisconfiguration;
-import net.thecodemaster.evd.verifier.VerifierUnvalidatedRedirecting;
+import net.thecodemaster.evd.verifier.security.VerifierCommandInjection;
+import net.thecodemaster.evd.verifier.security.VerifierCookiePoisoning;
+import net.thecodemaster.evd.verifier.security.VerifierCrossSiteScripting;
+import net.thecodemaster.evd.verifier.security.VerifierPathTraversal;
+import net.thecodemaster.evd.verifier.security.VerifierSQLInjection;
+import net.thecodemaster.evd.verifier.security.VerifierSecurityMisconfiguration;
+import net.thecodemaster.evd.verifier.security.VerifierUnvalidatedRedirecting;
 import net.thecodemaster.evd.visitor.VisitorCallGraph;
 import net.thecodemaster.evd.visitor.VisitorPointsToAnalysis;
 
@@ -134,7 +134,7 @@ public abstract class AbstractTestVerifier {
 				allVulnerablePaths = Creator.newList();
 				// 06 - Run the verifications.
 				for (Verifier verifier : verifiers) {
-					List<DataFlow> currentList = verifier.run(resources, callGraph, null);
+					List<DataFlow> currentList = verifier.run(null, callGraph, resources);
 
 					if (currentList.size() > 0) {
 						allVulnerablePaths.add(currentList);

@@ -142,7 +142,7 @@ public abstract class AbstractResolution implements IMarkerResolution2 {
 		Expression node = vdm.getExpr();
 
 		// 03 - Get the CompilationUnit from the root element.
-		CompilationUnit cUnit = BindingResolver.getParentCompilationUnit(node);
+		CompilationUnit cUnit = BindingResolver.getCompilationUnit(node);
 
 		// 04 - Creates a new instance for describing manipulations of the given AST.
 		ASTRewrite rewriter = ASTRewrite.create(cUnit.getAST());

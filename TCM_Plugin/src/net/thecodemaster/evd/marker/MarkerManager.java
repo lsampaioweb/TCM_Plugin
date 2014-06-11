@@ -55,7 +55,7 @@ public class MarkerManager {
 			int endPosition = startPosition + node.getLength();
 
 			// Get the Compilation Unit of this resource.
-			CompilationUnit cUnit = BindingResolver.getParentCompilationUnit(node);
+			CompilationUnit cUnit = BindingResolver.getCompilationUnit(node);
 			if (null != cUnit) {
 				lineNumber = cUnit.getLineNumber(startPosition);
 				resource = cUnit.getJavaElement().getCorrespondingResource();

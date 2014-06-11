@@ -12,18 +12,36 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 
 public class Context {
 
-	private final IResource																	resource;
+	private IResource																				resource;
 	private Context																					parent;
 	private final List<VariableBinding>											variables;
 	private final Map<MethodDeclaration, List<Expression>>	methods;
 
+	private final List<Context>															childrenContexts;
+	private Expression																			invoker;
+
 	public Context(IResource resource) {
-		this.resource = resource;
+		setResource(resource);
 		variables = Creator.newList();
 		methods = Creator.newMap();
+		childrenContexts = Creator.newList();
 	}
 
-	private List<VariableBinding> getVariables() {
+	public Context(IResource resource, Context parent) {
+		this(resource);
+
+		setParent(parent);
+	}
+
+	private void setResource(IResource resource) {
+		this.resource = resource;
+	}
+
+	private void setParent(Context parent) {
+		this.parent = parent;
+	}
+
+	public List<VariableBinding> getVariables() {
 		return variables;
 	}
 
@@ -31,7 +49,11 @@ public class Context {
 		getVariables().add(variableBinding);
 	}
 
-	protected Map<MethodDeclaration, List<Expression>> getMethods() {
+	public void addVariableAll(List<VariableBinding> variableBindings) {
+		getVariables().addAll(variableBindings);
+	}
+
+	public Map<MethodDeclaration, List<Expression>> getMethods() {
 		return methods;
 	}
 
@@ -50,6 +72,22 @@ public class Context {
 	public void addMethodInvocation(MethodDeclaration caller, Expression callee) {
 		// 01 - Add the method invocation for the current method (caller).
 		getMethods().get(caller).add(callee);
+	}
+
+	public void addChildContext(Context context) {
+		getChildrenContexts().add(context);
+	}
+
+	public List<Context> getChildrenContexts() {
+		return childrenContexts;
+	}
+
+	public Expression getInvoker() {
+		return invoker;
+	}
+
+	public void setInvoker(Expression invoker) {
+		this.invoker = invoker;
 	}
 
 }

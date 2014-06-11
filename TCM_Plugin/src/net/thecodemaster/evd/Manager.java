@@ -3,7 +3,7 @@ package net.thecodemaster.evd;
 import java.util.List;
 
 import net.thecodemaster.evd.analyzer.Analyzer;
-import net.thecodemaster.evd.analyzer.AnalyzerSecurityVulnerability;
+import net.thecodemaster.evd.analyzer.security.AnalyzerSecurityVulnerability;
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.helper.Creator;
@@ -155,7 +155,7 @@ public class Manager {
 
 		// Iterate over the list of analyzers.
 		for (Analyzer analyzer : analyzers) {
-			analyzer.run(resources, callGraph, getReporter());
+			analyzer.run(getReporter(), callGraph, resources);
 		}
 	}
 

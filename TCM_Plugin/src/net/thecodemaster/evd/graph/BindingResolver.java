@@ -2,12 +2,16 @@ package net.thecodemaster.evd.graph;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.helper.Convert;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.point.AbstractPoint;
+import net.thecodemaster.evd.point.EntryPoint;
+import net.thecodemaster.evd.point.ExitPoint;
+import net.thecodemaster.evd.point.SanitizationPoint;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.JavaModelException;
@@ -55,7 +59,7 @@ public class BindingResolver {
 		return node;
 	}
 
-	public static CompilationUnit getParentCompilationUnit(ASTNode node) {
+	public static CompilationUnit getCompilationUnit(ASTNode node) {
 		return (CompilationUnit) findAncestor(node, ASTNode.COMPILATION_UNIT);
 	}
 
@@ -317,16 +321,16 @@ public class BindingResolver {
 		return null;
 	}
 
-	public static boolean areMethodsEqual(MethodDeclaration method, Expression other) {
+	public static boolean areMethodsEqual(MethodDeclaration method, Expression otherMethod) {
 		String methodName = getName(method);
-		String otherName = getName(other);
+		String otherName = getName(otherMethod);
 
 		// 02 - Verify if they have the same name.
 		if (methodName.equals(otherName)) {
 
 			// 03 - Get the qualified name (Package + Class) of these methods.
 			String qualifiedName = getQualifiedName(method);
-			String otherQualifiedName = getQualifiedName(other);
+			String otherQualifiedName = getQualifiedName(otherMethod);
 
 			// 04 - Verify if they are from the same package and class.
 			// Method names can repeat in other classes.
@@ -334,7 +338,7 @@ public class BindingResolver {
 
 				// 05 - Get their parameters.
 				List<ITypeBinding> methodParameters = getParameterTypes(method);
-				List<Expression> otherParameters = getParameters(other);
+				List<Expression> otherParameters = getParameters(otherMethod);
 
 				// 06 - It is necessary to check the number of parameters and its types
 				// because it may exist methods with the same names but different parameters.
@@ -399,7 +403,7 @@ public class BindingResolver {
 
 	public static IResource getResource(ASTNode node) {
 		try {
-			CompilationUnit cUnit = getParentCompilationUnit(node);
+			CompilationUnit cUnit = getCompilationUnit(node);
 			return cUnit.getJavaElement().getCorrespondingResource();
 		} catch (JavaModelException e) {
 			PluginLogger.logError(e);
@@ -430,6 +434,109 @@ public class BindingResolver {
 			}
 		}
 		return false;
+	}
+
+	public static boolean isMethodAnEntryPoint(List<EntryPoint> entryPoints, Expression method) {
+		for (EntryPoint currentEntryPoint : entryPoints) {
+			if (methodsHaveSameNameAndPackage(currentEntryPoint, method)) {
+				// 01 - Get the expected arguments of this method.
+				List<String> expectedParameters = currentEntryPoint.getParameters();
+
+				// 02 - Get the received parameters of the current method.
+				List<Expression> receivedParameters = getParameters(method);
+
+				// 03 - It is necessary to check the number of parameters and its types
+				// because it may exist methods with the same names but different parameters.
+				if (expectedParameters.size() == receivedParameters.size()) {
+					boolean isMethodAnEntryPoint = true;
+					int index = 0;
+					for (String expectedParameter : expectedParameters) {
+						ITypeBinding typeBinding = receivedParameters.get(index++).resolveTypeBinding();
+
+						// Verify if all the parameters are the ones expected.
+						if (!parametersHaveSameType(expectedParameter, typeBinding)) {
+							isMethodAnEntryPoint = false;
+							break;
+						}
+					}
+
+					if (isMethodAnEntryPoint) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
+	public static boolean isMethodASanitizationPoint(List<SanitizationPoint> sanitizationPoints, Expression method) {
+		for (SanitizationPoint sanitizer : sanitizationPoints) {
+			if (methodsHaveSameNameAndPackage(sanitizer, method)) {
+				// 01 - Get the expected arguments of this method.
+				List<String> expectedParameters = sanitizer.getParameters();
+
+				// 02 - Get the received parameters of the current method.
+				List<Expression> receivedParameters = getParameters(method);
+
+				// 03 - It is necessary to check the number of parameters and its types
+				// because it may exist methods with the same names but different parameters.
+				if (expectedParameters.size() == receivedParameters.size()) {
+					boolean isMethodAnEntryPoint = true;
+					int index = 0;
+					for (String expectedParameter : expectedParameters) {
+						ITypeBinding typeBinding = receivedParameters.get(index++).resolveTypeBinding();
+
+						// Verify if all the parameters are the ones expected.
+						if (!parametersHaveSameType(expectedParameter, typeBinding)) {
+							isMethodAnEntryPoint = false;
+							break;
+						}
+					}
+
+					if (isMethodAnEntryPoint) {
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
+	public static ExitPoint getExitPointIfMethodIsOne(List<ExitPoint> exitPoints, Expression method) {
+		for (ExitPoint currentExitPoint : exitPoints) {
+			if (methodsHaveSameNameAndPackage(currentExitPoint, method)) {
+				// 01 - Get the expected arguments of this method.
+				Map<Parameter, List<Integer>> expectedParameters = currentExitPoint.getParameters();
+
+				// 02 - Get the received parameters of the current method.
+				List<Expression> receivedParameters = getParameters(method);
+
+				// 03 - It is necessary to check the number of parameters and its types
+				// because it may exist methods with the same names but different parameters.
+				if (expectedParameters.size() == receivedParameters.size()) {
+					boolean isMethodAnExitPoint = true;
+					int index = 0;
+					for (Parameter expectedParameter : expectedParameters.keySet()) {
+						ITypeBinding typeBinding = receivedParameters.get(index++).resolveTypeBinding();
+
+						// Verify if all the parameters are the ones expected. However, there is a case
+						// where an Object is expected, and any type is accepted.
+						if (!parametersHaveSameType(expectedParameter.getType(), typeBinding)) {
+							isMethodAnExitPoint = false;
+							break;
+						}
+					}
+
+					if (isMethodAnExitPoint) {
+						return currentExitPoint;
+					}
+				}
+			}
+		}
+
+		return null;
 	}
 
 }
