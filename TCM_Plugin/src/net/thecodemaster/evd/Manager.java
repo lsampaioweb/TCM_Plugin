@@ -146,7 +146,7 @@ public class Manager {
 		return (analyzers.size() > 0);
 	}
 
-	public void run(IProgressMonitor monitor, List<IResource> resources, CallGraph callGraph) {
+	public void run(IProgressMonitor monitor, CallGraph callGraph, List<IResource> resources) {
 		// 01 - With the progress monitor, the report is able to let the user know that the plug-in is working on something.
 		getReporter().setProgressMonitor(monitor);
 

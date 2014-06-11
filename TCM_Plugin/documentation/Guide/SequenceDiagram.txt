@@ -1,0 +1,32 @@
+01 - IncrementalBuilder.java
+  This class is invoked when Eclipse is going to compile(build) the files in a 
+  project that is being edited by the developer.
+
+02 - BuilderJob.java
+  This class performs its operations in a different thread from the UI Thread. 
+  So the user will not be blocked.
+  
+03 - VisitorCallGraph.java
+  This class creates a CompilationUnit from the current resource and uses the
+  VISITOR pattern to create the call graph.
+  
+04 - VisitorCompilationUnit.java
+  This class adds Method Declarations, Method Invocations and Field Declarations 
+  to the callGraph object.
+
+05 - CallGraph.java
+  This object contains all the methods, variables and their interactions, 
+  on the project that is being analyzed. At any given time, we should only have
+  one call graph of the code.
+  
+06 - VisitorPointsToAnalysis.java
+  The main responsibility of this class is to find entry-points and vulnerable variables.
+  
+07 - Manager.java
+  This class knows which options (settings, verifiers and etc.) were selected by
+  the developer (our user). It is a singleton class.
+  The Manager iterates over all the Analyzers and invokes the run method. <br/>
+
+08 - Analyzer
+09 - Verifier
+10 - Context

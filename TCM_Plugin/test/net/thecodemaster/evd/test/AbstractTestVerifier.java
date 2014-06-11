@@ -126,7 +126,7 @@ public abstract class AbstractTestVerifier {
 
 				// 04 - The class that will set the status(VULNERABLE, NOT_VULNERABLE) of all the variables.
 				VisitorPointsToAnalysis pointToAnalysis = new VisitorPointsToAnalysis();
-				pointToAnalysis.run(null, resources, callGraph);
+				pointToAnalysis.run(null, callGraph, resources);
 
 				// 05 - Get the list of verifiers that will be executed.
 				List<Verifier> verifiers = createListVerifiers();

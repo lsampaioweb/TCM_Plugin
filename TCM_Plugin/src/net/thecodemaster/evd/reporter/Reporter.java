@@ -105,8 +105,8 @@ public class Reporter implements IReporter {
 				}
 			}
 
-			// 03 - Now that we have the list of all resources(java files) from the provided project, we actually delete the
-			// old problems.
+			// 03 - Now that we have the list of all resources(java files) from the provided project,
+			// we actually delete the old problems.
 			clearOldProblems(resources);
 		} catch (CoreException e) {
 			PluginLogger.logError(e);
@@ -137,9 +137,9 @@ public class Reporter implements IReporter {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void addProblem(int typeProblem, IResource resource, DataFlow dataFlow) {
+	public void addProblem(IResource resource, int typeProblem, DataFlow dataFlow) {
 		for (IReporter reporter : getReporters()) {
-			reporter.addProblem(typeProblem, resource, dataFlow);
+			reporter.addProblem(resource, typeProblem, dataFlow);
 		}
 	}
 

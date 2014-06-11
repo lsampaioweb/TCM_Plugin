@@ -7,12 +7,12 @@ import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.BindingResolver;
 import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.DataFlow;
-import net.thecodemaster.evd.graph.VariableBindingManager;
+import net.thecodemaster.evd.graph.VariableBinding;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.marker.MarkerManager;
 import net.thecodemaster.evd.point.EntryPoint;
 import net.thecodemaster.evd.point.SanitizationPoint;
-import net.thecodemaster.evd.ui.enumeration.EnumStatusVariable;
+import net.thecodemaster.evd.ui.enumeration.EnumVariableStatus;
 import net.thecodemaster.evd.ui.l10n.Message;
 import net.thecodemaster.evd.xmlloader.LoaderEntryPoint;
 import net.thecodemaster.evd.xmlloader.LoaderSanitizationPoint;
@@ -228,14 +228,14 @@ public abstract class CodeAnalyzer {
 		return false;
 	}
 
-	protected void updateVariableBindingStatus(VariableBindingManager variableBinding, DataFlow dataFlow) {
-		EnumStatusVariable status = (dataFlow.isVulnerable()) ? EnumStatusVariable.VULNERABLE
-				: EnumStatusVariable.NOT_VULNERABLE;
-		variableBinding.setStatus(dataFlow, status);
+	protected void updateVariableBindingStatus(VariableBinding variableBinding, DataFlow dataFlow) {
+		EnumVariableStatus status = (dataFlow.isVulnerable()) ? EnumVariableStatus.VULNERABLE
+				: EnumVariableStatus.NOT_VULNERABLE;
+		variableBinding.setStatus(status).setDataFlow(dataFlow);
 	}
 
-	protected void updateVariableBindingStatusToPrimitive(VariableBindingManager variableBinding) {
-		variableBinding.setStatus(EnumStatusVariable.NOT_VULNERABLE);
+	protected void updateVariableBindingStatusToPrimitive(VariableBinding variableBinding) {
+		variableBinding.setStatus(EnumVariableStatus.NOT_VULNERABLE);
 	}
 
 	protected boolean isPrimitive(Expression expression) {
@@ -258,7 +258,7 @@ public abstract class CodeAnalyzer {
 
 		// 01 - To avoid infinitive loop, this check is necessary.
 		if (hasReachedMaximumDepth(depth++)) {
-			PluginLogger.logError("hasReachedMaximumDepth: " + dataFlow + " - " + node + " - " + depth, null);
+			PluginLogger.logError("hasReachedMaximumDepth: " + " - " + node + " - " + depth, null);
 			return;
 		}
 
@@ -337,7 +337,7 @@ public abstract class CodeAnalyzer {
 
 		// 01 - To avoid infinitive loop, this check is necessary.
 		if (hasReachedMaximumDepth(depth++)) {
-			PluginLogger.logError("hasReachedMaximumDepth: " + dataFlow + " - " + node + " - " + depth, null);
+			PluginLogger.logError("hasReachedMaximumDepth: " + " - " + node + " - " + depth, null);
 			return;
 		}
 
@@ -610,7 +610,7 @@ public abstract class CodeAnalyzer {
 		// response.sendRedirect(login);
 		// getServletContext().getRequestDispatcher(login).forward(request, response);
 		// 01 - There are 2 cases: When we have the source code of this method and when we do not.
-		MethodDeclaration methodDeclaration = getCallGraph().getMethod(getCurrentResource(), methodInvocation);
+		MethodDeclaration methodDeclaration = null;// getCallGraph().getMethod(getCurrentResource(), methodInvocation);
 		if (null != methodDeclaration) {
 			// We have the source code.
 			inspectMethodWithSourceCode(depth, dataFlow, methodInvocation, methodDeclaration);
@@ -618,7 +618,7 @@ public abstract class CodeAnalyzer {
 			inspectMethodWithOutSourceCode(depth, dataFlow, methodInvocation);
 		}
 
-		VariableBindingManager variableBinding = getVariableBindingIfItIsAnObject(methodInvocation);
+		VariableBinding variableBinding = getVariableBindingIfItIsAnObject(methodInvocation);
 		// We found a vulnerability.
 		if (dataFlow.isVulnerable()) {
 			// There are 2 sub-cases: When is a method from an object and when is a method from a library.
@@ -627,7 +627,7 @@ public abstract class CodeAnalyzer {
 
 			// 02 - Check if this method invocation is being call from a vulnerable object.
 			if (null != variableBinding) {
-				variableBinding.setStatus(dataFlow, EnumStatusVariable.VULNERABLE);
+				variableBinding.setStatus(EnumVariableStatus.VULNERABLE).setDataFlow(dataFlow);
 			}
 		} else {
 			// 01 - Check if this method invocation is being call from a vulnerable object.
@@ -655,11 +655,11 @@ public abstract class CodeAnalyzer {
 	/**
 	 * 32
 	 */
-	protected VariableBindingManager getVariableBindingIfItIsAnObject(Expression method) {
+	protected VariableBinding getVariableBindingIfItIsAnObject(Expression method) {
 		Expression expression = BindingResolver.getNameIfItIsAnObject(method);
 
 		if (null != expression) {
-			return getCallGraph().getLastReference((SimpleName) expression);
+			// return getCallGraph().getLastReference((SimpleName) expression);
 		}
 
 		return null;
@@ -669,10 +669,10 @@ public abstract class CodeAnalyzer {
 	 * 32 , 42
 	 */
 	protected void processIfStatusUnknownOrUpdateIfVulnerable(int depth, DataFlow dataFlow,
-			VariableBindingManager variableBinding) {
-		if (variableBinding.status().equals(EnumStatusVariable.VULNERABLE)) {
+			VariableBinding variableBinding) {
+		if (variableBinding.status().equals(EnumVariableStatus.VULNERABLE)) {
 			dataFlow.replace(variableBinding.getDataFlow());
-		} else if (variableBinding.status().equals(EnumStatusVariable.UNKNOWN)) {
+		} else if (variableBinding.status().equals(EnumVariableStatus.UNKNOWN)) {
 			// 01 - This is the case where we have to go deeper into the variable's path.
 			inspectNode(depth, dataFlow, variableBinding.getInitializer());
 
@@ -722,7 +722,7 @@ public abstract class CodeAnalyzer {
 	 */
 	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression) {
 		// 01 - Try to retrieve the variable from the list of variables.
-		VariableBindingManager variableBinding = getCallGraph().getVariableBinding(expression);
+		VariableBinding variableBinding = null;// getCallGraph().getVariableBinding(expression);
 
 		inspectSimpleName(depth, dataFlow, expression, variableBinding);
 	}
@@ -730,8 +730,7 @@ public abstract class CodeAnalyzer {
 	/**
 	 * 42
 	 */
-	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression,
-			VariableBindingManager variableBinding) {
+	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression, VariableBinding variableBinding) {
 		DataFlow newDataFlow = dataFlow.addNodeToPath(expression);
 
 		if (null != variableBinding) {
@@ -748,7 +747,7 @@ public abstract class CodeAnalyzer {
 	 * 42
 	 */
 	protected void inspectSimpleNameFromInvokers(int depth, DataFlow dataFlow, SimpleName expression,
-			VariableBindingManager variableBinding) {
+			VariableBinding variableBinding) {
 		// This is the case where the variable is an argument of the method.
 		// 01 - Get the method signature that is using this parameter.
 		MethodDeclaration methodDeclaration = BindingResolver.getParentMethodDeclaration(expression);
@@ -757,7 +756,7 @@ public abstract class CodeAnalyzer {
 		int parameterIndex = BindingResolver.getParameterIndex(methodDeclaration, expression);
 		if (parameterIndex >= 0) {
 			// 03 - Get the list of methods that invokes this method.
-			Map<MethodDeclaration, List<Expression>> invokers = getCallGraph().getInvokers(methodDeclaration);
+			Map<MethodDeclaration, List<Expression>> invokers = null;// getCallGraph().getInvokers(methodDeclaration);
 
 			// 04 - Iterate over all the methods that invokes this method.
 			for (List<Expression> currentInvocations : invokers.values()) {
@@ -855,7 +854,7 @@ public abstract class CodeAnalyzer {
 		// 01 - Add a reference to this variable (if it is a variable).
 		addReferenceToInitializer(depth, variableName, initializer);
 
-		VariableBindingManager variableBinding = getCallGraph().addVariableToCallGraph(variableName, initializer);
+		VariableBinding variableBinding = null;// getCallGraph().addVariable(variableName, initializer);
 		if (null != variableBinding) {
 
 			// 02 - Inspect the Initializer to verify if this variable is vulnerable.
@@ -988,7 +987,7 @@ public abstract class CodeAnalyzer {
 	}
 
 	protected void addReference(Expression expression, IBinding binding) {
-		VariableBindingManager variableBindingInitializer = getCallGraph().getLastReference(binding);
+		VariableBinding variableBindingInitializer = null;// getCallGraph().getLastReference(binding);
 		if (null != variableBindingInitializer) {
 			variableBindingInitializer.addReferences(expression);
 		}

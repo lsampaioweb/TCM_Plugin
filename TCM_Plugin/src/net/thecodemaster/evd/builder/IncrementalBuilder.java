@@ -16,7 +16,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 
 /**
- * This class is invoked when Eclipse is going to compile(build) the files in a project that are being edited by the
+ * This class is invoked when Eclipse is going to compile(build) the files in a project that is being edited by the
  * developer.
  * 
  * @Author: Luciano Sampaio
@@ -42,6 +42,9 @@ public class IncrementalBuilder extends IncrementalProjectBuilder {
 		reset();
 	}
 
+	/**
+	 * In case the user change some settings, we have to reset this list and start over.
+	 */
 	public static void reset() {
 		fullBuiltProjects = Creator.newList();
 	}

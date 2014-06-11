@@ -7,6 +7,8 @@ import org.eclipse.core.runtime.Status;
 
 /**
  * @author Luciano Sampaio
+ * @Date: 2014-05-24
+ * @Version: 01
  */
 public class PluginLogger {
 

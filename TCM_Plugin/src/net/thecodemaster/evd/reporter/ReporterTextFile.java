@@ -31,7 +31,7 @@ public class ReporterTextFile implements IReporter {
 	}
 
 	@Override
-	public void addProblem(int typeProblem, IResource resource, DataFlow dataFlow) {
+	public void addProblem(IResource resource, int typeProblem, DataFlow dataFlow) {
 		// TODO Auto-generated method stub
 
 	}

@@ -128,8 +128,8 @@ public class ReporterView implements IReporter {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void addProblem(int typeProblem, IResource resource, DataFlow dataFlow) {
-		addToViewDataModel(typeProblem, resource, dataFlow);
+	public void addProblem(IResource resource, int typeProblem, DataFlow dataFlow) {
+		addToViewDataModel(resource, typeProblem, dataFlow);
 
 		// 02 - Update the view so the new data can appear and the old ones can be removed.
 		updateView();
@@ -171,7 +171,7 @@ public class ReporterView implements IReporter {
 		}
 	}
 
-	private void addToViewDataModel(int typeProblem, IResource resource, DataFlow df) {
+	private void addToViewDataModel(IResource resource, int typeProblem, DataFlow df) {
 		ViewDataModel parent = null;
 		ViewDataModel currentVdm;
 		// Expression root = df.getRoot();
@@ -190,13 +190,13 @@ public class ReporterView implements IReporter {
 			if ((null == parent) && (firstElement != lastElement)) {
 				String message = getMessageByNumberOfVulnerablePaths(allVulnerablePaths, firstElement);
 
-				parent = createViewDataModelElement(typeProblem, resource, firstElement.getRoot(), message, null);
+				parent = createViewDataModelElement(resource, typeProblem, firstElement.getRoot(), message, null);
 				if (null != parent) {
 					rootVdm.addChildren(parent);
 				}
 			}
 
-			currentVdm = createViewDataModelElement(lastElement.getTypeProblem(), resource, lastElement.getRoot(),
+			currentVdm = createViewDataModelElement(resource, lastElement.getTypeProblem(), lastElement.getRoot(),
 					lastElement.getMessage(), fullPath);
 			if (null != currentVdm) {
 				if (null != parent) {
@@ -213,7 +213,7 @@ public class ReporterView implements IReporter {
 				allVulnerablePaths.size());
 	}
 
-	private ViewDataModel createViewDataModelElement(int typeProblem, IResource resource, Expression expr,
+	private ViewDataModel createViewDataModelElement(IResource resource, int typeProblem, Expression expr,
 			String message, String fullPath) {
 		try {
 			int startPosition = expr.getStartPosition();

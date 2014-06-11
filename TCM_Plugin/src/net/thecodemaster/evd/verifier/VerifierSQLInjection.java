@@ -2,8 +2,8 @@ package net.thecodemaster.evd.verifier;
 
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.DataFlow;
-import net.thecodemaster.evd.graph.VariableBindingManager;
-import net.thecodemaster.evd.ui.enumeration.EnumStatusVariable;
+import net.thecodemaster.evd.graph.VariableBinding;
+import net.thecodemaster.evd.ui.enumeration.EnumVariableStatus;
 import net.thecodemaster.evd.ui.l10n.Message;
 
 import org.eclipse.jdt.core.dom.Expression;
@@ -65,8 +65,8 @@ public class VerifierSQLInjection extends Verifier {
 	 */
 	@Override
 	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression,
-			VariableBindingManager variableBinding) {
-		if ((null != variableBinding) && (variableBinding.status().equals(EnumStatusVariable.NOT_VULNERABLE))) {
+			VariableBinding variableBinding) {
+		if ((null != variableBinding) && (variableBinding.status().equals(EnumVariableStatus.NOT_VULNERABLE))) {
 			// The SQL Injection verifier also needs to know if the variable has its content from a string concatenation.
 			inspectNode(depth, dataFlow, variableBinding.getInitializer());
 		} else {

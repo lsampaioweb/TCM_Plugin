@@ -40,23 +40,37 @@ public class VisitorCallGraph implements IResourceVisitor, IResourceDeltaVisitor
 
 	/**
 	 * This object contains all the methods, variables and their interactions, on the project that is being analyzed. At
-	 * any given time, we should only have on call graph of the code.
+	 * any given time, we should only have one call graph of the code.
 	 */
 	private final CallGraph				callGraph;
 	private IProgressMonitor			progressMonitor;
 
 	public VisitorCallGraph(IProgressMonitor monitor, CallGraph callGraph) {
+		resourcesUpdated = Creator.newList();
 		this.callGraph = callGraph;
 		setProgressMonitor(monitor);
-		resourcesUpdated = Creator.newList();
+	}
+
+	private CallGraph getCallGraph() {
+		return callGraph;
+	}
+
+	private final void setProgressMonitor(IProgressMonitor progressMonitor) {
+		this.progressMonitor = progressMonitor;
 	}
 
 	private IProgressMonitor getProgressMonitor() {
 		return progressMonitor;
 	}
 
-	private final void setProgressMonitor(IProgressMonitor progressMonitor) {
-		this.progressMonitor = progressMonitor;
+	/**
+	 * Returns whether cancellation of current operation has been requested
+	 * 
+	 * @param reporter
+	 * @return true if cancellation has been requested, and false otherwise.
+	 */
+	private boolean userCanceledProcess(IProgressMonitor monitor) {
+		return ((null != monitor) && (monitor.isCanceled()));
 	}
 
 	/**
@@ -122,33 +136,37 @@ public class VisitorCallGraph implements IResourceVisitor, IResourceDeltaVisitor
 	 */
 	@Override
 	public boolean visit(IResource resource) throws CoreException {
-		if (HelperProjects.isToPerformDetection(resource)) {
-			ICompilationUnit cu = JavaCore.createCompilationUnitFrom((IFile) resource);
+		if (!userCanceledProcess(getProgressMonitor())) {
+			if (HelperProjects.isToPerformDetection(resource)) {
+				ICompilationUnit cu = JavaCore.createCompilationUnitFrom((IFile) resource);
 
-			if (cu.isStructureKnown()) {
-				setSubTask(Message.Plugin.VISITOR_CALL_GRAPH_SUB_TASK + resource.getName());
-				// Creates the AST for the ICompilationUnits.
-				Timer timer = (new Timer("01.1.1 - Parsing: " + resource.getName())).start();
-				CompilationUnit cUnit = parse(cu);
-				PluginLogger.logIfDebugging(timer.stop().toString());
+				if (cu.isStructureKnown()) {
+					setSubTask(Message.Plugin.VISITOR_CALL_GRAPH_SUB_TASK + resource.getName());
+					// Creates the AST for the ICompilationUnits.
+					Timer timer = (new Timer("01.1.1 - Parsing: " + resource.getName())).start();
+					CompilationUnit cUnit = parse(cu);
+					PluginLogger.logIfDebugging(timer.stop().toString());
 
-				// Visit the compilation unit.
-				timer = (new Timer("01.1.2 - Visiting: " + resource.getName())).start();
+					// Visit the compilation unit.
+					timer = (new Timer("01.1.2 - Visiting: " + resource.getName())).start();
 
-				// Remove old interactions of this resource.
-				callGraph.remove(resource);
+					// Remove old interactions of this resource.
+					getCallGraph().remove(resource);
 
-				// Add a new empty branch.
-				callGraph.setCurrentResource(resource);
-				cUnit.accept(new VisitorCompilationUnit(callGraph));
-				PluginLogger.logIfDebugging(timer.stop().toString());
+					cUnit.accept(new VisitorCompilationUnit(resource, getCallGraph()));
+					PluginLogger.logIfDebugging(timer.stop().toString());
 
-				// Add this resource to the list of updated resources.
-				resourcesUpdated.add(resource);
+					// Add this resource to the list of updated resources.
+					resourcesUpdated.add(resource);
+				}
 			}
+			// Returns true to continue visiting children.
+			return true;
+		} else {
+			// The user has canceled the process.
+			// Returns false to stop visiting the files.
+			return false;
 		}
-		// Return true to continue visiting children.
-		return true;
 	}
 
 }

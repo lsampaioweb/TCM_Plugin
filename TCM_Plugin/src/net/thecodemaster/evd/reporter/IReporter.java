@@ -37,13 +37,13 @@ public interface IReporter {
 	/**
 	 * Add the problem to one or more of the options selected by the user.
 	 * 
-	 * @param typeProblem
-	 *          The type of the problem.
 	 * @param resource
 	 *          The resource where the vulnerability was found.
+	 * @param typeProblem
+	 *          The type of the problem.
 	 * @param dataFlow
 	 *          The data flow of the vulnerability, from where it started to where it finished. {@link DataFlow}.
 	 */
-	void addProblem(int typeProblem, IResource resource, DataFlow dataFlow);
+	void addProblem(IResource resource, int typeProblem, DataFlow dataFlow);
 
 }

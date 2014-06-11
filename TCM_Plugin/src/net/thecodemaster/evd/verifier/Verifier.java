@@ -104,7 +104,7 @@ public abstract class Verifier extends CodeAnalyzer {
 
 	protected void reportVulnerability(DataFlow dataFlow) {
 		if (null != getReporter()) {
-			getReporter().addProblem(getId(), getCurrentResource(), dataFlow);
+			getReporter().addProblem(getCurrentResource(), getId(), dataFlow);
 		}
 	}
 
@@ -212,7 +212,7 @@ public abstract class Verifier extends CodeAnalyzer {
 	 */
 	protected void run(List<DataFlow> allVulnerablePaths, IResource resource) {
 		// 01 - Get the list of methods in the current resource.
-		Map<MethodDeclaration, List<Expression>> methods = getCallGraph().getMethods(resource);
+		Map<MethodDeclaration, List<Expression>> methods = null;// getCallGraph().getMethods(resource);
 
 		// 02 - Get all the method invocations of each method declaration.
 		for (List<Expression> invocations : methods.values()) {

@@ -3,7 +3,7 @@ package net.thecodemaster.evd.graph;
 import java.util.List;
 
 import net.thecodemaster.evd.helper.Creator;
-import net.thecodemaster.evd.ui.enumeration.EnumStatusVariable;
+import net.thecodemaster.evd.ui.enumeration.EnumVariableStatus;
 
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -11,23 +11,24 @@ import org.eclipse.jdt.core.dom.IBinding;
 /**
  * @author Luciano Sampaio
  */
-public class VariableBindingManager {
+public class VariableBinding {
 
 	private IBinding								binding;
 	private Expression							initializer;
-	private EnumStatusVariable			status;
+	private EnumVariableStatus			status;
 	private DataFlow								dataFlow;
 
 	private final List<Expression>	references;
 
-	public VariableBindingManager(IBinding binding) {
+	public VariableBinding(IBinding binding, Expression initializer) {
 		setBinding(binding);
-		this.status = EnumStatusVariable.UNKNOWN;
+		setInitializer(initializer);
+		setStatus(EnumVariableStatus.UNKNOWN);
 
 		references = Creator.newList();
 	}
 
-	public IBinding getBinding() {
+	private IBinding getBinding() {
 		return binding;
 	}
 
@@ -39,7 +40,7 @@ public class VariableBindingManager {
 		return initializer;
 	}
 
-	public void setInitializer(Expression initializer) {
+	private void setInitializer(Expression initializer) {
 		this.initializer = initializer;
 	}
 
@@ -51,25 +52,24 @@ public class VariableBindingManager {
 		return references;
 	}
 
-	public EnumStatusVariable status() {
+	public EnumVariableStatus status() {
 		return status;
 	}
 
-	public void setStatus(EnumStatusVariable status) {
+	public VariableBinding setStatus(EnumVariableStatus status) {
 		this.status = status;
-	}
 
-	public void setStatus(DataFlow dataFlow, EnumStatusVariable status) {
-		setStatus(status);
-		setDataFlow(dataFlow);
+		return this;
 	}
 
 	public DataFlow getDataFlow() {
 		return dataFlow;
 	}
 
-	private void setDataFlow(DataFlow dataFlow) {
+	public VariableBinding setDataFlow(DataFlow dataFlow) {
 		this.dataFlow = dataFlow;
+
+		return this;
 	}
 
 	/**
@@ -101,7 +101,7 @@ public class VariableBindingManager {
 			return false;
 		}
 
-		VariableBindingManager other = (VariableBindingManager) obj;
+		VariableBinding other = (VariableBinding) obj;
 		if (!getBinding().equals(other.getBinding())) {
 			return false;
 		}

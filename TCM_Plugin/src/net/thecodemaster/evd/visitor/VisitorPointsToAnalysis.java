@@ -28,17 +28,19 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
  * The main responsibility of this class is to find entry-points and vulnerable variables.
  * 
  * @author Luciano Sampaio
+ * @Date: 2014-05-07
+ * @Version: 01
  */
 public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
 	private IProgressMonitor	progressMonitor;
 
-	private IProgressMonitor getProgressMonitor() {
-		return progressMonitor;
-	}
-
 	private void setProgressMonitor(IProgressMonitor progressMonitor) {
 		this.progressMonitor = progressMonitor;
+	}
+
+	private IProgressMonitor getProgressMonitor() {
+		return progressMonitor;
 	}
 
 	/**
@@ -51,6 +53,16 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		if (null != getProgressMonitor()) {
 			getProgressMonitor().subTask(taskName);
 		}
+	}
+
+	/**
+	 * Returns whether cancellation of current operation has been requested
+	 * 
+	 * @param reporter
+	 * @return true if cancellation has been requested, and false otherwise.
+	 */
+	private boolean userCanceledProcess(IProgressMonitor monitor) {
+		return ((null != monitor) && (monitor.isCanceled()));
 	}
 
 	private void addParametersToCallGraph(int depth, List<Expression> currentInvocations,
@@ -83,7 +95,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 				addReferenceToInitializer(depth, parameterName, initializer);
 
 				// 05 - Add the content with the one that came from the method invocation.
-				getCallGraph().addVariableToCallGraph(parameterName, initializer);
+				// getCallGraph().addVariable(getCurrentResource(), parameterName, initializer);
 
 				// 06 - Add a method reference to this variable (if it is a variable).
 				addReferenceToInitializer(depth, methodInvocation, parameterName);
@@ -94,17 +106,22 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		}
 	}
 
-	public void run(IProgressMonitor monitor, List<IResource> resources, CallGraph callGraph) {
+	public void run(IProgressMonitor monitor, CallGraph callGraph, List<IResource> resources) {
 		setCallGraph(callGraph);
 		setProgressMonitor(monitor);
 
 		// 01 - Iterate over all the resources.
 		for (IResource resource : resources) {
-			// We need this information when we are going retrieve the variable bindings in the callGraph.
-			setCurrentResource(resource);
-			setSubTask(Message.Plugin.VISITOR_POINTS_TO_ANALYSIS_SUB_TASK + resource.getName());
+			if (!userCanceledProcess(monitor)) {
+				// We need this information when we are going retrieve the variable bindings in the callGraph.
+				setCurrentResource(resource);
+				setSubTask(Message.Plugin.VISITOR_POINTS_TO_ANALYSIS_SUB_TASK + resource.getName());
 
-			run(resource);
+				run(resource);
+			} else {
+				// Stop the process.
+				return;
+			}
 		}
 	}
 
@@ -116,7 +133,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	protected void run(IResource resource) {
 		PluginLogger.logIfDebugging("Resource:" + resource.getName());
 		// 01 - Get the list of methods in the current resource and its invocations.
-		Map<MethodDeclaration, List<Expression>> methods = getCallGraph().getMethods(resource);
+		Map<MethodDeclaration, List<Expression>> methods = null;// getCallGraph().getMethods(resource);
 
 		// 02 - Iterate over all the method declarations of the current resource.
 		for (MethodDeclaration methodDeclaration : methods.keySet()) {
@@ -130,7 +147,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 			// not invoked by any other method in the same file. Because if the method
 			// is invoked, eventually it will be processed.
 			// 05 - Get the list of methods that invokes this method.
-			Map<MethodDeclaration, List<Expression>> invokers = getCallGraph().getInvokers(methodDeclaration);
+			Map<MethodDeclaration, List<Expression>> invokers = null;// getCallGraph().getInvokers(methodDeclaration);
 			if (invokers.size() > 0) {
 				// 06 - Iterate over all the methods that invokes this method.
 				for (Entry<MethodDeclaration, List<Expression>> caller : invokers.entrySet()) {
