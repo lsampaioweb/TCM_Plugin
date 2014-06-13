@@ -256,7 +256,17 @@ public class CallGraph {
 	 */
 	private List<VariableBinding> getVariableBindingsFromParentContext(Context context, IBinding binding) {
 		List<VariableBinding> vbs = Creator.newList();
-		// TODO
+
+		Context parentContext = context.getParent();
+		while (null != parentContext) {
+			vbs = getVariableBindingsFromContext(parentContext, binding);
+			if (0 < vbs.size()) {
+				break;
+			}
+
+			parentContext = parentContext.getParent();
+		}
+
 		return vbs;
 	}
 
@@ -274,7 +284,7 @@ public class CallGraph {
 				continue;
 			}
 			vbs = getVariableBindingsFromContext(currentContext, binding);
-			if (null != vbs) {
+			if (0 < vbs.size()) {
 				break;
 			}
 		}
