@@ -85,13 +85,14 @@ public class BindingResolver {
 	public static Expression getParentWhoHasAReference(ASTNode node) {
 		while (null != node) {
 			switch (node.getNodeType()) {
+				case ASTNode.BLOCK: // 08
+				case ASTNode.RETURN_STATEMENT: // 41
+					return null; // Stop conditions.
 				case ASTNode.ASSIGNMENT: // 07
 					return ((Assignment) node).getLeftHandSide();
 				case ASTNode.CLASS_INSTANCE_CREATION: // 14
 				case ASTNode.METHOD_INVOCATION: // 32
 					return (Expression) node;
-					// case ASTNode.METHOD_DECLARATION: // 31
-					// return ((MethodDeclaration) node).getName();
 				case ASTNode.VARIABLE_DECLARATION_FRAGMENT: // 59
 					return ((VariableDeclarationFragment) node).getName();
 			}
@@ -100,6 +101,25 @@ public class BindingResolver {
 		}
 
 		return null;
+	}
+
+	public static DataFlow getDataFlowBasedOnTheParent(DataFlow dataFlow, Expression expression) {
+		ASTNode node = expression.getParent();
+		while (null != node) {
+			switch (node.getNodeType()) {
+				case ASTNode.BLOCK: // 08
+					break; // Stop conditions.
+				case ASTNode.ASSIGNMENT: // 07
+				case ASTNode.CLASS_INSTANCE_CREATION: // 14
+				case ASTNode.METHOD_INVOCATION: // 32
+				case ASTNode.VARIABLE_DECLARATION_FRAGMENT: // 59
+					return dataFlow.addNodeToPath(expression);
+			}
+
+			node = node.getParent();
+		}
+
+		return new DataFlow(expression);
 	}
 
 	private static String getName(IBinding binding) {

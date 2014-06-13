@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import net.thecodemaster.evd.constant.Constant;
+import net.thecodemaster.evd.context.Context;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.marker.MarkerManager;
@@ -37,20 +38,17 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.ForStatement;
-import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
@@ -318,7 +316,7 @@ public abstract class CodeAnalyzer {
 	protected void run(int depth, MethodDeclaration methodDeclaration, Expression invoker) {
 	}
 
-	protected void inspectNode(int depth, DataFlow dataFlow, Expression node) {
+	protected void inspectNode(int depth, Context context, DataFlow dataFlow, Expression node) {
 		if (null == node) {
 			return;
 		}
@@ -331,73 +329,73 @@ public abstract class CodeAnalyzer {
 
 		switch (node.getNodeType()) {
 			case ASTNode.ARRAY_ACCESS: // 02
-				inspectArrayAccess(depth, dataFlow, (ArrayAccess) node);
+				inspectArrayAccess(depth, context, dataFlow, (ArrayAccess) node);
 				break;
 			case ASTNode.ARRAY_CREATION: // 03
-				inspectArrayCreation(depth, dataFlow, (ArrayCreation) node);
+				inspectArrayCreation(depth, context, dataFlow, (ArrayCreation) node);
 				break;
 			case ASTNode.ARRAY_INITIALIZER: // 04
-				inspectArrayInitializer(depth, dataFlow, (ArrayInitializer) node);
+				inspectArrayInitializer(depth, context, dataFlow, (ArrayInitializer) node);
 				break;
 			case ASTNode.ASSIGNMENT: // 07
-				inspectAssignment(depth, dataFlow, (Assignment) node);
+				inspectAssignment(depth, context, dataFlow, (Assignment) node);
 				break;
 			case ASTNode.CAST_EXPRESSION: // 11
-				inspectCastExpression(depth, dataFlow, (CastExpression) node);
+				inspectCastExpression(depth, context, dataFlow, (CastExpression) node);
 				break;
 			case ASTNode.CONDITIONAL_EXPRESSION: // 16
-				inspectConditionExpression(depth, dataFlow, (ConditionalExpression) node);
+				inspectConditionExpression(depth, context, dataFlow, (ConditionalExpression) node);
 				break;
 			case ASTNode.FIELD_ACCESS: // 22
-				inspectFieldAccess(depth, dataFlow, (FieldAccess) node);
+				inspectFieldAccess(depth, context, dataFlow, (FieldAccess) node);
 				break;
 			case ASTNode.INFIX_EXPRESSION: // 27
-				inspectInfixExpression(depth, dataFlow, (InfixExpression) node);
+				inspectInfixExpression(depth, context, dataFlow, (InfixExpression) node);
 				break;
 			case ASTNode.CLASS_INSTANCE_CREATION: // 14
 			case ASTNode.METHOD_INVOCATION: // 32
-				inspectMethodInvocation(depth, dataFlow, node);
+				inspectMethodInvocation(depth, context, dataFlow, node);
 				break;
 			case ASTNode.PARENTHESIZED_EXPRESSION: // 36
-				inspectParenthesizedExpression(depth, dataFlow, (ParenthesizedExpression) node);
+				inspectParenthesizedExpression(depth, context, dataFlow, (ParenthesizedExpression) node);
 				break;
 			case ASTNode.POSTFIX_EXPRESSION: // 37
-				inspectPostfixExpression(depth, dataFlow, (PostfixExpression) node);
+				inspectPostfixExpression(depth, context, dataFlow, (PostfixExpression) node);
 				break;
 			case ASTNode.PREFIX_EXPRESSION: // 38
-				inspectPrefixExpression(depth, dataFlow, (PrefixExpression) node);
+				inspectPrefixExpression(depth, context, dataFlow, (PrefixExpression) node);
 				break;
 			case ASTNode.QUALIFIED_NAME: // 40
-				inspectQualifiedName(depth, dataFlow, (QualifiedName) node);
+				inspectQualifiedName(depth, context, dataFlow, (QualifiedName) node);
 				break;
 			case ASTNode.SIMPLE_NAME: // 42
-				inspectSimpleName(depth, dataFlow, (SimpleName) node);
+				inspectSimpleName(depth, context, dataFlow, (SimpleName) node);
 				break;
 			case ASTNode.SUPER_METHOD_INVOCATION: // 48
-				inspectSuperMethodInvocation(depth, dataFlow, (SuperMethodInvocation) node);
+				inspectSuperMethodInvocation(depth, context, dataFlow, (SuperMethodInvocation) node);
 				break;
 			case ASTNode.THIS_EXPRESSION: // 52
-				inspectThisExpression(depth, dataFlow, (ThisExpression) node);
+				inspectThisExpression(depth, context, dataFlow, (ThisExpression) node);
 				break;
 			case ASTNode.TYPE_LITERAL: // 57
-				inspectTypeLiteral(depth, dataFlow, (TypeLiteral) node);
+				inspectTypeLiteral(depth, context, dataFlow, (TypeLiteral) node);
 				break;
 			case ASTNode.INSTANCEOF_EXPRESSION: // 62
-				inspectInstanceofExpression(depth, dataFlow, (InstanceofExpression) node);
+				inspectInstanceofExpression(depth, context, dataFlow, (InstanceofExpression) node);
 				break;
 			case ASTNode.BOOLEAN_LITERAL: // 09
 			case ASTNode.CHARACTER_LITERAL: // 13
 			case ASTNode.NULL_LITERAL: // 33
 			case ASTNode.NUMBER_LITERAL: // 34
 			case ASTNode.STRING_LITERAL: // 45
-				inspectLiteral(depth, dataFlow, node);
+				inspectLiteral(depth, context, dataFlow, node);
 				break;
 			default:
 				PluginLogger.logError("inspectExpression Default Node Type: " + node.getNodeType() + " - " + node, null);
 		}
 	}
 
-	protected void inspectNode(int depth, DataFlow dataFlow, Statement node) {
+	protected void inspectNode(int depth, Context context, DataFlow dataFlow, Statement node) {
 		if (null == node) {
 			return;
 		}
@@ -410,61 +408,61 @@ public abstract class CodeAnalyzer {
 
 		switch (node.getNodeType()) {
 			case ASTNode.BLOCK: // 08
-				inspectBlock(depth, dataFlow, (Block) node);
+				inspectBlock(depth, context, dataFlow, (Block) node);
 				break;
 			case ASTNode.BREAK_STATEMENT: // 10
-				inspectBreakStatement(depth, dataFlow, (BreakStatement) node);
+				inspectBreakStatement(depth, context, dataFlow, (BreakStatement) node);
 				break;
 			case ASTNode.CONSTRUCTOR_INVOCATION: // 17
-				inspectConstructorInvocation(depth, dataFlow, (ConstructorInvocation) node);
+				inspectConstructorInvocation(depth, context, dataFlow, (ConstructorInvocation) node);
 				break;
 			case ASTNode.CONTINUE_STATEMENT: // 18
-				inspectContinueStatement(depth, dataFlow, (ContinueStatement) node);
+				inspectContinueStatement(depth, context, dataFlow, (ContinueStatement) node);
 				break;
 			case ASTNode.DO_STATEMENT: // 19
-				inspectDoStatement(depth, dataFlow, (DoStatement) node);
+				inspectDoStatement(depth, context, dataFlow, (DoStatement) node);
 				break;
 			case ASTNode.EMPTY_STATEMENT: // 20
-				inspectEmptyStatement(depth, dataFlow, (EmptyStatement) node);
+				inspectEmptyStatement(depth, context, dataFlow, (EmptyStatement) node);
 				break;
 			case ASTNode.EXPRESSION_STATEMENT: // 21
-				inspectExpressionStatement(depth, dataFlow, (ExpressionStatement) node);
+				inspectExpressionStatement(depth, context, dataFlow, (ExpressionStatement) node);
 				break;
 			case ASTNode.FOR_STATEMENT: // 24
-				inspectForStatement(depth, dataFlow, (ForStatement) node);
+				inspectForStatement(depth, context, dataFlow, (ForStatement) node);
 				break;
 			case ASTNode.IF_STATEMENT: // 25
-				inspectIfStatement(depth, dataFlow, (IfStatement) node);
+				inspectIfStatement(depth, context, dataFlow, (IfStatement) node);
 				break;
 			case ASTNode.RETURN_STATEMENT: // 41
-				inspectReturnStatement(depth, dataFlow, (ReturnStatement) node);
+				inspectReturnStatement(depth, context, dataFlow, (ReturnStatement) node);
 				break;
 			case ASTNode.SUPER_CONSTRUCTOR_INVOCATION: // 46
-				inspectSuperConstructorInvocation(depth, dataFlow, (SuperConstructorInvocation) node);
+				inspectSuperConstructorInvocation(depth, context, dataFlow, (SuperConstructorInvocation) node);
 				break;
 			case ASTNode.SWITCH_CASE: // 49
-				inspectSwitchCase(depth, dataFlow, (SwitchCase) node);
+				inspectSwitchCase(depth, context, dataFlow, (SwitchCase) node);
 				break;
 			case ASTNode.SWITCH_STATEMENT: // 50
-				inspectSwitchStatement(depth, dataFlow, (SwitchStatement) node);
+				inspectSwitchStatement(depth, context, dataFlow, (SwitchStatement) node);
 				break;
 			case ASTNode.SYNCHRONIZED_STATEMENT: // 51
-				inspectSynchronizedStatement(depth, dataFlow, (SynchronizedStatement) node);
+				inspectSynchronizedStatement(depth, context, dataFlow, (SynchronizedStatement) node);
 				break;
 			case ASTNode.THROW_STATEMENT: // 53
-				inspectThrowStatement(depth, dataFlow, (ThrowStatement) node);
+				inspectThrowStatement(depth, context, dataFlow, (ThrowStatement) node);
 				break;
 			case ASTNode.TRY_STATEMENT: // 54
-				inspectTryStatement(depth, dataFlow, (TryStatement) node);
+				inspectTryStatement(depth, context, dataFlow, (TryStatement) node);
 				break;
 			case ASTNode.VARIABLE_DECLARATION_STATEMENT: // 60
-				inspectVariableDeclarationStatement(depth, dataFlow, (VariableDeclarationStatement) node);
+				inspectVariableDeclarationStatement(depth, context, dataFlow, (VariableDeclarationStatement) node);
 				break;
 			case ASTNode.WHILE_STATEMENT: // 61
-				inspectWhileStatement(depth, dataFlow, (WhileStatement) node);
+				inspectWhileStatement(depth, context, dataFlow, (WhileStatement) node);
 				break;
 			case ASTNode.ENHANCED_FOR_STATEMENT: // 70
-				inspectEnhancedForStatement(depth, dataFlow, (EnhancedForStatement) node);
+				inspectEnhancedForStatement(depth, context, dataFlow, (EnhancedForStatement) node);
 				break;
 			default:
 				PluginLogger.logError("inspectStatement Default Node Type: " + node.getNodeType() + " - " + node, null);
@@ -474,60 +472,52 @@ public abstract class CodeAnalyzer {
 	/**
 	 * 02
 	 */
-	protected void inspectArrayAccess(int depth, DataFlow dataFlow, ArrayAccess expression) {
-		inspectNode(depth, dataFlow, expression.getArray());
+	protected void inspectArrayAccess(int depth, Context context, DataFlow dataFlow, ArrayAccess expression) {
+		inspectNode(depth, context, dataFlow, expression.getArray());
 	}
 
 	/**
 	 * 03
 	 */
-	protected void inspectArrayCreation(int depth, DataFlow dataFlow, ArrayCreation expression) {
-		iterateOverParameters(depth, dataFlow, expression.getInitializer());
+	protected void inspectArrayCreation(int depth, Context context, DataFlow dataFlow, ArrayCreation expression) {
+		iterateOverParameters(depth, context, dataFlow, expression.getInitializer());
 	}
 
 	/**
 	 * 03, 04, 17, 27, 32, 46, 48
 	 */
-	protected void iterateOverParameters(int depth, DataFlow dataFlow, ASTNode expression) {
+	protected void iterateOverParameters(int depth, Context context, DataFlow dataFlow, ASTNode expression) {
 		List<Expression> parameters = BindingResolver.getParameters(expression);
 		for (Expression parameter : parameters) {
-			inspectNode(depth, dataFlow.addNodeToPath(parameter), parameter);
+			inspectNode(depth, context, dataFlow.addNodeToPath(parameter), parameter);
 		}
 	}
 
 	/**
 	 * 04
 	 */
-	protected void inspectArrayInitializer(int depth, DataFlow dataFlow, ArrayInitializer expression) {
-		iterateOverParameters(depth, dataFlow, expression);
+	protected void inspectArrayInitializer(int depth, Context context, DataFlow dataFlow, ArrayInitializer expression) {
+		iterateOverParameters(depth, context, dataFlow, expression);
 	}
 
 	/**
 	 * 07
 	 */
-	protected void inspectAssignment(int depth, DataFlow dataFlow, Assignment expression) {
+	protected void inspectAssignment(int depth, Context context, DataFlow dataFlow, Assignment expression) {
 		Expression leftHandSide = expression.getLeftHandSide();
 		Expression rightHandSide = expression.getRightHandSide();
 
-		inspectNode(depth, dataFlow.addNodeToPath(leftHandSide), leftHandSide);
-		inspectNode(depth, dataFlow.addNodeToPath(rightHandSide), rightHandSide);
+		inspectNode(depth, context, dataFlow.addNodeToPath(leftHandSide), leftHandSide);
+		inspectNode(depth, context, dataFlow.addNodeToPath(rightHandSide), rightHandSide);
 	}
 
 	/**
 	 * 08
 	 */
-	protected void inspectBlock(int depth, DataFlow dataFlow, Block block) {
+	protected void inspectBlock(int depth, Context context, DataFlow dataFlow, Block block) {
 		if (null != block) {
 			for (Object object : block.statements()) {
-				DataFlow newDataFlow = (null != dataFlow.getRoot()) ? dataFlow : dataFlow.getParent();
-				if (null == newDataFlow) {
-					newDataFlow = new DataFlow();
-				}
-				inspectNode(depth, newDataFlow.addNodeToPath(null), (Statement) object);
-
-				// if (newDataFlow.isVulnerable()) {
-				// dataFlow.addNodeToPath(newDataFlow.getRoot()).replace(newDataFlow);
-				// }
+				inspectNode(depth, context, dataFlow.addNodeToPath(null), (Statement) object);
 			}
 		}
 	}
@@ -535,120 +525,113 @@ public abstract class CodeAnalyzer {
 	/**
 	 * 10
 	 */
-	protected void inspectBreakStatement(int depth, DataFlow dataFlow, BreakStatement statement) {
+	protected void inspectBreakStatement(int depth, Context context, DataFlow dataFlow, BreakStatement statement) {
 		// Nothing to do.
 	}
 
 	/**
 	 * 11
 	 */
-	protected void inspectCastExpression(int depth, DataFlow dataFlow, CastExpression expression) {
-		inspectNode(depth, dataFlow, expression.getExpression());
+	protected void inspectCastExpression(int depth, Context context, DataFlow dataFlow, CastExpression expression) {
+		inspectNode(depth, context, dataFlow, expression.getExpression());
 	}
 
 	/**
 	 * 16
 	 */
-	protected void inspectConditionExpression(int depth, DataFlow dataFlow, ConditionalExpression expression) {
+	protected void inspectConditionExpression(int depth, Context context, DataFlow dataFlow,
+			ConditionalExpression expression) {
 		Expression thenExpression = expression.getThenExpression();
 		Expression elseExpression = expression.getElseExpression();
 
-		inspectNode(depth, dataFlow.addNodeToPath(thenExpression), thenExpression);
-		inspectNode(depth, dataFlow.addNodeToPath(elseExpression), elseExpression);
+		inspectNode(depth, context, dataFlow.addNodeToPath(thenExpression), thenExpression);
+		inspectNode(depth, context, dataFlow.addNodeToPath(elseExpression), elseExpression);
 	}
 
 	/**
 	 * 17
 	 */
-	protected void inspectConstructorInvocation(int depth, DataFlow dataFlow, ConstructorInvocation statement) {
-		iterateOverParameters(depth, dataFlow, statement);
+	protected void inspectConstructorInvocation(int depth, Context context, DataFlow dataFlow,
+			ConstructorInvocation statement) {
+		iterateOverParameters(depth, context, dataFlow, statement);
 	}
 
 	/**
 	 * 18
 	 */
-	protected void inspectContinueStatement(int depth, DataFlow dataFlow, ContinueStatement statement) {
+	protected void inspectContinueStatement(int depth, Context context, DataFlow dataFlow, ContinueStatement statement) {
 		// Nothing to do.
 	}
 
 	/**
 	 * 19
 	 */
-	protected void inspectDoStatement(int depth, DataFlow dataFlow, DoStatement statement) {
-		inspectNode(depth, dataFlow, statement.getBody());
+	protected void inspectDoStatement(int depth, Context context, DataFlow dataFlow, DoStatement statement) {
+		inspectNode(depth, context, dataFlow, statement.getBody());
 	}
 
 	/**
 	 * 20
 	 */
-	protected void inspectEmptyStatement(int depth, DataFlow dataFlow, EmptyStatement expression) {
+	protected void inspectEmptyStatement(int depth, Context context, DataFlow dataFlow, EmptyStatement expression) {
 		// Nothing to do.
 	}
 
 	/**
 	 * 21
 	 */
-	protected void inspectExpressionStatement(int depth, DataFlow dataFlow, ExpressionStatement expression) {
-		inspectNode(depth, dataFlow, expression.getExpression());
+	protected void inspectExpressionStatement(int depth, Context context, DataFlow dataFlow,
+			ExpressionStatement expression) {
+		inspectNode(depth, context, dataFlow, expression.getExpression());
 	}
 
 	/**
 	 * 22
 	 */
-	protected void inspectFieldAccess(int depth, DataFlow dataFlow, FieldAccess expression) {
-		inspectNode(depth, dataFlow, expression.getName());
+	protected void inspectFieldAccess(int depth, Context context, DataFlow dataFlow, FieldAccess expression) {
+		inspectNode(depth, context, dataFlow, expression.getName());
 	}
 
 	/**
 	 * 24
 	 */
-	protected void inspectForStatement(int depth, DataFlow dataFlow, ForStatement statement) {
-		inspectNode(depth, dataFlow, statement.getBody());
+	protected void inspectForStatement(int depth, Context context, DataFlow dataFlow, ForStatement statement) {
+		inspectNode(depth, context, dataFlow, statement.getBody());
 	}
 
 	/**
 	 * 25
 	 */
-	protected void inspectIfStatement(int depth, DataFlow dataFlow, IfStatement statement) {
-		inspectNode(depth, dataFlow.addNodeToPath(null), statement.getThenStatement());
-		inspectNode(depth, dataFlow.addNodeToPath(null), statement.getElseStatement());
+	protected void inspectIfStatement(int depth, Context context, DataFlow dataFlow, IfStatement statement) {
+		inspectNode(depth, context, dataFlow.addNodeToPath(null), statement.getThenStatement());
+		inspectNode(depth, context, dataFlow.addNodeToPath(null), statement.getElseStatement());
 	}
 
 	/**
 	 * 27
 	 */
-	protected void inspectInfixExpression(int depth, DataFlow dataFlow, InfixExpression expression) {
+	protected void inspectInfixExpression(int depth, Context context, DataFlow dataFlow, InfixExpression expression) {
 		Expression leftOperand = expression.getLeftOperand();
 		Expression rightOperand = expression.getRightOperand();
 
-		inspectNode(depth, dataFlow.addNodeToPath(leftOperand), leftOperand);
-		inspectNode(depth, dataFlow.addNodeToPath(rightOperand), rightOperand);
+		inspectNode(depth, context, dataFlow.addNodeToPath(leftOperand), leftOperand);
+		inspectNode(depth, context, dataFlow.addNodeToPath(rightOperand), rightOperand);
 
-		iterateOverParameters(depth, dataFlow, expression);
+		iterateOverParameters(depth, context, dataFlow, expression);
 	}
 
 	/**
 	 * 32
 	 */
-	protected void inspectMethodInvocation(int depth, DataFlow dataFlow, Expression methodInvocation) {
+	protected void inspectMethodInvocation(int depth, Context context, DataFlow dataFlow, Expression methodInvocation) {
 		// 01 - Check if this method is a Sanitization-Point.
 		if (BindingResolver.isMethodASanitizationPoint(getSanitizationPoints(), methodInvocation)) {
 			// If a sanitization method is being invoked, then we do not have a vulnerability.
 			return;
 		}
 
-		// 03 - Even if this method is vulnerable now, if the return type is primitive,
-		// the vulnerability can not be propagated.
-		// 03.1 request.getParameter("b");
-		// 03.1 boolean b = Boolean.valueOf(request.getParameter("b"));
-		// 03.2 String a = request.getParameter("a");
-		// 03.2 return request.getParameter("b");
-		DataFlow newDataFlow = null;
-		if ((null == dataFlow.getRoot()) || (isPrimitive(methodInvocation))) {
-			newDataFlow = new DataFlow(methodInvocation); // 1
-		} else {
-			newDataFlow = dataFlow.addNodeToPath(methodInvocation); // 2
-		}
+		// 03 - Get a new data flow or a child from the parent.
+		DataFlow newDataFlow = getDataFlow(dataFlow, methodInvocation);
 
 		// 03 - Check if this method is an Entry-Point.
 		if (BindingResolver.isMethodAnEntryPoint(getEntryPoints(), methodInvocation)) {
@@ -665,27 +648,43 @@ public abstract class CodeAnalyzer {
 		}
 
 		// 04 - There are 2 cases: When we have the source code of this method and when we do not.
-		inspectMethodInvocationWithOrWithOutSourceCode(depth, newDataFlow, methodInvocation);
+		inspectMethodInvocationWithOrWithOutSourceCode(depth, context, newDataFlow, methodInvocation);
 	}
 
 	/**
 	 * 32
 	 */
-	protected void inspectMethodInvocationWithOrWithOutSourceCode(int depth, DataFlow dataFlow,
+	protected DataFlow getDataFlow(DataFlow dataFlow, Expression methodInvocation) {
+		// 01 request.getParameter("b");
+		// 02 boolean b = Boolean.valueOf(request.getParameter("b"));
+		// 03 String a = request.getParameter("a");
+		// 04 return request.getParameter("b");
+		// If the parent is a VariableDeclarationFragment or a return type.
+		if (isPrimitive(methodInvocation)) {
+			return new DataFlow(methodInvocation);
+		} else {
+			return BindingResolver.getDataFlowBasedOnTheParent(dataFlow, methodInvocation);
+		}
+	}
+
+	/**
+	 * 32
+	 */
+	protected void inspectMethodInvocationWithOrWithOutSourceCode(int depth, Context context, DataFlow dataFlow,
 			Expression methodInvocation) {
 		// Some method invocations can be in a chain call, we have to investigate them all.
 		// response.sendRedirect(login);
 		// getServletContext().getRequestDispatcher(login).forward(request, response);
 		// 01 - There are 2 cases: When we have the source code of this method and when we do not.
-		MethodDeclaration methodDeclaration = null;// getCallGraph().getMethod(getCurrentResource(), methodInvocation);
+		MethodDeclaration methodDeclaration = getCallGraph().getMethod(getCurrentResource(), methodInvocation);
 		if (null != methodDeclaration) {
 			// We have the source code.
-			inspectMethodWithSourceCode(depth, dataFlow, methodInvocation, methodDeclaration);
+			inspectMethodWithSourceCode(depth, context, dataFlow, methodInvocation, methodDeclaration);
 		} else {
-			inspectMethodWithOutSourceCode(depth, dataFlow, methodInvocation);
+			inspectMethodWithOutSourceCode(depth, context, dataFlow, methodInvocation);
 		}
 
-		VariableBinding variableBinding = getVariableBindingIfItIsAnObject(methodInvocation);
+		VariableBinding variableBinding = getVariableBindingIfItIsAnObject(context, methodInvocation);
 		// We found a vulnerability.
 		if (dataFlow.isVulnerable()) {
 			// There are 2 sub-cases: When is a method from an object and when is a method from a library.
@@ -699,7 +698,7 @@ public abstract class CodeAnalyzer {
 		} else {
 			// 01 - Check if this method invocation is being call from a vulnerable object.
 			if (null != variableBinding) {
-				processIfStatusUnknownOrUpdateIfVulnerable(depth, dataFlow, variableBinding);
+				processIfStatusUnknownOrUpdateIfVulnerable(depth, context, dataFlow, variableBinding);
 			}
 		}
 	}
@@ -707,26 +706,27 @@ public abstract class CodeAnalyzer {
 	/**
 	 * 32
 	 */
-	protected void inspectMethodWithSourceCode(int depth, DataFlow dataFlow, Expression methodInvocation,
-			MethodDeclaration methodDeclaration) {
-		inspectNode(depth, dataFlow, methodDeclaration.getBody());
+	protected void inspectMethodWithSourceCode(int depth, Context context, DataFlow dataFlow,
+			Expression methodInvocation, MethodDeclaration methodDeclaration) {
+		inspectNode(depth, context, dataFlow, methodDeclaration.getBody());
 	}
 
 	/**
 	 * 32
 	 */
-	protected void inspectMethodWithOutSourceCode(int depth, DataFlow dataFlow, Expression methodInvocation) {
-		iterateOverParameters(depth, dataFlow, methodInvocation);
+	protected void inspectMethodWithOutSourceCode(int depth, Context context, DataFlow dataFlow,
+			Expression methodInvocation) {
+		iterateOverParameters(depth, context, dataFlow, methodInvocation);
 	}
 
 	/**
 	 * 32
 	 */
-	protected VariableBinding getVariableBindingIfItIsAnObject(Expression method) {
+	protected VariableBinding getVariableBindingIfItIsAnObject(Context context, Expression method) {
 		Expression expression = BindingResolver.getNameIfItIsAnObject(method);
 
 		if (null != expression) {
-			// return getCallGraph().getLastReference((SimpleName) expression);
+			return getCallGraph().getLastReference(context, expression);
 		}
 
 		return null;
@@ -735,13 +735,13 @@ public abstract class CodeAnalyzer {
 	/**
 	 * 32 , 42
 	 */
-	protected void processIfStatusUnknownOrUpdateIfVulnerable(int depth, DataFlow dataFlow,
+	protected void processIfStatusUnknownOrUpdateIfVulnerable(int depth, Context context, DataFlow dataFlow,
 			VariableBinding variableBinding) {
-		if (variableBinding.status().equals(EnumVariableStatus.VULNERABLE)) {
+		if (variableBinding.getStatus().equals(EnumVariableStatus.VULNERABLE)) {
 			dataFlow.replace(variableBinding.getDataFlow());
-		} else if (variableBinding.status().equals(EnumVariableStatus.UNKNOWN)) {
+		} else if (variableBinding.getStatus().equals(EnumVariableStatus.UNKNOWN)) {
 			// 01 - This is the case where we have to go deeper into the variable's path.
-			inspectNode(depth, dataFlow, variableBinding.getInitializer());
+			inspectNode(depth, context, dataFlow, variableBinding.getInitializer());
 
 			// 02 - If there is a vulnerable path, then this variable is vulnerable.
 			updateVariableBindingStatus(variableBinding, dataFlow);
@@ -751,69 +751,70 @@ public abstract class CodeAnalyzer {
 	/**
 	 * 36
 	 */
-	protected void inspectParenthesizedExpression(int depth, DataFlow dataFlow, ParenthesizedExpression expression) {
-		inspectNode(depth, dataFlow, expression.getExpression());
+	protected void inspectParenthesizedExpression(int depth, Context context, DataFlow dataFlow,
+			ParenthesizedExpression expression) {
+		inspectNode(depth, context, dataFlow, expression.getExpression());
 	}
 
 	/**
 	 * 37
 	 */
-	protected void inspectPostfixExpression(int depth, DataFlow dataFlow, PostfixExpression expression) {
-		inspectNode(depth, dataFlow, expression.getOperand());
+	protected void inspectPostfixExpression(int depth, Context context, DataFlow dataFlow, PostfixExpression expression) {
+		inspectNode(depth, context, dataFlow, expression.getOperand());
 	}
 
 	/**
 	 * 38
 	 */
-	protected void inspectPrefixExpression(int depth, DataFlow dataFlow, PrefixExpression expression) {
-		inspectNode(depth, dataFlow, expression.getOperand());
+	protected void inspectPrefixExpression(int depth, Context context, DataFlow dataFlow, PrefixExpression expression) {
+		inspectNode(depth, context, dataFlow, expression.getOperand());
 	}
 
 	/**
 	 * 40
 	 */
-	protected void inspectQualifiedName(int depth, DataFlow dataFlow, QualifiedName expression) {
-		inspectNode(depth, dataFlow, expression.getName());
+	protected void inspectQualifiedName(int depth, Context context, DataFlow dataFlow, QualifiedName expression) {
+		inspectNode(depth, context, dataFlow, expression.getName());
 	}
 
 	/**
 	 * 41
 	 */
-	protected void inspectReturnStatement(int depth, DataFlow dataFlow, ReturnStatement statement) {
-		Expression expression = statement.getExpression();
-		inspectNode(depth, dataFlow.addNodeToPath(expression), expression);
+	protected void inspectReturnStatement(int depth, Context context, DataFlow dataFlow, ReturnStatement statement) {
+		inspectNode(depth, context, dataFlow, statement.getExpression());
 	}
 
 	/**
 	 * 42
 	 */
-	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression) {
+	protected void inspectSimpleName(int depth, Context context, DataFlow dataFlow, SimpleName expression) {
 		// 01 - Try to retrieve the variable from the list of variables.
-		VariableBinding variableBinding = null;// getCallGraph().getVariableBinding(expression);
+		VariableBinding variableBinding = getCallGraph().getVariableBinding(context, expression);
 
-		inspectSimpleName(depth, dataFlow, expression, variableBinding);
+		inspectSimpleName(depth, context, dataFlow, expression, variableBinding);
 	}
 
 	/**
 	 * 42
 	 */
-	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression, VariableBinding variableBinding) {
+	protected void inspectSimpleName(int depth, Context context, DataFlow dataFlow, SimpleName expression,
+			VariableBinding variableBinding) {
 		DataFlow newDataFlow = dataFlow.addNodeToPath(expression);
 
 		if (null != variableBinding) {
-			processIfStatusUnknownOrUpdateIfVulnerable(depth, newDataFlow, variableBinding);
+			processIfStatusUnknownOrUpdateIfVulnerable(depth, context, newDataFlow, variableBinding);
 		} else {
 			// If a method is scanned after a method invocation, all the parameters are provided, but
 			// if a method is scanned from the initial block declarations loop, some parameter might not be known
 			// so it is necessary to investigate WHO invoked this method and what were the provided parameters.
-			inspectSimpleNameFromInvokers(depth, newDataFlow, expression, variableBinding);
+			inspectSimpleNameFromInvokers(depth, context, newDataFlow, expression, variableBinding);
 		}
 	}
 
 	/**
 	 * 42
 	 */
-	protected void inspectSimpleNameFromInvokers(int depth, DataFlow dataFlow, SimpleName expression,
+	protected void inspectSimpleNameFromInvokers(int depth, Context context, DataFlow dataFlow, SimpleName expression,
 			VariableBinding variableBinding) {
 		// This is the case where the variable is an argument of the method.
 		// 01 - Get the method signature that is using this parameter.
@@ -823,20 +824,17 @@ public abstract class CodeAnalyzer {
 		int parameterIndex = BindingResolver.getParameterIndex(methodDeclaration, expression);
 		if (parameterIndex >= 0) {
 			// 03 - Get the list of methods that invokes this method.
-			Map<MethodDeclaration, List<Expression>> invokers = null;// getCallGraph().getInvokers(methodDeclaration);
+			Map<MethodDeclaration, List<Expression>> invokers = getCallGraph().getInvokers(methodDeclaration);
 
 			// 04 - Iterate over all the methods that invokes this method.
 			for (List<Expression> currentInvocations : invokers.values()) {
 
-				// 05 - Care only about the invocations to this method.
 				for (Expression invocations : currentInvocations) {
-					if (BindingResolver.areMethodsEqual(methodDeclaration, invocations)) {
-						// 06 - Get the parameter at the index position.
-						Expression parameter = BindingResolver.getParameterAtIndex(invocations, parameterIndex);
+					// 05 - Get the parameter at the index position.
+					Expression parameter = BindingResolver.getParameterAtIndex(invocations, parameterIndex);
 
-						// 07 - Run detection on this parameter.
-						inspectNode(depth, dataFlow.addNodeToPath(parameter), parameter);
-					}
+					// 06 - Run detection on this parameter.
+					inspectNode(depth, context, dataFlow.addNodeToPath(parameter), parameter);
 				}
 			}
 		}
@@ -845,8 +843,9 @@ public abstract class CodeAnalyzer {
 	/**
 	 * 46
 	 */
-	protected void inspectSuperConstructorInvocation(int depth, DataFlow dataFlow, SuperConstructorInvocation statement) {
-		iterateOverParameters(depth, dataFlow, statement);
+	protected void inspectSuperConstructorInvocation(int depth, Context context, DataFlow dataFlow,
+			SuperConstructorInvocation statement) {
+		iterateOverParameters(depth, context, dataFlow, statement);
 
 		// TODO - Inspect the source code if we have it.
 		Expression superInvocation = statement.getExpression();
@@ -855,8 +854,9 @@ public abstract class CodeAnalyzer {
 	/**
 	 * 48
 	 */
-	protected void inspectSuperMethodInvocation(int depth, DataFlow dataFlow, SuperMethodInvocation expression) {
-		// iterateOverParameters(depth, dataFlow, expression);
+	protected void inspectSuperMethodInvocation(int depth, Context context, DataFlow dataFlow,
+			SuperMethodInvocation expression) {
+		// iterateOverParameters(depth, context, dataFlow, expression);
 
 		// TODO - Inspect the source code if we have it.
 		// super.methodName(...);
@@ -888,222 +888,104 @@ public abstract class CodeAnalyzer {
 		// 03 - Check if we have the source code of this SuperClass.
 
 		// 04 - Now that we have the class, we try to find the implementation of the method.
-		// inspectMethodInvocationWithOrWithOutSourceCode(depth, dataFlow, methodInvocation);
+		// inspectMethodInvocationWithOrWithOutSourceCode(depth, context, dataFlow, methodInvocation);
 	}
 
 	/**
 	 * 52
 	 */
-	protected void inspectThisExpression(int depth, DataFlow dataFlow, ThisExpression expression) {
+	protected void inspectThisExpression(int depth, Context context, DataFlow dataFlow, ThisExpression expression) {
 		// TODO - Get the reference to the class of this THIS.
-		// inspectNode(depth, dataFlow, (Expression) expression.getParent());
+		// inspectNode(depth, context, dataFlow, (Expression) expression.getParent());
 	}
 
 	/**
 	 * 57
 	 */
-	protected void inspectTypeLiteral(int depth, DataFlow dataFlow, TypeLiteral expression) {
+	protected void inspectTypeLiteral(int depth, Context context, DataFlow dataFlow, TypeLiteral expression) {
 		// Nothing to do.
 	}
 
 	/**
 	 * 62
 	 */
-	protected void inspectInstanceofExpression(int depth, DataFlow dataFlow, InstanceofExpression expression) {
+	protected void inspectInstanceofExpression(int depth, Context context, DataFlow dataFlow,
+			InstanceofExpression expression) {
 		PluginLogger.logIfDebugging(expression.toString());
-	}
-
-	/**
-	 * 07, 60, 70
-	 */
-	protected void addVariableToCallGraphAndInspectInitializer(int depth, DataFlow dataFlow, Expression variableName,
-			Expression initializer) {
-		// 01 - Add a reference to this variable (if it is a variable).
-		addReferenceToInitializer(depth, variableName, initializer);
-
-		VariableBinding variableBinding = null;// getCallGraph().addVariable(variableName, initializer);
-		if (null != variableBinding) {
-
-			// 02 - Inspect the Initializer to verify if this variable is vulnerable.
-			DataFlow newDataFlow = new DataFlow(variableName);
-			inspectNode(depth, newDataFlow, initializer);
-
-			// 03 - If there is a vulnerable path, then this variable is vulnerable.
-			// But if this variable is of primitive type, then there is nothing to do because they can not be vulnerable.
-			if (isPrimitive(variableName)) {
-				updateVariableBindingStatusToPrimitive(variableBinding);
-			} else {
-				updateVariableBindingStatus(variableBinding, newDataFlow);
-			}
-		}
 	}
 
 	/**
 	 * 49
 	 */
-	protected void inspectSwitchCase(int depth, DataFlow dataFlow, SwitchCase statement) {
+	protected void inspectSwitchCase(int depth, Context context, DataFlow dataFlow, SwitchCase statement) {
 		// Nothing to do.
 	}
 
 	/**
 	 * 50
 	 */
-	protected void inspectSwitchStatement(int depth, DataFlow dataFlow, SwitchStatement statement) {
+	protected void inspectSwitchStatement(int depth, Context context, DataFlow dataFlow, SwitchStatement statement) {
 		List<?> switchStatements = statement.statements();
 		for (Object switchCases : switchStatements) {
-			inspectNode(depth, dataFlow.addNodeToPath(null), (Statement) switchCases);
+			inspectNode(depth, context, dataFlow.addNodeToPath(null), (Statement) switchCases);
 		}
 	}
 
 	/**
 	 * 51
 	 */
-	protected void inspectSynchronizedStatement(int depth, DataFlow dataFlow, SynchronizedStatement statement) {
-		inspectNode(depth, dataFlow, statement.getBody());
+	protected void inspectSynchronizedStatement(int depth, Context context, DataFlow dataFlow,
+			SynchronizedStatement statement) {
+		inspectNode(depth, context, dataFlow, statement.getBody());
 	}
 
 	/**
 	 * 53
 	 */
-	protected void inspectThrowStatement(int depth, DataFlow dataFlow, ThrowStatement statement) {
-		inspectNode(depth, dataFlow, statement.getExpression());
+	protected void inspectThrowStatement(int depth, Context context, DataFlow dataFlow, ThrowStatement statement) {
+		inspectNode(depth, context, dataFlow, statement.getExpression());
 	}
 
 	/**
 	 * 54
 	 */
-	protected void inspectTryStatement(int depth, DataFlow dataFlow, TryStatement statement) {
-		inspectNode(depth, dataFlow.addNodeToPath(null), statement.getBody());
+	protected void inspectTryStatement(int depth, Context context, DataFlow dataFlow, TryStatement statement) {
+		inspectNode(depth, context, dataFlow.addNodeToPath(null), statement.getBody());
 
 		List<?> listCatches = statement.catchClauses();
 		for (Object catchClause : listCatches) {
-			inspectNode(depth, dataFlow.addNodeToPath(null), ((CatchClause) catchClause).getBody());
+			inspectNode(depth, context, dataFlow.addNodeToPath(null), ((CatchClause) catchClause).getBody());
 		}
 
-		inspectNode(depth, dataFlow.addNodeToPath(null), statement.getFinally());
+		inspectNode(depth, context, dataFlow.addNodeToPath(null), statement.getFinally());
 	}
 
 	/**
 	 * 60
 	 */
-	protected void inspectVariableDeclarationStatement(int depth, DataFlow dataFlow,
+	protected void inspectVariableDeclarationStatement(int depth, Context context, DataFlow dataFlow,
 			VariableDeclarationStatement statement) {
 	}
 
 	/**
 	 * 61
 	 */
-	protected void inspectWhileStatement(int depth, DataFlow dataFlow, WhileStatement statement) {
-		inspectNode(depth, dataFlow, statement.getBody());
+	protected void inspectWhileStatement(int depth, Context context, DataFlow dataFlow, WhileStatement statement) {
+		inspectNode(depth, context, dataFlow, statement.getBody());
 	}
 
 	/**
 	 * 70
 	 */
-	protected void inspectEnhancedForStatement(int depth, DataFlow dataFlow, EnhancedForStatement statement) {
-		SingleVariableDeclaration parameter = statement.getParameter();
-		Expression expression = statement.getExpression();
-		// 01 - Add the new variable to the callGraph.
-		addVariableToCallGraphAndInspectInitializer(depth, dataFlow, parameter.getName(), expression);
-
-		inspectNode(depth, dataFlow, statement.getBody());
+	protected void inspectEnhancedForStatement(int depth, Context context, DataFlow dataFlow,
+			EnhancedForStatement statement) {
+		inspectNode(depth, context, dataFlow, statement.getBody());
 	}
 
 	/**
 	 * 13, 33, 34, 45
 	 */
-	protected void inspectLiteral(int depth, DataFlow dataFlow, Expression node) {
-	}
-
-	protected void addReferenceToInitializer(int depth, Expression expression, Expression initializer) {
-		// 01 - To avoid infinitive loop, this check is necessary.
-		if (hasReachedMaximumDepth(depth++)) {
-			PluginLogger.logError("addReferenceToInitializer: " + expression + " - " + initializer + " - " + depth, null);
-			return;
-		}
-
-		if (null != initializer) {
-			switch (initializer.getNodeType()) {
-				case ASTNode.ARRAY_ACCESS: // 02
-					addReferenceArrayAccess(depth, expression, (ArrayAccess) initializer);
-					break;
-				case ASTNode.ARRAY_INITIALIZER: // 04
-					addReferenceArrayInitializer(depth, expression, (ArrayInitializer) initializer);
-					break;
-				case ASTNode.ASSIGNMENT: // 07
-					addReferenceAssignment(depth, expression, (Assignment) initializer);
-					break;
-				case ASTNode.CAST_EXPRESSION: // 11
-					inspectCastExpression(depth, expression, (CastExpression) initializer);
-					break;
-				case ASTNode.CONDITIONAL_EXPRESSION: // 16
-					addReferenceConditionalExpression(depth, expression, (ConditionalExpression) initializer);
-					break;
-				case ASTNode.INFIX_EXPRESSION: // 27
-					addReferenceInfixExpression(depth, expression, (InfixExpression) initializer);
-					break;
-				case ASTNode.PARENTHESIZED_EXPRESSION: // 36
-					addReferenceParenthesizedExpression(depth, expression, (ParenthesizedExpression) initializer);
-					break;
-				case ASTNode.QUALIFIED_NAME: // 40
-				case ASTNode.SIMPLE_NAME: // 42
-					addReferenceName(depth, expression, (Name) initializer);
-					break;
-			}
-		}
-	}
-
-	protected void addReference(Expression expression, IBinding binding) {
-		VariableBinding variableBindingInitializer = null;// getCallGraph().getLastReference(binding);
-		if (null != variableBindingInitializer) {
-			variableBindingInitializer.addReferences(expression);
-		}
-	}
-
-	protected void addReferenceName(int depth, Expression expression, Name initializer) {
-		addReference(expression, getCallGraph().resolveBinding(initializer));
-	}
-
-	protected void addReferenceArrayAccess(int depth, Expression expression, ArrayAccess initializer) {
-		addReference(expression, getCallGraph().resolveBinding(initializer));
-	}
-
-	protected void addReferenceArrayInitializer(int depth, Expression expression, ArrayInitializer initializer) {
-		List<Expression> expressions = BindingResolver.getParameters(initializer);
-
-		for (Expression current : expressions) {
-			addReferenceToInitializer(depth, expression, current);
-		}
-	}
-
-	protected void addReferenceAssignment(int depth, Expression expression, Assignment initializer) {
-		addReferenceToInitializer(depth, expression, initializer.getLeftHandSide());
-		addReferenceToInitializer(depth, expression, initializer.getRightHandSide());
-	}
-
-	protected void inspectCastExpression(int depth, Expression expression, CastExpression initializer) {
-		addReferenceToInitializer(depth, expression, initializer.getExpression());
-	}
-
-	protected void addReferenceConditionalExpression(int depth, Expression expression, ConditionalExpression initializer) {
-		addReferenceToInitializer(depth, expression, initializer.getThenExpression());
-		addReferenceToInitializer(depth, expression, initializer.getElseExpression());
-	}
-
-	protected void addReferenceInfixExpression(int depth, Expression expression, InfixExpression initializer) {
-		addReferenceToInitializer(depth, expression, initializer.getLeftOperand());
-		addReferenceToInitializer(depth, expression, initializer.getRightOperand());
-
-		List<Expression> extendedOperands = BindingResolver.getParameters(initializer);
-
-		for (Expression current : extendedOperands) {
-			addReferenceToInitializer(depth, expression, current);
-		}
-	}
-
-	protected void addReferenceParenthesizedExpression(int depth, Expression expression,
-			ParenthesizedExpression initializer) {
-		addReferenceToInitializer(depth, expression, initializer.getExpression());
+	protected void inspectLiteral(int depth, Context context, DataFlow dataFlow, Expression node) {
 	}
 
 }

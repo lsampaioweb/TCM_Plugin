@@ -1,6 +1,7 @@
 package net.thecodemaster.evd.verifier.security;
 
 import net.thecodemaster.evd.constant.Constant;
+import net.thecodemaster.evd.context.Context;
 import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.graph.VariableBinding;
 import net.thecodemaster.evd.ui.enumeration.EnumVariableStatus;
@@ -39,13 +40,13 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 	 * 42
 	 */
 	@Override
-	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression,
+	protected void inspectSimpleName(int depth, Context context, DataFlow dataFlow, SimpleName expression,
 			VariableBinding variableBinding) {
-		if ((null != variableBinding) && (variableBinding.status().equals(EnumVariableStatus.NOT_VULNERABLE))) {
+		if ((null != variableBinding) && (variableBinding.getStatus().equals(EnumVariableStatus.NOT_VULNERABLE))) {
 			// The SQL Injection verifier also needs to know if the variable has its content from a string concatenation.
-			inspectNode(depth, dataFlow, variableBinding.getInitializer());
+			inspectNode(depth, context, dataFlow, variableBinding.getInitializer());
 		} else {
-			super.inspectSimpleName(depth, dataFlow, expression, variableBinding);
+			super.inspectSimpleName(depth, context, dataFlow, expression, variableBinding);
 		}
 	}
 
@@ -53,7 +54,7 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 	 * 13, 33, 34, 45
 	 */
 	@Override
-	protected void inspectLiteral(int depth, DataFlow dataFlow, Expression node) {
+	protected void inspectLiteral(int depth, Context context, DataFlow dataFlow, Expression node) {
 		// 01 - Check if there is a marker, in case there is, we should BELIEVE it is not vulnerable.
 		if (hasMarkerAtPosition(node)) {
 			return;

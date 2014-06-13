@@ -1,6 +1,7 @@
 package net.thecodemaster.evd.verifier.security;
 
 import net.thecodemaster.evd.constant.Constant;
+import net.thecodemaster.evd.context.Context;
 import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.graph.VariableBinding;
 import net.thecodemaster.evd.ui.enumeration.EnumVariableStatus;
@@ -30,7 +31,7 @@ public class VerifierSQLInjection extends Verifier {
 	 * 27
 	 */
 	@Override
-	protected void inspectInfixExpression(int depth, DataFlow dataFlow, InfixExpression expression) {
+	protected void inspectInfixExpression(int depth, Context context, DataFlow dataFlow, InfixExpression expression) {
 		processStringConcatenation(dataFlow, expression);
 	}
 
@@ -38,7 +39,7 @@ public class VerifierSQLInjection extends Verifier {
 	 * 37
 	 */
 	@Override
-	protected void inspectPostfixExpression(int depth, DataFlow dataFlow, PostfixExpression expression) {
+	protected void inspectPostfixExpression(int depth, Context context, DataFlow dataFlow, PostfixExpression expression) {
 		processStringConcatenation(dataFlow, expression);
 	}
 
@@ -46,7 +47,7 @@ public class VerifierSQLInjection extends Verifier {
 	 * 38
 	 */
 	@Override
-	protected void inspectPrefixExpression(int depth, DataFlow dataFlow, PrefixExpression expression) {
+	protected void inspectPrefixExpression(int depth, Context context, DataFlow dataFlow, PrefixExpression expression) {
 		processStringConcatenation(dataFlow, expression);
 	}
 
@@ -65,13 +66,13 @@ public class VerifierSQLInjection extends Verifier {
 	 * 42
 	 */
 	@Override
-	protected void inspectSimpleName(int depth, DataFlow dataFlow, SimpleName expression,
+	protected void inspectSimpleName(int depth, Context context, DataFlow dataFlow, SimpleName expression,
 			VariableBinding variableBinding) {
-		if ((null != variableBinding) && (variableBinding.status().equals(EnumVariableStatus.NOT_VULNERABLE))) {
+		if ((null != variableBinding) && (variableBinding.getStatus().equals(EnumVariableStatus.NOT_VULNERABLE))) {
 			// The SQL Injection verifier also needs to know if the variable has its content from a string concatenation.
-			inspectNode(depth, dataFlow, variableBinding.getInitializer());
+			inspectNode(depth, context, dataFlow, variableBinding.getInitializer());
 		} else {
-			super.inspectSimpleName(depth, dataFlow, expression, variableBinding);
+			super.inspectSimpleName(depth, context, dataFlow, expression, variableBinding);
 		}
 	}
 

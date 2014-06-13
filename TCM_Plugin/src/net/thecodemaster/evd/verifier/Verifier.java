@@ -1,11 +1,16 @@
 package net.thecodemaster.evd.verifier;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import net.thecodemaster.evd.constant.Constant;
+import net.thecodemaster.evd.context.Context;
+import net.thecodemaster.evd.graph.BindingResolver;
 import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.CodeAnalyzer;
 import net.thecodemaster.evd.graph.DataFlow;
+import net.thecodemaster.evd.graph.Parameter;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.point.ExitPoint;
@@ -15,8 +20,11 @@ import net.thecodemaster.evd.xmlloader.LoaderExitPoint;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 /**
  * The verifier is the class that actually knows how to find the vulnerability and the one that performs this
@@ -46,6 +54,10 @@ public abstract class Verifier extends CodeAnalyzer {
 	 * List with all the vulnerable paths found by this verifier.
 	 */
 	private List<DataFlow>	allVulnerablePaths;
+	/**
+	 * The rules that the current parameter must obey.
+	 */
+	private List<Integer>		rules;
 
 	/**
 	 * @param name
@@ -89,6 +101,14 @@ public abstract class Verifier extends CodeAnalyzer {
 		return String.format("%s: %s", getName(), getCurrentResource().getName());
 	}
 
+	protected List<Integer> getRules() {
+		return rules;
+	}
+
+	protected void setRules(List<Integer> rules) {
+		this.rules = rules;
+	}
+
 	protected List<ExitPoint> getExitPoints() {
 		if (null == exitPoints) {
 			// Loads all the ExitPoints of this verifier.
@@ -124,11 +144,80 @@ public abstract class Verifier extends CodeAnalyzer {
 	protected void run(int depth, MethodDeclaration methodDeclaration, Expression invoker) {
 		PluginLogger.logIfDebugging("Method:" + methodDeclaration.getName());
 
-		// 02 - TODO -
-		// If there is a invoker we have to add the parameters and do more stuff.
+		// - Create a context for this method.
+		Context context = getCallGraph().getContext(getCurrentResource(), methodDeclaration, invoker);
 
 		// 03 - Start the detection on each and every line of this method.
-		// inspectNode(depth, context, new DataFlow(methodDeclaration.getName()), methodDeclaration.getBody());
+		inspectNode(depth, context, new DataFlow(methodDeclaration.getName()), methodDeclaration.getBody());
+	}
+
+	/**
+	 * 07
+	 */
+	@Override
+	protected void inspectAssignment(int depth, Context context, DataFlow dataFlow, Assignment expression) {
+		Expression rightHandSide = expression.getRightHandSide();
+
+		inspectNode(depth, context, dataFlow.addNodeToPath(rightHandSide), rightHandSide);
+	}
+
+	/**
+	 * 32
+	 */
+	@Override
+	protected void inspectMethodInvocation(int depth, Context context, DataFlow dataFlow, Expression methodInvocation) {
+		// 01 - Check if this method is a Exit-Point.
+		ExitPoint exitPoint = BindingResolver.getExitPointIfMethodIsOne(getExitPoints(), methodInvocation);
+
+		if (null != exitPoint) {
+			inspectExitPoint(depth, context, methodInvocation, exitPoint);
+		} else {
+			super.inspectMethodInvocation(depth, context, dataFlow, methodInvocation);
+		}
+	}
+
+	protected void inspectExitPoint(int depth, Context context, Expression method, ExitPoint exitPoint) {
+		// 01 - Get the parameters (received) from the current method.
+		List<Expression> receivedParameters = BindingResolver.getParameters(method);
+
+		// 02 - Get the expected parameters of the ExitPoint method.
+		Map<Parameter, List<Integer>> expectedParameters = exitPoint.getParameters();
+
+		int index = 0;
+		for (List<Integer> currentRules : expectedParameters.values()) {
+			// If the rules are null, it means the expected parameter can be anything. (We do not care for it).
+			if (null != currentRules) {
+				setRules(currentRules);
+				Expression expression = receivedParameters.get(index);
+				DataFlow dataFlow = new DataFlow(expression);
+
+				// 03 - Check if there is a marker, in case there is, we should BELIEVE it is not vulnerable.
+				if (!hasMarkerAtPosition(expression)) {
+					inspectNode(depth, context, dataFlow, expression);
+
+					if (dataFlow.isVulnerable()) {
+						allVulnerablePaths.add(dataFlow);
+						reportVulnerability(dataFlow);
+					}
+				}
+			}
+			index++;
+		}
+	}
+
+	/**
+	 * 60
+	 */
+	@Override
+	protected void inspectVariableDeclarationStatement(int depth, Context context, DataFlow dataFlow,
+			VariableDeclarationStatement statement) {
+		for (Iterator<?> iter = statement.fragments().iterator(); iter.hasNext();) {
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) iter.next();
+
+			// 01 - Inspect the Initializer.
+			DataFlow newDataFlow = new DataFlow(fragment.getName());
+			inspectNode(depth, context, newDataFlow, fragment.getInitializer());
+		}
 	}
 
 	/**

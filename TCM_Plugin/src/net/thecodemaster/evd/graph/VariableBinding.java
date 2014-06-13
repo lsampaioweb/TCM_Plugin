@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.ui.enumeration.EnumVariableStatus;
+import net.thecodemaster.evd.ui.enumeration.EnumVariableType;
 
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -16,6 +17,7 @@ public class VariableBinding {
 	private IBinding								binding;
 	private Expression							initializer;
 	private EnumVariableStatus			status;
+	private EnumVariableType				type;
 	private DataFlow								dataFlow;
 
 	private final List<Expression>	references;
@@ -28,7 +30,7 @@ public class VariableBinding {
 		references = Creator.newList();
 	}
 
-	private IBinding getBinding() {
+	public IBinding getBinding() {
 		return binding;
 	}
 
@@ -52,7 +54,7 @@ public class VariableBinding {
 		return references;
 	}
 
-	public EnumVariableStatus status() {
+	public EnumVariableStatus getStatus() {
 		return status;
 	}
 
@@ -60,6 +62,14 @@ public class VariableBinding {
 		this.status = status;
 
 		return this;
+	}
+
+	public EnumVariableType getType() {
+		return type;
+	}
+
+	public void setType(EnumVariableType type) {
+		this.type = type;
 	}
 
 	public DataFlow getDataFlow() {
@@ -114,7 +124,8 @@ public class VariableBinding {
 
 	@Override
 	public String toString() {
-		return String.format("%s - %s - %s", getBinding().toString(), getInitializer().toString(), status());
+		return String.format("%s - %s - %s - %s", getBinding().toString(), getType(), getInitializer().toString(),
+				getStatus());
 	}
 
 }

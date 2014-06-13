@@ -206,7 +206,7 @@ public class BuilderJob extends Job {
 			Manager manager) {
 		Timer timer = (new Timer("01.3 - Plug-in verifications: ")).start();
 		// 05 - Perform the plug-in's verifications.
-		// manager.run(monitor, callGraph, resourcesUpdated);
+		manager.run(monitor, callGraph, resourcesUpdated);
 		PluginLogger.logIfDebugging(timer.stop().toString());
 	}
 
