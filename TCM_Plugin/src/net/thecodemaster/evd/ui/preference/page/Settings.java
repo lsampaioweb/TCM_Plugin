@@ -20,8 +20,9 @@ public class Settings extends AbstracPreferencePage {
 
 	private RadioGroupFieldEditor	rbtnRunMode;
 	private BooleanFieldEditor		ckbtnSecurityView;
-	private BooleanFieldEditor		ckbtnTextFile;
-	private BooleanFieldEditor		ckbtnXmlFile;
+
+	// private BooleanFieldEditor ckbtnTextFile;
+	// private BooleanFieldEditor ckbtnXmlFile;
 
 	public Settings() {
 	}
@@ -54,13 +55,14 @@ public class Settings extends AbstracPreferencePage {
 		top.setLayout(new GridLayout());
 
 		String[][] data = new String[][] {
-				{ Message.PrefPageSettings.LABEL_RUN_AUTOMATICALLY, Message.PrefPageSettings.VALUE_RUN_AUTOMATICALLY },
+				// { Message.PrefPageSettings.LABEL_RUN_AUTOMATICALLY, Message.PrefPageSettings.VALUE_RUN_AUTOMATICALLY },
 				{ Message.PrefPageSettings.LABEL_RUN_ON_SAVE, Message.PrefPageSettings.VALUE_RUN_ON_SAVE },
 				{ Message.PrefPageSettings.LABEL_RUN_MANUALLY, Message.PrefPageSettings.VALUE_RUN_MANUALLY } };
 
 		// Group run mode and its children.
 		rbtnRunMode = new RadioGroupFieldEditor(Constant.PrefPageSettings.FIELD_RUN_MODE,
-				Message.PrefPageSettings.LABEL_RUN_MODE, 3, data, top, true);
+				Message.PrefPageSettings.LABEL_RUN_MODE, 2, data, top, true);
+		// Message.PrefPageSettings.LABEL_RUN_MODE, 3, data, top, true);
 		rbtnRunMode.setPreferenceStore(getPreferenceStore());
 		rbtnRunMode.load();
 
@@ -73,10 +75,10 @@ public class Settings extends AbstracPreferencePage {
 		// The output options where the warnings of security vulnerabilities will be displayed.
 		ckbtnSecurityView = createBooleanField(Constant.PrefPageSettings.FIELD_OUTPUT_SECURITY_VIEW,
 				Message.PrefPageSettings.LABEL_OUTPUT_SECURITY_VIEW, groupOutput);
-		ckbtnTextFile = createBooleanField(Constant.PrefPageSettings.FIELD_OUTPUT_TEXT_FILE,
-				Message.PrefPageSettings.LABEL_OUTPUT_TEXT_FILE, groupOutput);
-		ckbtnXmlFile = createBooleanField(Constant.PrefPageSettings.FIELD_OUTPUT_XML_FILE,
-				Message.PrefPageSettings.LABEL_OUTPUT_XML_FILE, groupOutput);
+		// ckbtnTextFile = createBooleanField(Constant.PrefPageSettings.FIELD_OUTPUT_TEXT_FILE,
+		// Message.PrefPageSettings.LABEL_OUTPUT_TEXT_FILE, groupOutput);
+		// ckbtnXmlFile = createBooleanField(Constant.PrefPageSettings.FIELD_OUTPUT_XML_FILE,
+		// Message.PrefPageSettings.LABEL_OUTPUT_XML_FILE, groupOutput);
 
 		return top;
 	}
@@ -85,18 +87,18 @@ public class Settings extends AbstracPreferencePage {
 	public void performDefaults() {
 		IPreferenceStore store = getPreferenceStore();
 		// Save the default values into the preference file.
-		store.setDefault(Constant.PrefPageSettings.FIELD_RUN_MODE, Message.PrefPageSettings.VALUE_RUN_AUTOMATICALLY);
+		store.setDefault(Constant.PrefPageSettings.FIELD_RUN_MODE, Message.PrefPageSettings.VALUE_RUN_ON_SAVE);
 
 		store.setDefault(Constant.PrefPageSettings.FIELD_OUTPUT_SECURITY_VIEW, true);
-		store.setDefault(Constant.PrefPageSettings.FIELD_OUTPUT_TEXT_FILE, false);
-		store.setDefault(Constant.PrefPageSettings.FIELD_OUTPUT_XML_FILE, false);
+		// store.setDefault(Constant.PrefPageSettings.FIELD_OUTPUT_TEXT_FILE, false);
+		// store.setDefault(Constant.PrefPageSettings.FIELD_OUTPUT_XML_FILE, false);
 
 		// Set the default values into the fields.
 		loadDefaultValue(rbtnRunMode);
 
 		loadDefaultValue(ckbtnSecurityView);
-		loadDefaultValue(ckbtnTextFile);
-		loadDefaultValue(ckbtnXmlFile);
+		// loadDefaultValue(ckbtnTextFile);
+		// loadDefaultValue(ckbtnXmlFile);
 
 		super.performDefaults();
 	}
@@ -107,8 +109,8 @@ public class Settings extends AbstracPreferencePage {
 		storeValue(rbtnRunMode);
 
 		storeValue(ckbtnSecurityView);
-		storeValue(ckbtnTextFile);
-		storeValue(ckbtnXmlFile);
+		// storeValue(ckbtnTextFile);
+		// storeValue(ckbtnXmlFile);
 
 		resetPluginState();
 

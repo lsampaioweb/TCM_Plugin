@@ -12,7 +12,6 @@ import net.thecodemaster.evd.graph.CodeAnalyzer;
 import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.graph.Parameter;
 import net.thecodemaster.evd.helper.Creator;
-import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.point.ExitPoint;
 import net.thecodemaster.evd.reporter.Reporter;
 import net.thecodemaster.evd.xmlloader.LoaderExitPoint;
@@ -142,12 +141,10 @@ public abstract class Verifier extends CodeAnalyzer {
 	 */
 	@Override
 	protected void run(int depth, MethodDeclaration methodDeclaration, Expression invoker) {
-		PluginLogger.logIfDebugging("Method:" + methodDeclaration.getName());
-
-		// - Create a context for this method.
+		// 01 - Get the context for this method.
 		Context context = getCallGraph().getContext(getCurrentResource(), methodDeclaration, invoker);
 
-		// 03 - Start the detection on each and every line of this method.
+		// 02 - Start the detection on each and every line of this method.
 		inspectNode(depth, context, new DataFlow(methodDeclaration.getName()), methodDeclaration.getBody());
 	}
 
@@ -165,15 +162,26 @@ public abstract class Verifier extends CodeAnalyzer {
 	 * 32
 	 */
 	@Override
-	protected void inspectMethodInvocation(int depth, Context context, DataFlow dataFlow, Expression methodInvocation) {
+	protected void inspectEachMethodInvocationOfChainInvocations(int depth, Context context, DataFlow dataFlow,
+			Expression methodInvocation) {
 		// 01 - Check if this method is a Exit-Point.
 		ExitPoint exitPoint = BindingResolver.getExitPointIfMethodIsOne(getExitPoints(), methodInvocation);
 
 		if (null != exitPoint) {
 			inspectExitPoint(depth, context, methodInvocation, exitPoint);
 		} else {
-			super.inspectMethodInvocation(depth, context, dataFlow, methodInvocation);
+			super.inspectEachMethodInvocationOfChainInvocations(depth, context, dataFlow, methodInvocation);
 		}
+	}
+
+	@Override
+	protected void inspectMethodWithSourceCode(int depth, Context context, DataFlow dataFlow,
+			Expression methodInvocation, MethodDeclaration methodDeclaration) {
+		// 01 - Get the context for this method.
+		Context newContext = getCallGraph().getContext(context, methodDeclaration, methodInvocation);
+
+		// 02 - Now I inspect the body of the method.
+		super.inspectMethodWithSourceCode(depth, newContext, dataFlow, methodInvocation, methodDeclaration);
 	}
 
 	protected void inspectExitPoint(int depth, Context context, Expression method, ExitPoint exitPoint) {
@@ -215,8 +223,7 @@ public abstract class Verifier extends CodeAnalyzer {
 			VariableDeclarationFragment fragment = (VariableDeclarationFragment) iter.next();
 
 			// 01 - Inspect the Initializer.
-			DataFlow newDataFlow = new DataFlow(fragment.getName());
-			inspectNode(depth, context, newDataFlow, fragment.getInitializer());
+			inspectNode(depth, context, new DataFlow(fragment.getName()), fragment.getInitializer());
 		}
 	}
 

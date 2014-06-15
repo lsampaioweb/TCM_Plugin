@@ -25,6 +25,9 @@ import org.eclipse.jdt.core.dom.SimpleName;
  */
 public class CallGraph {
 
+	/**
+	 * Each resource has one top level context.
+	 */
 	private final Map<IResource, Context>	contexts;
 
 	public CallGraph() {
@@ -72,16 +75,16 @@ public class CallGraph {
 	 * @return
 	 */
 	public Context newContext(Context parentContext, MethodDeclaration method, Expression invoker) {
-		// 02 - Create a context.
+		// 01 - Create a context.
 		Context context = new Context(parentContext.getResource(), parentContext);
 
-		// 03 - Set the object that holds the reference to this method declaration.
+		// 02 - Set the object that holds the reference to this method declaration.
 		context.addMethodDeclaration(method);
 
-		// 04 - Set the invoker of this method.
+		// 03 - Set the invoker of this method.
 		context.setInvoker(invoker);
 
-		// 05 - Add this new context as a child of the parent context.
+		// 04 - Add this new context as a child of the parent context.
 		parentContext.addChildContext(context);
 
 		return context;
@@ -98,11 +101,12 @@ public class CallGraph {
 	/**
 	 * @param variableName
 	 * @param type
+	 * @param type
 	 * @param initializer
 	 * @return
 	 */
-	private VariableBinding createVariableBinding(SimpleName variableName, Expression initializer) {
-		return new VariableBinding(resolveBinding(variableName), initializer);
+	private VariableBinding createVariableBinding(SimpleName variableName, EnumVariableType type, Expression initializer) {
+		return new VariableBinding(resolveBinding(variableName), type, initializer);
 	}
 
 	/**
@@ -114,12 +118,34 @@ public class CallGraph {
 	}
 
 	/**
+	 * @param context
+	 * @param variableName
+	 * @param type
+	 * @param initializer
+	 * @return
+	 */
+	private VariableBinding addVariable(Context context, SimpleName variableName, EnumVariableType type,
+			Expression initializer) {
+		return context.addVariable(createVariableBinding(variableName, type, initializer));
+	}
+
+	/**
 	 * @param resource
 	 * @param fieldName
 	 * @param initializer
 	 */
-	public void addFieldDeclaration(IResource resource, SimpleName fieldName, Expression initializer) {
-		addVariable(getContext(resource), fieldName, initializer);
+	public VariableBinding addFieldDeclaration(IResource resource, SimpleName fieldName, Expression initializer) {
+		return addVariable(getContext(resource), fieldName, EnumVariableType.GLOBAL, initializer);
+	}
+
+	/**
+	 * @param context
+	 * @param parameterName
+	 * @param initializer
+	 * @return
+	 */
+	public VariableBinding addParameter(Context context, SimpleName parameterName, Expression initializer) {
+		return addVariable(context, parameterName, EnumVariableType.PARAMETER, initializer);
 	}
 
 	/**
@@ -129,7 +155,7 @@ public class CallGraph {
 	 * @return
 	 */
 	public VariableBinding addVariable(Context context, SimpleName variableName, Expression initializer) {
-		return context.addVariable(createVariableBinding(variableName, initializer));
+		return addVariable(context, variableName, EnumVariableType.LOCAL, initializer);
 	}
 
 	/**
@@ -192,18 +218,6 @@ public class CallGraph {
 
 	/**
 	 * @param context
-	 * @param variable
-	 * @return
-	 */
-	public VariableBinding getLastReference(Context context, Expression variable) {
-		// 01 - Get the binding of this variable.
-		// 02 - Get the list of occurrences of this variable.
-		// 03 - Return the last element of the list.
-		return getLastReference(getVariableBindings(context, resolveBinding(variable)));
-	}
-
-	/**
-	 * @param context
 	 * @param binding
 	 * @return
 	 */
@@ -236,10 +250,7 @@ public class CallGraph {
 	 */
 	private List<VariableBinding> getVariableBindingsFromContext(Context context, IBinding binding) {
 		// 01 - Get the list of variables in the context.
-		Map<IBinding, List<VariableBinding>> variableBindings = context.getVariables();
-
-		// 02 - Get the list of references of this variable.
-		List<VariableBinding> vbs = variableBindings.get(binding);
+		List<VariableBinding> vbs = context.getVariables().get(binding);
 
 		// 03 - If vbs == null, instead of returning null we return an empty list.
 		if (null == vbs) {
@@ -293,6 +304,18 @@ public class CallGraph {
 	}
 
 	/**
+	 * @param context
+	 * @param variable
+	 * @return
+	 */
+	public VariableBinding getLastReference(Context context, Expression variable) {
+		// 01 - Get the binding of this variable.
+		// 02 - Get the list of occurrences of this variable.
+		// 03 - Return the last element of the list.
+		return getLastReference(getVariableBindings(context, resolveBinding(variable)));
+	}
+
+	/**
 	 * @param vbs
 	 * @return
 	 */
@@ -316,7 +339,16 @@ public class CallGraph {
 	 * @param callee
 	 */
 	public void addMethodInvocation(IResource resource, MethodDeclaration caller, Expression callee) {
-		getContext(resource).addMethodInvocation(caller, callee);
+		addMethodInvocation(getContext(resource), caller, callee);
+	}
+
+	/**
+	 * @param resource
+	 * @param caller
+	 * @param callee
+	 */
+	public void addMethodInvocation(Context context, MethodDeclaration caller, Expression callee) {
+		context.addMethodInvocation(caller, callee);
 	}
 
 	/**
@@ -424,29 +456,29 @@ public class CallGraph {
 	}
 
 	public Context getContext(IResource resource, MethodDeclaration method, Expression invoker) {
-		// 01 - Get the context of the provided resource.
-		Context context = getContext(resource);
+		return getContext(getContext(resource), method, invoker);
+	}
 
-		// 02 - Iterate over all the children of this context.
+	public Context getContext(Context context, MethodDeclaration method, Expression invoker) {
+		// 01 - Iterate over all the children of this context.
 		for (Context childContext : context.getChildrenContexts()) {
 			// There are two ways we can find the wanted context.
 			// Case 01 : This context has an invoker, this is unique.
 			// Case 02 : Check if the method declaration is equal + the invoker.
 
-			// Case 01.
-			if ((null != childContext.getInvoker()) && (childContext.getInvoker().equals(invoker))) {
-				return childContext;
-			}
-
 			// Case 02.
-			// 03 - Get the list of methods of this context.
+			// 02 - Get the list of methods of this context.
 			Map<MethodDeclaration, List<Expression>> methods = childContext.getMethods();
 
-			// 03 - Iterate over each method into the map.
-			for (MethodDeclaration currentMethod : methods.keySet()) {
+			for (MethodDeclaration currentMethodDeclaration : methods.keySet()) {
 				// 04 - Verify if these methods are the same.
-				if (method.equals(currentMethod)) {
-					return childContext;
+				if (currentMethodDeclaration.equals(method)) {
+					// // Case 01.
+					if ((null != childContext.getInvoker()) && (childContext.getInvoker().equals(invoker))) {
+						return childContext;
+					} else if ((null == childContext.getInvoker()) && (null == invoker)) {
+						return childContext;
+					}
 				}
 			}
 

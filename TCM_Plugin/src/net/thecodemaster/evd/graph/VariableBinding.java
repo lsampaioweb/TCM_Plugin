@@ -22,8 +22,9 @@ public class VariableBinding {
 
 	private final List<Expression>	references;
 
-	public VariableBinding(IBinding binding, Expression initializer) {
+	public VariableBinding(IBinding binding, EnumVariableType type, Expression initializer) {
 		setBinding(binding);
+		setType(type);
 		setInitializer(initializer);
 		setStatus(EnumVariableStatus.UNKNOWN);
 

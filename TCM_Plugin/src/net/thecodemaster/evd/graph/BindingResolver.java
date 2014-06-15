@@ -35,7 +35,6 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
-import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
@@ -112,7 +111,9 @@ public class BindingResolver {
 				case ASTNode.ASSIGNMENT: // 07
 				case ASTNode.CLASS_INSTANCE_CREATION: // 14
 				case ASTNode.METHOD_INVOCATION: // 32
+				case ASTNode.RETURN_STATEMENT: // 41
 				case ASTNode.VARIABLE_DECLARATION_FRAGMENT: // 59
+				case ASTNode.ENHANCED_FOR_STATEMENT: // 70
 					return dataFlow.addNodeToPath(expression);
 			}
 
@@ -167,9 +168,9 @@ public class BindingResolver {
 				case ASTNode.SIMPLE_NAME: // 42 - This is the one we want to find.
 					return expression;
 
-				case ASTNode.QUALIFIED_NAME: // 40
-					expression = ((QualifiedName) expression).getQualifier();
-					break;
+					// case ASTNode.QUALIFIED_NAME: // 40
+					// expression = ((QualifiedName) expression).getQualifier();
+					// break;
 				case ASTNode.THIS_EXPRESSION: // 52
 					expression = ((ThisExpression) expression).getQualifier();
 					break;
@@ -432,6 +433,10 @@ public class BindingResolver {
 	}
 
 	public static boolean isWrapperOfPrimitive(ITypeBinding typeBinding) {
+		if (null == typeBinding) {
+			return false;
+		}
+
 		String name = typeBinding.getQualifiedName();
 		if (null != name) {
 			// boolean, byte, char, short, int, long, float, and double,

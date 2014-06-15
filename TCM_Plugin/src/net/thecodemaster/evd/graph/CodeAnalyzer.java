@@ -196,7 +196,7 @@ public abstract class CodeAnalyzer {
 		ITypeBinding typeBinding = BindingResolver.resolveTypeBinding(expression);
 
 		// 02 - If the type is primitive, we return and that's it.
-		if (typeBinding.isPrimitive()) {
+		if ((null != typeBinding) && (typeBinding.isPrimitive())) {
 			return true;
 		}
 
@@ -624,6 +624,33 @@ public abstract class CodeAnalyzer {
 	 * 32
 	 */
 	protected void inspectMethodInvocation(int depth, Context context, DataFlow dataFlow, Expression methodInvocation) {
+		// Some method invocations can be in a chain call, we have to investigate them all.
+		// response.sendRedirect(login);
+		// getServletContext().getRequestDispatcher(login).forward(request, response);
+		List<Expression> expressions = Creator.newList();
+
+		Expression optionalexpression = methodInvocation;
+		while (null != optionalexpression) {
+			switch (optionalexpression.getNodeType()) {
+				case ASTNode.CLASS_INSTANCE_CREATION: // 14
+				case ASTNode.METHOD_INVOCATION: // 32
+					expressions.add(optionalexpression);
+					break;
+			}
+
+			optionalexpression = BindingResolver.getExpression(optionalexpression);
+		}
+
+		for (Expression expression : expressions) {
+			inspectEachMethodInvocationOfChainInvocations(depth, context, dataFlow.addNodeToPath(expression), expression);
+		}
+	}
+
+	/**
+	 * 32
+	 */
+	protected void inspectEachMethodInvocationOfChainInvocations(int depth, Context context, DataFlow dataFlow,
+			Expression methodInvocation) {
 		// 01 - Check if this method is a Sanitization-Point.
 		if (BindingResolver.isMethodASanitizationPoint(getSanitizationPoints(), methodInvocation)) {
 			// If a sanitization method is being invoked, then we do not have a vulnerability.
@@ -649,22 +676,6 @@ public abstract class CodeAnalyzer {
 
 		// 04 - There are 2 cases: When we have the source code of this method and when we do not.
 		inspectMethodInvocationWithOrWithOutSourceCode(depth, context, newDataFlow, methodInvocation);
-	}
-
-	/**
-	 * 32
-	 */
-	protected DataFlow getDataFlow(DataFlow dataFlow, Expression methodInvocation) {
-		// 01 request.getParameter("b");
-		// 02 boolean b = Boolean.valueOf(request.getParameter("b"));
-		// 03 String a = request.getParameter("a");
-		// 04 return request.getParameter("b");
-		// If the parent is a VariableDeclarationFragment or a return type.
-		if (isPrimitive(methodInvocation)) {
-			return new DataFlow(methodInvocation);
-		} else {
-			return BindingResolver.getDataFlowBasedOnTheParent(dataFlow, methodInvocation);
-		}
 	}
 
 	/**
@@ -717,6 +728,22 @@ public abstract class CodeAnalyzer {
 	protected void inspectMethodWithOutSourceCode(int depth, Context context, DataFlow dataFlow,
 			Expression methodInvocation) {
 		iterateOverParameters(depth, context, dataFlow, methodInvocation);
+	}
+
+	/**
+	 * 32
+	 */
+	protected DataFlow getDataFlow(DataFlow dataFlow, Expression methodInvocation) {
+		// 01 request.getParameter("b");
+		// 02 boolean b = Boolean.valueOf(request.getParameter("b"));
+		// 03 String a = request.getParameter("a");
+		// 04 return request.getParameter("b");
+		// If the parent is a VariableDeclarationFragment or a return type.
+		if (isPrimitive(methodInvocation)) {
+			return new DataFlow(methodInvocation);
+		} else {
+			return BindingResolver.getDataFlowBasedOnTheParent(dataFlow, methodInvocation);
+		}
 	}
 
 	/**

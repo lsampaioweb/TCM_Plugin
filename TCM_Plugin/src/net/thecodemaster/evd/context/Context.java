@@ -90,8 +90,9 @@ public class Context {
 	 */
 	private void updateParentContextIfGlobalVariable(List<VariableBinding> vbs, VariableBinding variableBinding) {
 		if (0 == vbs.size()) {
-			variableBinding.setType((isGlobalVariable(variableBinding) != null) ? EnumVariableType.GLOBAL
-					: EnumVariableType.LOCAL);
+			if (isGlobalVariable(variableBinding)) {
+				variableBinding.setType(EnumVariableType.GLOBAL);
+			}
 		} else {
 			variableBinding.setType(vbs.get(0).getType());
 		}
@@ -106,33 +107,47 @@ public class Context {
 	 * @param variableBinding
 	 * @return
 	 */
-	private List<VariableBinding> isGlobalVariable(VariableBinding variableBinding) {
+	private boolean isGlobalVariable(VariableBinding variableBinding) {
+		return (getGlobalVariableBindings(variableBinding).size() > 0);
+	}
+
+	/**
+	 * @param variableBinding
+	 * @return
+	 */
+	private List<VariableBinding> getGlobalVariableBindings(VariableBinding variableBinding) {
+		// 01 - Create an empty list.
+		List<VariableBinding> emptyList = Creator.newList();
+
 		Context context = this;
-		// 01 - Iterate until it reaches the top level parent.
+		// 02 - Iterate until it reaches the top level parent.
 		while (null != context.getParent()) {
-			// 02 - Become the parent.
+			// 03 - Become the parent.
 			context = context.getParent();
 		}
 
-		// 03 - To make sure the current context is not the top level context.
+		// 04 - To make sure the current context is not the top level context.
 		if (!context.equals(this)) {
-			// 03 - Get the list of occurrences of this variable.
+			// 05 - Get the list of occurrences of this variable.
 			List<VariableBinding> vbs = context.getVariables().get(variableBinding.getBinding());
 
-			return (null != vbs) ? vbs : null;
+			return (null != vbs) ? vbs : emptyList;
 		}
 
-		return null;
+		return emptyList;
 	}
 
 	/**
 	 * @param variableBinding
 	 */
 	private void updateGlobalVariable(VariableBinding variableBinding) {
-		List<VariableBinding> vbs = isGlobalVariable(variableBinding);
+		List<VariableBinding> vbs = getGlobalVariableBindings(variableBinding);
 
-		if (null != vbs) {
-			// 01 - Add the variable to the list.
+		if (0 < vbs.size()) {
+			// 01 - Update the type of the variable.
+			variableBinding.setType(EnumVariableType.GLOBAL);
+
+			// 02 - Add the variable to the list.
 			vbs.add(variableBinding);
 		}
 	}
@@ -164,8 +179,20 @@ public class Context {
 	 * @param callee
 	 */
 	public void addMethodInvocation(MethodDeclaration caller, Expression callee) {
-		// 01 - Add the method invocation for the current method (caller).
-		getMethods().get(caller).add(callee);
+		// 01 - Get the list of invocations of this method declaration.
+		List<Expression> invocations = getMethods().get(caller);
+
+		// 02 - If the list is null, it means this method was not saved before.
+		if (null == invocations) {
+			// 02.1 So, we have to add it.
+			addMethodDeclaration(caller);
+
+			// 02.2 Now, we try again to retrieve the list of invocations.
+			invocations = getMethods().get(caller);
+		}
+
+		// 03 - Add the method invocation for the current method (caller).
+		invocations.add(callee);
 	}
 
 	public void addChildContext(Context context) {

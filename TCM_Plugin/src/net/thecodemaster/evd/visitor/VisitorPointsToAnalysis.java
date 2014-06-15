@@ -9,7 +9,6 @@ import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.CodeAnalyzer;
 import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.graph.VariableBinding;
-import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.ui.l10n.Message;
 
@@ -85,46 +84,23 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		}
 	}
 
-	/**
-	 * 32
-	 */
-	@Override
-	protected void inspectMethodInvocationWithOrWithOutSourceCode(int depth, Context context, DataFlow dataFlow,
-			Expression methodInvocation) {
-		// Some method invocations can be in a chain call, we have to investigate them all.
-		// response.sendRedirect(login);
-		// getServletContext().getRequestDispatcher(login).forward(request, response);
-		List<Expression> expressions = Creator.newList();
-
-		Expression optionalexpression = methodInvocation;
-		while (null != optionalexpression) {
-			switch (optionalexpression.getNodeType()) {
-				case ASTNode.CLASS_INSTANCE_CREATION: // 14
-				case ASTNode.METHOD_INVOCATION: // 32
-					expressions.add(optionalexpression);
-					break;
-			}
-
-			optionalexpression = BindingResolver.getExpression(optionalexpression);
-		}
-
-		for (Expression expression : expressions) {
-			super.inspectMethodInvocationWithOrWithOutSourceCode(depth, context, dataFlow.addNodeToPath(expression),
-					expression);
-		}
-	}
-
 	@Override
 	protected void inspectMethodWithSourceCode(int depth, Context context, DataFlow dataFlow,
 			Expression methodInvocation, MethodDeclaration methodDeclaration) {
-		// 01 - Create a context for this method.
+		// 01 - Get the current method declaration where this invocation is being performed.
+		MethodDeclaration currentMethod = BindingResolver.getParentMethodDeclaration(methodInvocation);
+
+		// 02 - Add this method invocation into the current context.
+		getCallGraph().addMethodInvocation(context, currentMethod, methodInvocation);
+
+		// 03 - Create a context for this method.
 		Context newContext = getCallGraph().newContext(context, methodDeclaration, methodInvocation);
 
-		// 02 - If this method declaration has parameters, we have to add the values from
+		// 04 - If this method declaration has parameters, we have to add the values from
 		// the invocation to these parameters.
 		addParametersToCallGraph(depth, newContext, methodInvocation, methodDeclaration);
 
-		// 03 - Now I inspect the body of the method.
+		// 05 - Now I inspect the body of the method.
 		super.inspectMethodWithSourceCode(depth, newContext, dataFlow, methodInvocation, methodDeclaration);
 	}
 
@@ -214,11 +190,11 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 				// 04 - Add a reference to this variable (if it is a variable).
 				addReferenceToInitializer(depth, context, parameterName, initializer);
 
-				// 05 - Add the content with the one that came from the method invocation.
-				getCallGraph().addVariable(context, parameterName, initializer);
-
-				// 06 - Add a method reference to this variable (if it is a variable).
+				// 05 - Add a method reference to this variable (if it is a variable).
 				addReferenceToInitializer(depth, context, methodInvocation, initializer);
+
+				// 06 - Add the content with the one that came from the method invocation.
+				getCallGraph().addParameter(context, parameterName, initializer);
 			}
 		}
 	}
