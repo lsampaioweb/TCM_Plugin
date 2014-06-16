@@ -1,6 +1,9 @@
 package net.thecodemaster.evd.marker.resolution;
 
+import java.util.List;
+
 import net.thecodemaster.evd.logger.PluginLogger;
+import net.thecodemaster.evd.ui.view.ViewDataModel;
 
 import org.eclipse.core.resources.IMarker;
 
@@ -12,8 +15,17 @@ public class ResolutionEntryPointNotSanitized extends AbstractResolution {
 	public ResolutionEntryPointNotSanitized(int position, ResolutionMessage resolutionMessage, IMarker marker) {
 		super(position, marker);
 
+		// 03 - Get the ViewDataModel of this marker.
+		List<ViewDataModel> vdms = getViewDataModelsFromMarker(marker);
+
+		ViewDataModel vdm = vdms.get(0);
+
+		String expression = (null != vdm.getExpr()) ? vdm.getExpr().toString() : "";
+		// String fullPath = getFullPath(vdm);
+		String description = String.format(resolutionMessage.getDescription(), expression, expression);
+
 		setLabel(resolutionMessage.getLabel());
-		setDescription(resolutionMessage.getDescription());
+		setDescription(description);
 	}
 
 	/**

@@ -161,4 +161,23 @@ public abstract class AbstractResolution implements IMarkerResolution2 {
 		applyChanges(cUnit, rewriter);
 	}
 
+	protected String getFullPath(ViewDataModel vdm) {
+		if (0 >= getNrChildren(vdm)) {
+			// 01 - EntryPoint.
+			return vdm.getFullPath();
+		} else {
+			// 02 - ExitPoint.
+			StringBuilder sb = new StringBuilder();
+			for (ViewDataModel vdmChildren : vdm.getChildren()) {
+				sb.append(vdmChildren.getFullPath());
+				sb.append("<br/>");
+			}
+			return sb.toString();
+		}
+	}
+
+	protected int getNrChildren(ViewDataModel vdm) {
+		return (null != vdm) ? vdm.getChildren().size() : -1;
+	}
+
 }

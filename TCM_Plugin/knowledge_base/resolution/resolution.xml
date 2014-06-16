@@ -11,9 +11,17 @@ If you think it is a false positive you can ignore it and this warning will no l
 	</resolution>
 	<resolution type="20">
 		<label><![CDATA[Sanitize this element]]></label>
-		<description><![CDATA[This element should be sanitized to avoid Cross-Site Scripting(XSS).<br/>
-    Cross-Site Scripting (XSS) attacks are a type of injection, in which malicious 
-    scripts are injected into otherwise benign and trusted web sites.]]></description>
+		<description><![CDATA[This element should be sanitized to avoid Cross-Site Scripting(XSS).<br/><br/>
+    Sample of a vulnarable code:<br/>
+    String parameter = <b>%s</b>;<br/>
+    System.out.println(parameter);<br/><br/>
+    
+    Solution:<br/>
+    import org.owasp.encoder.Encode;<br/>
+    ...<br/>
+    String parameter = <b>Encode.forHtmlAttribute(%s)</b>;<br/>
+    System.out.println(parameter);    
+    ]]></description>
 	</resolution>
 	<resolution type="30">
 		<label><![CDATA[Remove hard-coded content]]></label>
@@ -36,7 +44,7 @@ If you think it is a false positive you can ignore it and this warning will no l
       PreparedStatement preparedStatement = conn.prepareStatement(sql);<br/>
       preparedStatement.setString(1, userName);<br/>
       ResultSet resultSet = statement.executeQuery();<br/>
-      ...<br/>
+      ...
 		  ]]>
 		</description>
 	</resolution>

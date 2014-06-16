@@ -30,21 +30,6 @@ public class ResolutionIgnore extends AbstractResolution {
 		setDescription(description);
 	}
 
-	private String getFullPath(ViewDataModel vdm) {
-		if (0 >= getNrChildren(vdm)) {
-			// 01 - EntryPoint.
-			return vdm.getFullPath();
-		} else {
-			// 02 - ExitPoint.
-			StringBuilder sb = new StringBuilder();
-			for (ViewDataModel vdmChildren : vdm.getChildren()) {
-				sb.append(vdmChildren.getFullPath());
-				sb.append("<br/>");
-			}
-			return sb.toString();
-		}
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -74,10 +59,6 @@ public class ResolutionIgnore extends AbstractResolution {
 		} catch (Exception e) {
 			PluginLogger.logError(e);
 		}
-	}
-
-	private int getNrChildren(ViewDataModel vdm) {
-		return (null != vdm) ? vdm.getChildren().size() : -1;
 	}
 
 	private void handleEntryPoint(ViewDataModel vdm) {
