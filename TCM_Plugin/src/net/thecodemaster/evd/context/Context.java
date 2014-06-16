@@ -20,6 +20,7 @@ public class Context {
 	private final Map<MethodDeclaration, List<Expression>>	methods;
 
 	private final List<Context>															childrenContexts;
+	private Expression																			instance;
 	private Expression																			invoker;
 
 	public Context(IResource resource) {
@@ -209,6 +210,24 @@ public class Context {
 
 	public void setInvoker(Expression invoker) {
 		this.invoker = invoker;
+	}
+
+	public Expression getInstance() {
+		return instance;
+	}
+
+	public void setInstance(Expression instance) {
+		this.instance = instance;
+	}
+
+	public void merge(Context otherContext) {
+		if (null != otherContext) {
+			getVariables().clear();
+			getMethods().clear();
+
+			getVariables().putAll(otherContext.getVariables());
+			getMethods().putAll(otherContext.getMethods());
+		}
 	}
 
 	@Override

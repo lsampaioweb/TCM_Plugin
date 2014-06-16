@@ -43,9 +43,9 @@ public class DataFlow {
 	private final List<List<DataFlow>>	allVulnerablePaths;
 
 	public DataFlow(Expression root) {
+		this.root = root;
 		children = Creator.newList();
 		allVulnerablePaths = Creator.newList();
-		this.root = root;
 	}
 
 	private DataFlow(Expression root, DataFlow parent) {
@@ -183,7 +183,9 @@ public class DataFlow {
 
 	@Override
 	public String toString() {
-		return (null != getRoot()) ? getRoot().toString() : "";
+		String root = (null != getRoot()) ? getRoot().toString() : "";
+		String parent = (null != getParent()) ? getParent().toString() : "";
+		return String.format("%s - %s", parent, root);
 	}
 
 }

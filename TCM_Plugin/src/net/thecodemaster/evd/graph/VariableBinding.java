@@ -90,8 +90,9 @@ public class VariableBinding {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result *= prime + getBinding().hashCode();
-		result *= prime + getInitializer().hashCode();
+
+		result *= prime + ((null != getBinding()) ? getBinding().hashCode() : 1);
+		result *= prime + ((null != getInitializer()) ? getInitializer().hashCode() : 2);
 		return result;
 	}
 
@@ -125,8 +126,10 @@ public class VariableBinding {
 
 	@Override
 	public String toString() {
-		return String.format("%s - %s - %s - %s", getBinding().toString(), getType(), getInitializer().toString(),
-				getStatus());
+		String binding = (null != getBinding()) ? getBinding().toString() : "";
+		String initializer = (null != getInitializer()) ? getInitializer().toString() : "";
+
+		return String.format("%s - %s - %s - %s", binding, getType(), initializer, getStatus());
 	}
 
 }

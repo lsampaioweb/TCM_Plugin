@@ -13,7 +13,6 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.SimpleName;
 
 /**
  * This object contains all the methods, variables and their interactions, on the project that is being analyzed. At any
@@ -91,6 +90,32 @@ public class CallGraph {
 	}
 
 	/**
+	 * @param parentContext
+	 * @param method
+	 * @param invoker
+	 * @return
+	 */
+	public Context newClassContext(Context parentContext, MethodDeclaration method, Expression invoker) {
+		// This method declaration is a constructor from a class. So, we need to get
+		// that context, but without the extra stuff.
+		// We only need global variables and methods.
+
+		// 01 - Get the resource of this constructor.
+		IResource resource = BindingResolver.getResource(method);
+
+		// 02 - Create a context.
+		Context context = newContext(parentContext, method, invoker);
+
+		// 03 - Get the context (top level) of that resource.
+		Context classContext = getContext(resource);
+
+		// 04 - Copy the variables and methods from the classContext to this new context.
+		context.merge(classContext);
+
+		return context;
+	}
+
+	/**
 	 * @param resource
 	 */
 	public void remove(IResource resource) {
@@ -105,7 +130,7 @@ public class CallGraph {
 	 * @param initializer
 	 * @return
 	 */
-	private VariableBinding createVariableBinding(SimpleName variableName, EnumVariableType type, Expression initializer) {
+	private VariableBinding createVariableBinding(Expression variableName, EnumVariableType type, Expression initializer) {
 		return new VariableBinding(resolveBinding(variableName), type, initializer);
 	}
 
@@ -124,7 +149,7 @@ public class CallGraph {
 	 * @param initializer
 	 * @return
 	 */
-	private VariableBinding addVariable(Context context, SimpleName variableName, EnumVariableType type,
+	private VariableBinding addVariable(Context context, Expression variableName, EnumVariableType type,
 			Expression initializer) {
 		return context.addVariable(createVariableBinding(variableName, type, initializer));
 	}
@@ -134,7 +159,7 @@ public class CallGraph {
 	 * @param fieldName
 	 * @param initializer
 	 */
-	public VariableBinding addFieldDeclaration(IResource resource, SimpleName fieldName, Expression initializer) {
+	public VariableBinding addFieldDeclaration(IResource resource, Expression fieldName, Expression initializer) {
 		return addVariable(getContext(resource), fieldName, EnumVariableType.GLOBAL, initializer);
 	}
 
@@ -144,7 +169,7 @@ public class CallGraph {
 	 * @param initializer
 	 * @return
 	 */
-	public VariableBinding addParameter(Context context, SimpleName parameterName, Expression initializer) {
+	public VariableBinding addParameter(Context context, Expression parameterName, Expression initializer) {
 		return addVariable(context, parameterName, EnumVariableType.PARAMETER, initializer);
 	}
 
@@ -154,7 +179,7 @@ public class CallGraph {
 	 * @param initializer
 	 * @return
 	 */
-	public VariableBinding addVariable(Context context, SimpleName variableName, Expression initializer) {
+	public VariableBinding addVariable(Context context, Expression variableName, Expression initializer) {
 		return addVariable(context, variableName, EnumVariableType.LOCAL, initializer);
 	}
 

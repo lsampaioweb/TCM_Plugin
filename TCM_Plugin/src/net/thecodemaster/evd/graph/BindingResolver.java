@@ -81,6 +81,16 @@ public class BindingResolver {
 		return node;
 	}
 
+	public static IResource getResource(ASTNode node) {
+		try {
+			CompilationUnit cUnit = getCompilationUnit(node);
+			return cUnit.getJavaElement().getCorrespondingResource();
+		} catch (JavaModelException e) {
+			PluginLogger.logError(e);
+		}
+		return null;
+	}
+
 	public static Expression getParentWhoHasAReference(ASTNode node) {
 		while (null != node) {
 			switch (node.getNodeType()) {
@@ -420,16 +430,6 @@ public class BindingResolver {
 		// boolean, byte, char, short, int, long, float, and double
 		String newName = Convert.fromPrimitiveNameToWrapperClass(other.getQualifiedName());
 		return (parameter.equals(newName));
-	}
-
-	public static IResource getResource(ASTNode node) {
-		try {
-			CompilationUnit cUnit = getCompilationUnit(node);
-			return cUnit.getJavaElement().getCorrespondingResource();
-		} catch (JavaModelException e) {
-			PluginLogger.logError(e);
-		}
-		return null;
 	}
 
 	public static boolean isWrapperOfPrimitive(ITypeBinding typeBinding) {

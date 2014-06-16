@@ -10,7 +10,7 @@ import net.thecodemaster.evd.Activator;
 public abstract class Constant {
 
 	public static final boolean	IS_DEBUGGING													= true;
-	public static final int			MAXIMUM_VERIFICATION_DEPTH						= 20;
+	public static final int			MAXIMUM_VERIFICATION_DEPTH						= 30;
 	public static final String	JDT_NATURE														= "org.eclipse.jdt.core.javanature";
 	public static final String	NATURE_ID															= Activator.PLUGIN_ID + ".TCM_EVD_NATURE";
 	public static final String	BUILDER_ID														= Activator.PLUGIN_ID + ".TCM_EVD_BUILDER";

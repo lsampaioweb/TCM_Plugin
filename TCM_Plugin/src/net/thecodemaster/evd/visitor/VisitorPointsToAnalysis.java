@@ -78,10 +78,8 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		Expression leftHandSide = node.getLeftHandSide();
 		Expression rightHandSide = node.getRightHandSide();
 
-		if (leftHandSide.getNodeType() == ASTNode.SIMPLE_NAME) {
-			// 02 - Add the new variable to the callGraph.
-			addVariableToCallGraphAndInspectInitializer(depth, context, dataFlow, (SimpleName) leftHandSide, rightHandSide);
-		}
+		// 02 - Add the new variable to the callGraph.
+		addVariableToCallGraphAndInspectInitializer(depth, context, dataFlow, leftHandSide, rightHandSide);
 	}
 
 	@Override
@@ -94,7 +92,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		getCallGraph().addMethodInvocation(context, currentMethod, methodInvocation);
 
 		// 03 - Create a context for this method.
-		Context newContext = getCallGraph().newContext(context, methodDeclaration, methodInvocation);
+		Context newContext = getNewContextByMethodNodeType(context, methodInvocation, methodDeclaration);
 
 		// 04 - If this method declaration has parameters, we have to add the values from
 		// the invocation to these parameters.
@@ -102,6 +100,26 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
 		// 05 - Now I inspect the body of the method.
 		super.inspectMethodWithSourceCode(depth, newContext, dataFlow, methodInvocation, methodDeclaration);
+	}
+
+	private Context getNewContextByMethodNodeType(Context context, Expression methodInvocation,
+			MethodDeclaration methodDeclaration) {
+		// method(...); If a method is invoked several times, a new context should be created.
+		// obj.method(...); If a method from an object is invoked, the same context should be returned.
+		// ... new Object(...);
+		// OBJECT.staticMethod();
+
+		switch (methodInvocation.getNodeType()) {
+			case ASTNode.CLASS_INSTANCE_CREATION: // 14
+				return getCallGraph().newClassContext(context, methodDeclaration, methodInvocation);
+			case ASTNode.METHOD_INVOCATION: // 32
+				return getCallGraph().newContext(context, methodDeclaration, methodInvocation);
+			default:
+				PluginLogger.logError("getNewContextByMethodType Default Node Type: " + methodDeclaration.getNodeType(), null);
+				break;
+		}
+
+		return null;
 	}
 
 	@Override
@@ -153,7 +171,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	 * 07, 60, 70
 	 */
 	private void addVariableToCallGraphAndInspectInitializer(int depth, Context context, DataFlow dataFlow,
-			SimpleName variableName, Expression initializer) {
+			Expression variableName, Expression initializer) {
 		// 01 - Add a reference of the variable into the initializer (if the initializer is also a variable).
 		addReferenceToInitializer(depth, context, variableName, initializer);
 
