@@ -77,7 +77,7 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 		}
 
 		// 02 - Informs that this node is a vulnerability.
-		dataFlow.addNodeToPath(node).isVulnerable(Constant.Vulnerability.SECURITY_MISCONFIGURATION_HARD_CODED_CONTENT,
+		dataFlow.addNodeToPath(node).hasVulnerablePath(Constant.Vulnerability.SECURITY_MISCONFIGURATION_HARD_CODED_CONTENT,
 				message);
 	}
 

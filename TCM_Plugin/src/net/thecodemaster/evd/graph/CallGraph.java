@@ -63,6 +63,51 @@ public class CallGraph {
 	 * @param invoker
 	 * @return
 	 */
+	public Context getContext(IResource resource, MethodDeclaration method, Expression invoker) {
+		return getContext(getContext(resource), method, invoker);
+	}
+
+	/**
+	 * @param context
+	 * @param method
+	 * @param invoker
+	 * @return
+	 */
+	public Context getContext(Context context, MethodDeclaration method, Expression invoker) {
+		// 01 - Iterate over all the children of this context.
+		for (Context childContext : context.getChildrenContexts()) {
+			// There are two ways we can find the wanted context.
+			// Case 01 : This context has an invoker, this is unique.
+			// Case 02 : Check if the method declaration is equal + the invoker.
+
+			// Case 02.
+			// 02 - Get the list of methods of this context.
+			Map<MethodDeclaration, List<Expression>> methods = childContext.getMethods();
+
+			for (MethodDeclaration currentMethodDeclaration : methods.keySet()) {
+				// 04 - Verify if these methods are the same.
+				if (currentMethodDeclaration.equals(method)) {
+					// // Case 01.
+					Expression childInvoker = childContext.getInvoker();
+					if ((null != childInvoker) && (childInvoker.equals(invoker))) {
+						return childContext;
+					} else if ((null == childInvoker) && (null == invoker)) {
+						return childContext;
+					}
+				}
+			}
+
+		}
+
+		return null;
+	}
+
+	/**
+	 * @param resource
+	 * @param method
+	 * @param invoker
+	 * @return
+	 */
 	public Context newContext(IResource resource, MethodDeclaration method, Expression invoker) {
 		return newContext(getContext(resource), method, invoker);
 	}
@@ -89,28 +134,133 @@ public class CallGraph {
 		return context;
 	}
 
+	public Context getClassContext(Context parentContext, MethodDeclaration method, Expression invoker,
+			Expression instance) {
+		// 01 - Get the context of the instance object.
+		Context instanceContext = getInstanceContext(parentContext, instance);
+
+		// 02 -
+		return getContext(instanceContext, method, invoker);
+	}
+
+	/**
+	 * @param parentContext
+	 * @param method
+	 * @param invoker
+	 * @param instance
+	 * @return
+	 */
+	public Context newClassContext(Context parentContext, MethodDeclaration method, Expression invoker,
+			Expression instance) {
+		// This method declaration is a constructor from a class. So, we need to get
+		// that context, but without the extra stuff.
+		// We only need global variables and methods.
+
+		// 01 - Create a context.
+		Context context = newContext(parentContext, method, invoker);
+
+		// 02 - Set the object that will hold this context.
+		context.setInstance(instance);
+
+		// 03 - Get the resource of this constructor.
+		// 04 - Get the context (top level) of that resource.
+		// 05 - Copy the variables and methods from the classContext to this new context.
+		context.merge(getContext(BindingResolver.getResource(method)));
+
+		return context;
+	}
+
+	/**
+	 * @param context
+	 * @param instance
+	 * @return
+	 */
+	private Context getInstanceContext(Context context, Expression instance) {
+		IBinding otherBinding = resolveBinding(instance);
+
+		// 01 - Iterate over all the children of this context.
+		for (Context childContext : context.getChildrenContexts()) {
+
+			// Check if the instance of this context is the one I am looking for.
+			Expression currentInstance = childContext.getInstance();
+			if ((null != currentInstance) && (null != instance)) {
+				IBinding currentBinding = resolveBinding(currentInstance);
+
+				if ((null != currentBinding) && (currentBinding.equals(otherBinding))) {
+					return childContext;
+				}
+			}
+
+		}
+		return null;
+	}
+
+	/**
+	 * @param parentContext
+	 * @param method
+	 * @param invoker
+	 * @param instance
+	 * @return
+	 */
+	public Context getInstanceMethodContext(Context parentContext, MethodDeclaration method, Expression invoker,
+			Expression instance) {
+		// 01 - Get the context of the instance object.
+		Context instanceContext = getInstanceContext(parentContext, instance);
+
+		// 02 -
+		return getContext(instanceContext, method, invoker);
+	}
+
+	/**
+	 * @param parentContext
+	 * @param method
+	 * @param invoker
+	 * @param instance
+	 * @return
+	 */
+	public Context newInstanceContext(Context parentContext, MethodDeclaration method, Expression invoker,
+			Expression instance) {
+		// 01 - Get the context of the instance object.
+		Context instanceContext = getInstanceContext(parentContext, instance);
+
+		// 02 - Create a context.
+		Context context = newContext(instanceContext, method, invoker);
+
+		// 03 - Set the object that will hold this context.
+		context.setInstance(instance);
+
+		return context;
+	}
+
 	/**
 	 * @param parentContext
 	 * @param method
 	 * @param invoker
 	 * @return
 	 */
-	public Context newClassContext(Context parentContext, MethodDeclaration method, Expression invoker) {
-		// This method declaration is a constructor from a class. So, we need to get
-		// that context, but without the extra stuff.
-		// We only need global variables and methods.
+	public Context getStaticMethodContext(Context parentContext, MethodDeclaration method, Expression invoker) {
+		// 01 - Get the static context of that class.
+		Context classStaticContext = getContext(BindingResolver.getResource(method));
 
-		// 01 - Get the resource of this constructor.
-		IResource resource = BindingResolver.getResource(method);
+		// 02 -
+		return getContext(classStaticContext, method, invoker);
+	}
 
-		// 02 - Create a context.
-		Context context = newContext(parentContext, method, invoker);
+	/**
+	 * @param parentContext
+	 * @param method
+	 * @param invoker
+	 * @return
+	 */
+	public Context newStaticMethodContext(Context parentContext, MethodDeclaration method, Expression invoker) {
+		// 01 - Get the static context of that class.
+		Context classStaticContext = getContext(BindingResolver.getResource(method));
 
-		// 03 - Get the context (top level) of that resource.
-		Context classContext = getContext(resource);
+		// 02 - Add this new context as a child of the parent context.
+		parentContext.addChildContext(classStaticContext);
 
-		// 04 - Copy the variables and methods from the classContext to this new context.
-		context.merge(classContext);
+		// 03 - Create a context.
+		Context context = newContext(classStaticContext, method, invoker);
 
 		return context;
 	}
@@ -206,17 +356,6 @@ public class CallGraph {
 				if (null != variableBinding) {
 					return variableBinding;
 				}
-
-				if (vbs.get(0).getType() == EnumVariableType.GLOBAL) {
-					// 04 - Get the variable binding if the expression matches one of the
-					// references of this variable in another context.
-					vbs = getVariableBindingsFromAllContexts(context, binding);
-
-					variableBinding = getVariableBindingIfReferenceMatch(vbs, expression);
-					if (null != variableBinding) {
-						return variableBinding;
-					}
-				}
 			}
 
 			return getLastReference(vbs);
@@ -277,8 +416,8 @@ public class CallGraph {
 		// 01 - Get the list of variables in the context.
 		List<VariableBinding> vbs = context.getVariables().get(binding);
 
-		// 03 - If vbs == null, instead of returning null we return an empty list.
 		if (null == vbs) {
+			// 02 - If vbs == null, instead of returning null we return an empty list.
 			vbs = Creator.newList();
 		}
 
@@ -478,38 +617,6 @@ public class CallGraph {
 		}
 
 		return invokers;
-	}
-
-	public Context getContext(IResource resource, MethodDeclaration method, Expression invoker) {
-		return getContext(getContext(resource), method, invoker);
-	}
-
-	public Context getContext(Context context, MethodDeclaration method, Expression invoker) {
-		// 01 - Iterate over all the children of this context.
-		for (Context childContext : context.getChildrenContexts()) {
-			// There are two ways we can find the wanted context.
-			// Case 01 : This context has an invoker, this is unique.
-			// Case 02 : Check if the method declaration is equal + the invoker.
-
-			// Case 02.
-			// 02 - Get the list of methods of this context.
-			Map<MethodDeclaration, List<Expression>> methods = childContext.getMethods();
-
-			for (MethodDeclaration currentMethodDeclaration : methods.keySet()) {
-				// 04 - Verify if these methods are the same.
-				if (currentMethodDeclaration.equals(method)) {
-					// // Case 01.
-					if ((null != childContext.getInvoker()) && (childContext.getInvoker().equals(invoker))) {
-						return childContext;
-					} else if ((null == childContext.getInvoker()) && (null == invoker)) {
-						return childContext;
-					}
-				}
-			}
-
-		}
-
-		return null;
 	}
 
 }

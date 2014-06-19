@@ -2,6 +2,7 @@ package net.thecodemaster.evd.context;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import net.thecodemaster.evd.graph.VariableBinding;
 import net.thecodemaster.evd.helper.Creator;
@@ -11,6 +12,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.Modifier;
 
 public class Context {
 
@@ -125,14 +127,14 @@ public class Context {
 		while (null != context.getParent()) {
 			// 03 - Become the parent.
 			context = context.getParent();
-		}
 
-		// 04 - To make sure the current context is not the top level context.
-		if (!context.equals(this)) {
-			// 05 - Get the list of occurrences of this variable.
-			List<VariableBinding> vbs = context.getVariables().get(variableBinding.getBinding());
+			// 04 - To make sure the current context is not the top level context.
+			if (!context.equals(this)) {
+				// 05 - Get the list of occurrences of this variable.
+				List<VariableBinding> vbs = context.getVariables().get(variableBinding.getBinding());
 
-			return (null != vbs) ? vbs : emptyList;
+				return (null != vbs) ? vbs : emptyList;
+			}
 		}
 
 		return emptyList;
@@ -145,10 +147,7 @@ public class Context {
 		List<VariableBinding> vbs = getGlobalVariableBindings(variableBinding);
 
 		if (0 < vbs.size()) {
-			// 01 - Update the type of the variable.
-			variableBinding.setType(EnumVariableType.GLOBAL);
-
-			// 02 - Add the variable to the list.
+			// 01 - Add the variable to the list.
 			vbs.add(variableBinding);
 		}
 	}
@@ -225,9 +224,43 @@ public class Context {
 			getVariables().clear();
 			getMethods().clear();
 
-			getVariables().putAll(otherContext.getVariables());
-			getMethods().putAll(otherContext.getMethods());
+			getVariables().putAll(mergeVariables(otherContext));
+			getMethods().putAll(mergeMethods(otherContext));
 		}
+	}
+
+	private Map<IBinding, List<VariableBinding>> mergeVariables(Context otherContext) {
+		// 01 - Static variables. I want the last reference.
+		// 02 - Global variables. I want the first reference.
+		Map<IBinding, List<VariableBinding>> tempVariables = Creator.newMap();
+
+		// 01 - Iterate over all the variables.
+		for (Entry<IBinding, List<VariableBinding>> entry : otherContext.getVariables().entrySet()) {
+
+			// 02 - Create a temporary list.
+			List<VariableBinding> currentVariableBindings = Creator.newList();
+
+			// 03 - Get all the references of this variable.
+			List<VariableBinding> list = entry.getValue();
+
+			// 04 - If this variable is static, I want the last reference.
+			if (Modifier.isStatic(entry.getKey().getModifiers())) {
+				// 05 - Get the last reference.
+				currentVariableBindings.add(list.get((list.size() > 0) ? list.size() - 1 : 0));
+			} else {
+				// 05 - Get the first reference.
+				currentVariableBindings.add(list.get(0));
+			}
+
+			// 06 - Add the variable to the list that will be returned.
+			tempVariables.put(entry.getKey(), currentVariableBindings);
+		}
+
+		return tempVariables;
+	}
+
+	private Map<MethodDeclaration, List<Expression>> mergeMethods(Context otherContext) {
+		return otherContext.getMethods();
 	}
 
 	@Override

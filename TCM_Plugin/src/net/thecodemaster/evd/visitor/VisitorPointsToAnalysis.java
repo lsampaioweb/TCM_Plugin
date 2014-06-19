@@ -9,6 +9,7 @@ import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.CodeAnalyzer;
 import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.graph.VariableBinding;
+import net.thecodemaster.evd.helper.HelperCodeAnalyzer;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.ui.l10n.Message;
 
@@ -24,6 +25,7 @@ import org.eclipse.jdt.core.dom.EnhancedForStatement;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -92,7 +94,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		getCallGraph().addMethodInvocation(context, currentMethod, methodInvocation);
 
 		// 03 - Create a context for this method.
-		Context newContext = getNewContextByMethodNodeType(context, methodInvocation, methodDeclaration);
+		Context newContext = getContext(context, methodDeclaration, methodInvocation);
 
 		// 04 - If this method declaration has parameters, we have to add the values from
 		// the invocation to these parameters.
@@ -100,26 +102,6 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
 		// 05 - Now I inspect the body of the method.
 		super.inspectMethodWithSourceCode(depth, newContext, dataFlow, methodInvocation, methodDeclaration);
-	}
-
-	private Context getNewContextByMethodNodeType(Context context, Expression methodInvocation,
-			MethodDeclaration methodDeclaration) {
-		// method(...); If a method is invoked several times, a new context should be created.
-		// obj.method(...); If a method from an object is invoked, the same context should be returned.
-		// ... new Object(...);
-		// OBJECT.staticMethod();
-
-		switch (methodInvocation.getNodeType()) {
-			case ASTNode.CLASS_INSTANCE_CREATION: // 14
-				return getCallGraph().newClassContext(context, methodDeclaration, methodInvocation);
-			case ASTNode.METHOD_INVOCATION: // 32
-				return getCallGraph().newContext(context, methodDeclaration, methodInvocation);
-			default:
-				PluginLogger.logError("getNewContextByMethodType Default Node Type: " + methodDeclaration.getNodeType(), null);
-				break;
-		}
-
-		return null;
 	}
 
 	@Override
@@ -133,6 +115,36 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 			addReferenceToInitializer(depth, context, expression, parameter);
 
 			inspectNode(depth, context, dataFlow.addNodeToPath(parameter), parameter);
+		}
+	}
+
+	@Override
+	protected Context getContext(Context context, MethodDeclaration methodDeclaration, Expression methodInvocation) {
+		// We have 8 cases:
+		// 01 - method(...);
+		// 02 - method1(...).method2(...).method3(...);
+		// 03 - obj.method(...);
+		// 04 - obj.method1(...).method2(...).method3(...);
+		// 05 - getObj(...).method(...);
+		// 06 - Class.staticMethod(...);
+		// 07 - Class obj = new Class(...);
+		// 08 - (new Class(...)).run(..);
+		Expression instance = HelperCodeAnalyzer.getNameIfItIsAnObject(methodInvocation);
+
+		if (methodDeclaration.isConstructor()) {
+			// Cases: 07
+			return getCallGraph().newClassContext(context, methodDeclaration, methodInvocation, instance);
+		} else if (Modifier.isStatic(methodDeclaration.getModifiers())) {
+			// Cases: 06
+			return getCallGraph().newStaticMethodContext(context, methodDeclaration, methodInvocation);
+		} else {
+			if (null != instance) {
+				// Cases: 03, 04, 05
+				return getCallGraph().newInstanceContext(context, methodDeclaration, methodInvocation, instance);
+			} else {
+				// Cases: 01, 02
+				return getCallGraph().newContext(context, methodDeclaration, methodInvocation);
+			}
 		}
 	}
 
@@ -184,10 +196,10 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
 		// 04 - If there is a vulnerable path, then this variable is vulnerable.
 		// But if this variable is of primitive type, then there is nothing to do because they can not be vulnerable.
-		if (isPrimitive(variableName)) {
-			updateVariableBindingStatusToPrimitive(variableBinding);
+		if (HelperCodeAnalyzer.isPrimitive(variableName)) {
+			HelperCodeAnalyzer.updateVariableBindingStatusToPrimitive(variableBinding);
 		} else {
-			updateVariableBindingStatus(variableBinding, newDataFlow);
+			HelperCodeAnalyzer.updateVariableBindingStatus(variableBinding, newDataFlow);
 		}
 	}
 

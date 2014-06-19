@@ -39,7 +39,6 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
-import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
@@ -91,56 +90,6 @@ public class BindingResolver {
 		return null;
 	}
 
-	public static Expression getParentWhoHasAReference(ASTNode node) {
-		while (null != node) {
-			switch (node.getNodeType()) {
-				case ASTNode.BLOCK: // 08
-				case ASTNode.RETURN_STATEMENT: // 41
-					return null; // Stop conditions.
-				case ASTNode.ASSIGNMENT: // 07
-					return ((Assignment) node).getLeftHandSide();
-				case ASTNode.CLASS_INSTANCE_CREATION: // 14
-				case ASTNode.METHOD_INVOCATION: // 32
-					return (Expression) node;
-				case ASTNode.VARIABLE_DECLARATION_FRAGMENT: // 59
-					return ((VariableDeclarationFragment) node).getName();
-			}
-
-			node = node.getParent();
-		}
-
-		return null;
-	}
-
-	public static DataFlow getDataFlowBasedOnTheParent(DataFlow dataFlow, Expression expression) {
-		ASTNode node = expression.getParent();
-		while (null != node) {
-			switch (node.getNodeType()) {
-				case ASTNode.BLOCK: // 08
-					break; // Stop conditions.
-				case ASTNode.ASSIGNMENT: // 07
-				case ASTNode.CLASS_INSTANCE_CREATION: // 14
-				case ASTNode.METHOD_INVOCATION: // 32
-				case ASTNode.RETURN_STATEMENT: // 41
-				case ASTNode.VARIABLE_DECLARATION_FRAGMENT: // 59
-				case ASTNode.ENHANCED_FOR_STATEMENT: // 70
-					return dataFlow.addNodeToPath(expression);
-			}
-
-			node = node.getParent();
-		}
-
-		return new DataFlow(expression);
-	}
-
-	private static String getName(IBinding binding) {
-		return (null != binding) ? binding.getName() : "";
-	}
-
-	private static String getName(ASTNode node) {
-		return getName(resolveBinding(node));
-	}
-
 	public static IBinding resolveBinding(ASTNode node) {
 		while (null != node) {
 			switch (node.getNodeType()) {
@@ -166,31 +115,71 @@ public class BindingResolver {
 		return null;
 	}
 
-	public static ITypeBinding resolveTypeBinding(Expression expression) {
-		return expression.resolveTypeBinding();
-	}
-
-	public static Expression getNameIfItIsAnObject(Expression method) {
-		Expression expression = getExpression(method);
-
-		while (null != expression) {
-			switch (expression.getNodeType()) {
-				case ASTNode.SIMPLE_NAME: // 42 - This is the one we want to find.
-					return expression;
-
-					// case ASTNode.QUALIFIED_NAME: // 40
-					// expression = ((QualifiedName) expression).getQualifier();
-					// break;
-				case ASTNode.THIS_EXPRESSION: // 52
-					expression = ((ThisExpression) expression).getQualifier();
-					break;
-				default:
-					expression = getExpression(expression);
-					break;
+	/**
+	 * @param node
+	 * @return
+	 */
+	public static Expression getParentWhoHasAReference(ASTNode node) {
+		while (null != node) {
+			switch (node.getNodeType()) {
+				case ASTNode.BLOCK: // 08
+				case ASTNode.RETURN_STATEMENT: // 41
+					return null; // Stop conditions.
+				case ASTNode.ASSIGNMENT: // 07
+					return ((Assignment) node).getLeftHandSide();
+				case ASTNode.CLASS_INSTANCE_CREATION: // 14
+				case ASTNode.METHOD_INVOCATION: // 32
+					return (Expression) node;
+				case ASTNode.VARIABLE_DECLARATION_FRAGMENT: // 59
+					return ((VariableDeclarationFragment) node).getName();
 			}
+
+			node = node.getParent();
 		}
 
 		return null;
+	}
+
+	public static Expression getExpression(ASTNode node) {
+		if (null != node) {
+			switch (node.getNodeType()) {
+				case ASTNode.ARRAY_ACCESS: // 02
+					return ((ArrayAccess) node).getArray();
+				case ASTNode.CAST_EXPRESSION: // 11
+					return ((CastExpression) node).getExpression();
+				case ASTNode.CLASS_INSTANCE_CREATION: // 14
+					return ((ClassInstanceCreation) node).getExpression();
+				case ASTNode.FIELD_ACCESS: // 22
+					return ((FieldAccess) node).getExpression();
+				case ASTNode.INFIX_EXPRESSION: // 27
+					return null;
+				case ASTNode.METHOD_INVOCATION: // 32
+					return ((MethodInvocation) node).getExpression();
+				case ASTNode.PARENTHESIZED_EXPRESSION: // 36
+					return ((ParenthesizedExpression) node).getExpression();
+				case ASTNode.QUALIFIED_NAME: // 40
+				case ASTNode.SIMPLE_NAME: // 42
+				case ASTNode.STRING_LITERAL: // 45
+				case ASTNode.THIS_EXPRESSION: // 52
+					return null;
+				default:
+					PluginLogger.logError("getExpression default:" + node.getNodeType() + " - " + node, null);
+					return null;
+			}
+		}
+		return null;
+	}
+
+	private static String getName(IBinding binding) {
+		return (null != binding) ? binding.getName() : "";
+	}
+
+	private static String getName(ASTNode node) {
+		return getName(resolveBinding(node));
+	}
+
+	public static ITypeBinding resolveTypeBinding(Expression expression) {
+		return expression.resolveTypeBinding();
 	}
 
 	private static ITypeBinding getDeclaringClass(IMethodBinding methodBinding) {
@@ -275,36 +264,6 @@ public class BindingResolver {
 			}
 		}
 		return parameters;
-	}
-
-	public static Expression getExpression(Expression expression) {
-		if (null != expression) {
-			switch (expression.getNodeType()) {
-				case ASTNode.ARRAY_ACCESS: // 02
-					return ((ArrayAccess) expression).getArray();
-				case ASTNode.CAST_EXPRESSION: // 11
-					return ((CastExpression) expression).getExpression();
-				case ASTNode.CLASS_INSTANCE_CREATION: // 14
-					return ((ClassInstanceCreation) expression).getExpression();
-				case ASTNode.FIELD_ACCESS: // 22
-					return ((FieldAccess) expression).getExpression();
-				case ASTNode.INFIX_EXPRESSION: // 27
-					return null;
-				case ASTNode.METHOD_INVOCATION: // 32
-					return ((MethodInvocation) expression).getExpression();
-				case ASTNode.PARENTHESIZED_EXPRESSION: // 36
-					return ((ParenthesizedExpression) expression).getExpression();
-				case ASTNode.QUALIFIED_NAME: // 40
-				case ASTNode.SIMPLE_NAME: // 42
-				case ASTNode.STRING_LITERAL: // 45
-				case ASTNode.THIS_EXPRESSION: // 52
-					return null;
-				default:
-					PluginLogger.logError("getExpression default:" + expression.getNodeType() + " - " + expression, null);
-					return null;
-			}
-		}
-		return null;
 	}
 
 	@SuppressWarnings("unchecked")

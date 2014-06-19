@@ -1,6 +1,5 @@
 package net.thecodemaster.evd.verifier;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +11,7 @@ import net.thecodemaster.evd.graph.CodeAnalyzer;
 import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.graph.Parameter;
 import net.thecodemaster.evd.helper.Creator;
+import net.thecodemaster.evd.helper.HelperCodeAnalyzer;
 import net.thecodemaster.evd.point.ExitPoint;
 import net.thecodemaster.evd.reporter.Reporter;
 import net.thecodemaster.evd.xmlloader.LoaderExitPoint;
@@ -22,8 +22,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.Modifier;
 
 /**
  * The verifier is the class that actually knows how to find the vulnerability and the one that performs this
@@ -164,7 +163,7 @@ public abstract class Verifier extends CodeAnalyzer {
 	@Override
 	protected void inspectEachMethodInvocationOfChainInvocations(int depth, Context context, DataFlow dataFlow,
 			Expression methodInvocation) {
-		// 01 - Check if this method is a Exit-Point.
+		// 02 - Check if the method is an Exit-Point (Only verifiers check that).
 		ExitPoint exitPoint = BindingResolver.getExitPointIfMethodIsOne(getExitPoints(), methodInvocation);
 
 		if (null != exitPoint) {
@@ -172,16 +171,6 @@ public abstract class Verifier extends CodeAnalyzer {
 		} else {
 			super.inspectEachMethodInvocationOfChainInvocations(depth, context, dataFlow, methodInvocation);
 		}
-	}
-
-	@Override
-	protected void inspectMethodWithSourceCode(int depth, Context context, DataFlow dataFlow,
-			Expression methodInvocation, MethodDeclaration methodDeclaration) {
-		// 01 - Get the context for this method.
-		Context newContext = getCallGraph().getContext(context, methodDeclaration, methodInvocation);
-
-		// 02 - Now I inspect the body of the method.
-		super.inspectMethodWithSourceCode(depth, newContext, dataFlow, methodInvocation, methodDeclaration);
 	}
 
 	protected void inspectExitPoint(int depth, Context context, Expression method, ExitPoint exitPoint) {
@@ -203,7 +192,7 @@ public abstract class Verifier extends CodeAnalyzer {
 				if (!hasMarkerAtPosition(expression)) {
 					inspectNode(depth, context, dataFlow, expression);
 
-					if (dataFlow.isVulnerable()) {
+					if (dataFlow.hasVulnerablePath()) {
 						allVulnerablePaths.add(dataFlow);
 						reportVulnerability(dataFlow);
 					}
@@ -213,17 +202,43 @@ public abstract class Verifier extends CodeAnalyzer {
 		}
 	}
 
-	/**
-	 * 60
-	 */
 	@Override
-	protected void inspectVariableDeclarationStatement(int depth, Context context, DataFlow dataFlow,
-			VariableDeclarationStatement statement) {
-		for (Iterator<?> iter = statement.fragments().iterator(); iter.hasNext();) {
-			VariableDeclarationFragment fragment = (VariableDeclarationFragment) iter.next();
+	protected void inspectMethodWithSourceCode(int depth, Context context, DataFlow dataFlow,
+			Expression methodInvocation, MethodDeclaration methodDeclaration) {
+		// 01 - Get the context for this method.
+		Context newContext = getContext(context, methodDeclaration, methodInvocation);
 
-			// 01 - Inspect the Initializer.
-			inspectNode(depth, context, new DataFlow(fragment.getName()), fragment.getInitializer());
+		// 02 - Now I inspect the body of the method.
+		super.inspectMethodWithSourceCode(depth, newContext, dataFlow, methodInvocation, methodDeclaration);
+	}
+
+	@Override
+	protected Context getContext(Context context, MethodDeclaration methodDeclaration, Expression methodInvocation) {
+		// We have 8 cases:
+		// 01 - method(...);
+		// 02 - method1(...).method2(...).method3(...);
+		// 03 - obj.method(...);
+		// 04 - obj.method1(...).method2(...).method3(...);
+		// 05 - getObj(...).method(...);
+		// 06 - Class.staticMethod(...);
+		// 07 - Class obj = new Class(...);
+		// 08 - (new Class(...)).run(..);
+		Expression instance = HelperCodeAnalyzer.getNameIfItIsAnObject(methodInvocation);
+
+		if (methodDeclaration.isConstructor()) {
+			// Cases: 07
+			return getCallGraph().getClassContext(context, methodDeclaration, methodInvocation, instance);
+		} else if (Modifier.isStatic(methodDeclaration.getModifiers())) {
+			// Cases: 06
+			return getCallGraph().getStaticMethodContext(context, methodDeclaration, methodInvocation);
+		} else {
+			if (null != instance) {
+				// Cases: 03, 04, 05
+				return getCallGraph().getInstanceMethodContext(context, methodDeclaration, methodInvocation, instance);
+			} else {
+				// Cases: 01, 02
+				return getCallGraph().getContext(context, methodDeclaration, methodInvocation);
+			}
 		}
 	}
 

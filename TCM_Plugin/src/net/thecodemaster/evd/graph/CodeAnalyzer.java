@@ -1,5 +1,6 @@
 package net.thecodemaster.evd.graph;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -7,6 +8,7 @@ import java.util.Map.Entry;
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.context.Context;
 import net.thecodemaster.evd.helper.Creator;
+import net.thecodemaster.evd.helper.HelperCodeAnalyzer;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.marker.MarkerManager;
 import net.thecodemaster.evd.point.EntryPoint;
@@ -38,7 +40,6 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.ForStatement;
-import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
@@ -59,6 +60,7 @@ import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.ThrowStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
 import org.eclipse.jdt.core.dom.TypeLiteral;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
 
@@ -179,29 +181,6 @@ public abstract class CodeAnalyzer {
 	 */
 	protected boolean userCanceledProcess(IProgressMonitor monitor) {
 		return ((null != getProgressMonitor()) && (getProgressMonitor().isCanceled()));
-	}
-
-	protected void updateVariableBindingStatus(VariableBinding variableBinding, DataFlow dataFlow) {
-		EnumVariableStatus status = (dataFlow.isVulnerable()) ? EnumVariableStatus.VULNERABLE
-				: EnumVariableStatus.NOT_VULNERABLE;
-		variableBinding.setStatus(status).setDataFlow(dataFlow);
-	}
-
-	protected void updateVariableBindingStatusToPrimitive(VariableBinding variableBinding) {
-		variableBinding.setStatus(EnumVariableStatus.NOT_VULNERABLE);
-	}
-
-	protected boolean isPrimitive(Expression expression) {
-		// 01 - Get the type if it is a variable or the return type if it is a method.
-		ITypeBinding typeBinding = BindingResolver.resolveTypeBinding(expression);
-
-		// 02 - If the type is primitive, we return and that's it.
-		if ((null != typeBinding) && (typeBinding.isPrimitive())) {
-			return true;
-		}
-
-		// 03 - If the type is a Wrapper, the method isPrimitive returns false, so we have to check that.
-		return BindingResolver.isWrapperOfPrimitive(typeBinding);
 	}
 
 	protected void run(IProgressMonitor monitor, CallGraph callGraph, List<IResource> resources) {
@@ -624,26 +603,25 @@ public abstract class CodeAnalyzer {
 	 * 32
 	 */
 	protected void inspectMethodInvocation(int depth, Context context, DataFlow dataFlow, Expression methodInvocation) {
-		// Some method invocations can be in a chain call, we have to investigate them all.
-		// response.sendRedirect(login);
-		// getServletContext().getRequestDispatcher(login).forward(request, response);
-		List<Expression> expressions = Creator.newList();
+		// The steps are:
+		// 01 - Break the chain (if any) method calls into multiple method invocations.
+		// 02 - Check if the method is an Exit-Point (Only verifiers check that).
+		// 03 - Check if the method is a Sanitization-Point.
+		// 04 - Check if the method is an Entry-Point.
+		// 05 - Check if we have the source code of this method.
+		// 06 - Get the context based on one of the 08 cases.
+		// 07 - Get the instance object (if any) of the method call, this is important
+		// because this is the object that hold the context.
 
-		Expression optionalexpression = methodInvocation;
-		while (null != optionalexpression) {
-			switch (optionalexpression.getNodeType()) {
-				case ASTNode.CLASS_INSTANCE_CREATION: // 14
-				case ASTNode.METHOD_INVOCATION: // 32
-					expressions.add(optionalexpression);
-					break;
-			}
+		// 01 - Break the chain (if any) method calls into multiple method invocations.
+		List<Expression> methodsInChain = HelperCodeAnalyzer.getMethodsFromChainInvocation(methodInvocation);
 
-			optionalexpression = BindingResolver.getExpression(optionalexpression);
+		if (1 < methodsInChain.size()) {
+			inspectNode(depth, context, dataFlow, methodsInChain.get(methodsInChain.size() - 2));
 		}
 
-		for (Expression expression : expressions) {
-			inspectEachMethodInvocationOfChainInvocations(depth, context, dataFlow.addNodeToPath(expression), expression);
-		}
+		inspectEachMethodInvocationOfChainInvocations(depth, context, dataFlow.addNodeToPath(methodInvocation),
+				methodInvocation);
 	}
 
 	/**
@@ -651,18 +629,18 @@ public abstract class CodeAnalyzer {
 	 */
 	protected void inspectEachMethodInvocationOfChainInvocations(int depth, Context context, DataFlow dataFlow,
 			Expression methodInvocation) {
-		// 01 - Check if this method is a Sanitization-Point.
+		// 03 - Check if the method is a Sanitization-Point.
 		if (BindingResolver.isMethodASanitizationPoint(getSanitizationPoints(), methodInvocation)) {
 			// If a sanitization method is being invoked, then we do not have a vulnerability.
 			return;
 		}
 
-		// 03 - Get a new data flow or a child from the parent.
-		DataFlow newDataFlow = getDataFlow(dataFlow, methodInvocation);
+		// 04 - Get a new data flow or a child from the parent.
+		DataFlow newDataFlow = HelperCodeAnalyzer.getDataFlow(dataFlow, methodInvocation);
 
-		// 03 - Check if this method is an Entry-Point.
+		// 05 - Check if the method is an Entry-Point.
 		if (BindingResolver.isMethodAnEntryPoint(getEntryPoints(), methodInvocation)) {
-			// 04 - Check if there is a marker, in case there is, we should BELIEVE it is not vulnerable.
+			// 06 - Check if there is a marker, in case there is, we should BELIEVE it is not vulnerable.
 			if (hasMarkerAtPosition(methodInvocation)) {
 				return;
 			}
@@ -670,11 +648,11 @@ public abstract class CodeAnalyzer {
 			String message = getMessageEntryPoint(BindingResolver.getFullName(methodInvocation));
 
 			// We found a invocation to a entry point method.
-			newDataFlow.isVulnerable(Constant.Vulnerability.ENTRY_POINT, message);
+			newDataFlow.hasVulnerablePath(Constant.Vulnerability.ENTRY_POINT, message);
 			return;
 		}
 
-		// 04 - There are 2 cases: When we have the source code of this method and when we do not.
+		// 06 - There are 2 cases: When we have the source code of this method and when we do not.
 		inspectMethodInvocationWithOrWithOutSourceCode(depth, context, newDataFlow, methodInvocation);
 	}
 
@@ -695,9 +673,10 @@ public abstract class CodeAnalyzer {
 			inspectMethodWithOutSourceCode(depth, context, dataFlow, methodInvocation);
 		}
 
-		VariableBinding variableBinding = getVariableBindingIfItIsAnObject(context, methodInvocation);
+		VariableBinding variableBinding = HelperCodeAnalyzer.getVariableBindingIfItIsAnObject(getCallGraph(), context,
+				methodInvocation);
 		// We found a vulnerability.
-		if (dataFlow.isVulnerable()) {
+		if (dataFlow.hasVulnerablePath()) {
 			// There are 2 sub-cases: When is a method from an object and when is a method from a library.
 			// 01 - stringBuilder.append("...");
 			// 02 - System.out.println("..."); Nothing else to do.
@@ -708,8 +687,9 @@ public abstract class CodeAnalyzer {
 			}
 		} else {
 			// 01 - Check if this method invocation is being call from a vulnerable object.
-			if (null != variableBinding) {
-				processIfStatusUnknownOrUpdateIfVulnerable(depth, context, dataFlow, variableBinding);
+			// processIfStatusUnknownOrUpdateIfVulnerable(depth, context, dataFlow, variableBinding);
+			if ((null != variableBinding) && (variableBinding.getStatus().equals(EnumVariableStatus.VULNERABLE))) {
+				dataFlow.replace(variableBinding.getDataFlow());
 			}
 		}
 	}
@@ -733,29 +713,7 @@ public abstract class CodeAnalyzer {
 	/**
 	 * 32
 	 */
-	protected DataFlow getDataFlow(DataFlow dataFlow, Expression methodInvocation) {
-		// 01 request.getParameter("b");
-		// 02 boolean b = Boolean.valueOf(request.getParameter("b"));
-		// 03 String a = request.getParameter("a");
-		// 04 return request.getParameter("b");
-		// If the parent is a VariableDeclarationFragment or a return type.
-		if (isPrimitive(methodInvocation)) {
-			return new DataFlow(methodInvocation);
-		} else {
-			return BindingResolver.getDataFlowBasedOnTheParent(dataFlow, methodInvocation);
-		}
-	}
-
-	/**
-	 * 32
-	 */
-	protected VariableBinding getVariableBindingIfItIsAnObject(Context context, Expression method) {
-		Expression expression = BindingResolver.getNameIfItIsAnObject(method);
-
-		if (null != expression) {
-			return getCallGraph().getLastReference(context, expression);
-		}
-
+	protected Context getContext(Context context, MethodDeclaration methodDeclaration, Expression methodInvocation) {
 		return null;
 	}
 
@@ -771,7 +729,7 @@ public abstract class CodeAnalyzer {
 			inspectNode(depth, context, dataFlow, variableBinding.getInitializer());
 
 			// 02 - If there is a vulnerable path, then this variable is vulnerable.
-			updateVariableBindingStatus(variableBinding, dataFlow);
+			HelperCodeAnalyzer.updateVariableBindingStatus(variableBinding, dataFlow);
 		}
 	}
 
@@ -845,26 +803,26 @@ public abstract class CodeAnalyzer {
 			VariableBinding variableBinding) {
 		// This is the case where the variable is an argument of the method.
 		// 01 - Get the method signature that is using this parameter.
-		MethodDeclaration methodDeclaration = BindingResolver.getParentMethodDeclaration(expression);
-
-		// 02 - Get the index position where this parameter appear.
-		int parameterIndex = BindingResolver.getParameterIndex(methodDeclaration, expression);
-		if (parameterIndex >= 0) {
-			// 03 - Get the list of methods that invokes this method.
-			Map<MethodDeclaration, List<Expression>> invokers = getCallGraph().getInvokers(methodDeclaration);
-
-			// 04 - Iterate over all the methods that invokes this method.
-			for (List<Expression> currentInvocations : invokers.values()) {
-
-				for (Expression invocations : currentInvocations) {
-					// 05 - Get the parameter at the index position.
-					Expression parameter = BindingResolver.getParameterAtIndex(invocations, parameterIndex);
-
-					// 06 - Run detection on this parameter.
-					inspectNode(depth, context, dataFlow.addNodeToPath(parameter), parameter);
-				}
-			}
-		}
+		// MethodDeclaration methodDeclaration = BindingResolver.getParentMethodDeclaration(expression);
+		//
+		// // 02 - Get the index position where this parameter appear.
+		// int parameterIndex = BindingResolver.getParameterIndex(methodDeclaration, expression);
+		// if (parameterIndex >= 0) {
+		// // 03 - Get the list of methods that invokes this method.
+		// Map<MethodDeclaration, List<Expression>> invokers = getCallGraph().getInvokers(methodDeclaration);
+		//
+		// // 04 - Iterate over all the methods that invokes this method.
+		// for (List<Expression> currentInvocations : invokers.values()) {
+		//
+		// for (Expression invocations : currentInvocations) {
+		// // 05 - Get the parameter at the index position.
+		// Expression parameter = BindingResolver.getParameterAtIndex(invocations, parameterIndex);
+		//
+		// // 06 - Run detection on this parameter.
+		// inspectNode(depth, context, dataFlow.addNodeToPath(parameter), parameter);
+		// }
+		// }
+		// }
 	}
 
 	/**
@@ -875,7 +833,7 @@ public abstract class CodeAnalyzer {
 		iterateOverParameters(depth, context, dataFlow, statement);
 
 		// TODO - Inspect the source code if we have it.
-		Expression superInvocation = statement.getExpression();
+		// Expression superInvocation = statement.getExpression();
 	}
 
 	/**
@@ -883,7 +841,7 @@ public abstract class CodeAnalyzer {
 	 */
 	protected void inspectSuperMethodInvocation(int depth, Context context, DataFlow dataFlow,
 			SuperMethodInvocation expression) {
-		// iterateOverParameters(depth, context, dataFlow, expression);
+		iterateOverParameters(depth, context, dataFlow, expression);
 
 		// TODO - Inspect the source code if we have it.
 		// super.methodName(...);
@@ -938,7 +896,7 @@ public abstract class CodeAnalyzer {
 	 */
 	protected void inspectInstanceofExpression(int depth, Context context, DataFlow dataFlow,
 			InstanceofExpression expression) {
-		PluginLogger.logIfDebugging(expression.toString());
+		// Nothing to do.
 	}
 
 	/**
@@ -992,6 +950,12 @@ public abstract class CodeAnalyzer {
 	 */
 	protected void inspectVariableDeclarationStatement(int depth, Context context, DataFlow dataFlow,
 			VariableDeclarationStatement statement) {
+		for (Iterator<?> iter = statement.fragments().iterator(); iter.hasNext();) {
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) iter.next();
+
+			// 01 - Inspect the Initializer.
+			inspectNode(depth, context, new DataFlow(fragment.getName()), fragment.getInitializer());
+		}
 	}
 
 	/**
@@ -1013,6 +977,7 @@ public abstract class CodeAnalyzer {
 	 * 13, 33, 34, 45
 	 */
 	protected void inspectLiteral(int depth, Context context, DataFlow dataFlow, Expression node) {
+		// Nothing to do.
 	}
 
 }

@@ -58,7 +58,7 @@ public class VerifierSQLInjection extends Verifier {
 		}
 
 		// 01 - Informs that this node is a vulnerability.
-		dataFlow.addNodeToPath(expression).isVulnerable(Constant.Vulnerability.SQL_INJECTION_STRING_CONCATENATION,
+		dataFlow.addNodeToPath(expression).hasVulnerablePath(Constant.Vulnerability.SQL_INJECTION_STRING_CONCATENATION,
 				getStringConcatenationMessage());
 	}
 

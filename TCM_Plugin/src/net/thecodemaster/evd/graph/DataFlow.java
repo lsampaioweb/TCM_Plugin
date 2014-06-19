@@ -95,8 +95,8 @@ public class DataFlow {
 		return nvp;
 	}
 
-	public void isVulnerable(int typeProblem, String message) {
-		isVulnerable(null);
+	public void hasVulnerablePath(int typeProblem, String message) {
+		hasVulnerablePath(null);
 
 		setTypeProblem(typeProblem);
 		setMessage(message);
@@ -105,7 +105,7 @@ public class DataFlow {
 	/**
 	 * This method informs to the parent object that a vulnerable path was found.
 	 */
-	private void isVulnerable(List<DataFlow> childrenList) {
+	private void hasVulnerablePath(List<DataFlow> childrenList) {
 		List<DataFlow> currentList = Creator.newList();
 		currentList.add(this);
 		if (null != childrenList) {
@@ -114,12 +114,12 @@ public class DataFlow {
 
 		allVulnerablePaths.add(currentList);
 		if (null != getParent()) {
-			getParent().isVulnerable(currentList);
+			getParent().hasVulnerablePath(currentList);
 		}
 
 	}
 
-	public boolean isVulnerable() {
+	public boolean hasVulnerablePath() {
 		return !allVulnerablePaths.isEmpty();
 	}
 
@@ -137,7 +137,7 @@ public class DataFlow {
 				List<DataFlow> copyList = Creator.newList(iterator.next());
 				// This element will be re-added on the currentList.add(this);
 				copyList.remove(0);
-				isVulnerable(copyList);
+				hasVulnerablePath(copyList);
 			}
 		}
 	}
