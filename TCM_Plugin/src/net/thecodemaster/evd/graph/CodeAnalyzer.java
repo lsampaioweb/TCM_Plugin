@@ -529,11 +529,45 @@ public abstract class CodeAnalyzer {
 	}
 
 	/**
-	 * 17
+	 * 17 <br/>
+	 * this(name2,10);
 	 */
 	protected void inspectConstructorInvocation(int depth, Context context, DataFlow dataFlow,
-			ConstructorInvocation statement) {
-		iterateOverParameters(depth, context, dataFlow, statement);
+			ConstructorInvocation constructorInvocation) {
+		// 01 - Get the resource of this constructor.
+		IResource resource = BindingResolver.getResource(constructorInvocation);
+
+		constructorInvocation(depth, context, dataFlow, constructorInvocation, resource);
+	}
+
+	/**
+	 * 17, 46
+	 */
+	protected void constructorInvocation(int depth, Context context, DataFlow dataFlow, ASTNode constructorInvocation,
+			IResource resource) {
+		if (null != resource) {
+			// 03 - Get the list of methods in the current resource and its invocations.
+			Map<MethodDeclaration, List<ASTNode>> methods = getCallGraph().getMethods(resource);
+
+			// Check if we have the source code of the constructor that is being invoked.
+			// 04 - Iterate through the list to verify if we have the implementation of this method in our list.
+			boolean hasSourceCode = false;
+			for (MethodDeclaration methodDeclaration : methods.keySet()) {
+				// 05 - Verify if these methods have the same parameters.
+				if ((methodDeclaration.isConstructor())
+						&& (BindingResolver.haveSameParameters(methodDeclaration, constructorInvocation))) {
+					// 06 - We finally can investigate the constructor now.
+					inspectMethodWithSourceCode(depth, context, dataFlow, constructorInvocation, methodDeclaration);
+					hasSourceCode = true;
+					break;
+				}
+			}
+
+			if (!hasSourceCode) {
+				// 07 - We do not have the source code of the constructor.
+				inspectMethodWithOutSourceCode(depth, context, dataFlow, constructorInvocation);
+			}
+		}
 	}
 
 	/**
@@ -836,29 +870,7 @@ public abstract class CodeAnalyzer {
 		// 02 - Get the resource of the super class.
 		IResource resource = HelperCodeAnalyzer.getSuperClassResource(getCallGraph(), typeDeclaration);
 
-		if (null != resource) {
-			// 03 - Get the list of methods in the current resource and its invocations.
-			Map<MethodDeclaration, List<ASTNode>> methods = getCallGraph().getMethods(resource);
-
-			// Check if we have the source code of the constructor that is being invoked.
-			// 04 - Iterate through the list to verify if we have the implementation of this method in our list.
-			boolean hasSourceCode = false;
-			for (MethodDeclaration methodDeclaration : methods.keySet()) {
-				// 05 - Verify if these methods have the same parameters.
-				if ((methodDeclaration.isConstructor())
-						&& (BindingResolver.haveSameParameters(methodDeclaration, superConstructorInvocation))) {
-					// 06 - We finally can investigate the constructor now.
-					inspectMethodWithSourceCode(depth, context, dataFlow, superConstructorInvocation, methodDeclaration);
-					hasSourceCode = true;
-					break;
-				}
-			}
-
-			if (!hasSourceCode) {
-				// 07 - We do not have the source code of the constructor.
-				inspectMethodWithOutSourceCode(depth, context, dataFlow, superConstructorInvocation);
-			}
-		}
+		constructorInvocation(depth, context, dataFlow, superConstructorInvocation, resource);
 	}
 
 	/**

@@ -71,7 +71,8 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	}
 
 	/**
-	 * 07
+	 * 07 <br/>
+	 * a = b
 	 */
 	@Override
 	protected void inspectAssignment(int depth, Context context, DataFlow dataFlow, Assignment node) {

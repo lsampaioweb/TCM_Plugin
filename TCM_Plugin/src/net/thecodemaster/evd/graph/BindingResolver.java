@@ -108,6 +108,8 @@ public class BindingResolver {
 				case ASTNode.QUALIFIED_NAME: // 40
 				case ASTNode.SIMPLE_NAME: // 42
 					return ((Name) node).resolveBinding();
+				case ASTNode.SUPER_METHOD_INVOCATION: // 48
+					return ((SuperMethodInvocation) node).resolveMethodBinding();
 				default:
 					PluginLogger.logError("resolveBinding default:" + node.getNodeType() + " - " + node, null);
 					node = null;
@@ -128,8 +130,10 @@ public class BindingResolver {
 				case ASTNode.ASSIGNMENT: // 07
 					return ((Assignment) node).getLeftHandSide();
 				case ASTNode.CLASS_INSTANCE_CREATION: // 14
+				case ASTNode.CONSTRUCTOR_INVOCATION: // 17
 				case ASTNode.METHOD_INVOCATION: // 32
 				case ASTNode.RETURN_STATEMENT: // 41
+				case ASTNode.SUPER_CONSTRUCTOR_INVOCATION: // 46
 					return node;
 				case ASTNode.VARIABLE_DECLARATION_FRAGMENT: // 59
 					return ((VariableDeclarationFragment) node).getName();
@@ -152,17 +156,18 @@ public class BindingResolver {
 					return ((ClassInstanceCreation) node).getExpression();
 				case ASTNode.FIELD_ACCESS: // 22
 					return ((FieldAccess) node).getExpression();
-				case ASTNode.INFIX_EXPRESSION: // 27
-					return null;
 				case ASTNode.METHOD_INVOCATION: // 32
 					return ((MethodInvocation) node).getExpression();
 				case ASTNode.PARENTHESIZED_EXPRESSION: // 36
 					return ((ParenthesizedExpression) node).getExpression();
 				case ASTNode.SUPER_CONSTRUCTOR_INVOCATION: // 46
 					return ((SuperConstructorInvocation) node).getExpression();
+				case ASTNode.CONSTRUCTOR_INVOCATION: // 17
+				case ASTNode.INFIX_EXPRESSION: // 27
 				case ASTNode.QUALIFIED_NAME: // 40
 				case ASTNode.SIMPLE_NAME: // 42
 				case ASTNode.STRING_LITERAL: // 45
+				case ASTNode.SUPER_METHOD_INVOCATION: // 48
 				case ASTNode.THIS_EXPRESSION: // 52
 					return null;
 				default:
