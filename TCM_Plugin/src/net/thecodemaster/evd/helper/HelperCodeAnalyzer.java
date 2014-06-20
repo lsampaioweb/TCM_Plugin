@@ -9,10 +9,16 @@ import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.graph.VariableBinding;
 import net.thecodemaster.evd.ui.enumeration.EnumVariableStatus;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.ImportDeclaration;
+import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.ThisExpression;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 /**
@@ -179,6 +185,61 @@ public abstract class HelperCodeAnalyzer {
 		}
 
 		return null;
+	}
+
+	public static IResource getSuperClassResource(CallGraph callGraph, TypeDeclaration typeDeclaration) {
+		// 01 - We will need the name of the package where the super class is located.
+		String packageName = null;
+
+		if (null != typeDeclaration) {
+			// 02 - Get the SuperClass.
+			SimpleType superClass = (SimpleType) typeDeclaration.getSuperclassType();
+
+			// A call to a super constructor means we have a super class, however if the superClass
+			// object is null, it might be a syntax error in the code. We have to be prepared for that.
+			if (null != superClass) {
+				// 03 - Get the name of the super class.
+				Name superClassName = superClass.getName();
+
+				// 04 - We have two cases.
+				// Case 01: The superClassName is a QualifiedName: some.package.Animal
+				// Case 02: The superClassName is a SimpleName : Animal
+				switch (superClassName.getNodeType()) {
+					case ASTNode.QUALIFIED_NAME: // 40
+						// The qualified name is the package where the class is located.
+						packageName = superClassName.getFullyQualifiedName();
+						break;
+					case ASTNode.SIMPLE_NAME: // 42
+						// If we just have the name of the class, we have two cases.
+						// Case 01: The super class is in the same package.
+						// Case 02: The super class is in another package.
+						String superClassPackageName = superClassName.getFullyQualifiedName();
+
+						// 05 - Get the compilation unit of the current class.
+						CompilationUnit cu = BindingResolver.getCompilationUnit(typeDeclaration);
+
+						// 06 - Get the list of imports.
+						List<ImportDeclaration> imports = BindingResolver.getImports(cu);
+
+						// 07 - Iterate over the list and try to find the superclass's import.
+						for (ImportDeclaration importDeclaration : imports) {
+							String currentPackageName = importDeclaration.getName().getFullyQualifiedName();
+							if (currentPackageName.endsWith(superClassPackageName)) {
+								packageName = currentPackageName;
+								break;
+							}
+						}
+
+						if (null == packageName) {
+							packageName = cu.getPackage().getName().getFullyQualifiedName();
+						}
+						break;
+				}
+			}
+		}
+		// 08 - Now that we have the package where the super class is located, we can get
+		// the resource file.
+		return callGraph.getResourceFromPackageName(packageName);
 	}
 
 }

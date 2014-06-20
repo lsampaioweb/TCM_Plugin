@@ -59,6 +59,7 @@ import org.eclipse.jdt.core.dom.SynchronizedStatement;
 import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.ThrowStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -197,7 +198,7 @@ public abstract class CodeAnalyzer {
 				setSubTask(getSubTaskMessage());
 
 				// 04 - Get the list of methods that will be processed from this resource.
-				Map<MethodDeclaration, List<Expression>> methodsToProcess = getMethodsToProcess(resources, resource);
+				Map<MethodDeclaration, List<ASTNode>> methodsToProcess = getMethodsToProcess(resources, resource);
 
 				// 05 - Process the detection on these methods.
 				run(methodsToProcess);
@@ -208,12 +209,12 @@ public abstract class CodeAnalyzer {
 		}
 	}
 
-	protected Map<MethodDeclaration, List<Expression>> getMethodsToProcess(List<IResource> resources, IResource resource) {
+	protected Map<MethodDeclaration, List<ASTNode>> getMethodsToProcess(List<IResource> resources, IResource resource) {
 		// This map contains the method that will be processed and its invokers.
-		Map<MethodDeclaration, List<Expression>> methodsToProcess = Creator.newMap();
+		Map<MethodDeclaration, List<ASTNode>> methodsToProcess = Creator.newMap();
 
 		// 01 - Get the list of methods in the current resource and its invocations.
-		Map<MethodDeclaration, List<Expression>> methods = getCallGraph().getMethods(resource);
+		Map<MethodDeclaration, List<ASTNode>> methods = getCallGraph().getMethods(resource);
 
 		// 02 - Iterate over all the method declarations of the current resource.
 		for (MethodDeclaration methodDeclaration : methods.keySet()) {
@@ -222,10 +223,10 @@ public abstract class CodeAnalyzer {
 			// not invoked by any other method in the same file. Because if the method
 			// is invoked, eventually it will be processed.
 			// 03 - Get the list of methods that invokes this method.
-			Map<MethodDeclaration, List<Expression>> invokers = getCallGraph().getInvokers(methodDeclaration);
+			Map<MethodDeclaration, List<ASTNode>> invokers = getCallGraph().getInvokers(methodDeclaration);
 			if (invokers.size() > 0) {
 				// 04 - Iterate over all the methods that invokes this method.
-				for (Entry<MethodDeclaration, List<Expression>> caller : invokers.entrySet()) {
+				for (Entry<MethodDeclaration, List<ASTNode>> caller : invokers.entrySet()) {
 
 					// 05 - Get the resource of this method (caller).
 					IResource resourceCaller = BindingResolver.getResource(caller.getKey());
@@ -236,7 +237,7 @@ public abstract class CodeAnalyzer {
 
 						// 07 - Care only about the invocations to this method.
 						if (!methodsToProcess.containsKey(methodDeclaration)) {
-							List<Expression> invocations = Creator.newList();
+							List<ASTNode> invocations = Creator.newList();
 
 							// Create a empty list of method invocations.
 							methodsToProcess.put(methodDeclaration, invocations);
@@ -247,7 +248,7 @@ public abstract class CodeAnalyzer {
 					}
 				}
 			} else {
-				List<Expression> emptyInvokers = Creator.newList();
+				List<ASTNode> emptyInvokers = Creator.newList();
 
 				// 04 - This method should be processed, add it to the list.
 				methodsToProcess.put(methodDeclaration, emptyInvokers);
@@ -263,8 +264,8 @@ public abstract class CodeAnalyzer {
 	 * 
 	 * @param methodDeclaration
 	 */
-	protected void run(Map<MethodDeclaration, List<Expression>> methodsToProcess) {
-		for (Entry<MethodDeclaration, List<Expression>> methodDeclaration : methodsToProcess.entrySet()) {
+	protected void run(Map<MethodDeclaration, List<ASTNode>> methodsToProcess) {
+		for (Entry<MethodDeclaration, List<ASTNode>> methodDeclaration : methodsToProcess.entrySet()) {
 			// 01 - The depth controls the investigation mechanism to avoid infinitive loops.
 			int depth = 0;
 
@@ -278,7 +279,7 @@ public abstract class CodeAnalyzer {
 				// 03 - Process the detection on the current method.
 				run(depth, methodDeclaration.getKey(), null);
 			} else {
-				for (Expression invoker : methodDeclaration.getValue()) {
+				for (ASTNode invoker : methodDeclaration.getValue()) {
 
 					// 04 - Process the detection on the current method.
 					run(depth, methodDeclaration.getKey(), invoker);
@@ -292,7 +293,7 @@ public abstract class CodeAnalyzer {
 	 * 
 	 * @param methodDeclaration
 	 */
-	protected void run(int depth, MethodDeclaration methodDeclaration, Expression invoker) {
+	protected void run(int depth, MethodDeclaration methodDeclaration, ASTNode invoker) {
 	}
 
 	protected void inspectNode(int depth, Context context, DataFlow dataFlow, Expression node) {
@@ -685,9 +686,9 @@ public abstract class CodeAnalyzer {
 			if (null != variableBinding) {
 				variableBinding.setStatus(EnumVariableStatus.VULNERABLE).setDataFlow(dataFlow);
 			}
-		} else {
+		} else if (null == methodDeclaration) {
 			// 01 - Check if this method invocation is being call from a vulnerable object.
-			// processIfStatusUnknownOrUpdateIfVulnerable(depth, context, dataFlow, variableBinding);
+			// Only methods that we do not have the implementation should get here.
 			if ((null != variableBinding) && (variableBinding.getStatus().equals(EnumVariableStatus.VULNERABLE))) {
 				dataFlow.replace(variableBinding.getDataFlow());
 			}
@@ -697,23 +698,22 @@ public abstract class CodeAnalyzer {
 	/**
 	 * 32
 	 */
-	protected void inspectMethodWithSourceCode(int depth, Context context, DataFlow dataFlow,
-			Expression methodInvocation, MethodDeclaration methodDeclaration) {
+	protected void inspectMethodWithSourceCode(int depth, Context context, DataFlow dataFlow, ASTNode methodInvocation,
+			MethodDeclaration methodDeclaration) {
 		inspectNode(depth, context, dataFlow, methodDeclaration.getBody());
 	}
 
 	/**
 	 * 32
 	 */
-	protected void inspectMethodWithOutSourceCode(int depth, Context context, DataFlow dataFlow,
-			Expression methodInvocation) {
+	protected void inspectMethodWithOutSourceCode(int depth, Context context, DataFlow dataFlow, ASTNode methodInvocation) {
 		iterateOverParameters(depth, context, dataFlow, methodInvocation);
 	}
 
 	/**
 	 * 32
 	 */
-	protected Context getContext(Context context, MethodDeclaration methodDeclaration, Expression methodInvocation) {
+	protected Context getContext(Context context, MethodDeclaration methodDeclaration, ASTNode methodInvocation) {
 		return null;
 	}
 
@@ -826,54 +826,74 @@ public abstract class CodeAnalyzer {
 	}
 
 	/**
-	 * 46
+	 * 46 super(...);
 	 */
 	protected void inspectSuperConstructorInvocation(int depth, Context context, DataFlow dataFlow,
-			SuperConstructorInvocation statement) {
-		iterateOverParameters(depth, context, dataFlow, statement);
+			SuperConstructorInvocation superConstructorInvocation) {
+		// 01 - Get the type declaration of the current class.
+		TypeDeclaration typeDeclaration = BindingResolver.getTypeDeclaration(superConstructorInvocation);
 
-		// TODO - Inspect the source code if we have it.
-		// Expression superInvocation = statement.getExpression();
+		// 02 - Get the resource of the super class.
+		IResource resource = HelperCodeAnalyzer.getSuperClassResource(getCallGraph(), typeDeclaration);
+
+		if (null != resource) {
+			// 03 - Get the list of methods in the current resource and its invocations.
+			Map<MethodDeclaration, List<ASTNode>> methods = getCallGraph().getMethods(resource);
+
+			// Check if we have the source code of the constructor that is being invoked.
+			// 04 - Iterate through the list to verify if we have the implementation of this method in our list.
+			boolean hasSourceCode = false;
+			for (MethodDeclaration methodDeclaration : methods.keySet()) {
+				// 05 - Verify if these methods have the same parameters.
+				if ((methodDeclaration.isConstructor())
+						&& (BindingResolver.haveSameParameters(methodDeclaration, superConstructorInvocation))) {
+					// 06 - We finally can investigate the constructor now.
+					inspectMethodWithSourceCode(depth, context, dataFlow, superConstructorInvocation, methodDeclaration);
+					hasSourceCode = true;
+					break;
+				}
+			}
+
+			if (!hasSourceCode) {
+				// 07 - We do not have the source code of the constructor.
+				inspectMethodWithOutSourceCode(depth, context, dataFlow, superConstructorInvocation);
+			}
+		}
 	}
 
 	/**
-	 * 48
+	 * 48 super.methodName(...);
 	 */
 	protected void inspectSuperMethodInvocation(int depth, Context context, DataFlow dataFlow,
-			SuperMethodInvocation expression) {
-		iterateOverParameters(depth, context, dataFlow, expression);
+			SuperMethodInvocation superMethodInvocation) {
+		// 01 - Get the type declaration of the current class.
+		TypeDeclaration typeDeclaration = BindingResolver.getTypeDeclaration(superMethodInvocation);
 
-		// TODO - Inspect the source code if we have it.
-		// super.methodName(...);
-		// We have to get the name of this method, then get the name of the SuperClass.
-		// optionalSuperclassType SimpleType
+		// 02 - Get the resource of the super class.
+		IResource resource = HelperCodeAnalyzer.getSuperClassResource(getCallGraph(), typeDeclaration);
 
-		// // 01 - Get the name of the method being invoked.
-		// Expression superInvocation = expression.getName();
-		//
-		// // 02 - Get the name of the SuperClass.
-		// TypeDeclaration typeDeclaration = BindingResolver.getTypeDeclaration(expression);
-		// // 02.1
-		// SimpleType superClass = (SimpleType) typeDeclaration.getSuperclassType();
-		// // 02.1
-		// Name superClassName = superClass.getName();
-		//
-		// // 03 - Get the list of imports.
-		//
-		// // 03.1 - Iterate over the list and try to find the superclass import.
-		// // If it finds, it means the superclass is in another package.
-		// // If it does not find, it means the superclass is in the same package.
-		//
-		// // 01 - .
-		// IResource resource = BindingResolver.getResource(typeDeclaration);
-		//
-		// // 01 - Get the list of methods in the current resource and its invocations.
-		// Map<MethodDeclaration, List<Expression>> methods = getCallGraph().getMethods(resource);
+		if (null != resource) {
+			// 03 - Get the list of methods in the current resource and its invocations.
+			Map<MethodDeclaration, List<ASTNode>> methods = getCallGraph().getMethods(resource);
 
-		// 03 - Check if we have the source code of this SuperClass.
+			// Check if we have the source code of the constructor that is being invoked.
+			// 04 - Iterate through the list to verify if we have the implementation of this method in our list.
+			boolean hasSourceCode = false;
+			for (MethodDeclaration methodDeclaration : methods.keySet()) {
+				// 05 - Verify if these methods have the same parameters.
+				if (BindingResolver.areMethodsEqual(methodDeclaration, superMethodInvocation)) {
+					// 06 - We finally can investigate the constructor now.
+					inspectMethodWithSourceCode(depth, context, dataFlow, superMethodInvocation, methodDeclaration);
+					hasSourceCode = true;
+					break;
+				}
+			}
 
-		// 04 - Now that we have the class, we try to find the implementation of the method.
-		// inspectMethodInvocationWithOrWithOutSourceCode(depth, context, dataFlow, methodInvocation);
+			if (!hasSourceCode) {
+				// 07 - We do not have the source code of the constructor.
+				inspectMethodWithOutSourceCode(depth, context, dataFlow, superMethodInvocation);
+			}
+		}
 	}
 
 	/**

@@ -139,7 +139,7 @@ public abstract class Verifier extends CodeAnalyzer {
 	 * @param methodDeclaration
 	 */
 	@Override
-	protected void run(int depth, MethodDeclaration methodDeclaration, Expression invoker) {
+	protected void run(int depth, MethodDeclaration methodDeclaration, ASTNode invoker) {
 		// 01 - Get the context for this method.
 		Context context = getCallGraph().getContext(getCurrentResource(), methodDeclaration, invoker);
 
@@ -203,8 +203,8 @@ public abstract class Verifier extends CodeAnalyzer {
 	}
 
 	@Override
-	protected void inspectMethodWithSourceCode(int depth, Context context, DataFlow dataFlow,
-			Expression methodInvocation, MethodDeclaration methodDeclaration) {
+	protected void inspectMethodWithSourceCode(int depth, Context context, DataFlow dataFlow, ASTNode methodInvocation,
+			MethodDeclaration methodDeclaration) {
 		// 01 - Get the context for this method.
 		Context newContext = getContext(context, methodDeclaration, methodInvocation);
 
@@ -213,7 +213,7 @@ public abstract class Verifier extends CodeAnalyzer {
 	}
 
 	@Override
-	protected Context getContext(Context context, MethodDeclaration methodDeclaration, Expression methodInvocation) {
+	protected Context getContext(Context context, MethodDeclaration methodDeclaration, ASTNode methodInvocation) {
 		// We have 8 cases:
 		// 01 - method(...);
 		// 02 - method1(...).method2(...).method3(...);

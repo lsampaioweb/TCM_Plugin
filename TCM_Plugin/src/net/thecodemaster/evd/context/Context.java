@@ -9,6 +9,7 @@ import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.ui.enumeration.EnumVariableType;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -16,14 +17,14 @@ import org.eclipse.jdt.core.dom.Modifier;
 
 public class Context {
 
-	private IResource																				resource;
-	private Context																					parent;
-	private final Map<IBinding, List<VariableBinding>>			variables;
-	private final Map<MethodDeclaration, List<Expression>>	methods;
+	private IResource																		resource;
+	private Context																			parent;
+	private final Map<IBinding, List<VariableBinding>>	variables;
+	private final Map<MethodDeclaration, List<ASTNode>>	methods;
 
-	private final List<Context>															childrenContexts;
-	private Expression																			instance;
-	private Expression																			invoker;
+	private final List<Context>													childrenContexts;
+	private Expression																	instance;
+	private ASTNode																			invoker;
 
 	public Context(IResource resource) {
 		setResource(resource);
@@ -93,7 +94,7 @@ public class Context {
 	 */
 	private void updateParentContextIfGlobalVariable(List<VariableBinding> vbs, VariableBinding variableBinding) {
 		if (0 == vbs.size()) {
-			if (isGlobalVariable(variableBinding)) {
+			if ((variableBinding.getType() != EnumVariableType.GLOBAL) && (isGlobalVariable(variableBinding))) {
 				variableBinding.setType(EnumVariableType.GLOBAL);
 			}
 		} else {
@@ -128,13 +129,10 @@ public class Context {
 			// 03 - Become the parent.
 			context = context.getParent();
 
-			// 04 - To make sure the current context is not the top level context.
-			if (!context.equals(this)) {
-				// 05 - Get the list of occurrences of this variable.
-				List<VariableBinding> vbs = context.getVariables().get(variableBinding.getBinding());
+			// 05 - Get the list of occurrences of this variable.
+			List<VariableBinding> vbs = context.getVariables().get(variableBinding.getBinding());
 
-				return (null != vbs) ? vbs : emptyList;
-			}
+			return (null != vbs) ? vbs : emptyList;
 		}
 
 		return emptyList;
@@ -155,7 +153,7 @@ public class Context {
 	/**
 	 * @return
 	 */
-	public Map<MethodDeclaration, List<Expression>> getMethods() {
+	public Map<MethodDeclaration, List<ASTNode>> getMethods() {
 		return methods;
 	}
 
@@ -164,10 +162,10 @@ public class Context {
 	 */
 	public void addMethodDeclaration(MethodDeclaration method) {
 		// 01 - Get the list of methods.
-		Map<MethodDeclaration, List<Expression>> methods = getMethods();
+		Map<MethodDeclaration, List<ASTNode>> methods = getMethods();
 
 		if (!methods.containsKey(method)) {
-			List<Expression> invocations = Creator.newList();
+			List<ASTNode> invocations = Creator.newList();
 
 			// Create a empty list of method invocations.
 			methods.put(method, invocations);
@@ -178,9 +176,9 @@ public class Context {
 	 * @param caller
 	 * @param callee
 	 */
-	public void addMethodInvocation(MethodDeclaration caller, Expression callee) {
+	public void addMethodInvocation(MethodDeclaration caller, ASTNode callee) {
 		// 01 - Get the list of invocations of this method declaration.
-		List<Expression> invocations = getMethods().get(caller);
+		List<ASTNode> invocations = getMethods().get(caller);
 
 		// 02 - If the list is null, it means this method was not saved before.
 		if (null == invocations) {
@@ -203,11 +201,11 @@ public class Context {
 		return childrenContexts;
 	}
 
-	public Expression getInvoker() {
+	public ASTNode getInvoker() {
 		return invoker;
 	}
 
-	public void setInvoker(Expression invoker) {
+	public void setInvoker(ASTNode invoker) {
 		this.invoker = invoker;
 	}
 
@@ -220,16 +218,27 @@ public class Context {
 	}
 
 	public void merge(Context otherContext) {
+		mergeVariables(otherContext, 0);
+		mergeMethods(otherContext);
+	}
+
+	public void mergeVariables(Context otherContext, int type) {
 		if (null != otherContext) {
 			getVariables().clear();
-			getMethods().clear();
 
-			getVariables().putAll(mergeVariables(otherContext));
-			getMethods().putAll(mergeMethods(otherContext));
+			getVariables().putAll(getGlobalVariables(otherContext, type));
 		}
 	}
 
-	private Map<IBinding, List<VariableBinding>> mergeVariables(Context otherContext) {
+	public void mergeMethods(Context otherContext) {
+		if (null != otherContext) {
+			getMethods().clear();
+
+			getMethods().putAll(getGlobalMethods(otherContext));
+		}
+	}
+
+	private Map<IBinding, List<VariableBinding>> getGlobalVariables(Context otherContext, int type) {
 		// 01 - Static variables. I want the last reference.
 		// 02 - Global variables. I want the first reference.
 		Map<IBinding, List<VariableBinding>> tempVariables = Creator.newMap();
@@ -248,8 +257,13 @@ public class Context {
 				// 05 - Get the last reference.
 				currentVariableBindings.add(list.get((list.size() > 0) ? list.size() - 1 : 0));
 			} else {
-				// 05 - Get the first reference.
-				currentVariableBindings.add(list.get(0));
+				if (0 == type) {
+					// 05 - Get the first reference.
+					currentVariableBindings.add(list.get(0));
+				} else {
+					// 05 - Get the last reference.
+					currentVariableBindings.add(list.get((list.size() > 0) ? list.size() - 1 : 0));
+				}
 			}
 
 			// 06 - Add the variable to the list that will be returned.
@@ -259,13 +273,13 @@ public class Context {
 		return tempVariables;
 	}
 
-	private Map<MethodDeclaration, List<Expression>> mergeMethods(Context otherContext) {
+	private Map<MethodDeclaration, List<ASTNode>> getGlobalMethods(Context otherContext) {
 		return otherContext.getMethods();
 	}
 
 	@Override
 	public String toString() {
-		Map<MethodDeclaration, List<Expression>> methods = getMethods();
+		Map<MethodDeclaration, List<ASTNode>> methods = getMethods();
 		String methodName = "";
 		if (0 < methods.size()) {
 			methodName = methods.keySet().iterator().next().getName().getIdentifier();

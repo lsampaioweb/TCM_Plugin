@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.context.Context;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.ui.enumeration.EnumVariableType;
@@ -63,7 +64,7 @@ public class CallGraph {
 	 * @param invoker
 	 * @return
 	 */
-	public Context getContext(IResource resource, MethodDeclaration method, Expression invoker) {
+	public Context getContext(IResource resource, MethodDeclaration method, ASTNode invoker) {
 		return getContext(getContext(resource), method, invoker);
 	}
 
@@ -73,7 +74,7 @@ public class CallGraph {
 	 * @param invoker
 	 * @return
 	 */
-	public Context getContext(Context context, MethodDeclaration method, Expression invoker) {
+	public Context getContext(Context context, MethodDeclaration method, ASTNode invoker) {
 		// 01 - Iterate over all the children of this context.
 		for (Context childContext : context.getChildrenContexts()) {
 			// There are two ways we can find the wanted context.
@@ -82,13 +83,13 @@ public class CallGraph {
 
 			// Case 02.
 			// 02 - Get the list of methods of this context.
-			Map<MethodDeclaration, List<Expression>> methods = childContext.getMethods();
+			Map<MethodDeclaration, List<ASTNode>> methods = childContext.getMethods();
 
 			for (MethodDeclaration currentMethodDeclaration : methods.keySet()) {
 				// 04 - Verify if these methods are the same.
 				if (currentMethodDeclaration.equals(method)) {
 					// // Case 01.
-					Expression childInvoker = childContext.getInvoker();
+					ASTNode childInvoker = childContext.getInvoker();
 					if ((null != childInvoker) && (childInvoker.equals(invoker))) {
 						return childContext;
 					} else if ((null == childInvoker) && (null == invoker)) {
@@ -108,7 +109,7 @@ public class CallGraph {
 	 * @param invoker
 	 * @return
 	 */
-	public Context newContext(IResource resource, MethodDeclaration method, Expression invoker) {
+	public Context newContext(IResource resource, MethodDeclaration method, ASTNode invoker) {
 		return newContext(getContext(resource), method, invoker);
 	}
 
@@ -118,7 +119,7 @@ public class CallGraph {
 	 * @param invoker
 	 * @return
 	 */
-	public Context newContext(Context parentContext, MethodDeclaration method, Expression invoker) {
+	public Context newContext(Context parentContext, MethodDeclaration method, ASTNode invoker) {
 		// 01 - Create a context.
 		Context context = new Context(parentContext.getResource(), parentContext);
 
@@ -134,13 +135,13 @@ public class CallGraph {
 		return context;
 	}
 
-	public Context getClassContext(Context parentContext, MethodDeclaration method, Expression invoker,
-			Expression instance) {
+	public Context getClassContext(Context parentContext, MethodDeclaration method, ASTNode invoker, Expression instance) {
 		// 01 - Get the context of the instance object.
 		Context instanceContext = getInstanceContext(parentContext, instance);
 
-		// 02 -
-		return getContext(instanceContext, method, invoker);
+		return instanceContext;
+		// 02 - FIXME
+		// return getContext(instanceContext, method, invoker);
 	}
 
 	/**
@@ -150,24 +151,27 @@ public class CallGraph {
 	 * @param instance
 	 * @return
 	 */
-	public Context newClassContext(Context parentContext, MethodDeclaration method, Expression invoker,
-			Expression instance) {
+	public Context newClassContext(Context parentContext, MethodDeclaration method, ASTNode invoker, Expression instance) {
 		// This method declaration is a constructor from a class. So, we need to get
 		// that context, but without the extra stuff.
 		// We only need global variables and methods.
 
 		// 01 - Create a context.
-		Context context = newContext(parentContext, method, invoker);
+		Context classContext = newContext(parentContext, method, invoker);
 
 		// 02 - Set the object that will hold this context.
-		context.setInstance(instance);
+		classContext.setInstance(instance);
 
 		// 03 - Get the resource of this constructor.
 		// 04 - Get the context (top level) of that resource.
 		// 05 - Copy the variables and methods from the classContext to this new context.
-		context.merge(getContext(BindingResolver.getResource(method)));
+		classContext.merge(getContext(BindingResolver.getResource(method)));
 
-		return context;
+		// 06 - Create the context for the constructor method.
+		Context constructorContext = newInstanceContext(parentContext, method, invoker, instance);
+
+		// 07 -
+		return constructorContext;
 	}
 
 	/**
@@ -192,7 +196,9 @@ public class CallGraph {
 			}
 
 		}
-		return null;
+		// This case should never happen. We return the same parent context to avoid
+		// NullPointerException.
+		return context;
 	}
 
 	/**
@@ -202,7 +208,7 @@ public class CallGraph {
 	 * @param instance
 	 * @return
 	 */
-	public Context getInstanceMethodContext(Context parentContext, MethodDeclaration method, Expression invoker,
+	public Context getInstanceMethodContext(Context parentContext, MethodDeclaration method, ASTNode invoker,
 			Expression instance) {
 		// 01 - Get the context of the instance object.
 		Context instanceContext = getInstanceContext(parentContext, instance);
@@ -218,7 +224,7 @@ public class CallGraph {
 	 * @param instance
 	 * @return
 	 */
-	public Context newInstanceContext(Context parentContext, MethodDeclaration method, Expression invoker,
+	public Context newInstanceContext(Context parentContext, MethodDeclaration method, ASTNode invoker,
 			Expression instance) {
 		// 01 - Get the context of the instance object.
 		Context instanceContext = getInstanceContext(parentContext, instance);
@@ -229,6 +235,11 @@ public class CallGraph {
 		// 03 - Set the object that will hold this context.
 		context.setInstance(instance);
 
+		// 04 - Get the resource of this constructor.
+		// 05 - Get the context (top level) of that resource.
+		// 06 - Copy the variables and methods from the classContext to this new context.
+		context.mergeVariables(instanceContext, 1);
+
 		return context;
 	}
 
@@ -238,7 +249,7 @@ public class CallGraph {
 	 * @param invoker
 	 * @return
 	 */
-	public Context getStaticMethodContext(Context parentContext, MethodDeclaration method, Expression invoker) {
+	public Context getStaticMethodContext(Context parentContext, MethodDeclaration method, ASTNode invoker) {
 		// 01 - Get the static context of that class.
 		Context classStaticContext = getContext(BindingResolver.getResource(method));
 
@@ -252,7 +263,7 @@ public class CallGraph {
 	 * @param invoker
 	 * @return
 	 */
-	public Context newStaticMethodContext(Context parentContext, MethodDeclaration method, Expression invoker) {
+	public Context newStaticMethodContext(Context parentContext, MethodDeclaration method, ASTNode invoker) {
 		// 01 - Get the static context of that class.
 		Context classStaticContext = getContext(BindingResolver.getResource(method));
 
@@ -348,7 +359,7 @@ public class CallGraph {
 
 		if (vbs.size() > 0) {
 			// 02 - Get a parent expression which has a reference to this variable.
-			Expression expression = BindingResolver.getParentWhoHasAReference(variable);
+			ASTNode expression = BindingResolver.getParentWhoHasAReference(variable);
 			if (null != expression) {
 
 				// 03 - Get the variable binding if the expression matches one of the references of this variable.
@@ -369,9 +380,9 @@ public class CallGraph {
 	 * @param expression
 	 * @return
 	 */
-	private VariableBinding getVariableBindingIfReferenceMatch(List<VariableBinding> vbs, Expression expression) {
+	private VariableBinding getVariableBindingIfReferenceMatch(List<VariableBinding> vbs, ASTNode expression) {
 		for (VariableBinding variableBinding : vbs) {
-			for (Expression currentReference : variableBinding.getReferences()) {
+			for (ASTNode currentReference : variableBinding.getReferences()) {
 				if (currentReference.equals(expression)) {
 					return variableBinding;
 				}
@@ -511,7 +522,7 @@ public class CallGraph {
 	 * @param caller
 	 * @param callee
 	 */
-	public void addMethodInvocation(Context context, MethodDeclaration caller, Expression callee) {
+	public void addMethodInvocation(Context context, MethodDeclaration caller, ASTNode callee) {
 		context.addMethodInvocation(caller, callee);
 	}
 
@@ -519,7 +530,7 @@ public class CallGraph {
 	 * @param resource
 	 * @return
 	 */
-	public Map<MethodDeclaration, List<Expression>> getMethods(IResource resource) {
+	public Map<MethodDeclaration, List<ASTNode>> getMethods(IResource resource) {
 		return getContext(resource).getMethods();
 	}
 
@@ -528,7 +539,7 @@ public class CallGraph {
 	 * @param expr
 	 * @return
 	 */
-	private MethodDeclaration getMethod(Map<MethodDeclaration, List<Expression>> mapMethods, Expression expr) {
+	private MethodDeclaration getMethod(Map<MethodDeclaration, List<ASTNode>> mapMethods, ASTNode expr) {
 		// 01 - Iterate through the list to verify if we have the implementation of this method in our list.
 		for (MethodDeclaration methodDeclaration : mapMethods.keySet()) {
 			// 02 - Verify if these methods are the same.
@@ -547,7 +558,7 @@ public class CallGraph {
 	 * @param expr
 	 * @return
 	 */
-	public MethodDeclaration getMethod(IResource resource, Expression expr) {
+	public MethodDeclaration getMethod(IResource resource, ASTNode expr) {
 		// 01 - Get the context of this resource.
 		Context context = getContext(resource);
 
@@ -585,25 +596,25 @@ public class CallGraph {
 	 * @param methodToSearch
 	 * @return
 	 */
-	public Map<MethodDeclaration, List<Expression>> getInvokers(MethodDeclaration methodToSearch) {
-		Map<MethodDeclaration, List<Expression>> invokers = Creator.newMap();
+	public Map<MethodDeclaration, List<ASTNode>> getInvokers(MethodDeclaration methodToSearch) {
+		Map<MethodDeclaration, List<ASTNode>> invokers = Creator.newMap();
 
 		// 01 - Iterate over all the contexts and check which methods invoke the provided method.
 		for (Context context : getContexts().values()) {
 
 			// 02 - Get the list of methods of this resource.
-			Map<MethodDeclaration, List<Expression>> methods = context.getMethods();
+			Map<MethodDeclaration, List<ASTNode>> methods = context.getMethods();
 
 			// 03 - Iterate over each method into the map.
-			for (Entry<MethodDeclaration, List<Expression>> currentMethod : methods.entrySet()) {
+			for (Entry<MethodDeclaration, List<ASTNode>> currentMethod : methods.entrySet()) {
 
 				// 04 - Iterate over each method invocation of the current method.
-				for (Expression invocation : currentMethod.getValue()) {
+				for (ASTNode invocation : currentMethod.getValue()) {
 
 					// 05 - Verify if these methods are the same.
 					if (BindingResolver.areMethodsEqual(methodToSearch, invocation)) {
 						if (!invokers.containsKey(currentMethod.getKey())) {
-							List<Expression> invocations = Creator.newList();
+							List<ASTNode> invocations = Creator.newList();
 
 							// Create a empty list of method invocations.
 							invokers.put(currentMethod.getKey(), invocations);
@@ -617,6 +628,25 @@ public class CallGraph {
 		}
 
 		return invokers;
+	}
+
+	public IResource getResourceFromPackageName(String packageName) {
+		if (null != packageName) {
+			String packageNameAndFile = String.format("%s.%s", packageName, Constant.RESOURCE_TYPE_TO_PERFORM_DETECTION);
+
+			// 01 - Iterate over all the contexts
+			for (Context context : getContexts().values()) {
+				IResource resource = context.getResource();
+
+				String relativePath = resource.getProjectRelativePath().toOSString().replaceAll("/", ".");
+
+				if (relativePath.endsWith(packageNameAndFile)) {
+					return resource;
+				}
+			}
+		}
+
+		return null;
 	}
 
 }

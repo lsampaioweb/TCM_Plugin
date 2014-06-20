@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
+import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -58,9 +59,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	 * @param methodDeclaration
 	 */
 	@Override
-	protected void run(int depth, MethodDeclaration methodDeclaration, Expression invoker) {
-		PluginLogger.logIfDebugging("Method:" + methodDeclaration.getName());
-
+	protected void run(int depth, MethodDeclaration methodDeclaration, ASTNode invoker) {
 		// 02 - TODO -
 		// If there is a invoker we have to add the parameters and do more stuff.
 
@@ -85,8 +84,8 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	}
 
 	@Override
-	protected void inspectMethodWithSourceCode(int depth, Context context, DataFlow dataFlow,
-			Expression methodInvocation, MethodDeclaration methodDeclaration) {
+	protected void inspectMethodWithSourceCode(int depth, Context context, DataFlow dataFlow, ASTNode methodInvocation,
+			MethodDeclaration methodDeclaration) {
 		// 01 - Get the current method declaration where this invocation is being performed.
 		MethodDeclaration currentMethod = BindingResolver.getParentMethodDeclaration(methodInvocation);
 
@@ -105,7 +104,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	}
 
 	@Override
-	protected void inspectMethodWithOutSourceCode(int depth, Context context, DataFlow dataFlow, Expression expression) {
+	protected void inspectMethodWithOutSourceCode(int depth, Context context, DataFlow dataFlow, ASTNode expression) {
 		// We have to iterate over its parameters to see if any is vulnerable.
 		// If there is a vulnerable parameter and if this is a method from an object
 		// we set this object as vulnerable.
@@ -119,7 +118,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	}
 
 	@Override
-	protected Context getContext(Context context, MethodDeclaration methodDeclaration, Expression methodInvocation) {
+	protected Context getContext(Context context, MethodDeclaration methodDeclaration, ASTNode methodInvocation) {
 		// We have 8 cases:
 		// 01 - method(...);
 		// 02 - method1(...).method2(...).method3(...);
@@ -146,6 +145,17 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 				return getCallGraph().newContext(context, methodDeclaration, methodInvocation);
 			}
 		}
+	}
+
+	/**
+	 * 41
+	 */
+	@Override
+	protected void inspectReturnStatement(int depth, Context context, DataFlow dataFlow, ReturnStatement statement) {
+		// 01 - Add a reference of the variable into the initializer (if the initializer is also a variable).
+		addReferenceToInitializer(depth, context, statement, statement.getExpression());
+
+		super.inspectReturnStatement(depth, context, dataFlow, statement);
 	}
 
 	/**
@@ -203,7 +213,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		}
 	}
 
-	private void addParametersToCallGraph(int depth, Context context, Expression methodInvocation,
+	private void addParametersToCallGraph(int depth, Context context, ASTNode methodInvocation,
 			MethodDeclaration methodDeclaration) {
 		// 01 - Get the parameters of this method declaration.
 		List<SingleVariableDeclaration> parameters = BindingResolver.getParameters(methodDeclaration);
@@ -229,7 +239,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		}
 	}
 
-	private void addReferenceToInitializer(int depth, Context context, Expression expression, Expression initializer) {
+	private void addReferenceToInitializer(int depth, Context context, ASTNode expression, Expression initializer) {
 		// 01 - To avoid infinitive loop, this check is necessary.
 		if (hasReachedMaximumDepth(depth++)) {
 			PluginLogger.logError("addReferenceToInitializer: " + expression + " - " + initializer + " - " + depth, null);
@@ -267,23 +277,22 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		}
 	}
 
-	private void addReference(Context context, Expression expression, Expression initializer) {
+	private void addReference(Context context, ASTNode expression, Expression initializer) {
 		VariableBinding variableBinding = getCallGraph().getLastReference(context, initializer);
 		if (null != variableBinding) {
 			variableBinding.addReferences(expression);
 		}
 	}
 
-	private void addReferenceName(int depth, Context context, Expression expression, Name initializer) {
+	private void addReferenceName(int depth, Context context, ASTNode expression, Name initializer) {
 		addReference(context, expression, initializer);
 	}
 
-	private void addReferenceArrayAccess(int depth, Context context, Expression expression, ArrayAccess initializer) {
+	private void addReferenceArrayAccess(int depth, Context context, ASTNode expression, ArrayAccess initializer) {
 		addReference(context, expression, initializer);
 	}
 
-	private void addReferenceArrayInitializer(int depth, Context context, Expression expression,
-			ArrayInitializer initializer) {
+	private void addReferenceArrayInitializer(int depth, Context context, ASTNode expression, ArrayInitializer initializer) {
 		List<Expression> expressions = BindingResolver.getParameters(initializer);
 
 		for (Expression current : expressions) {
@@ -291,23 +300,22 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		}
 	}
 
-	private void addReferenceAssignment(int depth, Context context, Expression expression, Assignment initializer) {
+	private void addReferenceAssignment(int depth, Context context, ASTNode expression, Assignment initializer) {
 		addReferenceToInitializer(depth, context, expression, initializer.getLeftHandSide());
 		addReferenceToInitializer(depth, context, expression, initializer.getRightHandSide());
 	}
 
-	private void inspectCastExpression(int depth, Context context, Expression expression, CastExpression initializer) {
+	private void inspectCastExpression(int depth, Context context, ASTNode expression, CastExpression initializer) {
 		addReferenceToInitializer(depth, context, expression, initializer.getExpression());
 	}
 
-	private void addReferenceConditionalExpression(int depth, Context context, Expression expression,
+	private void addReferenceConditionalExpression(int depth, Context context, ASTNode expression,
 			ConditionalExpression initializer) {
 		addReferenceToInitializer(depth, context, expression, initializer.getThenExpression());
 		addReferenceToInitializer(depth, context, expression, initializer.getElseExpression());
 	}
 
-	private void addReferenceInfixExpression(int depth, Context context, Expression expression,
-			InfixExpression initializer) {
+	private void addReferenceInfixExpression(int depth, Context context, ASTNode expression, InfixExpression initializer) {
 		addReferenceToInitializer(depth, context, expression, initializer.getLeftOperand());
 		addReferenceToInitializer(depth, context, expression, initializer.getRightOperand());
 
@@ -318,7 +326,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		}
 	}
 
-	private void addReferenceParenthesizedExpression(int depth, Context context, Expression expression,
+	private void addReferenceParenthesizedExpression(int depth, Context context, ASTNode expression,
 			ParenthesizedExpression initializer) {
 		addReferenceToInitializer(depth, context, expression, initializer.getExpression());
 	}

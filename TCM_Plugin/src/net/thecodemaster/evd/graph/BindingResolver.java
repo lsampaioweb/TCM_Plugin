@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
@@ -119,17 +120,17 @@ public class BindingResolver {
 	 * @param node
 	 * @return
 	 */
-	public static Expression getParentWhoHasAReference(ASTNode node) {
+	public static ASTNode getParentWhoHasAReference(ASTNode node) {
 		while (null != node) {
 			switch (node.getNodeType()) {
 				case ASTNode.BLOCK: // 08
-				case ASTNode.RETURN_STATEMENT: // 41
-					return null; // Stop conditions.
+					return null;
 				case ASTNode.ASSIGNMENT: // 07
 					return ((Assignment) node).getLeftHandSide();
 				case ASTNode.CLASS_INSTANCE_CREATION: // 14
 				case ASTNode.METHOD_INVOCATION: // 32
-					return (Expression) node;
+				case ASTNode.RETURN_STATEMENT: // 41
+					return node;
 				case ASTNode.VARIABLE_DECLARATION_FRAGMENT: // 59
 					return ((VariableDeclarationFragment) node).getName();
 			}
@@ -157,6 +158,8 @@ public class BindingResolver {
 					return ((MethodInvocation) node).getExpression();
 				case ASTNode.PARENTHESIZED_EXPRESSION: // 36
 					return ((ParenthesizedExpression) node).getExpression();
+				case ASTNode.SUPER_CONSTRUCTOR_INVOCATION: // 46
+					return ((SuperConstructorInvocation) node).getExpression();
 				case ASTNode.QUALIFIED_NAME: // 40
 				case ASTNode.SIMPLE_NAME: // 42
 				case ASTNode.STRING_LITERAL: // 45
@@ -277,6 +280,17 @@ public class BindingResolver {
 		return parameters;
 	}
 
+	@SuppressWarnings("unchecked")
+	public static List<ImportDeclaration> getImports(CompilationUnit cu) {
+		List<ImportDeclaration> imports = Creator.newList();
+
+		if ((null != cu) && (null != cu.imports())) {
+			imports = cu.imports();
+		}
+
+		return imports;
+	}
+
 	private static List<ITypeBinding> getParameterTypes(MethodDeclaration node) {
 		IMethodBinding methodBinding = (IMethodBinding) resolveBinding(node);
 
@@ -301,7 +315,7 @@ public class BindingResolver {
 		return -1;
 	}
 
-	public static Expression getParameterAtIndex(Expression expr, int parameterIndex) {
+	public static Expression getParameterAtIndex(ASTNode expr, int parameterIndex) {
 		List<Expression> parameters = getParameters(expr);
 
 		if (parameterIndex < parameters.size()) {
@@ -311,7 +325,7 @@ public class BindingResolver {
 		return null;
 	}
 
-	public static boolean areMethodsEqual(MethodDeclaration method, Expression otherMethod) {
+	public static boolean areMethodsEqual(MethodDeclaration method, ASTNode otherMethod) {
 		String methodName = getName(method);
 		String otherName = getName(otherMethod);
 
@@ -325,28 +339,33 @@ public class BindingResolver {
 			// 04 - Verify if they are from the same package and class.
 			// Method names can repeat in other classes.
 			if (qualifiedName.equals(otherQualifiedName)) {
+				return haveSameParameters(method, otherMethod);
+			}
+		}
 
-				// 05 - Get their parameters.
-				List<ITypeBinding> methodParameters = getParameterTypes(method);
-				List<Expression> otherParameters = getParameters(otherMethod);
+		return false;
+	}
 
-				// 06 - It is necessary to check the number of parameters and its types
-				// because it may exist methods with the same names but different parameters.
-				if (methodParameters.size() == otherParameters.size()) {
-					int index = 0;
-					for (ITypeBinding currentParameter : methodParameters) {
-						ITypeBinding otherTypeBinding = otherParameters.get(index++).resolveTypeBinding();
+	public static boolean haveSameParameters(MethodDeclaration method, ASTNode otherMethod) {
+		// 05 - Get their parameters.
+		List<ITypeBinding> methodParameters = getParameterTypes(method);
+		List<Expression> otherParameters = getParameters(otherMethod);
 
-						// 07 - Verify if all the parameters are the ones expected. However, there is a case
-						// where an Object is expected, and any type is accepted.
-						if (!parametersHaveSameType(currentParameter.getQualifiedName(), otherTypeBinding)) {
-							return false;
-						}
-					}
+		// 06 - It is necessary to check the number of parameters and its types
+		// because it may exist methods with the same names but different parameters.
+		if (methodParameters.size() == otherParameters.size()) {
+			int index = 0;
+			for (ITypeBinding currentParameter : methodParameters) {
+				ITypeBinding otherTypeBinding = otherParameters.get(index++).resolveTypeBinding();
 
-					return true;
+				// 07 - Verify if all the parameters are the ones expected. However, there is a case
+				// where an Object is expected, and any type is accepted.
+				if (!parametersHaveSameType(currentParameter.getQualifiedName(), otherTypeBinding)) {
+					return false;
 				}
 			}
+
+			return true;
 		}
 
 		return false;

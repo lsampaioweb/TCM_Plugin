@@ -6,6 +6,7 @@ import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.ui.enumeration.EnumVariableStatus;
 import net.thecodemaster.evd.ui.enumeration.EnumVariableType;
 
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
 
@@ -14,13 +15,13 @@ import org.eclipse.jdt.core.dom.IBinding;
  */
 public class VariableBinding {
 
-	private IBinding								binding;
-	private Expression							initializer;
-	private EnumVariableStatus			status;
-	private EnumVariableType				type;
-	private DataFlow								dataFlow;
+	private IBinding						binding;
+	private Expression					initializer;
+	private EnumVariableStatus	status;
+	private EnumVariableType		type;
+	private DataFlow						dataFlow;
 
-	private final List<Expression>	references;
+	private final List<ASTNode>	references;
 
 	public VariableBinding(IBinding binding, EnumVariableType type, Expression initializer) {
 		setBinding(binding);
@@ -47,11 +48,11 @@ public class VariableBinding {
 		this.initializer = initializer;
 	}
 
-	public void addReferences(Expression reference) {
+	public void addReferences(ASTNode reference) {
 		getReferences().add(reference);
 	}
 
-	public List<Expression> getReferences() {
+	public List<ASTNode> getReferences() {
 		return references;
 	}
 
