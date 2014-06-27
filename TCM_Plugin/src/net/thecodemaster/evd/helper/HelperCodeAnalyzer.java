@@ -16,6 +16,8 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
@@ -155,7 +157,7 @@ public abstract class HelperCodeAnalyzer {
 	 * @param node
 	 * @return
 	 */
-	private static Expression getNameIfItIsAnObject(ASTNode node) {
+	public static Expression getNameIfItIsAnObject(ASTNode node) {
 		Expression expression = BindingResolver.getExpression(node);
 
 		while (null != expression) {
@@ -186,6 +188,8 @@ public abstract class HelperCodeAnalyzer {
 				case ASTNode.ARRAY_INITIALIZER: // 04
 				case ASTNode.BLOCK: // 08
 					return null; // Stop conditions.
+				case ASTNode.QUALIFIED_NAME: // 40 - This is the one we want to find.
+					return ((QualifiedName) node).getQualifier();
 				case ASTNode.SIMPLE_NAME: // 42 - This is the one we want to find.
 					return (Expression) node;
 				case ASTNode.VARIABLE_DECLARATION_FRAGMENT: // 59
@@ -226,24 +230,7 @@ public abstract class HelperCodeAnalyzer {
 						// Case 02: The super class is in another package.
 						String superClassPackageName = superClassName.getFullyQualifiedName();
 
-						// 05 - Get the compilation unit of the current class.
-						CompilationUnit cu = BindingResolver.getCompilationUnit(typeDeclaration);
-
-						// 06 - Get the list of imports.
-						List<ImportDeclaration> imports = BindingResolver.getImports(cu);
-
-						// 07 - Iterate over the list and try to find the superclass's import.
-						for (ImportDeclaration importDeclaration : imports) {
-							String currentPackageName = importDeclaration.getName().getFullyQualifiedName();
-							if (currentPackageName.endsWith(superClassPackageName)) {
-								packageName = currentPackageName;
-								break;
-							}
-						}
-
-						if (null == packageName) {
-							packageName = cu.getPackage().getName().getFullyQualifiedName();
-						}
+						packageName = getPackageName(typeDeclaration, superClassPackageName);
 						break;
 				}
 			}
@@ -251,6 +238,59 @@ public abstract class HelperCodeAnalyzer {
 		// 08 - Now that we have the package where the super class is located, we can get
 		// the resource file.
 		return callGraph.getResourceFromPackageName(packageName);
+	}
+
+	public static IResource getClassResource(CallGraph callGraph, Expression expression) {
+		// 01 - We will need the name of the package where the super class is located.
+		String packageName = null;
+
+		// 02 - We have two cases.
+		// Case 01: QualifiedName: some.package.Animal
+		// Case 02: SimpleName : Animal
+		switch (expression.getNodeType()) {
+			case ASTNode.QUALIFIED_NAME: // 40
+				// The qualified name is the package where the class is located.
+				packageName = ((QualifiedName) expression).getFullyQualifiedName();
+				break;
+			case ASTNode.SIMPLE_NAME: // 42
+				// If we just have the name of the class, we have two cases.
+				// Case 01: The super class is in the same package.
+				// Case 02: The super class is in another package.
+				String instancePackageName = ((SimpleName) expression).getFullyQualifiedName();
+
+				packageName = getPackageName(expression, instancePackageName);
+				break;
+		}
+
+		// 08 - Now that we have the package where the super class is located, we can get
+		// the resource file.
+		return callGraph.getResourceFromPackageName(packageName);
+
+	}
+
+	private static String getPackageName(ASTNode node, String packageNameToSearch) {
+		// 01 - We will need the name of the package where the super class is located.
+		String packageName = null;
+
+		// 05 - Get the compilation unit of the current class.
+		CompilationUnit cu = BindingResolver.getCompilationUnit(node);
+
+		// 06 - Get the list of imports.
+		List<ImportDeclaration> imports = BindingResolver.getImports(cu);
+
+		// 07 - Iterate over the list and try to find the superclass's import.
+		for (ImportDeclaration importDeclaration : imports) {
+			String currentPackageName = importDeclaration.getName().getFullyQualifiedName();
+			if (currentPackageName.endsWith(packageNameToSearch)) {
+				packageName = currentPackageName;
+				break;
+			}
+		}
+
+		if (null == packageName) {
+			packageName = String.format("%s.%s", cu.getPackage().getName().getFullyQualifiedName(), packageNameToSearch);
+		}
+		return packageName;
 	}
 
 }

@@ -230,11 +230,11 @@ public abstract class Verifier extends CodeAnalyzer {
 			return getCallGraph().getClassContext(context, methodDeclaration, methodInvocation, instance);
 		} else if (Modifier.isStatic(methodDeclaration.getModifiers())) {
 			// Cases: 06
-			return getCallGraph().getStaticMethodContext(context, methodDeclaration, methodInvocation);
+			return getCallGraph().getStaticContext(context, methodDeclaration, methodInvocation);
 		} else {
 			if (null != instance) {
 				// Cases: 03, 04, 05
-				return getCallGraph().getInstanceMethodContext(context, methodDeclaration, methodInvocation, instance);
+				return getCallGraph().getInstanceContext(context, methodDeclaration, methodInvocation, instance);
 			} else {
 				// Cases: 01, 02
 				return getCallGraph().getContext(context, methodDeclaration, methodInvocation);

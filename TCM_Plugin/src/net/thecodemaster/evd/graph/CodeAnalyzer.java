@@ -40,10 +40,12 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.ForStatement;
+import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
@@ -793,7 +795,34 @@ public abstract class CodeAnalyzer {
 	 * 40
 	 */
 	protected void inspectQualifiedName(int depth, Context context, DataFlow dataFlow, QualifiedName expression) {
-		inspectNode(depth, context, dataFlow, expression.getName());
+		inspectNode(depth, getContext(context, expression), dataFlow, expression.getName());
+	}
+
+	/**
+	 * 40
+	 */
+	protected Context getContext(Context context, Expression expression) {
+		// 02 - Get the binding of this variable;
+		IBinding binding = BindingResolver.resolveBinding(expression);
+		if (null != binding) {
+
+			// 03 - Get the instance (object or static);
+			Expression instance = HelperCodeAnalyzer.getInstanceIfItIsAnObject(expression);
+
+			if (Modifier.isStatic(binding.getModifiers())) {
+				// Person.staticPersonVariable
+
+				// 04 - Get the resource of this static variable.
+				IResource resource = HelperCodeAnalyzer.getClassResource(getCallGraph(), instance);
+
+				// 05 - Get the context (top level) of this resource.
+				context = getCallGraph().getStaticContext(resource);
+			} else {
+				// person.publicPersonVariable
+				context = getCallGraph().getInstanceContext(context, instance);
+			}
+		}
+		return context;
 	}
 
 	/**

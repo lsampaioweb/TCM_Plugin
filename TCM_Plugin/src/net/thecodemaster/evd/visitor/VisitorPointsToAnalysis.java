@@ -72,7 +72,9 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
 	/**
 	 * 07 <br/>
-	 * a = b
+	 * a = b <br/>
+	 * Person.staticPersonVariable <br/>
+	 * person.publicPersonVariable
 	 */
 	@Override
 	protected void inspectAssignment(int depth, Context context, DataFlow dataFlow, Assignment node) {
@@ -80,7 +82,19 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		Expression leftHandSide = node.getLeftHandSide();
 		Expression rightHandSide = node.getRightHandSide();
 
-		// 02 - Add the new variable to the callGraph.
+		switch (leftHandSide.getNodeType()) {
+			case ASTNode.FIELD_ACCESS: // 22
+			case ASTNode.SIMPLE_NAME: // 42
+				break; // Use the same current context.
+			case ASTNode.QUALIFIED_NAME: // 40
+				// * Get the context of the instance. (Object or static).
+				context = getContext(context, leftHandSide);
+				break;
+			default:
+				PluginLogger.logError("inspectAssignment Default Node Type: " + node.getNodeType() + " - " + node, null);
+		}
+
+		// 04 - Add the new variable to the callGraph.
 		addVariableToCallGraphAndInspectInitializer(depth, context, dataFlow, leftHandSide, rightHandSide);
 	}
 
@@ -136,7 +150,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 			return getCallGraph().newClassContext(context, methodDeclaration, methodInvocation, instance);
 		} else if (Modifier.isStatic(methodDeclaration.getModifiers())) {
 			// Cases: 06
-			return getCallGraph().newStaticMethodContext(context, methodDeclaration, methodInvocation);
+			return getCallGraph().newStaticContext(context, methodDeclaration, methodInvocation);
 		} else {
 			if (null != instance) {
 				// Cases: 03, 04, 05
@@ -279,6 +293,8 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	}
 
 	private void addReference(Context context, ASTNode expression, Expression initializer) {
+		context = getContext(context, initializer);
+
 		VariableBinding variableBinding = getCallGraph().getLastReference(context, initializer);
 		if (null != variableBinding) {
 			variableBinding.addReferences(expression);

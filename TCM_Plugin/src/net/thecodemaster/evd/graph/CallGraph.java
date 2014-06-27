@@ -179,7 +179,7 @@ public class CallGraph {
 	 * @param instance
 	 * @return
 	 */
-	private Context getInstanceContext(Context context, Expression instance) {
+	public Context getInstanceContext(Context context, Expression instance) {
 		IBinding otherBinding = resolveBinding(instance);
 
 		// 01 - Iterate over all the children of this context.
@@ -208,7 +208,7 @@ public class CallGraph {
 	 * @param instance
 	 * @return
 	 */
-	public Context getInstanceMethodContext(Context parentContext, MethodDeclaration method, ASTNode invoker,
+	public Context getInstanceContext(Context parentContext, MethodDeclaration method, ASTNode invoker,
 			Expression instance) {
 		// 01 - Get the context of the instance object.
 		Context instanceContext = getInstanceContext(parentContext, instance);
@@ -249,12 +249,16 @@ public class CallGraph {
 	 * @param invoker
 	 * @return
 	 */
-	public Context getStaticMethodContext(Context parentContext, MethodDeclaration method, ASTNode invoker) {
+	public Context getStaticContext(Context parentContext, MethodDeclaration method, ASTNode invoker) {
 		// 01 - Get the static context of that class.
 		Context classStaticContext = getContext(BindingResolver.getResource(method));
 
 		// 02 -
 		return getContext(classStaticContext, method, invoker);
+	}
+
+	public Context getStaticContext(IResource resource) {
+		return getContext(resource);
 	}
 
 	/**
@@ -263,7 +267,7 @@ public class CallGraph {
 	 * @param invoker
 	 * @return
 	 */
-	public Context newStaticMethodContext(Context parentContext, MethodDeclaration method, ASTNode invoker) {
+	public Context newStaticContext(Context parentContext, MethodDeclaration method, ASTNode invoker) {
 		// 01 - Get the static context of that class.
 		Context classStaticContext = getContext(BindingResolver.getResource(method));
 
