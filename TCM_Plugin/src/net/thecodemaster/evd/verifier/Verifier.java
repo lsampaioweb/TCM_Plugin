@@ -223,7 +223,7 @@ public abstract class Verifier extends CodeAnalyzer {
 		// 06 - Class.staticMethod(...);
 		// 07 - Class obj = new Class(...);
 		// 08 - (new Class(...)).run(..);
-		Expression instance = HelperCodeAnalyzer.getNameIfItIsAnObject(methodInvocation);
+		Expression instance = HelperCodeAnalyzer.getInstanceIfItIsAnObject(methodInvocation);
 
 		if (methodDeclaration.isConstructor()) {
 			// Cases: 07

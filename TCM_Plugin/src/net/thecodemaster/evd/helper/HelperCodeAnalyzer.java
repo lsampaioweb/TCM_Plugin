@@ -155,7 +155,7 @@ public abstract class HelperCodeAnalyzer {
 	 * @param node
 	 * @return
 	 */
-	public static Expression getNameIfItIsAnObject(ASTNode node) {
+	private static Expression getNameIfItIsAnObject(ASTNode node) {
 		Expression expression = BindingResolver.getExpression(node);
 
 		while (null != expression) {
@@ -171,8 +171,19 @@ public abstract class HelperCodeAnalyzer {
 			}
 		}
 
+		return null;
+	}
+
+	public static Expression getInstanceIfItIsAnObject(ASTNode node) {
+		Expression expression = getNameIfItIsAnObject(node);
+
+		if (null != expression) {
+			return expression;
+		}
+
 		while (null != node) {
 			switch (node.getNodeType()) {
+				case ASTNode.ARRAY_INITIALIZER: // 04
 				case ASTNode.BLOCK: // 08
 					return null; // Stop conditions.
 				case ASTNode.SIMPLE_NAME: // 42 - This is the one we want to find.

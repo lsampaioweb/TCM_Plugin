@@ -100,7 +100,7 @@ public class CallGraph {
 
 		}
 
-		return null;
+		return context;
 	}
 
 	/**

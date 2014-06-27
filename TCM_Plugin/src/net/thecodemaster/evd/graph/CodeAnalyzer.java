@@ -723,8 +723,8 @@ public abstract class CodeAnalyzer {
 		} else if (null == methodDeclaration) {
 			// 01 - Check if this method invocation is being call from a vulnerable object.
 			// Only methods that we do not have the implementation should get here.
-			if ((null != variableBinding) && (variableBinding.getStatus().equals(EnumVariableStatus.VULNERABLE))) {
-				dataFlow.replace(variableBinding.getDataFlow());
+			if (null != variableBinding) {
+				processIfStatusUnknownOrUpdateIfVulnerable(depth, context, dataFlow, variableBinding);
 			}
 		}
 	}
@@ -776,17 +776,17 @@ public abstract class CodeAnalyzer {
 	}
 
 	/**
-	 * 37
+	 * 37 i++
 	 */
 	protected void inspectPostfixExpression(int depth, Context context, DataFlow dataFlow, PostfixExpression expression) {
-		inspectNode(depth, context, dataFlow, expression.getOperand());
+		// inspectNode(depth, context, dataFlow, expression.getOperand());
 	}
 
 	/**
-	 * 38
+	 * 38 ++i
 	 */
 	protected void inspectPrefixExpression(int depth, Context context, DataFlow dataFlow, PrefixExpression expression) {
-		inspectNode(depth, context, dataFlow, expression.getOperand());
+		// inspectNode(depth, context, dataFlow, expression.getOperand());
 	}
 
 	/**

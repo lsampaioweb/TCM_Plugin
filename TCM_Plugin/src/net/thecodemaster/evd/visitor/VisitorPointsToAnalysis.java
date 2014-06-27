@@ -105,14 +105,14 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	}
 
 	@Override
-	protected void inspectMethodWithOutSourceCode(int depth, Context context, DataFlow dataFlow, ASTNode expression) {
+	protected void inspectMethodWithOutSourceCode(int depth, Context context, DataFlow dataFlow, ASTNode method) {
 		// We have to iterate over its parameters to see if any is vulnerable.
 		// If there is a vulnerable parameter and if this is a method from an object
 		// we set this object as vulnerable.
-		List<Expression> parameters = BindingResolver.getParameters(expression);
+		List<Expression> parameters = BindingResolver.getParameters(method);
 		for (Expression parameter : parameters) {
 			// 01 - Add a method reference to this variable (if it is a variable).
-			addReferenceToInitializer(depth, context, expression, parameter);
+			addReferenceToInitializer(depth, context, method, parameter);
 
 			inspectNode(depth, context, dataFlow.addNodeToPath(parameter), parameter);
 		}
@@ -129,7 +129,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		// 06 - Class.staticMethod(...);
 		// 07 - Class obj = new Class(...);
 		// 08 - (new Class(...)).run(..);
-		Expression instance = HelperCodeAnalyzer.getNameIfItIsAnObject(methodInvocation);
+		Expression instance = HelperCodeAnalyzer.getInstanceIfItIsAnObject(methodInvocation);
 
 		if (methodDeclaration.isConstructor()) {
 			// Cases: 07
