@@ -120,8 +120,11 @@ public class CallGraph {
 	 * @return
 	 */
 	public Context newContext(Context parentContext, MethodDeclaration method, ASTNode invoker) {
+		// 01 - Get the resource of this context.
+		IResource resource = (null != method) ? BindingResolver.getResource(method) : parentContext.getResource();
+
 		// 01 - Create a context.
-		Context context = new Context(parentContext.getResource(), parentContext);
+		Context context = new Context(resource, parentContext);
 
 		// 02 - Set the object that holds the reference to this method declaration.
 		context.addMethodDeclaration(method);

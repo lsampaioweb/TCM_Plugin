@@ -39,6 +39,7 @@ import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
+import org.eclipse.jdt.core.dom.SuperFieldAccess;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -83,8 +84,10 @@ public class BindingResolver {
 
 	public static IResource getResource(ASTNode node) {
 		try {
-			CompilationUnit cUnit = getCompilationUnit(node);
-			return cUnit.getJavaElement().getCorrespondingResource();
+			if (null != node) {
+				CompilationUnit cUnit = getCompilationUnit(node);
+				return cUnit.getJavaElement().getCorrespondingResource();
+			}
 		} catch (JavaModelException e) {
 			PluginLogger.logError(e);
 		}
@@ -108,6 +111,8 @@ public class BindingResolver {
 				case ASTNode.QUALIFIED_NAME: // 40
 				case ASTNode.SIMPLE_NAME: // 42
 					return ((Name) node).resolveBinding();
+				case ASTNode.SUPER_FIELD_ACCESS: // 47
+					return ((SuperFieldAccess) node).resolveFieldBinding();
 				case ASTNode.SUPER_METHOD_INVOCATION: // 48
 					return ((SuperMethodInvocation) node).resolveMethodBinding();
 				default:

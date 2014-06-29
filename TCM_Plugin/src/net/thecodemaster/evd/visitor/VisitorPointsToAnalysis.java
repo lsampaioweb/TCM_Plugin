@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.EnhancedForStatement;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
@@ -31,6 +32,7 @@ import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.SuperFieldAccess;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
@@ -85,6 +87,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		switch (leftHandSide.getNodeType()) {
 			case ASTNode.FIELD_ACCESS: // 22
 			case ASTNode.SIMPLE_NAME: // 42
+			case ASTNode.SUPER_FIELD_ACCESS: // 47
 				break; // Use the same current context.
 			case ASTNode.QUALIFIED_NAME: // 40
 				// * Get the context of the instance. (Object or static).
@@ -120,6 +123,13 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
 	@Override
 	protected void inspectMethodWithOutSourceCode(int depth, Context context, DataFlow dataFlow, ASTNode method) {
+		switch (method.getNodeType()) {
+			case ASTNode.CLASS_INSTANCE_CREATION:
+				Expression instance = HelperCodeAnalyzer.getInstanceIfItIsAnObject(method);
+				context = getCallGraph().newClassContext(context, null, method, instance);
+				break;
+		}
+
 		// We have to iterate over its parameters to see if any is vulnerable.
 		// If there is a vulnerable parameter and if this is a method from an object
 		// we set this object as vulnerable.
@@ -278,11 +288,17 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 				case ASTNode.CONDITIONAL_EXPRESSION: // 16
 					addReferenceConditionalExpression(depth, context, expression, (ConditionalExpression) initializer);
 					break;
+				case ASTNode.FIELD_ACCESS: // 22
+					addReferenceFieldAccess(depth, context, expression, (FieldAccess) initializer);
+					break;
 				case ASTNode.INFIX_EXPRESSION: // 27
 					addReferenceInfixExpression(depth, context, expression, (InfixExpression) initializer);
 					break;
 				case ASTNode.PARENTHESIZED_EXPRESSION: // 36
 					addReferenceParenthesizedExpression(depth, context, expression, (ParenthesizedExpression) initializer);
+					break;
+				case ASTNode.SUPER_FIELD_ACCESS: // 47
+					addReferenceSuperFieldAccess(depth, context, expression, (SuperFieldAccess) initializer);
 					break;
 				case ASTNode.QUALIFIED_NAME: // 40
 				case ASTNode.SIMPLE_NAME: // 42
@@ -298,6 +314,8 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		VariableBinding variableBinding = getCallGraph().getLastReference(context, initializer);
 		if (null != variableBinding) {
 			variableBinding.addReferences(expression);
+		} else {
+			PluginLogger.logError("addReference else" + initializer, null);
 		}
 	}
 
@@ -332,6 +350,10 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		addReferenceToInitializer(depth, context, expression, initializer.getElseExpression());
 	}
 
+	private void addReferenceFieldAccess(int depth, Context context, ASTNode expression, FieldAccess initializer) {
+		addReferenceToInitializer(depth, context, expression, initializer.getName());
+	}
+
 	private void addReferenceInfixExpression(int depth, Context context, ASTNode expression, InfixExpression initializer) {
 		addReferenceToInitializer(depth, context, expression, initializer.getLeftOperand());
 		addReferenceToInitializer(depth, context, expression, initializer.getRightOperand());
@@ -346,6 +368,10 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	private void addReferenceParenthesizedExpression(int depth, Context context, ASTNode expression,
 			ParenthesizedExpression initializer) {
 		addReferenceToInitializer(depth, context, expression, initializer.getExpression());
+	}
+
+	private void addReferenceSuperFieldAccess(int depth, Context context, ASTNode expression, SuperFieldAccess initializer) {
+		addReferenceToInitializer(depth, context, expression, initializer.getName());
 	}
 
 }
