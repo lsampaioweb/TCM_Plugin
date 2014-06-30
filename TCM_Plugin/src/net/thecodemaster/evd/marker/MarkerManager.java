@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.Expression;
 
 /**
  * This class knows where and how to report the vulnerabilities.
@@ -75,7 +74,7 @@ public class MarkerManager {
 		return null;
 	}
 
-	private static IMarker hasMarkerAtPosition(CompilationUnit cUnit, IResource resource, Expression node, String type) {
+	private static IMarker hasMarkerAtPosition(CompilationUnit cUnit, IResource resource, ASTNode node, String type) {
 		try {
 			List<IMarker> markers = Arrays.asList(resource.findMarkers(type, false, 0));
 
@@ -99,11 +98,11 @@ public class MarkerManager {
 		return null;
 	}
 
-	public static IMarker hasInvisibleMarkerAtPosition(CompilationUnit cUnit, IResource resource, Expression node) {
+	public static IMarker hasInvisibleMarkerAtPosition(CompilationUnit cUnit, IResource resource, ASTNode node) {
 		return hasMarkerAtPosition(cUnit, resource, node, Constant.MARKER_ID_INVISIBLE);
 	}
 
-	public static IMarker hasVulnerableMarkerAtPosition(CompilationUnit cUnit, IResource resource, Expression node) {
+	public static IMarker hasVulnerableMarkerAtPosition(CompilationUnit cUnit, IResource resource, ASTNode node) {
 		return hasMarkerAtPosition(cUnit, resource, node, Constant.MARKER_ID);
 	}
 

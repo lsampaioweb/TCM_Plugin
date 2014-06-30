@@ -543,14 +543,14 @@ public class CallGraph {
 
 	/**
 	 * @param mapMethods
-	 * @param expr
+	 * @param method
 	 * @return
 	 */
-	private MethodDeclaration getMethod(Map<MethodDeclaration, List<ASTNode>> mapMethods, ASTNode expr) {
+	private MethodDeclaration getMethod(Map<MethodDeclaration, List<ASTNode>> mapMethods, ASTNode method) {
 		// 01 - Iterate through the list to verify if we have the implementation of this method in our list.
 		for (MethodDeclaration methodDeclaration : mapMethods.keySet()) {
 			// 02 - Verify if these methods are the same.
-			if (BindingResolver.areMethodsEqual(methodDeclaration, expr)) {
+			if (BindingResolver.areMethodsEqual(methodDeclaration, method)) {
 				return methodDeclaration;
 			}
 		}
@@ -562,20 +562,20 @@ public class CallGraph {
 	 * Get the implementation (MethodDeclaration) of the method.
 	 * 
 	 * @param resource
-	 * @param expr
+	 * @param method
 	 * @return
 	 */
-	public MethodDeclaration getMethod(IResource resource, ASTNode expr) {
+	public MethodDeclaration getMethod(IResource resource, ASTNode method) {
 		// 01 - Get the context of this resource.
 		Context context = getContext(resource);
 
 		// 02 - Get all the methods from this resource.
 		// 03 - From that list, try to find this method (Expression).
-		MethodDeclaration method = getMethod(context.getMethods(), expr);
+		MethodDeclaration methodDeclaration = getMethod(context.getMethods(), method);
 
 		// 04 - If method is different from null, it means we found it.
-		if (null != method) {
-			return method;
+		if (null != methodDeclaration) {
+			return methodDeclaration;
 		}
 
 		// 05 - If it reaches this point, it means that this method was not implemented into this resource.
@@ -587,11 +587,11 @@ public class CallGraph {
 			}
 
 			// 07 - Try to find the method into the current context.
-			method = getMethod(currentContext.getMethods(), expr);
+			methodDeclaration = getMethod(currentContext.getMethods(), method);
 
 			// 08 - If method is different from null, it means we found it.
-			if (null != method) {
-				return method;
+			if (null != methodDeclaration) {
+				return methodDeclaration;
 			}
 		}
 

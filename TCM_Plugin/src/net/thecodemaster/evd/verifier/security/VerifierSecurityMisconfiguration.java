@@ -11,6 +11,7 @@ import net.thecodemaster.evd.verifier.Verifier;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.StringLiteral;
@@ -36,6 +37,40 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 		return String.format(Message.VerifierSecurityVulnerability.NULL_LITERAL);
 	}
 
+	@Override
+	protected void inspectCharacterLiteral(int depth, Context context, DataFlow dataFlow, CharacterLiteral node) {
+		inspectLiteral(dataFlow, node, getMessageLiteral(node.charValue()));
+	}
+
+	@Override
+	protected void inspectNullLiteral(int depth, Context context, DataFlow dataFlow, NullLiteral node) {
+		inspectLiteral(dataFlow, node, getMessageNullLiteral());
+	}
+
+	@Override
+	protected void inspectNumberLiteral(int depth, Context context, DataFlow dataFlow, NumberLiteral node) {
+		inspectLiteral(dataFlow, node, getMessageLiteral(node.getToken()));
+	}
+
+	@Override
+	protected void inspectStringLiteral(int depth, Context context, DataFlow dataFlow, StringLiteral node) {
+		inspectLiteral(dataFlow, node, getMessageLiteral(node.getLiteralValue()));
+	}
+
+	/**
+	 * 13, 33, 34, 45
+	 */
+	private void inspectLiteral(DataFlow dataFlow, ASTNode node, String message) {
+		// 01 - Check if there is a marker, in case there is, we should BELIEVE it is not vulnerable.
+		if (hasMarkerAtPosition(node)) {
+			return;
+		}
+
+		// 02 - Informs that this node is a vulnerability.
+		dataFlow.addNodeToPath((Expression) node).hasVulnerablePath(
+				Constant.Vulnerability.SECURITY_MISCONFIGURATION_HARD_CODED_CONTENT, message);
+	}
+
 	/**
 	 * 42
 	 */
@@ -48,37 +83,6 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 		} else {
 			super.inspectSimpleName(depth, context, dataFlow, expression, variableBinding);
 		}
-	}
-
-	/**
-	 * 13, 33, 34, 45
-	 */
-	@Override
-	protected void inspectLiteral(int depth, Context context, DataFlow dataFlow, Expression node) {
-		// 01 - Check if there is a marker, in case there is, we should BELIEVE it is not vulnerable.
-		if (hasMarkerAtPosition(node)) {
-			return;
-		}
-
-		String message = null;
-		switch (node.getNodeType()) {
-			case ASTNode.STRING_LITERAL:
-				message = getMessageLiteral(((StringLiteral) node).getLiteralValue());
-				break;
-			case ASTNode.CHARACTER_LITERAL:
-				message = getMessageLiteral(((CharacterLiteral) node).charValue());
-				break;
-			case ASTNode.NUMBER_LITERAL:
-				message = getMessageLiteral(((NumberLiteral) node).getToken());
-				break;
-			case ASTNode.NULL_LITERAL:
-				message = getMessageNullLiteral();
-				break;
-		}
-
-		// 02 - Informs that this node is a vulnerability.
-		dataFlow.addNodeToPath(node).hasVulnerablePath(Constant.Vulnerability.SECURITY_MISCONFIGURATION_HARD_CODED_CONTENT,
-				message);
 	}
 
 }
