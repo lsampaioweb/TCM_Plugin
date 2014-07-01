@@ -645,11 +645,16 @@ public class CallGraph {
 			for (Context context : getContexts().values()) {
 				IResource resource = context.getResource();
 
+				if (null == resource) {
+					continue;
+				}
+
 				String relativePath = resource.getProjectRelativePath().toOSString().replaceAll("/", ".");
 
 				if (relativePath.endsWith(packageNameAndFile)) {
 					return resource;
 				}
+
 			}
 		}
 

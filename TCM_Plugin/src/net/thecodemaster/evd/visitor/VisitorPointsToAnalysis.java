@@ -125,7 +125,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	protected void inspectMethodWithOutSourceCode(int depth, Context context, DataFlow dataFlow, ASTNode method) {
 		switch (method.getNodeType()) {
 			case ASTNode.CLASS_INSTANCE_CREATION:
-				Expression instance = HelperCodeAnalyzer.getInstanceIfItIsAnObject(method);
+				Expression instance = BindingResolver.getInstanceIfItIsAnObject(method);
 				context = getCallGraph().newClassContext(context, null, method, instance);
 				break;
 		}
@@ -153,7 +153,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		// 06 - Class.staticMethod(...);
 		// 07 - Class obj = new Class(...);
 		// 08 - (new Class(...)).run(..);
-		Expression instance = HelperCodeAnalyzer.getInstanceIfItIsAnObject(methodInvocation);
+		Expression instance = BindingResolver.getInstanceIfItIsAnObject(methodInvocation);
 
 		if (methodDeclaration.isConstructor()) {
 			// Cases: 07
@@ -315,7 +315,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		if (null != variableBinding) {
 			variableBinding.addReferences(expression);
 		} else {
-			PluginLogger.logError("addReference else" + initializer, null);
+			PluginLogger.logError("addReference else: " + initializer, null);
 		}
 	}
 

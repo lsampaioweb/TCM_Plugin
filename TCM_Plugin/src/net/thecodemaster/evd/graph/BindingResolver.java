@@ -36,11 +36,13 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
+import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperFieldAccess;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
+import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
@@ -180,6 +182,55 @@ public class BindingResolver {
 					return null;
 			}
 		}
+		return null;
+	}
+
+	/**
+	 * @param node
+	 * @return
+	 */
+	public static Expression getNameIfItIsAnObject(ASTNode node) {
+		Expression expression = getExpression(node);
+
+		while (null != expression) {
+			switch (expression.getNodeType()) {
+				case ASTNode.SIMPLE_NAME: // 42 - This is the one we want to find.
+					return expression;
+				case ASTNode.THIS_EXPRESSION: // 52
+					expression = ((ThisExpression) expression).getQualifier();
+					break;
+				default:
+					expression = getExpression(expression);
+					break;
+			}
+		}
+
+		return null;
+	}
+
+	public static Expression getInstanceIfItIsAnObject(ASTNode node) {
+		Expression expression = getNameIfItIsAnObject(node);
+
+		if (null != expression) {
+			return expression;
+		}
+
+		while (null != node) {
+			switch (node.getNodeType()) {
+				case ASTNode.ARRAY_INITIALIZER: // 04
+				case ASTNode.BLOCK: // 08
+					return null; // Stop conditions.
+				case ASTNode.QUALIFIED_NAME: // 40 - This is the one we want to find.
+					return ((QualifiedName) node).getQualifier();
+				case ASTNode.SIMPLE_NAME: // 42 - This is the one we want to find.
+					return (Expression) node;
+				case ASTNode.VARIABLE_DECLARATION_FRAGMENT: // 59
+					return ((VariableDeclarationFragment) node).getName();
+			}
+
+			node = node.getParent();
+		}
+
 		return null;
 	}
 
@@ -417,15 +468,28 @@ public class BindingResolver {
 		// These are the special (WRAPPER) cases.
 		// boolean, byte, char, short, int, long, float, and double
 		String newName = Convert.fromPrimitiveNameToWrapperClass(other.getQualifiedName());
-		return (parameter.equals(newName));
+		if (parameter.equals(newName)) {
+			return true;
+		}
+
+		// If the parameter is not a primitive type, than if the other parameter
+		// is null, we have to accept it.
+		if ((!isPrimitive(parameter)) && (other.isNullType())) {
+			return true;
+		}
+
+		return false;
 	}
 
-	public static boolean isWrapperOfPrimitive(ITypeBinding typeBinding) {
+	public static boolean isPrimitive(ITypeBinding typeBinding) {
 		if (null == typeBinding) {
 			return false;
 		}
 
-		String name = typeBinding.getQualifiedName();
+		return isPrimitive(typeBinding.getQualifiedName());
+	}
+
+	private static boolean isPrimitive(String name) {
 		if (null != name) {
 			// boolean, byte, char, short, int, long, float, and double,
 			if (name.equals("java.lang.Boolean")) {
@@ -443,6 +507,22 @@ public class BindingResolver {
 			} else if (name.equals("java.lang.Float")) {
 				return true;
 			} else if (name.equals("java.lang.Double")) {
+				return true;
+			} else if (name.equals("boolean")) {
+				return true;
+			} else if (name.equals("byte")) {
+				return true;
+			} else if (name.equals("char")) {
+				return true;
+			} else if (name.equals("short")) {
+				return true;
+			} else if (name.equals("int")) {
+				return true;
+			} else if (name.equals("long")) {
+				return true;
+			} else if (name.equals("float")) {
+				return true;
+			} else if (name.equals("double")) {
 				return true;
 			}
 		}

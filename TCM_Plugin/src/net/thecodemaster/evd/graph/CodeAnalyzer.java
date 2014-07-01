@@ -245,7 +245,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	 */
 	@Override
 	protected void inspectMethodInvocation(int depth, Context context, DataFlow dataFlow, MethodInvocation invocation) {
-		inspectMethodInvocation(depth, context, dataFlow, invocation);
+		inspectMethodInvocation(depth, context, dataFlow, (Expression) invocation);
 	}
 
 	/**
@@ -314,7 +314,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 		// response.sendRedirect(login);
 		// getServletContext().getRequestDispatcher(login).forward(request, response);
 		// 01 - There are 2 cases: When we have the source code of this method and when we do not.
-		MethodDeclaration methodDeclaration = getCallGraph().getMethod(getCurrentResource(), methodInvocation);
+		MethodDeclaration methodDeclaration = getMethodDeclaration(depth, context, methodInvocation);
 		if (null != methodDeclaration) {
 			// We have the source code.
 			inspectMethodWithSourceCode(depth, context, dataFlow, methodInvocation, methodDeclaration);
@@ -383,7 +383,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 		if (null != binding) {
 
 			// 03 - Get the instance (object or static);
-			Expression instance = HelperCodeAnalyzer.getInstanceIfItIsAnObject(expression);
+			Expression instance = BindingResolver.getInstanceIfItIsAnObject(expression);
 
 			if (Modifier.isStatic(binding.getModifiers())) {
 				// Person.staticPersonVariable

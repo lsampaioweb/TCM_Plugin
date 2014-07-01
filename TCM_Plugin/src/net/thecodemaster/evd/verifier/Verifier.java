@@ -11,7 +11,6 @@ import net.thecodemaster.evd.graph.CodeAnalyzer;
 import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.graph.Parameter;
 import net.thecodemaster.evd.helper.Creator;
-import net.thecodemaster.evd.helper.HelperCodeAnalyzer;
 import net.thecodemaster.evd.point.ExitPoint;
 import net.thecodemaster.evd.reporter.Reporter;
 import net.thecodemaster.evd.xmlloader.LoaderExitPoint;
@@ -223,7 +222,7 @@ public abstract class Verifier extends CodeAnalyzer {
 		// 06 - Class.staticMethod(...);
 		// 07 - Class obj = new Class(...);
 		// 08 - (new Class(...)).run(..);
-		Expression instance = HelperCodeAnalyzer.getInstanceIfItIsAnObject(methodInvocation);
+		Expression instance = BindingResolver.getInstanceIfItIsAnObject(methodInvocation);
 
 		if (methodDeclaration.isConstructor()) {
 			// Cases: 07

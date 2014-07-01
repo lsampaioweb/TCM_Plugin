@@ -15,13 +15,8 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
-import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.SimpleType;
-import org.eclipse.jdt.core.dom.ThisExpression;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 /**
  * @author Luciano Sampaio
@@ -61,7 +56,7 @@ public abstract class HelperCodeAnalyzer {
 		}
 
 		// 03 - If the type is a Wrapper, the method isPrimitive returns false, so we have to check that.
-		return BindingResolver.isWrapperOfPrimitive(typeBinding);
+		return BindingResolver.isPrimitive(typeBinding);
 	}
 
 	/**
@@ -148,96 +143,9 @@ public abstract class HelperCodeAnalyzer {
 	 * @return
 	 */
 	public static VariableBinding getVariableBindingIfItIsAnObject(CallGraph callGraph, Context context, Expression method) {
-		Expression expression = getNameIfItIsAnObject(method);
+		Expression expression = BindingResolver.getNameIfItIsAnObject(method);
 
 		return (null != expression) ? callGraph.getLastReference(context, expression) : null;
-	}
-
-	/**
-	 * @param node
-	 * @return
-	 */
-	public static Expression getNameIfItIsAnObject(ASTNode node) {
-		Expression expression = BindingResolver.getExpression(node);
-
-		while (null != expression) {
-			switch (expression.getNodeType()) {
-				case ASTNode.SIMPLE_NAME: // 42 - This is the one we want to find.
-					return expression;
-				case ASTNode.THIS_EXPRESSION: // 52
-					expression = ((ThisExpression) expression).getQualifier();
-					break;
-				default:
-					expression = BindingResolver.getExpression(expression);
-					break;
-			}
-		}
-
-		return null;
-	}
-
-	public static Expression getInstanceIfItIsAnObject(ASTNode node) {
-		Expression expression = getNameIfItIsAnObject(node);
-
-		if (null != expression) {
-			return expression;
-		}
-
-		while (null != node) {
-			switch (node.getNodeType()) {
-				case ASTNode.ARRAY_INITIALIZER: // 04
-				case ASTNode.BLOCK: // 08
-					return null; // Stop conditions.
-				case ASTNode.QUALIFIED_NAME: // 40 - This is the one we want to find.
-					return ((QualifiedName) node).getQualifier();
-				case ASTNode.SIMPLE_NAME: // 42 - This is the one we want to find.
-					return (Expression) node;
-				case ASTNode.VARIABLE_DECLARATION_FRAGMENT: // 59
-					return ((VariableDeclarationFragment) node).getName();
-			}
-
-			node = node.getParent();
-		}
-
-		return null;
-	}
-
-	public static IResource getSuperClassResource(CallGraph callGraph, TypeDeclaration typeDeclaration) {
-		// 01 - We will need the name of the package where the super class is located.
-		String packageName = null;
-
-		if (null != typeDeclaration) {
-			// 02 - Get the SuperClass.
-			SimpleType superClass = (SimpleType) typeDeclaration.getSuperclassType();
-
-			// A call to a super constructor means we have a super class, however if the superClass
-			// object is null, it might be a syntax error in the code. We have to be prepared for that.
-			if (null != superClass) {
-				// 03 - Get the name of the super class.
-				Name superClassName = superClass.getName();
-
-				// 04 - We have two cases.
-				// Case 01: The superClassName is a QualifiedName: some.package.Animal
-				// Case 02: The superClassName is a SimpleName : Animal
-				switch (superClassName.getNodeType()) {
-					case ASTNode.QUALIFIED_NAME: // 40
-						// The qualified name is the package where the class is located.
-						packageName = superClassName.getFullyQualifiedName();
-						break;
-					case ASTNode.SIMPLE_NAME: // 42
-						// If we just have the name of the class, we have two cases.
-						// Case 01: The super class is in the same package.
-						// Case 02: The super class is in another package.
-						String superClassPackageName = superClassName.getFullyQualifiedName();
-
-						packageName = getPackageName(typeDeclaration, superClassPackageName);
-						break;
-				}
-			}
-		}
-		// 08 - Now that we have the package where the super class is located, we can get
-		// the resource file.
-		return callGraph.getResourceFromPackageName(packageName);
 	}
 
 	public static IResource getClassResource(CallGraph callGraph, Expression expression) {
@@ -265,7 +173,6 @@ public abstract class HelperCodeAnalyzer {
 		// 08 - Now that we have the package where the super class is located, we can get
 		// the resource file.
 		return callGraph.getResourceFromPackageName(packageName);
-
 	}
 
 	private static String getPackageName(ASTNode node, String packageNameToSearch) {

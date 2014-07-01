@@ -6,6 +6,8 @@ import java.util.Map;
 
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.context.Context;
+import net.thecodemaster.evd.finder.ReferenceFinder;
+import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.ui.enumeration.EnumTypeDeclaration;
 
@@ -22,6 +24,7 @@ import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
 import org.eclipse.jdt.core.dom.ContinueStatement;
@@ -32,11 +35,15 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.ForStatement;
+import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
+import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
@@ -45,6 +52,7 @@ import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
@@ -56,6 +64,8 @@ import org.eclipse.jdt.core.dom.SynchronizedStatement;
 import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.ThrowStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -333,10 +343,7 @@ public abstract class CodeVisitor {
 	 */
 	protected void inspectConstructorInvocation(int depth, Context context, DataFlow dataFlow,
 			ConstructorInvocation invocation) {
-		// // 01 - Get the resource of this constructor.
-		// IResource resource = BindingResolver.getResource(invocation);
-
-		// 02 - Inspect the method invocation.
+		// 01 - Inspect the method invocation.
 		inspectInvocation(depth, context, dataFlow, invocation);
 	}
 
@@ -408,15 +415,6 @@ public abstract class CodeVisitor {
 	 * 32
 	 */
 	protected void inspectMethodInvocation(int depth, Context context, DataFlow dataFlow, MethodInvocation invocation) {
-		// MethodDeclaration methodDeclaration = getMethodDeclaration(invocation);
-		// if (null != methodDeclaration) {
-		// // We have the source code.
-		// inspectMethodWithSourceCode(depth, context, dataFlow, invocation, methodDeclaration);
-		// } else {
-		// // We do not have the source code.
-		// inspectMethodWithOutSourceCode(depth, context, dataFlow, invocation);
-		// }
-
 		// 01 - Inspect the method invocation.
 		inspectInvocation(depth, context, dataFlow, invocation);
 	}
@@ -489,14 +487,6 @@ public abstract class CodeVisitor {
 	 */
 	protected void inspectSuperConstructorInvocation(int depth, Context context, DataFlow dataFlow,
 			SuperConstructorInvocation invocation) {
-		// // 01 - Get the type declaration of the current class.
-		// TypeDeclaration typeDeclaration = BindingResolver.getTypeDeclaration(superConstructorInvocation);
-		//
-		// // 02 - Get the resource of the super class.
-		// IResource resource = HelperCodeAnalyzer.getSuperClassResource(getCallGraph(), typeDeclaration);
-		//
-		// // 03 - Inspect the method.
-		// constructorInvocation(depth, context, dataFlow, superConstructorInvocation, resource);
 		// 01 - Inspect the method invocation.
 		inspectInvocation(depth, context, dataFlow, invocation);
 	}
@@ -513,20 +503,6 @@ public abstract class CodeVisitor {
 	 */
 	protected void inspectSuperMethodInvocation(int depth, Context context, DataFlow dataFlow,
 			SuperMethodInvocation invocation) {
-		// // 01 - Get the type declaration of the current class.
-		// TypeDeclaration typeDeclaration = BindingResolver.getTypeDeclaration(invocation);
-		//
-		// // 02 - Get the resource of the super class.
-		// IResource resource = HelperCodeAnalyzer.getSuperClassResource(getCallGraph(), typeDeclaration);
-		//
-		// MethodDeclaration methodDeclaration = getMethodDeclaration(invocation);
-		// if (null != methodDeclaration) {
-		// // We have the source code.
-		// inspectMethodWithSourceCode(depth, context, dataFlow, invocation, methodDeclaration);
-		// } else {
-		// // We do not have the source code.
-		// inspectMethodWithOutSourceCode(depth, context, dataFlow, invocation);
-		// }
 		// 01 - Inspect the method invocation.
 		inspectInvocation(depth, context, dataFlow, invocation);
 	}
@@ -649,7 +625,7 @@ public abstract class CodeVisitor {
 	 * 14, 17, 32, 46, 48
 	 */
 	protected void inspectInvocation(int depth, Context context, DataFlow dataFlow, ASTNode invocation) {
-		MethodDeclaration methodDeclaration = getMethodDeclaration(invocation);
+		MethodDeclaration methodDeclaration = getMethodDeclaration(depth, context, invocation);
 		if (null != methodDeclaration) {
 			// We have the source code.
 			inspectMethodWithSourceCode(depth, context, dataFlow, invocation, methodDeclaration);
@@ -668,50 +644,271 @@ public abstract class CodeVisitor {
 		iterateOverParameters(depth, context, dataFlow, methodInvocation);
 	}
 
-	protected MethodDeclaration getMethodDeclaration(ASTNode invocation) {
-		// The first idea is to search for this method declaration in the current resource.
-		// If the implementation is not found, then we search on the super classes (if any)
-		// and lastly we search on other files of the project.
+	protected MethodDeclaration getMethodDeclaration(int depth, Context context, ASTNode invocation) {
+		switch (invocation.getNodeType()) {
+			case ASTNode.CLASS_INSTANCE_CREATION: // 14
+				return getClassInstanceCreationDeclaration((ClassInstanceCreation) invocation, EnumTypeDeclaration.CONSTRUCTOR);
 
-		// 01 - Get the resource of this invocation.
-		IResource resource = BindingResolver.getResource(invocation);
+			case ASTNode.CONSTRUCTOR_INVOCATION: // 17
+				return getConstructorInvocationDeclaration(invocation, EnumTypeDeclaration.CONSTRUCTOR);
 
-		// 02 - Search on the current resource.
-		MethodDeclaration methodDeclaration = getMethodDeclaration(resource, invocation);
-		if (null != methodDeclaration) {
-			return methodDeclaration;
+			case ASTNode.METHOD_INVOCATION: // 32
+				return getMethodInvocationDeclaration(depth, context, (MethodInvocation) invocation, EnumTypeDeclaration.METHOD);
+
+			case ASTNode.SUPER_CONSTRUCTOR_INVOCATION: // 46
+				return getSuperInvocationDeclaration(invocation, EnumTypeDeclaration.CONSTRUCTOR);
+
+			case ASTNode.SUPER_METHOD_INVOCATION: // 48
+				return getSuperInvocationDeclaration(invocation, EnumTypeDeclaration.METHOD);
+			default:
+				PluginLogger.logError("getMethodDeclaration Default Node Type: " + invocation.getNodeType() + " - "
+						+ invocation, null);
+				return null;
 		}
-		// 03 - Search on the super classes(if any).
+	}
 
-		// 04 - Search on the other files of the project.
+	/**
+	 * 14
+	 */
+	private MethodDeclaration getClassInstanceCreationDeclaration(ClassInstanceCreation invocation,
+			EnumTypeDeclaration typeDeclaration) {
+		// 01 - new Class(...);
+		// 01.1 - It can be an InnerClass or a normal class.
+		// 01.2 - With or without constructor.
+		// 01.3 - The name of the Class is the name of the file + ".java".
+		// 01.4 - It can be in the same package or in another one.
 
-		// MethodDeclaration methodDeclaration = getCallGraph().getMethod(getCurrentResource(), methodInvocation);
-		// 05 - The source code of the method invocation was not found.
+		// TODO - It can be an InnerClass or a normal class.
+		// Try to find if the current resource has any inner classes.
+
+		// 01 - Get the name/type of the class.
+		// 02 - Get the resource of the class.
+		IResource resource = getResource(invocation.getType());
+
+		// 03 - Search the source code of the constructor that was invoked.
+		return getMethodDeclaration(resource, invocation, typeDeclaration);
+	}
+
+	/**
+	 * 17
+	 */
+	private MethodDeclaration getConstructorInvocationDeclaration(ASTNode invocation, EnumTypeDeclaration typeDeclaration) {
+		// 01 - this(...);
+		// 01.1 - It has to be inside the current resource.
+
+		// 01 - Get the resource of this constructor.
+		IResource resource = getResource(invocation);
+
+		// 02 - Search the source code of the constructor that was invoked.
+		return getMethodDeclaration(resource, invocation, typeDeclaration);
+	}
+
+	/**
+	 * 32
+	 */
+	private MethodDeclaration getMethodInvocationDeclaration(int depth, Context context, MethodInvocation invocation,
+			EnumTypeDeclaration typeDeclaration) {
+		// 01.1 - It can be inside the current resource.
+		// 01.2 - It can be inside one of the super classes.
+		// 01.3 - It can be in the same package or in another one.
+
+		// 01 - Get the binding of this invocation;
+		IBinding binding = BindingResolver.resolveBinding(invocation);
+		if (null != binding) {
+			// 02 - Get the name of the object (instance or static) that is invoking this method.
+			Expression invokerName = BindingResolver.getNameIfItIsAnObject(invocation);
+
+			if ((Modifier.isStatic(binding.getModifiers())) && (null != invokerName)) {
+				// If this invocation is to a static method and it has an invoker.
+				// 03.1 - Static.method(...);
+				// 03.2 - package.name.Static.method(...);
+
+				// 03 - Resource that has the source code of this invocation.
+				IResource resource = getResource((Name) invokerName);
+
+				// 04 - Search the source code of the method that was invoked.
+				return getMethodDeclaration(resource, invocation, typeDeclaration);
+			} else {
+				if (null == invokerName) {
+					// 03.1 - method(...);
+					// 03.2 - staticMethod(...);
+					// 03.3 - this.method(...);
+
+					return getMethodDeclarationFromCurrentClassOrSuperClasses(invocation, typeDeclaration);
+				} else {
+					// 03.1 - p.method(...); Person p = new Employee();
+					// 03.2 - Interface.method(...); List/ArrayList/LinkedList.
+					// These are the most complicated case.
+					Expression realReference = findRealReference(depth, context, invokerName);
+
+					if (null != realReference) {
+						// 04 - Get the resource of this real reference.
+						IResource resource = getResource(((ClassInstanceCreation) realReference).getType());
+
+						// 05 - Search the source code of the method that was invoked.
+						return getMethodDeclaration(resource, invocation, typeDeclaration);
+					}
+				}
+
+			}
+		}
+
 		return null;
 	}
 
-	private MethodDeclaration getMethodDeclaration(IResource resource, ASTNode invocation) {
-		// ConstructorInvocation - this(...);
-		// SuperConstructorInvocation - super(...);
-		// ClassInstanceCreation - new Class(...);
+	/**
+	 * 46, 48
+	 */
+	private MethodDeclaration getSuperInvocationDeclaration(ASTNode invocation, EnumTypeDeclaration typeDeclaration) {
+		// 01 - super(...);
+		// 01.1 - It has to be inside one of the super classes.
+		// 02 - super.method(...);
+		// 02.1 - It has to be inside one of the super classes.
 
-		// SuperMethodInvocation - super.method(...);
-		// MethodInvocation - method(...); / object.method(...); / static.method(...);
+		return getMethodDeclarationFromSuperClasses(invocation, typeDeclaration);
+	}
 
-		EnumTypeDeclaration typeDeclaration = null;
-		switch (invocation.getNodeType()) {
-			case ASTNode.CONSTRUCTOR_INVOCATION:
-			case ASTNode.SUPER_CONSTRUCTOR_INVOCATION:
-			case ASTNode.CLASS_INSTANCE_CREATION:
-				typeDeclaration = EnumTypeDeclaration.CONSTRUCTOR;
-				break;
-			case ASTNode.SUPER_METHOD_INVOCATION:
-			case ASTNode.METHOD_INVOCATION:
-				typeDeclaration = EnumTypeDeclaration.METHOD;
-				break;
+	private IResource getResource(ASTNode invocation) {
+		return BindingResolver.getResource(invocation);
+	}
+
+	private IResource getResource(Type className) {
+		if ((null != className) && (className.isSimpleType())) {
+			// 01 - Get the name of this class.
+			// 02 - Get the resource from this class.
+			return getResource(((SimpleType) className).getName());
 		}
 
-		return getMethodDeclaration(resource, invocation, typeDeclaration);
+		return null;
+	}
+
+	private IResource getResource(Name name) {
+		// 01 - Get the name of the package of this class.
+		// 02 - Get the resource file.
+		return getCallGraph().getResourceFromPackageName(getPackageName(name));
+	}
+
+	private MethodDeclaration getMethodDeclarationFromCurrentClassOrSuperClasses(ASTNode invocation,
+			EnumTypeDeclaration typeDeclaration) {
+		// 01 - Get the resource of this method.
+		IResource resource = getResource(invocation);
+
+		// 02 - Try to find the source code into the current resource.
+		MethodDeclaration methodDeclaration = getMethodDeclaration(resource, invocation, typeDeclaration);
+		if (null != methodDeclaration) {
+			return methodDeclaration;
+		}
+
+		// 03 - Try to find the source code into the super classes.
+		return getMethodDeclarationFromSuperClasses(invocation, typeDeclaration);
+	}
+
+	private MethodDeclaration getMethodDeclarationFromSuperClasses(ASTNode invocation, EnumTypeDeclaration typeDeclaration) {
+		// 01 - Get the resource of the super class.
+		List<IResource> resources = getListOfResourcesFromSuperClasses(invocation);
+
+		for (IResource resource : resources) {
+			// 02 - Search the source code of the constructor that was invoked.
+			MethodDeclaration methodDeclaration = getMethodDeclaration(resource, invocation, typeDeclaration);
+			if (null != methodDeclaration) {
+				return methodDeclaration;
+			}
+		}
+
+		// The source code was not found.
+		return null;
+	}
+
+	private List<IResource> getListOfResourcesFromSuperClasses(ASTNode node) {
+		// We want to find all the super classes from the node.
+
+		// 01 - Create the list that will contain the super classes.
+		List<IResource> resources = Creator.newList();
+
+		while (null != node) {
+			// 02 - Get the type declaration based on the invocation node.
+			TypeDeclaration typeDeclaration = BindingResolver.getTypeDeclaration(node);
+
+			// 03 - Get the name/type of the super class.
+			Type superClassName = typeDeclaration.getSuperclassType();
+
+			// 04 - If the super class object is null, then there is no more super classes.
+			if (null == superClassName) {
+				break;
+			}
+
+			// 05 - Get the resource of the class.
+			IResource resource = getResource(superClassName);
+
+			// 06 - If the resource of the super class was not found,
+			// e.g Library that we do not have the source code, there is nothing we can do.
+			if (null == resource) {
+				break;
+			}
+
+			// 07 - If the resource is not null and it is not already in the list. We add it to the list.
+			if (!resources.contains(resource)) {
+				resources.add(resource);
+			}
+
+			// 08 - Get the methods from this resource.
+			Map<MethodDeclaration, List<ASTNode>> methods = getCallGraph().getMethods(resource);
+			if ((null != methods) && (methods.size() > 0)) {
+				// 09 - We get the first method, but it could be anyone.
+				node = methods.keySet().iterator().next();
+			} else {
+				node = null;
+			}
+		}
+
+		// 09 - Return the list with the resources of all the super classes.
+		return resources;
+	}
+
+	private String getPackageName(Name className) {
+		// 02 - We have two cases.
+		// Case 01: QualifiedName: some.package.Animal
+		// Case 02: SimpleName : Animal
+		switch (className.getNodeType()) {
+			case ASTNode.QUALIFIED_NAME: // 40
+				// The qualified name is the package where the class is located.
+				return ((QualifiedName) className).getFullyQualifiedName();
+			case ASTNode.SIMPLE_NAME: // 42
+				// If we just have the name of the class, we have two cases.
+				// Case 01: The super class is in the same package.
+				// Case 02: The super class is in another package.
+				String packageNameToSearch = ((SimpleName) className).getFullyQualifiedName();
+
+				return getPackageName(className, packageNameToSearch);
+			default:
+				PluginLogger.logError("getPackageName Default Node Type: " + className.getNodeType() + " - " + className, null);
+				return null;
+		}
+	}
+
+	private String getPackageName(ASTNode node, String packageNameToSearch) {
+		// 01 - We will need the name of the package where the super class is located.
+		String packageName = null;
+
+		// 05 - Get the compilation unit of the current class.
+		CompilationUnit cu = BindingResolver.getCompilationUnit(node);
+
+		// 06 - Get the list of imports.
+		List<ImportDeclaration> imports = BindingResolver.getImports(cu);
+
+		// 07 - Iterate over the list and try to find the superclass's import.
+		for (ImportDeclaration importDeclaration : imports) {
+			String currentPackageName = importDeclaration.getName().getFullyQualifiedName();
+			if (currentPackageName.endsWith(packageNameToSearch)) {
+				packageName = currentPackageName;
+				break;
+			}
+		}
+
+		if (null == packageName) {
+			packageName = String.format("%s.%s", cu.getPackage().getName().getFullyQualifiedName(), packageNameToSearch);
+		}
+		return packageName;
 	}
 
 	private MethodDeclaration getMethodDeclaration(IResource resource, ASTNode invocation,
@@ -738,6 +935,33 @@ public abstract class CodeVisitor {
 					}
 				}
 			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * This first implementation will return the first reference that is found.<br/>
+	 * FIXME - There are complex cases that more that one type of reference can be returned. <br/>
+	 * Case 01: Animal a = new Animal(); <br/>
+	 * Case 02: Animal a = new Person();<br/>
+	 * Case 03: Animal a = new Employee();<br/>
+	 * Case 04: Animal a = getObject(); <br/>
+	 * <br/>
+	 * getObject() { if (return new Employee()) else (return new Person()); }<br/>
+	 * a.methodToInvoke(); <br/>
+	 * What is the method to inspect ?
+	 */
+	private Expression findRealReference(int depth, Context context, Expression invokerName) {
+		// 01 - Get the last reference of this object.
+		VariableBinding variableBinding = getCallGraph().getLastReference(context, invokerName);
+
+		if (null != variableBinding) {
+			// 02 - Try to find where this variable was created.
+			ReferenceFinder finder = new ReferenceFinder(getCallGraph(), getCurrentResource());
+
+			// 03 - Return the real reference of this object.
+			return finder.getReference(depth, context, variableBinding.getInitializer());
 		}
 
 		return null;
