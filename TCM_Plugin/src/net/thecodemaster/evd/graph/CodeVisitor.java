@@ -746,7 +746,7 @@ public abstract class CodeVisitor {
 						IResource resource = getResource(((ClassInstanceCreation) realReference).getType());
 
 						// 05 - Search the source code of the method that was invoked.
-						return getMethodDeclaration(resource, invocation, typeDeclaration);
+						return getMethodDeclaration(resource, invocation, EnumTypeDeclaration.METHOD_INHERITANCE);
 					}
 				}
 
@@ -931,6 +931,14 @@ public abstract class CodeVisitor {
 				for (MethodDeclaration methodDeclaration : methods.keySet()) {
 					// 03 - Verify if these methods are the same.
 					if (BindingResolver.areMethodsEqual(methodDeclaration, invocation)) {
+						return methodDeclaration;
+					}
+				}
+			} else if (EnumTypeDeclaration.METHOD_INHERITANCE.equals(typeDeclaration)) {
+				// 02 - Iterate through the list to verify if we have the implementation of this method in our list.
+				for (MethodDeclaration methodDeclaration : methods.keySet()) {
+					// 03 - Verify if these methods have the same name and parameters.
+					if (BindingResolver.haveSameNameAndParameters(methodDeclaration, invocation)) {
 						return methodDeclaration;
 					}
 				}

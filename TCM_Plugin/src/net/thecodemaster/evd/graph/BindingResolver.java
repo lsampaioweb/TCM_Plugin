@@ -407,6 +407,19 @@ public class BindingResolver {
 		return false;
 	}
 
+	public static boolean haveSameNameAndParameters(MethodDeclaration method, ASTNode otherMethod) {
+		String methodName = getName(method);
+		String otherName = getName(otherMethod);
+
+		// 01 - Verify if they have the same name.
+		if (methodName.equals(otherName)) {
+			// 02 - Verify if they have the same parameters.
+			return haveSameParameters(method, otherMethod);
+		}
+
+		return false;
+	}
+
 	public static boolean haveSameParameters(MethodDeclaration method, ASTNode otherMethod) {
 		// 05 - Get their parameters.
 		List<ITypeBinding> methodParameters = getParameterTypes(method);

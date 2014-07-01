@@ -12,8 +12,9 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ CookiePoisoning.class, CrossSiteScripting.class, SecurityMisconfiguration.class, SQLInjection.class,
-		UnvalidatedRedirecting.class, VariableDeclaration.class, VulnerabilityPathReporter.class })
+@SuiteClasses({ CookiePoisoning.class, CrossSiteScripting.class, FromOtherClasses.class,
+		SecurityMisconfiguration.class, SQLInjection.class, UnvalidatedRedirecting.class, VariableDeclaration.class,
+		VulnerabilityPathReporter.class })
 public class AllTests extends AbstractTestVerifier {
 
 	@BeforeClass

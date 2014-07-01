@@ -1,6 +1,7 @@
 package net.thecodemaster.evd.test;
 
 import java.util.List;
+import java.util.Map;
 
 import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.helper.Creator;
@@ -13,9 +14,9 @@ public class SecurityMisconfiguration extends AbstractTestVerifier {
 
 	@Override
 	protected List<IResource> getResources() {
-		List<String> resourceNames = Creator.newList();
+		Map<String, List<String>> resourceNames = Creator.newMap();
 
-		resourceNames.add("SecurityMisconfiguration.java");
+		resourceNames.put(AbstractTestVerifier.PACKAGE_SERVLET, newList("SecurityMisconfiguration.java"));
 
 		return getRersources(resourceNames);
 	}

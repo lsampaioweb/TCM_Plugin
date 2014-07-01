@@ -1,6 +1,8 @@
 package net.thecodemaster.evd.test;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.DataFlow;
@@ -18,6 +20,7 @@ import net.thecodemaster.evd.visitor.VisitorPointsToAnalysis;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -31,84 +34,12 @@ public abstract class AbstractTestVerifier {
 
 	protected List<List<DataFlow>>	allVulnerablePaths;
 
-	private static final String			PROJECT				= "WebDemo";
-	private static final String			PACKAGE				= "src/servlet";
-	protected static final String		PROJECT_TEST	= "WebDemoTest";
+	protected static final String		PROJECT							= "WebDemo";
+	protected static final String		PROJECT_TEST				= "WebDemoTest";
 
-	protected static IFolder getFolder(String projectName) {
-		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		IWorkspaceRoot root = workspace.getRoot();
-
-		return root.getProject(projectName).getFolder(PACKAGE);
-	}
-
-	private IResource getResource(IFolder folder, String resourceName) {
-		IFile javaSRC = folder.getFile(resourceName);
-		if (!javaSRC.exists()) {
-			javaSRC = renameFile(folder, resourceName);
-		}
-
-		return JavaCore.createCompilationUnitFrom(javaSRC).getResource();
-	}
-
-	private IFile renameFile(IFolder folder, String resourceName) {
-		IFile javaSRC = null;
-		try {
-			javaSRC = folder.getFile(resourceName + "2");
-			if (javaSRC.exists()) {
-				IFolder folderTest = getFolder(PROJECT_TEST);
-
-				String newPath = String.format("%s/%s", folderTest.getFullPath(), resourceName);
-				deleteIfExists(folderTest, resourceName);
-				javaSRC.copy(new Path(newPath), true, null);
-
-				javaSRC = folderTest.getFile(resourceName);
-			}
-		} catch (CoreException e) {
-			e.printStackTrace();
-			return null;
-		}
-
-		return javaSRC;
-	}
-
-	public static void deleteIfExists(IFolder folderTest, String resourceName) {
-		try {
-			IFile javaSRC = folderTest.getFile(resourceName);
-			if (javaSRC.exists()) {
-				javaSRC.delete(true, null);
-			}
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
-	}
-
-	protected abstract List<IResource> getResources();
-
-	protected List<Verifier> createListVerifiers() {
-		List<Verifier> verifiers = Creator.newList();
-
-		verifiers.add(new VerifierCommandInjection());
-		verifiers.add(new VerifierCookiePoisoning());
-		verifiers.add(new VerifierCrossSiteScripting());
-		verifiers.add(new VerifierPathTraversal());
-		verifiers.add(new VerifierSecurityMisconfiguration());
-		verifiers.add(new VerifierSQLInjection());
-		verifiers.add(new VerifierUnvalidatedRedirecting());
-
-		return verifiers;
-	}
-
-	protected List<IResource> getRersources(List<String> resourceNames) {
-		IFolder folder = getFolder(PROJECT);
-
-		List<IResource> resources = Creator.newList();
-		for (String resourceName : resourceNames) {
-			resources.add(getResource(folder, resourceName));
-		}
-
-		return resources;
-	}
+	protected static final String		PACKAGE_BASE				= "src/base";
+	protected static final String		PACKAGE_OTHER_PACK	= "src/other/pack";
+	protected static final String		PACKAGE_SERVLET			= "src/servlet";
 
 	@Before
 	public void setUp() {
@@ -146,6 +77,104 @@ public abstract class AbstractTestVerifier {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+
+	protected abstract List<IResource> getResources();
+
+	protected List<IResource> getRersources(Map<String, List<String>> resourcesPackagesAndNames) {
+		List<IResource> resources = Creator.newList();
+
+		// 01 - Get the main project.
+		IProject project = getProject(PROJECT);
+
+		// <String, List<String> // <<Package> , <List of resources>>
+		for (Entry<String, List<String>> entry : resourcesPackagesAndNames.entrySet()) {
+			for (String resourceName : entry.getValue()) {
+				// 02 - Get the folder of this resource.
+				IFolder folder = project.getFolder(entry.getKey());
+
+				// 03 - Get the resource and add it to the list.
+				resources.add(getResource(entry.getKey(), folder, resourceName));
+			}
+
+		}
+
+		return resources;
+	}
+
+	private IResource getResource(String folderName, IFolder folder, String resourceName) {
+		IFile javaSRC = folder.getFile(resourceName);
+		if (!javaSRC.exists()) {
+			javaSRC = renameFile(folderName, folder, resourceName);
+		}
+
+		return JavaCore.createCompilationUnitFrom(javaSRC).getResource();
+	}
+
+	protected List<String> newList(String... fileNames) {
+		List<String> newList = Creator.newList();
+
+		for (String fileName : fileNames) {
+			newList.add(fileName);
+		}
+
+		return newList;
+	}
+
+	protected static IProject getProject(String projectName) {
+		IWorkspace workspace = ResourcesPlugin.getWorkspace();
+		IWorkspaceRoot root = workspace.getRoot();
+
+		return root.getProject(projectName);
+	}
+
+	private IFile renameFile(String folderName, IFolder folder, String resourceName) {
+		IFile javaSRC = null;
+		try {
+			javaSRC = folder.getFile(resourceName + "2");
+			if (javaSRC.exists()) {
+				IProject projectTest = getProject(PROJECT_TEST);
+
+				// 02 - Get the folder of this resource.
+				IFolder folderTest = projectTest.getFolder(folderName);
+
+				String newPath = String.format("%s/%s", folderTest.getFullPath(), resourceName);
+				deleteIfExists(folderTest, resourceName);
+				javaSRC.copy(new Path(newPath), true, null);
+
+				javaSRC = folderTest.getFile(resourceName);
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+			return null;
+		}
+
+		return javaSRC;
+	}
+
+	public static void deleteIfExists(IFolder folderTest, String resourceName) {
+		try {
+			IFile javaSRC = folderTest.getFile(resourceName);
+			if (javaSRC.exists()) {
+				javaSRC.delete(true, null);
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+	}
+
+	protected List<Verifier> createListVerifiers() {
+		List<Verifier> verifiers = Creator.newList();
+
+		verifiers.add(new VerifierCommandInjection());
+		verifiers.add(new VerifierCookiePoisoning());
+		verifiers.add(new VerifierCrossSiteScripting());
+		verifiers.add(new VerifierPathTraversal());
+		verifiers.add(new VerifierSecurityMisconfiguration());
+		verifiers.add(new VerifierSQLInjection());
+		verifiers.add(new VerifierUnvalidatedRedirecting());
+
+		return verifiers;
 	}
 
 }
