@@ -246,6 +246,11 @@ public class Context {
 		// 01 - Iterate over all the variables.
 		for (Entry<IBinding, List<VariableBinding>> entry : otherContext.getVariables().entrySet()) {
 
+			// 02 - If the getKey is null, we probably have a syntax error. We have to be prepared for that.
+			if (null == entry.getKey()) {
+				continue;
+			}
+
 			// 02 - Create a temporary list.
 			List<VariableBinding> currentVariableBindings = Creator.newList();
 

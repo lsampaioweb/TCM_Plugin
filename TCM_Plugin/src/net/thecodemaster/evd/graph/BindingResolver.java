@@ -235,7 +235,7 @@ public class BindingResolver {
 	}
 
 	private static String getName(IBinding binding) {
-		return (null != binding) ? binding.getName() : "";
+		return (null != binding) ? binding.getName() : null;
 	}
 
 	private static String getName(ASTNode node) {
@@ -353,9 +353,11 @@ public class BindingResolver {
 	}
 
 	private static List<ITypeBinding> getParameterTypes(MethodDeclaration node) {
+		List<ITypeBinding> emptyList = Creator.newList();
+
 		IMethodBinding methodBinding = (IMethodBinding) resolveBinding(node);
 
-		return (null != methodBinding) ? Arrays.asList(methodBinding.getParameterTypes()) : null;
+		return (null != methodBinding) ? Arrays.asList(methodBinding.getParameterTypes()) : emptyList;
 	}
 
 	public static int getParameterIndex(MethodDeclaration node, SimpleName parameterToSearch) {
@@ -391,7 +393,7 @@ public class BindingResolver {
 		String otherName = getName(otherMethod);
 
 		// 02 - Verify if they have the same name.
-		if (methodName.equals(otherName)) {
+		if ((null != methodName) && (methodName.equals(otherName))) {
 
 			// 03 - Get the qualified name (Package + Class) of these methods.
 			String qualifiedName = getQualifiedName(method);
@@ -399,7 +401,7 @@ public class BindingResolver {
 
 			// 04 - Verify if they are from the same package and class.
 			// Method names can repeat in other classes.
-			if (qualifiedName.equals(otherQualifiedName)) {
+			if ((null != qualifiedName) && (qualifiedName.equals(otherQualifiedName))) {
 				return haveSameParameters(method, otherMethod);
 			}
 		}
