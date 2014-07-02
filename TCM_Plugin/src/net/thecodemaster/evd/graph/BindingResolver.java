@@ -14,6 +14,7 @@ import net.thecodemaster.evd.point.ExitPoint;
 import net.thecodemaster.evd.point.SanitizationPoint;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ArrayAccess;
@@ -38,11 +39,13 @@ import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperFieldAccess;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.ThisExpression;
+import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
@@ -88,12 +91,79 @@ public class BindingResolver {
 		try {
 			if (null != node) {
 				CompilationUnit cUnit = getCompilationUnit(node);
-				return cUnit.getJavaElement().getCorrespondingResource();
+				if (null != cUnit) {
+					IJavaElement javaElement = cUnit.getJavaElement();
+					if (javaElement.exists()) {
+						return javaElement.getCorrespondingResource();
+					}
+				}
 			}
 		} catch (JavaModelException e) {
 			PluginLogger.logError(e);
 		}
 		return null;
+	}
+
+	public static IResource getResource(CallGraph callGraph, Type className) {
+		if ((null != className) && (className.isSimpleType())) {
+			// 01 - Get the name of this class.
+			// 02 - Get the resource from this class.
+			return getResource(callGraph, ((SimpleType) className).getName());
+		}
+
+		return null;
+	}
+
+	public static IResource getResource(CallGraph callGraph, Name name) {
+		// 01 - Get the name of the package of this class.
+		// 02 - Get the resource file.
+		return callGraph.getResourceFromPackageName(getPackageName(name));
+	}
+
+	private static String getPackageName(Name className) {
+		// 02 - We have two cases.
+		// Case 01: QualifiedName: some.package.Animal
+		// Case 02: SimpleName : Animal
+		switch (className.getNodeType()) {
+			case ASTNode.QUALIFIED_NAME: // 40
+				// The qualified name is the package where the class is located.
+				return ((QualifiedName) className).getFullyQualifiedName();
+			case ASTNode.SIMPLE_NAME: // 42
+				// If we just have the name of the class, we have two cases.
+				// Case 01: The super class is in the same package.
+				// Case 02: The super class is in another package.
+				String packageNameToSearch = ((SimpleName) className).getFullyQualifiedName();
+
+				return getPackageName(className, packageNameToSearch);
+			default:
+				PluginLogger.logError("getPackageName Default Node Type: " + className.getNodeType() + " - " + className, null);
+				return null;
+		}
+	}
+
+	private static String getPackageName(ASTNode node, String packageNameToSearch) {
+		// 01 - We will need the name of the package where the super class is located.
+		String packageName = null;
+
+		// 05 - Get the compilation unit of the current class.
+		CompilationUnit cu = getCompilationUnit(node);
+
+		// 06 - Get the list of imports.
+		List<ImportDeclaration> imports = getImports(cu);
+
+		// 07 - Iterate over the list and try to find the superclass's import.
+		for (ImportDeclaration importDeclaration : imports) {
+			String currentPackageName = importDeclaration.getName().getFullyQualifiedName();
+			if (currentPackageName.endsWith(packageNameToSearch)) {
+				packageName = currentPackageName;
+				break;
+			}
+		}
+
+		if (null == packageName) {
+			packageName = String.format("%s.%s", cu.getPackage().getName().getFullyQualifiedName(), packageNameToSearch);
+		}
+		return packageName;
 	}
 
 	public static IBinding resolveBinding(ASTNode node) {

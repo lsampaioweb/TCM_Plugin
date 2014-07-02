@@ -1,12 +1,10 @@
-package net.thecodemaster.evd.graph;
+package net.thecodemaster.evd.graph.flow;
 
 import java.util.Iterator;
 import java.util.List;
 
 import net.thecodemaster.evd.helper.Creator;
-import net.thecodemaster.evd.logger.PluginLogger;
 
-import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Expression;
 
 /**
@@ -142,10 +140,6 @@ public class DataFlow {
 		}
 	}
 
-	public void isInfinitiveLoop(ASTNode expr) {
-		PluginLogger.logIfDebugging("Found an Infinitive Loop at expression: " + expr);
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -153,7 +147,8 @@ public class DataFlow {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + getRoot().hashCode();
+		result += prime * (null != getRoot() ? getRoot().hashCode() : 1);
+		result += prime * (null != getParent() ? getParent().hashCode() : 1);
 		return result;
 	}
 
@@ -174,11 +169,13 @@ public class DataFlow {
 		}
 
 		DataFlow other = (DataFlow) obj;
-		if (!getRoot().equals(other.getRoot())) {
-			return false;
+		if ((null != getRoot()) && (getRoot().equals(other.getRoot()))) {
+			if ((null != getParent()) && (getParent().equals(other.getParent()))) {
+				return true;
+			}
 		}
 
-		return true;
+		return false;
 	}
 
 	@Override

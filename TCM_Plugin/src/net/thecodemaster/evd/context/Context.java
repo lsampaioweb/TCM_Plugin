@@ -14,6 +14,7 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.Type;
 
 public class Context {
 
@@ -25,6 +26,7 @@ public class Context {
 	private final List<Context>													childrenContexts;
 	private Expression																	instance;
 	private ASTNode																			invoker;
+	private Type																				superClassName;
 
 	public Context(IResource resource) {
 		setResource(resource);
@@ -161,6 +163,11 @@ public class Context {
 	 * @param method
 	 */
 	public void addMethodDeclaration(MethodDeclaration method) {
+		// If the method is null, there is nothing to do.
+		if (null == method) {
+			return;
+		}
+
 		// 01 - Get the list of methods.
 		Map<MethodDeclaration, List<ASTNode>> methods = getMethods();
 
@@ -215,6 +222,14 @@ public class Context {
 
 	public void setInstance(Expression instance) {
 		this.instance = instance;
+	}
+
+	public void addSuperClass(Type superClassName) {
+		this.superClassName = superClassName;
+	}
+
+	public Type getSuperClass() {
+		return superClassName;
 	}
 
 	public void merge(Context otherContext) {
@@ -287,7 +302,10 @@ public class Context {
 		Map<MethodDeclaration, List<ASTNode>> methods = getMethods();
 		String methodName = "";
 		if (0 < methods.size()) {
-			methodName = methods.keySet().iterator().next().getName().getIdentifier();
+			MethodDeclaration methodDeclaration = methods.keySet().iterator().next();
+			if (null != methodDeclaration) {
+				methodName = methodDeclaration.getName().getIdentifier();
+			}
 		}
 
 		String strInvoker = (null != getInvoker()) ? getInvoker().toString() : "";

@@ -5,8 +5,8 @@ import java.util.List;
 import net.thecodemaster.evd.context.Context;
 import net.thecodemaster.evd.graph.BindingResolver;
 import net.thecodemaster.evd.graph.CallGraph;
-import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.graph.VariableBinding;
+import net.thecodemaster.evd.graph.flow.DataFlow;
 import net.thecodemaster.evd.ui.enumeration.EnumVariableStatus;
 
 import org.eclipse.core.resources.IResource;

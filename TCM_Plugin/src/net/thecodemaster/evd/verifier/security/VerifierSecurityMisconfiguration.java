@@ -2,8 +2,9 @@ package net.thecodemaster.evd.verifier.security;
 
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.context.Context;
-import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.graph.VariableBinding;
+import net.thecodemaster.evd.graph.flow.DataFlow;
+import net.thecodemaster.evd.graph.flow.Flow;
 import net.thecodemaster.evd.ui.enumeration.EnumVariableStatus;
 import net.thecodemaster.evd.ui.l10n.Message;
 import net.thecodemaster.evd.verifier.Verifier;
@@ -38,22 +39,22 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 	}
 
 	@Override
-	protected void inspectCharacterLiteral(int depth, Context context, DataFlow dataFlow, CharacterLiteral node) {
+	protected void inspectCharacterLiteral(Flow loopControl, Context context, DataFlow dataFlow, CharacterLiteral node) {
 		inspectLiteral(dataFlow, node, getMessageLiteral(node.charValue()));
 	}
 
 	@Override
-	protected void inspectNullLiteral(int depth, Context context, DataFlow dataFlow, NullLiteral node) {
+	protected void inspectNullLiteral(Flow loopControl, Context context, DataFlow dataFlow, NullLiteral node) {
 		inspectLiteral(dataFlow, node, getMessageNullLiteral());
 	}
 
 	@Override
-	protected void inspectNumberLiteral(int depth, Context context, DataFlow dataFlow, NumberLiteral node) {
+	protected void inspectNumberLiteral(Flow loopControl, Context context, DataFlow dataFlow, NumberLiteral node) {
 		inspectLiteral(dataFlow, node, getMessageLiteral(node.getToken()));
 	}
 
 	@Override
-	protected void inspectStringLiteral(int depth, Context context, DataFlow dataFlow, StringLiteral node) {
+	protected void inspectStringLiteral(Flow loopControl, Context context, DataFlow dataFlow, StringLiteral node) {
 		inspectLiteral(dataFlow, node, getMessageLiteral(node.getLiteralValue()));
 	}
 
@@ -75,13 +76,13 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 	 * 42
 	 */
 	@Override
-	protected void inspectSimpleName(int depth, Context context, DataFlow dataFlow, SimpleName expression,
+	protected void inspectSimpleName(Flow loopControl, Context context, DataFlow dataFlow, SimpleName expression,
 			VariableBinding variableBinding) {
 		if ((null != variableBinding) && (variableBinding.getStatus().equals(EnumVariableStatus.NOT_VULNERABLE))) {
 			// The SQL Injection verifier also needs to know if the variable has its content from a string concatenation.
-			inspectNode(depth, context, dataFlow, variableBinding.getInitializer());
+			inspectNode(loopControl, context, dataFlow, variableBinding.getInitializer());
 		} else {
-			super.inspectSimpleName(depth, context, dataFlow, expression, variableBinding);
+			super.inspectSimpleName(loopControl, context, dataFlow, expression, variableBinding);
 		}
 	}
 

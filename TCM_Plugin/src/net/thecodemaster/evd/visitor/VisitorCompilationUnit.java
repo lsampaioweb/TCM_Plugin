@@ -12,6 +12,8 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
 /**
@@ -102,16 +104,24 @@ public class VisitorCompilationUnit extends ASTVisitor {
 		}
 	}
 
-	// TODO - Inner Class
-	// @Override
-	// public boolean visit(TypeDeclaration typeDeclarationStatement) {
-	// if (!typeDeclarationStatement.isPackageMemberTypeDeclaration()) {
-	// System.out.println(typeDeclarationStatement.getName());
-	// // Get more details from the type declaration.
-	// }
-	//
-	// return super.visit(typeDeclarationStatement);
-	// }
+	@Override
+	public boolean visit(TypeDeclaration typeDeclarationStatement) {
+		// 01 - Get the Inner Class (if any).
+		if (!typeDeclarationStatement.isPackageMemberTypeDeclaration()) {
+			// System.out.println(typeDeclarationStatement.getName());
+			// if (!getMethodStack().isEmpty()) {
+			// getCallGraph().addInnerClass(getResource(), getMethodStack().peek(), typeDeclarationStatement);
+			// }
+		} else {
+			// 02 - Get the name/type of the super class (if any).
+			Type superClassName = typeDeclarationStatement.getSuperclassType();
+			if (null != superClassName) {
+				getCallGraph().addSuperClass(getResource(), superClassName);
+			}
+		}
+
+		return super.visit(typeDeclarationStatement);
+	}
 
 	// TODO - Anonymous Class.
 	// @Override

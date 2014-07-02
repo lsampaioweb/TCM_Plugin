@@ -11,9 +11,11 @@ import net.thecodemaster.evd.ui.enumeration.EnumVariableType;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.Type;
 
 /**
  * This object contains all the methods, variables and their interactions, on the project that is being analyzed. At any
@@ -38,10 +40,17 @@ public class CallGraph {
 		return contexts;
 	}
 
-	/**
-	 * @param resource
-	 * @return
-	 */
+	private IResource getResource(MethodDeclaration method, ASTNode invoker) {
+		IResource resource = null;
+		if (null != method) {
+			resource = BindingResolver.getResource(method);
+		} else if ((null != invoker) && (invoker.getNodeType() == ASTNode.CLASS_INSTANCE_CREATION)) {
+			// If the method is null, it means this is a Constructor without source code.
+			resource = BindingResolver.getResource(this, ((ClassInstanceCreation) invoker).getType());
+		}
+		return resource;
+	}
+
 	private Context getContext(IResource resource) {
 		// 01 - Get the context of the provided resource.
 		Context context = getContexts().get(resource);
@@ -58,28 +67,16 @@ public class CallGraph {
 		return context;
 	}
 
-	/**
-	 * @param resource
-	 * @param method
-	 * @param invoker
-	 * @return
-	 */
 	public Context getContext(IResource resource, MethodDeclaration method, ASTNode invoker) {
 		return getContext(getContext(resource), method, invoker);
 	}
 
-	/**
-	 * @param context
-	 * @param method
-	 * @param invoker
-	 * @return
-	 */
 	public Context getContext(Context context, MethodDeclaration method, ASTNode invoker) {
 		// 01 - Iterate over all the children of this context.
 		for (Context childContext : context.getChildrenContexts()) {
-			// There are two ways we can find the wanted context.
-			// Case 01 : This context has an invoker, this is unique.
-			// Case 02 : Check if the method declaration is equal + the invoker.
+			// There are three ways we can find the wanted context.
+			// Case 01 : Check if the method declaration is equal + the invoker.
+			// Case 02 : This context has an invoker, this is unique.
 
 			// Case 02.
 			// 02 - Get the list of methods of this context.
@@ -87,7 +84,7 @@ public class CallGraph {
 
 			for (MethodDeclaration currentMethodDeclaration : methods.keySet()) {
 				// 04 - Verify if these methods are the same.
-				if (currentMethodDeclaration.equals(method)) {
+				if ((null != currentMethodDeclaration) && (currentMethodDeclaration.equals(method))) {
 					// // Case 01.
 					ASTNode childInvoker = childContext.getInvoker();
 					if ((null != childInvoker) && (childInvoker.equals(invoker))) {
@@ -103,85 +100,6 @@ public class CallGraph {
 		return context;
 	}
 
-	/**
-	 * @param resource
-	 * @param method
-	 * @param invoker
-	 * @return
-	 */
-	public Context newContext(IResource resource, MethodDeclaration method, ASTNode invoker) {
-		return newContext(getContext(resource), method, invoker);
-	}
-
-	/**
-	 * @param parentContext
-	 * @param method
-	 * @param invoker
-	 * @return
-	 */
-	public Context newContext(Context parentContext, MethodDeclaration method, ASTNode invoker) {
-		// 01 - Get the resource of this context.
-		IResource resource = (null != method) ? BindingResolver.getResource(method) : parentContext.getResource();
-
-		// 01 - Create a context.
-		Context context = new Context(resource, parentContext);
-
-		// 02 - Set the object that holds the reference to this method declaration.
-		context.addMethodDeclaration(method);
-
-		// 03 - Set the invoker of this method.
-		context.setInvoker(invoker);
-
-		// 04 - Add this new context as a child of the parent context.
-		parentContext.addChildContext(context);
-
-		return context;
-	}
-
-	public Context getClassContext(Context parentContext, MethodDeclaration method, ASTNode invoker, Expression instance) {
-		// 01 - Get the context of the instance object.
-		Context instanceContext = getInstanceContext(parentContext, instance);
-
-		return instanceContext;
-		// 02 - FIXME
-		// return getContext(instanceContext, method, invoker);
-	}
-
-	/**
-	 * @param parentContext
-	 * @param method
-	 * @param invoker
-	 * @param instance
-	 * @return
-	 */
-	public Context newClassContext(Context parentContext, MethodDeclaration method, ASTNode invoker, Expression instance) {
-		// This method declaration is a constructor from a class. So, we need to get
-		// that context, but without the extra stuff.
-		// We only need global variables and methods.
-
-		// 01 - Create a context.
-		Context classContext = newContext(parentContext, method, invoker);
-
-		// 02 - Set the object that will hold this context.
-		classContext.setInstance(instance);
-
-		// 03 - Get the resource of this constructor.
-		// 04 - Get the context (top level) of that resource.
-		// 05 - Copy the variables and methods from the classContext to this new context.
-		classContext.merge(getContext(BindingResolver.getResource(method)));
-
-		// 06 - Create the context for the constructor method.
-		Context constructorContext = newInstanceContext(parentContext, method, invoker, instance);
-
-		// 07 -
-		return constructorContext;
-	}
-
-	/**
-	 * @param context
-	 * @param instance
-	 * @return
-	 */
 	public Context getInstanceContext(Context context, Expression instance) {
 		IBinding otherBinding = resolveBinding(instance);
 
@@ -199,34 +117,84 @@ public class CallGraph {
 			}
 
 		}
-		// This case should never happen. We return the same parent context to avoid
-		// NullPointerException.
+
 		return context;
 	}
 
-	/**
-	 * @param parentContext
-	 * @param method
-	 * @param invoker
-	 * @param instance
-	 * @return
-	 */
+	public Context getClassContext(Context parentContext, Expression instance) {
+		// 01 - Get the context of the instance object.
+		return getInstanceContext(parentContext, instance);
+	}
+
 	public Context getInstanceContext(Context parentContext, MethodDeclaration method, ASTNode invoker,
 			Expression instance) {
 		// 01 - Get the context of the instance object.
 		Context instanceContext = getInstanceContext(parentContext, instance);
 
-		// 02 -
+		// 02 - Get the context of the method.
 		return getContext(instanceContext, method, invoker);
 	}
 
-	/**
-	 * @param parentContext
-	 * @param method
-	 * @param invoker
-	 * @param instance
-	 * @return
-	 */
+	public Context getStaticContext(Context parentContext, MethodDeclaration method, ASTNode invoker) {
+		// 01 - Get the static context of that class.
+		Context classStaticContext = getContext(BindingResolver.getResource(method));
+
+		// 02 - Get the context of the method.
+		return getContext(classStaticContext, method, invoker);
+	}
+
+	public Context getStaticContext(IResource resource) {
+		return getContext(resource);
+	}
+
+	public Context newContext(IResource resource, MethodDeclaration method, ASTNode invoker) {
+		return newContext(getContext(resource), method, invoker);
+	}
+
+	public Context newContext(Context parentContext, MethodDeclaration method, ASTNode invoker) {
+		// 01 - Get the resource of this context.
+		IResource resource = getResource(method, invoker);
+
+		// 02 - Create a context.
+		Context context = new Context(resource, parentContext);
+
+		// 03 - Set the object that holds the reference to this method declaration.
+		context.addMethodDeclaration(method);
+
+		// 04 - Set the invoker of this method.
+		context.setInvoker(invoker);
+
+		// 05 - Add this new context as a child of the parent context.
+		parentContext.addChildContext(context);
+
+		return context;
+	}
+
+	public Context newClassContext(Context parentContext, MethodDeclaration method, ASTNode invoker, Expression instance) {
+		// This method declaration is a constructor from a class. So, we need to get
+		// that context, but without the extra stuff.
+		// We only need global variables and methods.
+
+		// 01 - Create a context.
+		Context classContext = newContext(parentContext, method, invoker);
+
+		// 02 - Set the object that will hold this context.
+		classContext.setInstance(instance);
+
+		// 03 - Get the resource of this constructor.
+		IResource resource = getResource(method, invoker);
+
+		// 04 - Get the context (top level) of that resource.
+		// 05 - Copy the variables and methods from the classContext to this new context.
+		classContext.merge(getContext(resource));
+
+		// 06 - Create the context for the constructor method.
+		Context constructorContext = newInstanceContext(parentContext, method, invoker, instance);
+
+		// 07 -
+		return constructorContext;
+	}
+
 	public Context newInstanceContext(Context parentContext, MethodDeclaration method, ASTNode invoker,
 			Expression instance) {
 		// 01 - Get the context of the instance object.
@@ -246,30 +214,6 @@ public class CallGraph {
 		return context;
 	}
 
-	/**
-	 * @param parentContext
-	 * @param method
-	 * @param invoker
-	 * @return
-	 */
-	public Context getStaticContext(Context parentContext, MethodDeclaration method, ASTNode invoker) {
-		// 01 - Get the static context of that class.
-		Context classStaticContext = getContext(BindingResolver.getResource(method));
-
-		// 02 -
-		return getContext(classStaticContext, method, invoker);
-	}
-
-	public Context getStaticContext(IResource resource) {
-		return getContext(resource);
-	}
-
-	/**
-	 * @param parentContext
-	 * @param method
-	 * @param invoker
-	 * @return
-	 */
 	public Context newStaticContext(Context parentContext, MethodDeclaration method, ASTNode invoker) {
 		// 01 - Get the static context of that class.
 		Context classStaticContext = getContext(BindingResolver.getResource(method));
@@ -533,70 +477,22 @@ public class CallGraph {
 		context.addMethodInvocation(caller, callee);
 	}
 
+	public void addSuperClass(IResource resource, Type superClassName) {
+		Context context = getContext(resource);
+
+		context.addSuperClass(superClassName);
+	}
+
+	public Type getSuperClass(IResource resource) {
+		return getContext(resource).getSuperClass();
+	}
+
 	/**
 	 * @param resource
 	 * @return
 	 */
 	public Map<MethodDeclaration, List<ASTNode>> getMethods(IResource resource) {
 		return getContext(resource).getMethods();
-	}
-
-	/**
-	 * @param mapMethods
-	 * @param method
-	 * @return
-	 */
-	private MethodDeclaration getMethod(Map<MethodDeclaration, List<ASTNode>> mapMethods, ASTNode method) {
-		// 01 - Iterate through the list to verify if we have the implementation of this method in our list.
-		for (MethodDeclaration methodDeclaration : mapMethods.keySet()) {
-			// 02 - Verify if these methods are the same.
-			if (BindingResolver.areMethodsEqual(methodDeclaration, method)) {
-				return methodDeclaration;
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * Get the implementation (MethodDeclaration) of the method.
-	 * 
-	 * @param resource
-	 * @param method
-	 * @return
-	 */
-	public MethodDeclaration getMethod(IResource resource, ASTNode method) {
-		// 01 - Get the context of this resource.
-		Context context = getContext(resource);
-
-		// 02 - Get all the methods from this resource.
-		// 03 - From that list, try to find this method (Expression).
-		MethodDeclaration methodDeclaration = getMethod(context.getMethods(), method);
-
-		// 04 - If method is different from null, it means we found it.
-		if (null != methodDeclaration) {
-			return methodDeclaration;
-		}
-
-		// 05 - If it reaches this point, it means that this method was not implemented into this resource.
-		// We now have to try to find its implementation in other resources of this project.
-		for (Context currentContext : getContexts().values()) {
-			// 06 - This context was already searched, avoid unnecessary processing.
-			if (context.equals(currentContext)) {
-				continue;
-			}
-
-			// 07 - Try to find the method into the current context.
-			methodDeclaration = getMethod(currentContext.getMethods(), method);
-
-			// 08 - If method is different from null, it means we found it.
-			if (null != methodDeclaration) {
-				return methodDeclaration;
-			}
-		}
-
-		// We did not find this method into our list of methods. (We do not have this method's implementation).
-		return null;
 	}
 
 	/**

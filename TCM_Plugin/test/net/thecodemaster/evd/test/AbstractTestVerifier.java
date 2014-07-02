@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import net.thecodemaster.evd.graph.CallGraph;
-import net.thecodemaster.evd.graph.DataFlow;
+import net.thecodemaster.evd.graph.flow.DataFlow;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.verifier.Verifier;
 import net.thecodemaster.evd.verifier.security.VerifierCommandInjection;

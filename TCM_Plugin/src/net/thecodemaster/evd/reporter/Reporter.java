@@ -3,7 +3,7 @@ package net.thecodemaster.evd.reporter;
 import java.util.List;
 
 import net.thecodemaster.evd.Manager;
-import net.thecodemaster.evd.graph.DataFlow;
+import net.thecodemaster.evd.graph.flow.DataFlow;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.helper.HelperProjects;
 import net.thecodemaster.evd.logger.PluginLogger;

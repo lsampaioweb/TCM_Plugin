@@ -3,7 +3,7 @@ package net.thecodemaster.evd.test;
 import java.util.List;
 import java.util.Map;
 
-import net.thecodemaster.evd.graph.DataFlow;
+import net.thecodemaster.evd.graph.flow.DataFlow;
 import net.thecodemaster.evd.helper.Creator;
 
 import org.eclipse.core.resources.IResource;

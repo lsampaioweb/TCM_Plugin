@@ -6,7 +6,7 @@ import java.util.Map;
 import net.thecodemaster.evd.Activator;
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.BindingResolver;
-import net.thecodemaster.evd.graph.DataFlow;
+import net.thecodemaster.evd.graph.flow.DataFlow;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.helper.HelperViewDataModel;
 import net.thecodemaster.evd.logger.PluginLogger;
@@ -187,11 +187,16 @@ public class ReporterView implements IReporter {
 			// The path that lead to the vulnerability.
 			String fullPath = getFullPath(vulnerablePaths);
 
-			if ((null == parent) && (firstElement != lastElement)) {
+			if ((null == parent) && (!firstElement.equals(lastElement))) {
 				String message = getMessageByNumberOfVulnerablePaths(allVulnerablePaths, firstElement);
 
 				parent = createViewDataModelElement(resource, typeProblem, firstElement.getRoot(), message, null);
 				if (null != parent) {
+					// if (!resource.equals(parent.getResource())) {
+					// FIXME - We have duplicated data.
+					// clearOldProblems(parent.getResource());
+					// }
+
 					rootVdm.addChildren(parent);
 				}
 			}

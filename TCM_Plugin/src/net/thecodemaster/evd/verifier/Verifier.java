@@ -8,8 +8,9 @@ import net.thecodemaster.evd.context.Context;
 import net.thecodemaster.evd.graph.BindingResolver;
 import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.CodeAnalyzer;
-import net.thecodemaster.evd.graph.DataFlow;
 import net.thecodemaster.evd.graph.Parameter;
+import net.thecodemaster.evd.graph.flow.DataFlow;
+import net.thecodemaster.evd.graph.flow.Flow;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.point.ExitPoint;
 import net.thecodemaster.evd.reporter.Reporter;
@@ -138,41 +139,44 @@ public abstract class Verifier extends CodeAnalyzer {
 	 * @param methodDeclaration
 	 */
 	@Override
-	protected void run(int depth, MethodDeclaration methodDeclaration, ASTNode invoker) {
+	protected void run(MethodDeclaration methodDeclaration, ASTNode invoker) {
 		// 01 - Get the context for this method.
 		Context context = getCallGraph().getContext(getCurrentResource(), methodDeclaration, invoker);
 
-		// 02 - Start the detection on each and every line of this method.
-		inspectNode(depth, context, new DataFlow(methodDeclaration.getName()), methodDeclaration.getBody());
+		// 02 - Get the root/first element that will be processed.
+		Expression root = methodDeclaration.getName();
+
+		// 03 - Start the detection on each and every line of this method.
+		inspectNode(new Flow(root), context, new DataFlow(root), methodDeclaration.getBody());
 	}
 
 	/**
 	 * 07
 	 */
 	@Override
-	protected void inspectAssignment(int depth, Context context, DataFlow dataFlow, Assignment expression) {
+	protected void inspectAssignment(Flow loopControl, Context context, DataFlow dataFlow, Assignment expression) {
 		Expression rightHandSide = expression.getRightHandSide();
 
-		inspectNode(depth, context, dataFlow.addNodeToPath(rightHandSide), rightHandSide);
+		inspectNode(loopControl.addChild(rightHandSide), context, dataFlow.addNodeToPath(rightHandSide), rightHandSide);
 	}
 
 	/**
 	 * 32
 	 */
 	@Override
-	protected void inspectEachMethodInvocationOfChainInvocations(int depth, Context context, DataFlow dataFlow,
+	protected void inspectEachMethodInvocationOfChainInvocations(Flow loopControl, Context context, DataFlow dataFlow,
 			Expression methodInvocation) {
 		// 02 - Check if the method is an Exit-Point (Only verifiers check that).
 		ExitPoint exitPoint = BindingResolver.getExitPointIfMethodIsOne(getExitPoints(), methodInvocation);
 
 		if (null != exitPoint) {
-			inspectExitPoint(depth, context, methodInvocation, exitPoint);
+			inspectExitPoint(loopControl, context, methodInvocation, exitPoint);
 		} else {
-			super.inspectEachMethodInvocationOfChainInvocations(depth, context, dataFlow, methodInvocation);
+			super.inspectEachMethodInvocationOfChainInvocations(loopControl, context, dataFlow, methodInvocation);
 		}
 	}
 
-	protected void inspectExitPoint(int depth, Context context, Expression method, ExitPoint exitPoint) {
+	protected void inspectExitPoint(Flow loopControl, Context context, Expression method, ExitPoint exitPoint) {
 		// 01 - Get the parameters (received) from the current method.
 		List<Expression> receivedParameters = BindingResolver.getParameters(method);
 
@@ -189,7 +193,7 @@ public abstract class Verifier extends CodeAnalyzer {
 
 				// 03 - Check if there is a marker, in case there is, we should BELIEVE it is not vulnerable.
 				if (!hasMarkerAtPosition(expression)) {
-					inspectNode(depth, context, dataFlow, expression);
+					inspectNode(loopControl, context, dataFlow, expression);
 
 					if (dataFlow.hasVulnerablePath()) {
 						allVulnerablePaths.add(dataFlow);
@@ -202,13 +206,13 @@ public abstract class Verifier extends CodeAnalyzer {
 	}
 
 	@Override
-	protected void inspectMethodWithSourceCode(int depth, Context context, DataFlow dataFlow, ASTNode methodInvocation,
-			MethodDeclaration methodDeclaration) {
+	protected void inspectMethodWithSourceCode(Flow loopControl, Context context, DataFlow dataFlow,
+			ASTNode methodInvocation, MethodDeclaration methodDeclaration) {
 		// 01 - Get the context for this method.
 		Context newContext = getContext(context, methodDeclaration, methodInvocation);
 
 		// 02 - Now I inspect the body of the method.
-		super.inspectMethodWithSourceCode(depth, newContext, dataFlow, methodInvocation, methodDeclaration);
+		super.inspectMethodWithSourceCode(loopControl, newContext, dataFlow, methodInvocation, methodDeclaration);
 	}
 
 	@Override
@@ -226,7 +230,7 @@ public abstract class Verifier extends CodeAnalyzer {
 
 		if (methodDeclaration.isConstructor()) {
 			// Cases: 07
-			return getCallGraph().getClassContext(context, methodDeclaration, methodInvocation, instance);
+			return getCallGraph().getClassContext(context, instance);
 		} else if (Modifier.isStatic(methodDeclaration.getModifiers())) {
 			// Cases: 06
 			return getCallGraph().getStaticContext(context, methodDeclaration, methodInvocation);

@@ -6,6 +6,8 @@ import java.util.Map.Entry;
 
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.context.Context;
+import net.thecodemaster.evd.graph.flow.DataFlow;
+import net.thecodemaster.evd.graph.flow.Flow;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.helper.HelperCodeAnalyzer;
 import net.thecodemaster.evd.marker.MarkerManager;
@@ -168,7 +170,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 
 					// 06 - If this method is invoked by a method from another resource
 					// and that resource is not in the list of resources that are going to be processed.
-					if ((!resourceCaller.equals(resource)) && (!resources.contains(resourceCaller))) {
+					if ((null != resourceCaller) && (!resourceCaller.equals(resource)) && (!resources.contains(resourceCaller))) {
 
 						// 07 - Care only about the invocations to this method.
 						if (!methodsToProcess.containsKey(methodDeclaration)) {
@@ -201,23 +203,20 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	 */
 	protected void run(Map<MethodDeclaration, List<ASTNode>> methodsToProcess) {
 		for (Entry<MethodDeclaration, List<ASTNode>> methodDeclaration : methodsToProcess.entrySet()) {
-			// 01 - The depth controls the investigation mechanism to avoid infinitive loops.
-			int depth = 0;
-
-			// 02 - We need the compilation unit to check if there are markers in the current resource.
+			// 01 - We need the compilation unit to check if there are markers in the current resource.
 			setCurrentCompilationUnit(BindingResolver.getCompilationUnit(methodDeclaration.getKey()));
 
-			// 03 - If this method is not invoked by any other, this method can be an entry method.
+			// 02 - If this method is not invoked by any other, this method can be an entry method.
 			// Main(), doGet or just a never used method.
 			if (0 == methodDeclaration.getValue().size()) {
 
 				// 03 - Process the detection on the current method.
-				run(depth, methodDeclaration.getKey(), null);
+				run(methodDeclaration.getKey(), null);
 			} else {
 				for (ASTNode invoker : methodDeclaration.getValue()) {
 
 					// 04 - Process the detection on the current method.
-					run(depth, methodDeclaration.getKey(), invoker);
+					run(methodDeclaration.getKey(), invoker);
 				}
 			}
 		}
@@ -228,30 +227,32 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	 * 
 	 * @param methodDeclaration
 	 */
-	protected void run(int depth, MethodDeclaration methodDeclaration, ASTNode invoker) {
+	protected void run(MethodDeclaration methodDeclaration, ASTNode invoker) {
 	}
 
 	/**
 	 * 14
 	 */
 	@Override
-	protected void inspectClassInstanceCreation(int depth, Context context, DataFlow dataFlow,
+	protected void inspectClassInstanceCreation(Flow loopControl, Context context, DataFlow dataFlow,
 			ClassInstanceCreation invocation) {
-		inspectMethodInvocation(depth, context, dataFlow, invocation);
+		inspectMethodInvocation(loopControl, context, dataFlow, invocation);
 	}
 
 	/**
 	 * 32
 	 */
 	@Override
-	protected void inspectMethodInvocation(int depth, Context context, DataFlow dataFlow, MethodInvocation invocation) {
-		inspectMethodInvocation(depth, context, dataFlow, (Expression) invocation);
+	protected void inspectMethodInvocation(Flow loopControl, Context context, DataFlow dataFlow,
+			MethodInvocation invocation) {
+		inspectMethodInvocation(loopControl, context, dataFlow, (Expression) invocation);
 	}
 
 	/**
 	 * 32
 	 */
-	protected void inspectMethodInvocation(int depth, Context context, DataFlow dataFlow, Expression methodInvocation) {
+	protected void inspectMethodInvocation(Flow loopControl, Context context, DataFlow dataFlow,
+			Expression methodInvocation) {
 		// The steps are:
 		// 01 - Break the chain (if any) method calls into multiple method invocations.
 		// 02 - Check if the method is an Exit-Point (Only verifiers check that).
@@ -266,17 +267,17 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 		List<Expression> methodsInChain = HelperCodeAnalyzer.getMethodsFromChainInvocation(methodInvocation);
 
 		if (1 < methodsInChain.size()) {
-			inspectNode(depth, context, dataFlow, methodsInChain.get(methodsInChain.size() - 2));
+			inspectNode(loopControl, context, dataFlow, methodsInChain.get(methodsInChain.size() - 2));
 		}
 
-		inspectEachMethodInvocationOfChainInvocations(depth, context, dataFlow.addNodeToPath(methodInvocation),
-				methodInvocation);
+		inspectEachMethodInvocationOfChainInvocations(loopControl.addChild(methodInvocation), context,
+				dataFlow.addNodeToPath(methodInvocation), methodInvocation);
 	}
 
 	/**
 	 * 32
 	 */
-	protected void inspectEachMethodInvocationOfChainInvocations(int depth, Context context, DataFlow dataFlow,
+	protected void inspectEachMethodInvocationOfChainInvocations(Flow loopControl, Context context, DataFlow dataFlow,
 			Expression methodInvocation) {
 		// 03 - Check if the method is a Sanitization-Point.
 		if (BindingResolver.isMethodASanitizationPoint(getSanitizationPoints(), methodInvocation)) {
@@ -302,24 +303,24 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 		}
 
 		// 06 - There are 2 cases: When we have the source code of this method and when we do not.
-		inspectMethodInvocationWithOrWithOutSourceCode(depth, context, newDataFlow, methodInvocation);
+		inspectMethodInvocationWithOrWithOutSourceCode(loopControl, context, newDataFlow, methodInvocation);
 	}
 
 	/**
 	 * 32
 	 */
-	protected void inspectMethodInvocationWithOrWithOutSourceCode(int depth, Context context, DataFlow dataFlow,
+	protected void inspectMethodInvocationWithOrWithOutSourceCode(Flow loopControl, Context context, DataFlow dataFlow,
 			Expression methodInvocation) {
 		// Some method invocations can be in a chain call, we have to investigate them all.
 		// response.sendRedirect(login);
 		// getServletContext().getRequestDispatcher(login).forward(request, response);
 		// 01 - There are 2 cases: When we have the source code of this method and when we do not.
-		MethodDeclaration methodDeclaration = getMethodDeclaration(depth, context, methodInvocation);
+		MethodDeclaration methodDeclaration = getMethodDeclaration(loopControl, context, methodInvocation);
 		if (null != methodDeclaration) {
 			// We have the source code.
-			inspectMethodWithSourceCode(depth, context, dataFlow, methodInvocation, methodDeclaration);
+			inspectMethodWithSourceCode(loopControl, context, dataFlow, methodInvocation, methodDeclaration);
 		} else {
-			inspectMethodWithOutSourceCode(depth, context, dataFlow, methodInvocation);
+			inspectMethodWithOutSourceCode(loopControl, context, dataFlow, methodInvocation);
 		}
 
 		VariableBinding variableBinding = HelperCodeAnalyzer.getVariableBindingIfItIsAnObject(getCallGraph(), context,
@@ -338,7 +339,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 			// 01 - Check if this method invocation is being call from a vulnerable object.
 			// Only methods that we do not have the implementation should get here.
 			if (null != variableBinding) {
-				processIfStatusUnknownOrUpdateIfVulnerable(depth, context, dataFlow, variableBinding);
+				processIfStatusUnknownOrUpdateIfVulnerable(loopControl, context, dataFlow, variableBinding);
 			}
 		}
 	}
@@ -353,13 +354,13 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	/**
 	 * 32 , 42
 	 */
-	protected void processIfStatusUnknownOrUpdateIfVulnerable(int depth, Context context, DataFlow dataFlow,
+	protected void processIfStatusUnknownOrUpdateIfVulnerable(Flow loopControl, Context context, DataFlow dataFlow,
 			VariableBinding variableBinding) {
 		if (variableBinding.getStatus().equals(EnumVariableStatus.VULNERABLE)) {
 			dataFlow.replace(variableBinding.getDataFlow());
 		} else if (variableBinding.getStatus().equals(EnumVariableStatus.UNKNOWN)) {
 			// 01 - This is the case where we have to go deeper into the variable's path.
-			inspectNode(depth, context, dataFlow, variableBinding.getInitializer());
+			inspectNode(loopControl, context, dataFlow, variableBinding.getInitializer());
 
 			// 02 - If there is a vulnerable path, then this variable is vulnerable.
 			HelperCodeAnalyzer.updateVariableBindingStatus(variableBinding, dataFlow);
@@ -370,8 +371,8 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	 * 40
 	 */
 	@Override
-	protected void inspectQualifiedName(int depth, Context context, DataFlow dataFlow, QualifiedName expression) {
-		super.inspectQualifiedName(depth, getContext(context, expression), dataFlow, expression);
+	protected void inspectQualifiedName(Flow loopControl, Context context, DataFlow dataFlow, QualifiedName expression) {
+		super.inspectQualifiedName(loopControl, getContext(context, expression), dataFlow, expression);
 	}
 
 	/**
@@ -405,35 +406,35 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	 * 42
 	 */
 	@Override
-	protected void inspectSimpleName(int depth, Context context, DataFlow dataFlow, SimpleName expression) {
+	protected void inspectSimpleName(Flow loopControl, Context context, DataFlow dataFlow, SimpleName expression) {
 		// 01 - Try to retrieve the variable from the list of variables.
 		VariableBinding variableBinding = getCallGraph().getVariableBinding(context, expression);
 
-		inspectSimpleName(depth, context, dataFlow, expression, variableBinding);
+		inspectSimpleName(loopControl, context, dataFlow, expression, variableBinding);
 	}
 
 	/**
 	 * 42
 	 */
-	protected void inspectSimpleName(int depth, Context context, DataFlow dataFlow, SimpleName expression,
+	protected void inspectSimpleName(Flow loopControl, Context context, DataFlow dataFlow, SimpleName expression,
 			VariableBinding variableBinding) {
 		DataFlow newDataFlow = dataFlow.addNodeToPath(expression);
 
 		if (null != variableBinding) {
-			processIfStatusUnknownOrUpdateIfVulnerable(depth, context, newDataFlow, variableBinding);
+			processIfStatusUnknownOrUpdateIfVulnerable(loopControl, context, newDataFlow, variableBinding);
 		} else {
 			// If a method is scanned after a method invocation, all the parameters are provided, but
 			// if a method is scanned from the initial block declarations loop, some parameter might not be known
 			// so it is necessary to investigate WHO invoked this method and what were the provided parameters.
-			inspectSimpleNameFromInvokers(depth, context, newDataFlow, expression, variableBinding);
+			inspectSimpleNameFromInvokers(loopControl, context, newDataFlow, expression, variableBinding);
 		}
 	}
 
 	/**
 	 * 42
 	 */
-	protected void inspectSimpleNameFromInvokers(int depth, Context context, DataFlow dataFlow, SimpleName expression,
-			VariableBinding variableBinding) {
+	protected void inspectSimpleNameFromInvokers(Flow loopControl, Context context, DataFlow dataFlow,
+			SimpleName expression, VariableBinding variableBinding) {
 		// This is the case where the variable is an argument of the method.
 		// 01 - Get the method signature that is using this parameter.
 		// MethodDeclaration methodDeclaration = BindingResolver.getParentMethodDeclaration(expression);
@@ -452,7 +453,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 		// Expression parameter = BindingResolver.getParameterAtIndex(invocations, parameterIndex);
 		//
 		// // 06 - Run detection on this parameter.
-		// inspectNode(depth, context, dataFlow.addNodeToPath(parameter), parameter);
+		// inspectNode(loopControl, context, dataFlow.addNodeToPath(parameter), parameter);
 		// }
 		// }
 		// }
