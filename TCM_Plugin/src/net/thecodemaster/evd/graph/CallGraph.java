@@ -121,11 +121,6 @@ public class CallGraph {
 		return context;
 	}
 
-	public Context getClassContext(Context parentContext, Expression instance) {
-		// 01 - Get the context of the instance object.
-		return getInstanceContext(parentContext, instance);
-	}
-
 	public Context getInstanceContext(Context parentContext, MethodDeclaration method, ASTNode invoker,
 			Expression instance) {
 		// 01 - Get the context of the instance object.
@@ -133,6 +128,11 @@ public class CallGraph {
 
 		// 02 - Get the context of the method.
 		return getContext(instanceContext, method, invoker);
+	}
+
+	public Context getClassContext(Context parentContext, Expression instance) {
+		// 01 - Get the context of the instance object.
+		return getInstanceContext(parentContext, instance);
 	}
 
 	public Context getStaticContext(Context parentContext, MethodDeclaration method, ASTNode invoker) {

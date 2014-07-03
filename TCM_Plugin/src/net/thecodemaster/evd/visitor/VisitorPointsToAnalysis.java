@@ -201,6 +201,10 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		} else {
 			if (null != instance) {
 				// Cases: 03, 04, 05
+				// The instance must exist, if it does not, it is probably an assignment or syntax error.
+				// Animal a1 = new Animal() / Animal a2 = a1 / a1.method();
+				instance = findRealInstance(context, instance);
+
 				return getCallGraph().newInstanceContext(context, methodDeclaration, methodInvocation, instance);
 			} else {
 				// Cases: 01, 02

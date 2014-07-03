@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.thecodemaster.evd.context.Context;
+import net.thecodemaster.evd.finder.InstanceFinder;
 import net.thecodemaster.evd.finder.ReferenceFinder;
 import net.thecodemaster.evd.graph.flow.DataFlow;
 import net.thecodemaster.evd.graph.flow.Flow;
@@ -937,6 +938,40 @@ public abstract class CodeVisitor {
 		}
 
 		return null;
+	}
+
+	/**
+	 * This first implementation will return the first reference that is found.<br/>
+	 * FIXME - The instance must exist, if it does not, it is probably an assignment or syntax error. <br/>
+	 * Case 01: <br/>
+	 * Animal a1 = new Animal() <br/>
+	 * Animal a2 = a1 <br/>
+	 * a2.method(); <br/>
+	 * <br/>
+	 */
+	protected Expression findRealInstance(Context context, Expression instance) {
+		Expression instanceReturn = null;
+		// 01 - Check if this instance has a context.
+		Context instanceContext = getCallGraph().getInstanceContext(context, instance);
+
+		// 02 - If the context is equal it means it does not exist.
+		if (instanceContext.equals(context)) {
+			// 03 - Get the last reference of this object.
+			VariableBinding variableBinding = getCallGraph().getLastReference(context, instance);
+
+			if (null != variableBinding) {
+				// 03 - Try to find where this variable was created.
+				InstanceFinder finder = new InstanceFinder(getCallGraph(), getCurrentResource());
+
+				Expression initializer = variableBinding.getInitializer();
+
+				// 04 - Return the real reference of this object.
+				instanceReturn = finder.getReference(new Flow(initializer), context, initializer);
+			}
+		}
+
+		// 05 - Return the new or the same(old) instance.
+		return (null != instanceReturn) ? instanceReturn : instance;
 	}
 
 }
