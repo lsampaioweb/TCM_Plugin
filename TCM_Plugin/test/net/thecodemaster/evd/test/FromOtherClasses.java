@@ -29,7 +29,7 @@ public class FromOtherClasses extends AbstractTestVerifier {
 		Assert.assertEquals(1, allVulnerablePaths.size());
 
 		List<DataFlow> vulnerablePaths01 = allVulnerablePaths.get(0);
-		Assert.assertEquals(6, vulnerablePaths01.size());
+		Assert.assertEquals(2, vulnerablePaths01.size());
 	}
 
 }

@@ -142,7 +142,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 			// 01 - Add a method reference to this variable (if it is a variable).
 			addReferenceToInitializer(loopControl, context, method, parameter);
 
-			inspectNode(loopControl.addChild(parameter), context, dataFlow.addNodeToPath(parameter), parameter);
+			inspectNode(loopControl, context, dataFlow.addNodeToPath(parameter), parameter);
 		}
 	}
 

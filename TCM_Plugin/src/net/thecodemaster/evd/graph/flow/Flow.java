@@ -36,7 +36,7 @@ public class Flow {
 		Flow flow;
 
 		// If there is nothing to add or the new value is the same as the present value.
-		if ((null == node) || (getRoot().equals(node))) {
+		if (null == node) {
 			flow = this;
 		} else {
 			flow = new Flow(node, this);

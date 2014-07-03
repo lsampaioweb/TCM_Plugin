@@ -157,7 +157,7 @@ public abstract class Verifier extends CodeAnalyzer {
 	protected void inspectAssignment(Flow loopControl, Context context, DataFlow dataFlow, Assignment expression) {
 		Expression rightHandSide = expression.getRightHandSide();
 
-		inspectNode(loopControl.addChild(rightHandSide), context, dataFlow.addNodeToPath(rightHandSide), rightHandSide);
+		inspectNode(loopControl, context, dataFlow.addNodeToPath(rightHandSide), rightHandSide);
 	}
 
 	/**
