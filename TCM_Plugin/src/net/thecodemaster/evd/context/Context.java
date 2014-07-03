@@ -27,6 +27,7 @@ public class Context {
 	private Expression																	instance;
 	private ASTNode																			invoker;
 	private Type																				superClassName;
+	private boolean																			isClassContext;
 
 	public Context(IResource resource) {
 		setResource(resource);
@@ -78,7 +79,7 @@ public class Context {
 		}
 
 		// 04 - Get the list of occurrences of this variable.
-		List<VariableBinding> vbs = getVariables().get(binding);
+		List<VariableBinding> vbs = getVariableBindings(binding);
 
 		// 05 - If this is the first occurrences, we have to check if this is a
 		// local or global variable.
@@ -132,7 +133,7 @@ public class Context {
 			context = context.getParent();
 
 			// 05 - Get the list of occurrences of this variable.
-			List<VariableBinding> vbs = context.getVariables().get(variableBinding.getBinding());
+			List<VariableBinding> vbs = context.getVariableBindings(variableBinding.getBinding());
 
 			return (null != vbs) ? vbs : emptyList;
 		}
@@ -232,11 +233,40 @@ public class Context {
 		return superClassName;
 	}
 
+	public void setIsClassContext(boolean isClassContext) {
+		this.isClassContext = isClassContext;
+	}
+
+	public boolean isClassContext() {
+		return isClassContext;
+	}
+
+	public Context getParentClassContext() {
+		Context context = this;
+
+		// 01 - Iterate until it reaches the top level parent.
+		while (null != context) {
+			if ((context.isClassContext()) || (null == context.getParent())) {
+				return context;
+			}
+
+			context = context.getParent();
+		}
+
+		return null;
+	}
+
 	public void merge(Context otherContext) {
 		mergeVariables(otherContext, 0);
 		mergeMethods(otherContext);
 	}
 
+	/**
+	 * @param otherContext
+	 * @param type
+	 *          0 - Get the first reference. <br/>
+	 *          1 - Get the last reference.
+	 */
 	public void mergeVariables(Context otherContext, int type) {
 		if (null != otherContext) {
 			getVariables().clear();
@@ -253,6 +283,13 @@ public class Context {
 		}
 	}
 
+	/**
+	 * @param otherContext
+	 * @param type
+	 *          0 - Get the first reference. <br/>
+	 *          1 - Get the last reference.
+	 * @return
+	 */
 	private Map<IBinding, List<VariableBinding>> getGlobalVariables(Context otherContext, int type) {
 		// 01 - Static variables. I want the last reference.
 		// 02 - Global variables. I want the first reference.
@@ -310,6 +347,25 @@ public class Context {
 
 		String strInvoker = (null != getInvoker()) ? getInvoker().toString() : "";
 		return String.format("%s - %s", methodName, strInvoker);
+	}
+
+	public List<VariableBinding> getVariableBindings(IBinding binding) {
+		// 01 - Get the list of variables in the context.
+		List<VariableBinding> vbs = Creator.newList();
+
+		for (Entry<IBinding, List<VariableBinding>> entry : getVariables().entrySet()) {
+			if ((null != entry.getKey()) && (entry.getKey().isEqualTo(binding))) {
+				vbs = entry.getValue();
+				break;
+			}
+		}
+
+		if (null == vbs) {
+			// 02 - If vbs == null, instead of returning null we return an empty list.
+			vbs = Creator.newList();
+		}
+
+		return vbs;
 	}
 
 }

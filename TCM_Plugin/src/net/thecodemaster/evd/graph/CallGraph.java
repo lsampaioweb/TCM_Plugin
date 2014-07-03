@@ -181,17 +181,19 @@ public class CallGraph {
 		// 02 - Set the object that will hold this context.
 		classContext.setInstance(instance);
 
-		// 03 - Get the resource of this constructor.
+		// 03 - Set that this context is a class context.
+		classContext.setIsClassContext(true);
+
+		// 04 - Get the resource of this constructor.
 		IResource resource = getResource(method, invoker);
 
-		// 04 - Get the context (top level) of that resource.
-		// 05 - Copy the variables and methods from the classContext to this new context.
+		// 05 - Get the context (top level) of that resource.
+		// 06 - Copy the variables and methods from the classContext to this new context.
 		classContext.merge(getContext(resource));
 
-		// 06 - Create the context for the constructor method.
+		// 07 - Create the context for the constructor method.
 		Context constructorContext = newInstanceContext(parentContext, method, invoker, instance);
 
-		// 07 -
 		return constructorContext;
 	}
 
@@ -206,9 +208,7 @@ public class CallGraph {
 		// 03 - Set the object that will hold this context.
 		context.setInstance(instance);
 
-		// 04 - Get the resource of this constructor.
-		// 05 - Get the context (top level) of that resource.
-		// 06 - Copy the variables and methods from the classContext to this new context.
+		// 04 - Copy the variables and methods from the classContext to this new context.
 		context.mergeVariables(instanceContext, 1);
 
 		return context;
@@ -266,13 +266,12 @@ public class CallGraph {
 		return context.addVariable(createVariableBinding(variableName, type, initializer));
 	}
 
-	/**
-	 * @param resource
-	 * @param fieldName
-	 * @param initializer
-	 */
 	public VariableBinding addFieldDeclaration(IResource resource, Expression fieldName, Expression initializer) {
 		return addVariable(getContext(resource), fieldName, EnumVariableType.GLOBAL, initializer);
+	}
+
+	public VariableBinding addFieldDeclaration(Context context, Expression fieldName, Expression initializer) {
+		return addVariable(context, fieldName, EnumVariableType.GLOBAL, initializer);
 	}
 
 	/**
@@ -360,10 +359,10 @@ public class CallGraph {
 			// 02 - Try to find the variable into a parent context (Employee extends Person).
 			vbs = getVariableBindingsFromParentContext(context, binding);
 
-			if (0 >= vbs.size()) {
-				// 03 - Try to find the variable into another file (AnotherClass.variableName).
-				vbs = getVariableBindingsFromAllContexts(context, binding);
-			}
+			// if (0 >= vbs.size()) {
+			// // 03 - Try to find the variable into another file (AnotherClass.variableName).
+			// vbs = getVariableBindingsFromAllContexts(context, binding);
+			// }
 		}
 
 		return vbs;
@@ -375,15 +374,7 @@ public class CallGraph {
 	 * @return
 	 */
 	private List<VariableBinding> getVariableBindingsFromContext(Context context, IBinding binding) {
-		// 01 - Get the list of variables in the context.
-		List<VariableBinding> vbs = context.getVariables().get(binding);
-
-		if (null == vbs) {
-			// 02 - If vbs == null, instead of returning null we return an empty list.
-			vbs = Creator.newList();
-		}
-
-		return vbs;
+		return context.getVariableBindings(binding);
 	}
 
 	/**
@@ -402,28 +393,6 @@ public class CallGraph {
 			}
 
 			parentContext = parentContext.getParent();
-		}
-
-		return vbs;
-	}
-
-	/**
-	 * @param binding
-	 * @return
-	 */
-	private List<VariableBinding> getVariableBindingsFromAllContexts(Context context, IBinding binding) {
-		List<VariableBinding> vbs = Creator.newList();
-
-		// 01 - Iterate over all the contexts.
-		for (Context currentContext : getContexts().values()) {
-			// 02 - This context was already searched, avoid unnecessary processing.
-			if (context.equals(currentContext)) {
-				continue;
-			}
-			vbs = getVariableBindingsFromContext(currentContext, binding);
-			if (0 < vbs.size()) {
-				break;
-			}
 		}
 
 		return vbs;

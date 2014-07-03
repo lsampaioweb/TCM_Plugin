@@ -78,9 +78,11 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
 	/**
 	 * 07 <br/>
+	 * this.a = b <br/>
 	 * a = b <br/>
-	 * Person.staticPersonVariable <br/>
-	 * person.publicPersonVariable
+	 * super.a = b <br/>
+	 * Person.staticPersonVariable = b <br/>
+	 * package.name.person.publicPersonVariable = b
 	 */
 	@Override
 	protected void inspectAssignment(Flow loopControl, Context context, DataFlow dataFlow, Assignment node) {
@@ -101,8 +103,31 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 				PluginLogger.logError("inspectAssignment Default Node Type: " + node.getNodeType() + " - " + node, null);
 		}
 
-		// 04 - Add the new variable to the callGraph.
-		addVariableToCallGraphAndInspectInitializer(loopControl, context, dataFlow, leftHandSide, rightHandSide);
+		// 02 - Try to find if this variable already exists into the current context.
+		VariableBinding variableBindingOld = getCallGraph().getLastReference(context, leftHandSide);
+
+		// 03 - Add the new variable to the callGraph.
+		VariableBinding variableBindingNew = addVariableToCallGraphAndInspectInitializer(loopControl, context, dataFlow,
+				leftHandSide, rightHandSide);
+
+		// 04 - If the variable did not exist before and exists now, it means it is a reference to a global (inheritance)
+		// variable.
+		if ((null == variableBindingOld) && (null != variableBindingNew)) {
+			// 05 - Get the class context. (if any).
+			Context classContext = context.getParentClassContext();
+
+			if (null != classContext) {
+				// 06 - Add the variable to the class context.
+				VariableBinding variableBindingGlobal = getCallGraph().addFieldDeclaration(classContext, leftHandSide,
+						rightHandSide);
+
+				// 07 - Update the status and the data flow of the global variable.
+				HelperCodeAnalyzer.updateVariableBindingStatus(variableBindingGlobal, variableBindingNew.getDataFlow());
+
+				// 08 - Update from LOCAL to GLOBAL in the new variable.
+				variableBindingNew.setType(variableBindingGlobal.getType());
+			}
+		}
 	}
 
 	@Override
@@ -229,8 +254,8 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	/**
 	 * 07, 60, 70
 	 */
-	private void addVariableToCallGraphAndInspectInitializer(Flow loopControl, Context context, DataFlow dataFlow,
-			Expression variableName, Expression initializer) {
+	private VariableBinding addVariableToCallGraphAndInspectInitializer(Flow loopControl, Context context,
+			DataFlow dataFlow, Expression variableName, Expression initializer) {
 		// 01 - Add a reference of the variable into the initializer (if the initializer is also a variable).
 		addReferenceToInitializer(loopControl, context, variableName, initializer);
 
@@ -248,6 +273,8 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		} else {
 			HelperCodeAnalyzer.updateVariableBindingStatus(variableBinding, newDataFlow);
 		}
+
+		return variableBinding;
 	}
 
 	private void addParametersToCallGraph(Flow loopControl, Context context, ASTNode methodInvocation,
