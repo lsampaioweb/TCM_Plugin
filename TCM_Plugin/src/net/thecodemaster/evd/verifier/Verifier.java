@@ -10,7 +10,6 @@ import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.CodeAnalyzer;
 import net.thecodemaster.evd.graph.Parameter;
 import net.thecodemaster.evd.graph.flow.DataFlow;
-import net.thecodemaster.evd.graph.flow.Flow;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.point.ExitPoint;
 import net.thecodemaster.evd.reporter.Reporter;
@@ -147,14 +146,14 @@ public abstract class Verifier extends CodeAnalyzer {
 		Expression root = methodDeclaration.getName();
 
 		// 03 - Start the detection on each and every line of this method.
-		inspectNode(new Flow(root), context, new DataFlow(root), methodDeclaration.getBody());
+		inspectNode(0, context, new DataFlow(root), methodDeclaration.getBody());
 	}
 
 	/**
 	 * 07
 	 */
 	@Override
-	protected void inspectAssignment(Flow loopControl, Context context, DataFlow dataFlow, Assignment expression) {
+	protected void inspectAssignment(int loopControl, Context context, DataFlow dataFlow, Assignment expression) {
 		Expression rightHandSide = expression.getRightHandSide();
 
 		inspectNode(loopControl, context, dataFlow.addNodeToPath(rightHandSide), rightHandSide);
@@ -164,7 +163,7 @@ public abstract class Verifier extends CodeAnalyzer {
 	 * 32
 	 */
 	@Override
-	protected void inspectEachMethodInvocationOfChainInvocations(Flow loopControl, Context context, DataFlow dataFlow,
+	protected void inspectEachMethodInvocationOfChainInvocations(int loopControl, Context context, DataFlow dataFlow,
 			Expression methodInvocation) {
 		// 02 - Check if the method is an Exit-Point (Only verifiers check that).
 		ExitPoint exitPoint = BindingResolver.getExitPointIfMethodIsOne(getExitPoints(), methodInvocation);
@@ -176,7 +175,7 @@ public abstract class Verifier extends CodeAnalyzer {
 		}
 	}
 
-	protected void inspectExitPoint(Flow loopControl, Context context, Expression method, ExitPoint exitPoint) {
+	protected void inspectExitPoint(int loopControl, Context context, Expression method, ExitPoint exitPoint) {
 		// 01 - Get the parameters (received) from the current method.
 		List<Expression> receivedParameters = BindingResolver.getParameters(method);
 
@@ -206,7 +205,7 @@ public abstract class Verifier extends CodeAnalyzer {
 	}
 
 	@Override
-	protected void inspectMethodWithSourceCode(Flow loopControl, Context context, DataFlow dataFlow,
+	protected void inspectMethodWithSourceCode(int loopControl, Context context, DataFlow dataFlow,
 			ASTNode methodInvocation, MethodDeclaration methodDeclaration) {
 		// 01 - Get the context for this method.
 		Context newContext = getContext(loopControl, context, methodDeclaration, methodInvocation);
@@ -216,7 +215,7 @@ public abstract class Verifier extends CodeAnalyzer {
 	}
 
 	@Override
-	protected Context getContext(Flow loopControl, Context context, MethodDeclaration methodDeclaration,
+	protected Context getContext(int loopControl, Context context, MethodDeclaration methodDeclaration,
 			ASTNode methodInvocation) {
 		// We have 8 cases:
 		// 01 - method(...);

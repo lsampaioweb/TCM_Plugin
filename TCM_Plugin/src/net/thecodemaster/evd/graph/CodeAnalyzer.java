@@ -7,7 +7,6 @@ import java.util.Map.Entry;
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.context.Context;
 import net.thecodemaster.evd.graph.flow.DataFlow;
-import net.thecodemaster.evd.graph.flow.Flow;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.helper.HelperCodeAnalyzer;
 import net.thecodemaster.evd.logger.PluginLogger;
@@ -236,7 +235,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	 * 14
 	 */
 	@Override
-	protected void inspectClassInstanceCreation(Flow loopControl, Context context, DataFlow dataFlow,
+	protected void inspectClassInstanceCreation(int loopControl, Context context, DataFlow dataFlow,
 			ClassInstanceCreation invocation) {
 		inspectMethodInvocation(loopControl, context, dataFlow, invocation);
 	}
@@ -245,7 +244,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	 * 32
 	 */
 	@Override
-	protected void inspectMethodInvocation(Flow loopControl, Context context, DataFlow dataFlow,
+	protected void inspectMethodInvocation(int loopControl, Context context, DataFlow dataFlow,
 			MethodInvocation invocation) {
 		inspectMethodInvocation(loopControl, context, dataFlow, (Expression) invocation);
 	}
@@ -253,7 +252,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	/**
 	 * 32
 	 */
-	protected void inspectMethodInvocation(Flow loopControl, Context context, DataFlow dataFlow,
+	protected void inspectMethodInvocation(int loopControl, Context context, DataFlow dataFlow,
 			Expression methodInvocation) {
 		// The steps are:
 		// 01 - Break the chain (if any) method calls into multiple method invocations.
@@ -279,7 +278,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	/**
 	 * 32
 	 */
-	protected void inspectEachMethodInvocationOfChainInvocations(Flow loopControl, Context context, DataFlow dataFlow,
+	protected void inspectEachMethodInvocationOfChainInvocations(int loopControl, Context context, DataFlow dataFlow,
 			Expression methodInvocation) {
 		// 03 - Check if the method is a Sanitization-Point.
 		if (BindingResolver.isMethodASanitizationPoint(getSanitizationPoints(), methodInvocation)) {
@@ -311,7 +310,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	/**
 	 * 32
 	 */
-	protected void inspectMethodInvocationWithOrWithOutSourceCode(Flow loopControl, Context context, DataFlow dataFlow,
+	protected void inspectMethodInvocationWithOrWithOutSourceCode(int loopControl, Context context, DataFlow dataFlow,
 			Expression methodInvocation) {
 		// Some method invocations can be in a chain call, we have to investigate them all.
 		// response.sendRedirect(login);
@@ -349,7 +348,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	/**
 	 * 32
 	 */
-	protected Context getContext(Flow loopControl, Context context, MethodDeclaration methodDeclaration,
+	protected Context getContext(int loopControl, Context context, MethodDeclaration methodDeclaration,
 			ASTNode methodInvocation) {
 		return null;
 	}
@@ -357,7 +356,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	/**
 	 * 32 , 42
 	 */
-	protected void processIfStatusUnknownOrUpdateIfVulnerable(Flow loopControl, Context context, DataFlow dataFlow,
+	protected void processIfStatusUnknownOrUpdateIfVulnerable(int loopControl, Context context, DataFlow dataFlow,
 			VariableBinding variableBinding) {
 		if (variableBinding.getStatus().equals(EnumVariableStatus.VULNERABLE)) {
 			dataFlow.replace(variableBinding.getDataFlow());
@@ -374,7 +373,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	 * 40
 	 */
 	@Override
-	protected void inspectQualifiedName(Flow loopControl, Context context, DataFlow dataFlow, QualifiedName expression) {
+	protected void inspectQualifiedName(int loopControl, Context context, DataFlow dataFlow, QualifiedName expression) {
 		super.inspectQualifiedName(loopControl, getContext(context, expression), dataFlow, expression);
 	}
 
@@ -412,7 +411,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	 * 42
 	 */
 	@Override
-	protected void inspectSimpleName(Flow loopControl, Context context, DataFlow dataFlow, SimpleName expression) {
+	protected void inspectSimpleName(int loopControl, Context context, DataFlow dataFlow, SimpleName expression) {
 		// 01 - Try to retrieve the variable from the list of variables.
 		VariableBinding variableBinding = getCallGraph().getVariableBinding(context, expression);
 
@@ -422,7 +421,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	/**
 	 * 42
 	 */
-	protected void inspectSimpleName(Flow loopControl, Context context, DataFlow dataFlow, SimpleName expression,
+	protected void inspectSimpleName(int loopControl, Context context, DataFlow dataFlow, SimpleName expression,
 			VariableBinding variableBinding) {
 		DataFlow newDataFlow = dataFlow.addNodeToPath(expression);
 
@@ -439,7 +438,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	/**
 	 * 42
 	 */
-	protected void inspectSimpleNameFromInvokers(Flow loopControl, Context context, DataFlow dataFlow,
+	protected void inspectSimpleNameFromInvokers(int loopControl, Context context, DataFlow dataFlow,
 			SimpleName expression, VariableBinding variableBinding) {
 		// This is the case where the variable is an argument of the method.
 		// 01 - Get the method signature that is using this parameter.

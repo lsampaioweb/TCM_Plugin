@@ -4,7 +4,6 @@ import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.context.Context;
 import net.thecodemaster.evd.graph.VariableBinding;
 import net.thecodemaster.evd.graph.flow.DataFlow;
-import net.thecodemaster.evd.graph.flow.Flow;
 import net.thecodemaster.evd.ui.enumeration.EnumVariableStatus;
 import net.thecodemaster.evd.ui.l10n.Message;
 import net.thecodemaster.evd.verifier.Verifier;
@@ -39,22 +38,22 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 	}
 
 	@Override
-	protected void inspectCharacterLiteral(Flow loopControl, Context context, DataFlow dataFlow, CharacterLiteral node) {
+	protected void inspectCharacterLiteral(int loopControl, Context context, DataFlow dataFlow, CharacterLiteral node) {
 		inspectLiteral(dataFlow, node, getMessageLiteral(node.charValue()));
 	}
 
 	@Override
-	protected void inspectNullLiteral(Flow loopControl, Context context, DataFlow dataFlow, NullLiteral node) {
+	protected void inspectNullLiteral(int loopControl, Context context, DataFlow dataFlow, NullLiteral node) {
 		inspectLiteral(dataFlow, node, getMessageNullLiteral());
 	}
 
 	@Override
-	protected void inspectNumberLiteral(Flow loopControl, Context context, DataFlow dataFlow, NumberLiteral node) {
+	protected void inspectNumberLiteral(int loopControl, Context context, DataFlow dataFlow, NumberLiteral node) {
 		inspectLiteral(dataFlow, node, getMessageLiteral(node.getToken()));
 	}
 
 	@Override
-	protected void inspectStringLiteral(Flow loopControl, Context context, DataFlow dataFlow, StringLiteral node) {
+	protected void inspectStringLiteral(int loopControl, Context context, DataFlow dataFlow, StringLiteral node) {
 		inspectLiteral(dataFlow, node, getMessageLiteral(node.getLiteralValue()));
 	}
 
@@ -76,7 +75,7 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 	 * 42
 	 */
 	@Override
-	protected void inspectSimpleName(Flow loopControl, Context context, DataFlow dataFlow, SimpleName expression,
+	protected void inspectSimpleName(int loopControl, Context context, DataFlow dataFlow, SimpleName expression,
 			VariableBinding variableBinding) {
 		if ((null != variableBinding) && (variableBinding.getStatus().equals(EnumVariableStatus.NOT_VULNERABLE))) {
 

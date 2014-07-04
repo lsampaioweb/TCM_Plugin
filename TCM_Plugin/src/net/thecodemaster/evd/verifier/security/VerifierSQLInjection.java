@@ -4,7 +4,6 @@ import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.context.Context;
 import net.thecodemaster.evd.graph.VariableBinding;
 import net.thecodemaster.evd.graph.flow.DataFlow;
-import net.thecodemaster.evd.graph.flow.Flow;
 import net.thecodemaster.evd.ui.enumeration.EnumVariableStatus;
 import net.thecodemaster.evd.ui.l10n.Message;
 import net.thecodemaster.evd.verifier.Verifier;
@@ -32,7 +31,7 @@ public class VerifierSQLInjection extends Verifier {
 	 * 27
 	 */
 	@Override
-	protected void inspectInfixExpression(Flow loopControl, Context context, DataFlow dataFlow, InfixExpression expression) {
+	protected void inspectInfixExpression(int loopControl, Context context, DataFlow dataFlow, InfixExpression expression) {
 		processStringConcatenation(dataFlow, expression);
 	}
 
@@ -40,7 +39,7 @@ public class VerifierSQLInjection extends Verifier {
 	 * 37
 	 */
 	@Override
-	protected void inspectPostfixExpression(Flow loopControl, Context context, DataFlow dataFlow,
+	protected void inspectPostfixExpression(int loopControl, Context context, DataFlow dataFlow,
 			PostfixExpression expression) {
 		processStringConcatenation(dataFlow, expression);
 	}
@@ -49,7 +48,7 @@ public class VerifierSQLInjection extends Verifier {
 	 * 38
 	 */
 	@Override
-	protected void inspectPrefixExpression(Flow loopControl, Context context, DataFlow dataFlow,
+	protected void inspectPrefixExpression(int loopControl, Context context, DataFlow dataFlow,
 			PrefixExpression expression) {
 		processStringConcatenation(dataFlow, expression);
 	}
@@ -69,7 +68,7 @@ public class VerifierSQLInjection extends Verifier {
 	 * 42
 	 */
 	@Override
-	protected void inspectSimpleName(Flow loopControl, Context context, DataFlow dataFlow, SimpleName expression,
+	protected void inspectSimpleName(int loopControl, Context context, DataFlow dataFlow, SimpleName expression,
 			VariableBinding variableBinding) {
 		if ((null != variableBinding) && (variableBinding.getStatus().equals(EnumVariableStatus.NOT_VULNERABLE))) {
 
