@@ -7,6 +7,7 @@ import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.CodeVisitor;
 import net.thecodemaster.evd.graph.VariableBinding;
 import net.thecodemaster.evd.graph.flow.DataFlow;
+import net.thecodemaster.evd.graph.flow.Flow;
 import net.thecodemaster.evd.helper.Creator;
 
 import org.eclipse.core.resources.IResource;
@@ -33,7 +34,7 @@ public class ReferenceFinder extends CodeVisitor {
 		return references;
 	}
 
-	public Expression getReference(int loopControl, Context context, Expression initializer) {
+	public Expression getReference(Flow loopControl, Context context, Expression initializer) {
 		// 01 - To make sure if this method is invoked more that once, we will not use old values.
 		getReferences().clear();
 
@@ -48,7 +49,7 @@ public class ReferenceFinder extends CodeVisitor {
 	 * 14
 	 */
 	@Override
-	protected void inspectClassInstanceCreation(int loopControl, Context context, DataFlow dataFlow,
+	protected void inspectClassInstanceCreation(Flow loopControl, Context context, DataFlow dataFlow,
 			ClassInstanceCreation node) {
 		addReference(node);
 	}
@@ -57,7 +58,7 @@ public class ReferenceFinder extends CodeVisitor {
 	 * 42
 	 */
 	@Override
-	protected void inspectSimpleName(int loopControl, Context context, DataFlow dataFlow, SimpleName expression) {
+	protected void inspectSimpleName(Flow loopControl, Context context, DataFlow dataFlow, SimpleName expression) {
 		// 01 - Try to retrieve the variable from the list of variables.
 		VariableBinding variableBinding = getCallGraph().getVariableBinding(context, expression);
 

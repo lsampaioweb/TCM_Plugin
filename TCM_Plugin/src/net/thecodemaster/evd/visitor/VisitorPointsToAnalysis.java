@@ -9,6 +9,7 @@ import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.CodeAnalyzer;
 import net.thecodemaster.evd.graph.VariableBinding;
 import net.thecodemaster.evd.graph.flow.DataFlow;
+import net.thecodemaster.evd.graph.flow.Flow;
 import net.thecodemaster.evd.helper.HelperCodeAnalyzer;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.ui.l10n.Message;
@@ -72,7 +73,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		Expression root = methodDeclaration.getName();
 
 		// 04 - Start the detection on each and every line of this method.
-		inspectNode(0, context, new DataFlow(root), methodDeclaration.getBody());
+		inspectNode(new Flow(root), context, new DataFlow(root), methodDeclaration.getBody());
 	}
 
 	/**
@@ -84,7 +85,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	 * package.name.person.publicPersonVariable = b
 	 */
 	@Override
-	protected void inspectAssignment(int loopControl, Context context, DataFlow dataFlow, Assignment node) {
+	protected void inspectAssignment(Flow loopControl, Context context, DataFlow dataFlow, Assignment node) {
 		// 01 - Get the elements from the expression.
 		Expression leftHandSide = node.getLeftHandSide();
 		Expression rightHandSide = node.getRightHandSide();
@@ -132,7 +133,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	}
 
 	@Override
-	protected void inspectMethodWithSourceCode(int loopControl, Context context, DataFlow dataFlow,
+	protected void inspectMethodWithSourceCode(Flow loopControl, Context context, DataFlow dataFlow,
 			ASTNode methodInvocation, MethodDeclaration methodDeclaration) {
 		// 01 - Get the current method declaration where this invocation is being performed.
 		MethodDeclaration currentMethod = BindingResolver.getParentMethodDeclaration(methodInvocation);
@@ -152,7 +153,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	}
 
 	@Override
-	protected void inspectMethodWithOutSourceCode(int loopControl, Context context, DataFlow dataFlow, ASTNode method) {
+	protected void inspectMethodWithOutSourceCode(Flow loopControl, Context context, DataFlow dataFlow, ASTNode method) {
 		switch (method.getNodeType()) {
 			case ASTNode.CLASS_INSTANCE_CREATION:
 				Expression instance = BindingResolver.getInstanceIfItIsAnObject(method);
@@ -173,7 +174,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	}
 
 	@Override
-	protected Context getContext(int loopControl, Context context, MethodDeclaration methodDeclaration,
+	protected Context getContext(Flow loopControl, Context context, MethodDeclaration methodDeclaration,
 			ASTNode methodInvocation) {
 		// We have 8 cases:
 		// 01 - method(...);
@@ -219,7 +220,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	 * 41
 	 */
 	@Override
-	protected void inspectReturnStatement(int loopControl, Context context, DataFlow dataFlow, ReturnStatement statement) {
+	protected void inspectReturnStatement(Flow loopControl, Context context, DataFlow dataFlow, ReturnStatement statement) {
 		// 01 - Add a reference of the variable into the initializer (if the initializer is also a variable).
 		addReferenceToInitializer(loopControl, context, statement, statement.getExpression());
 
@@ -230,7 +231,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	 * 60
 	 */
 	@Override
-	protected void inspectVariableDeclarationStatement(int loopControl, Context context, DataFlow dataFlow,
+	protected void inspectVariableDeclarationStatement(Flow loopControl, Context context, DataFlow dataFlow,
 			VariableDeclarationStatement statement) {
 		for (Iterator<?> iter = statement.fragments().iterator(); iter.hasNext();) {
 			// VariableDeclarationFragment: is the plain variable declaration part.
@@ -247,7 +248,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	 * 70
 	 */
 	@Override
-	protected void inspectEnhancedForStatement(int loopControl, Context context, DataFlow dataFlow,
+	protected void inspectEnhancedForStatement(Flow loopControl, Context context, DataFlow dataFlow,
 			EnhancedForStatement statement) {
 		SingleVariableDeclaration parameter = statement.getParameter();
 		Expression expression = statement.getExpression();
@@ -260,7 +261,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	/**
 	 * 07, 60, 70
 	 */
-	private VariableBinding addVariableToCallGraphAndInspectInitializer(int loopControl, Context context,
+	private VariableBinding addVariableToCallGraphAndInspectInitializer(Flow loopControl, Context context,
 			DataFlow dataFlow, Expression variableName, Expression initializer) {
 		// 01 - Add a reference of the variable into the initializer (if the initializer is also a variable).
 		addReferenceToInitializer(loopControl, context, variableName, initializer);
@@ -283,7 +284,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		return variableBinding;
 	}
 
-	private void addParametersToCallGraph(int loopControl, Context context, ASTNode methodInvocation,
+	private void addParametersToCallGraph(Flow loopControl, Context context, ASTNode methodInvocation,
 			MethodDeclaration methodDeclaration) {
 		// 01 - Get the parameters of this method declaration.
 		List<SingleVariableDeclaration> parameters = BindingResolver.getParameters(methodDeclaration);
@@ -309,7 +310,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		}
 	}
 
-	private void addReferenceToInitializer(int loopControl, Context context, ASTNode expression, Expression initializer) {
+	private void addReferenceToInitializer(Flow loopControl, Context context, ASTNode expression, Expression initializer) {
 		// 01 - To avoid infinitive loop, this check is necessary.
 		if (hasLoop(loopControl)) {
 			PluginLogger.logError("addReferenceToInitializer: " + expression + " - " + initializer + " - " + loopControl,
@@ -365,15 +366,15 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		}
 	}
 
-	private void addReferenceName(int loopControl, Context context, ASTNode expression, Name initializer) {
+	private void addReferenceName(Flow loopControl, Context context, ASTNode expression, Name initializer) {
 		addReference(context, expression, initializer);
 	}
 
-	private void addReferenceArrayAccess(int loopControl, Context context, ASTNode expression, ArrayAccess initializer) {
+	private void addReferenceArrayAccess(Flow loopControl, Context context, ASTNode expression, ArrayAccess initializer) {
 		addReference(context, expression, initializer);
 	}
 
-	private void addReferenceArrayInitializer(int loopControl, Context context, ASTNode expression,
+	private void addReferenceArrayInitializer(Flow loopControl, Context context, ASTNode expression,
 			ArrayInitializer initializer) {
 		List<Expression> expressions = BindingResolver.getParameters(initializer);
 
@@ -382,26 +383,26 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		}
 	}
 
-	private void addReferenceAssignment(int loopControl, Context context, ASTNode expression, Assignment initializer) {
+	private void addReferenceAssignment(Flow loopControl, Context context, ASTNode expression, Assignment initializer) {
 		addReferenceToInitializer(loopControl, context, expression, initializer.getLeftHandSide());
 		addReferenceToInitializer(loopControl, context, expression, initializer.getRightHandSide());
 	}
 
-	private void inspectCastExpression(int loopControl, Context context, ASTNode expression, CastExpression initializer) {
+	private void inspectCastExpression(Flow loopControl, Context context, ASTNode expression, CastExpression initializer) {
 		addReferenceToInitializer(loopControl, context, expression, initializer.getExpression());
 	}
 
-	private void addReferenceConditionalExpression(int loopControl, Context context, ASTNode expression,
+	private void addReferenceConditionalExpression(Flow loopControl, Context context, ASTNode expression,
 			ConditionalExpression initializer) {
 		addReferenceToInitializer(loopControl, context, expression, initializer.getThenExpression());
 		addReferenceToInitializer(loopControl, context, expression, initializer.getElseExpression());
 	}
 
-	private void addReferenceFieldAccess(int loopControl, Context context, ASTNode expression, FieldAccess initializer) {
+	private void addReferenceFieldAccess(Flow loopControl, Context context, ASTNode expression, FieldAccess initializer) {
 		addReferenceToInitializer(loopControl, context, expression, initializer.getName());
 	}
 
-	private void addReferenceInfixExpression(int loopControl, Context context, ASTNode expression,
+	private void addReferenceInfixExpression(Flow loopControl, Context context, ASTNode expression,
 			InfixExpression initializer) {
 		addReferenceToInitializer(loopControl, context, expression, initializer.getLeftOperand());
 		addReferenceToInitializer(loopControl, context, expression, initializer.getRightOperand());
@@ -413,12 +414,12 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		}
 	}
 
-	private void addReferenceParenthesizedExpression(int loopControl, Context context, ASTNode expression,
+	private void addReferenceParenthesizedExpression(Flow loopControl, Context context, ASTNode expression,
 			ParenthesizedExpression initializer) {
 		addReferenceToInitializer(loopControl, context, expression, initializer.getExpression());
 	}
 
-	private void addReferenceSuperFieldAccess(int loopControl, Context context, ASTNode expression,
+	private void addReferenceSuperFieldAccess(Flow loopControl, Context context, ASTNode expression,
 			SuperFieldAccess initializer) {
 		addReferenceToInitializer(loopControl, context, expression, initializer.getName());
 	}
