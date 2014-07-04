@@ -90,9 +90,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		Expression leftHandSide = node.getLeftHandSide();
 		Expression rightHandSide = node.getRightHandSide();
 
-		// Node Type: 7 - parameterType[i]=Integer.class
 		switch (leftHandSide.getNodeType()) {
-			case ASTNode.ARRAY_ACCESS: // 02
 			case ASTNode.FIELD_ACCESS: // 22
 			case ASTNode.SIMPLE_NAME: // 42
 			case ASTNode.SUPER_FIELD_ACCESS: // 47
@@ -102,8 +100,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 				context = getContext(context, leftHandSide);
 				break;
 			default:
-				PluginLogger.logError("inspectAssignment Default Node Type: " + leftHandSide.getNodeType() + " - "
-						+ leftHandSide, null);
+				PluginLogger.logError("inspectAssignment Default Node Type: " + node.getNodeType() + " - " + node, null);
 		}
 
 		// 02 - Try to find if this variable already exists into the current context.
