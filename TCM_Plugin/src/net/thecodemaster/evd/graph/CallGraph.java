@@ -40,13 +40,20 @@ public class CallGraph {
 		return contexts;
 	}
 
-	private IResource getResource(MethodDeclaration method, ASTNode invoker) {
+	private IResource getResource(MethodDeclaration method, ASTNode invoker, Context parentContext) {
 		IResource resource = null;
 		if (null != method) {
 			resource = BindingResolver.getResource(method);
 		} else if ((null != invoker) && (invoker.getNodeType() == ASTNode.CLASS_INSTANCE_CREATION)) {
 			// If the method is null, it means this is a Constructor without source code.
+			// We have two cases, a library or one of our classes without a constructor.
+			// If it is a library the resource will be null.
 			resource = BindingResolver.getResource(this, ((ClassInstanceCreation) invoker).getType());
+		}
+
+		if ((null == resource) && (null != parentContext)) {
+			// This is our last hope.
+			resource = parentContext.getResource();
 		}
 		return resource;
 	}
@@ -153,7 +160,7 @@ public class CallGraph {
 
 	public Context newContext(Context parentContext, MethodDeclaration method, ASTNode invoker) {
 		// 01 - Get the resource of this context.
-		IResource resource = getResource(method, invoker);
+		IResource resource = getResource(method, invoker, parentContext);
 
 		// 02 - Create a context.
 		Context context = new Context(resource, parentContext);
@@ -185,7 +192,7 @@ public class CallGraph {
 		classContext.setIsClassContext(true);
 
 		// 04 - Get the resource of this constructor.
-		IResource resource = getResource(method, invoker);
+		IResource resource = getResource(method, invoker, parentContext);
 
 		// 05 - Get the context (top level) of that resource.
 		// 06 - Copy the variables and methods from the classContext to this new context.

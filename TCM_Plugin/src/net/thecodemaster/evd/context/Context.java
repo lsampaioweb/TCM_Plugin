@@ -197,8 +197,10 @@ public class Context {
 			invocations = getMethods().get(caller);
 		}
 
-		// 03 - Add the method invocation for the current method (caller).
-		invocations.add(callee);
+		if (null != invocations) {
+			// 03 - Add the method invocation for the current method (caller).
+			invocations.add(callee);
+		}
 	}
 
 	public void addChildContext(Context context) {
