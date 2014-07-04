@@ -293,8 +293,8 @@ public class BindingResolver {
 					return null; // Stop conditions.
 				case ASTNode.QUALIFIED_NAME: // 40 - This is the one we want to find.
 					return ((QualifiedName) node).getQualifier();
-				case ASTNode.SIMPLE_NAME: // 42 - This is the one we want to find.
-					return (Expression) node;
+					// case ASTNode.SIMPLE_NAME: // 42 - This is the one we want to find.
+					// return (Expression) node;
 				case ASTNode.VARIABLE_DECLARATION_FRAGMENT: // 59
 					return ((VariableDeclarationFragment) node).getName();
 			}

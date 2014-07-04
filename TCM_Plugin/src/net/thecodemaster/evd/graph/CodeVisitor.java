@@ -102,7 +102,10 @@ public abstract class CodeVisitor {
 			return;
 		}
 
-		// 01 - To avoid infinitive loop, this check is necessary.
+		// 01 - Add the new element into the loopControl object.
+		loopControl = addElementToLoopControl(loopControl, node);
+
+		// 02 - To avoid infinitive loop, this check is necessary.
 		if (hasLoop(loopControl)) {
 			PluginLogger.logError("A loop was found: " + loopControl, null);
 			return;
@@ -613,6 +616,19 @@ public abstract class CodeVisitor {
 	 * Helper Methods
 	 */
 
+	protected Flow addElementToLoopControl(Flow loopControl, ASTNode node) {
+		switch (node.getNodeType()) {
+			case ASTNode.CLASS_INSTANCE_CREATION: // 14
+			case ASTNode.CONSTRUCTOR_INVOCATION: // 17
+			case ASTNode.METHOD_INVOCATION: // 32
+			case ASTNode.SUPER_CONSTRUCTOR_INVOCATION: // 46
+			case ASTNode.SUPER_METHOD_INVOCATION: // 48
+				loopControl = loopControl.addChild(node);
+		}
+
+		return loopControl;
+	}
+
 	protected boolean hasLoop(Flow loopControl) {
 		return loopControl.hasLoop();
 	}
@@ -660,6 +676,7 @@ public abstract class CodeVisitor {
 				return getConstructorInvocationDeclaration(invocation, EnumTypeDeclaration.CONSTRUCTOR);
 
 			case ASTNode.METHOD_INVOCATION: // 32
+				// PluginLogger.logIfDebugging(invocation.toString());
 				return getMethodInvocationDeclaration(loopControl, context, (MethodInvocation) invocation,
 						EnumTypeDeclaration.METHOD);
 
@@ -925,16 +942,14 @@ public abstract class CodeVisitor {
 	 */
 	private Expression findRealReference(Flow loopControl, Context context, Expression invokerName) {
 		// 01 - Get the last reference of this object.
-		VariableBinding variableBinding = getCallGraph().getLastReference(context, invokerName);
+		VariableBinding variableBinding = getCallGraph().getVariableBinding(context, invokerName);
 
 		if (null != variableBinding) {
 			// 02 - Try to find where this variable was created.
 			ReferenceFinder finder = new ReferenceFinder(getCallGraph(), getCurrentResource());
 
-			Expression initializer = variableBinding.getInitializer();
-
 			// 03 - Return the real reference of this object.
-			return finder.getReference(new Flow(initializer), context, initializer);
+			return finder.getReference(loopControl, context, variableBinding.getInitializer());
 		}
 
 		return null;
@@ -949,7 +964,7 @@ public abstract class CodeVisitor {
 	 * a2.method(); <br/>
 	 * <br/>
 	 */
-	protected Expression findRealInstance(Context context, Expression instance) {
+	protected Expression findRealInstance(Flow loopControl, Context context, Expression instance) {
 		Expression instanceReturn = null;
 		// 01 - Check if this instance has a context.
 		Context instanceContext = getCallGraph().getInstanceContext(context, instance);
@@ -957,16 +972,14 @@ public abstract class CodeVisitor {
 		// 02 - If the context is equal it means it does not exist.
 		if (instanceContext.equals(context)) {
 			// 03 - Get the last reference of this object.
-			VariableBinding variableBinding = getCallGraph().getLastReference(context, instance);
+			VariableBinding variableBinding = getCallGraph().getVariableBinding(context, instance);
 
 			if (null != variableBinding) {
 				// 03 - Try to find where this variable was created.
 				InstanceFinder finder = new InstanceFinder(getCallGraph(), getCurrentResource());
 
-				Expression initializer = variableBinding.getInitializer();
-
 				// 04 - Return the real reference of this object.
-				instanceReturn = finder.getReference(new Flow(initializer), context, initializer);
+				instanceReturn = finder.getReference(loopControl, context, variableBinding.getInitializer());
 			}
 		}
 

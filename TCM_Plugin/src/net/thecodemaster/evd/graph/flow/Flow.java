@@ -4,27 +4,27 @@ import java.util.List;
 
 import net.thecodemaster.evd.helper.Creator;
 
-import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ASTNode;
 
 public class Flow {
 
-	private final Expression	root;
+	private final ASTNode			root;
 	private Flow							parent;
 	private final List<Flow>	children;
 	private boolean						hasLoop;
 
-	public Flow(Expression root) {
+	public Flow(ASTNode root) {
 		this.root = root;
 		children = Creator.newList();
 		hasLoop = false;
 	}
 
-	private Flow(Expression root, Flow parent) {
+	private Flow(ASTNode root, Flow parent) {
 		this(root);
 		this.parent = parent;
 	}
 
-	private Expression getRoot() {
+	private ASTNode getRoot() {
 		return root;
 	}
 
@@ -32,7 +32,7 @@ public class Flow {
 		return parent;
 	}
 
-	public Flow addChild(Expression node) {
+	public Flow addChild(ASTNode node) {
 		Flow flow;
 
 		// If there is nothing to add or the new value is the same as the present value.
@@ -49,7 +49,7 @@ public class Flow {
 		return flow;
 	}
 
-	private void checkIfHasLoop(Expression node) {
+	private void checkIfHasLoop(ASTNode node) {
 		Flow current = this;
 
 		while (null != current) {

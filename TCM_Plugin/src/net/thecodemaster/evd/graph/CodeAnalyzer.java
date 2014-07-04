@@ -130,6 +130,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 			if (!userCanceledProcess(getProgressMonitor())) {
 				// 02 - Set the current resource.
 				setCurrentResource(resource);
+				// PluginLogger.logIfDebugging(resource.getName());
 
 				// 03 - Inform the user what is the current process of the plug-in.
 				setSubTask(getSubTaskMessage());
@@ -270,8 +271,8 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 			inspectNode(loopControl, context, dataFlow, methodsInChain.get(methodsInChain.size() - 2));
 		}
 
-		inspectEachMethodInvocationOfChainInvocations(loopControl.addChild(methodInvocation), context,
-				dataFlow.addNodeToPath(methodInvocation), methodInvocation);
+		inspectEachMethodInvocationOfChainInvocations(loopControl, context, dataFlow.addNodeToPath(methodInvocation),
+				methodInvocation);
 	}
 
 	/**
@@ -347,7 +348,8 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	/**
 	 * 32
 	 */
-	protected Context getContext(Context context, MethodDeclaration methodDeclaration, ASTNode methodInvocation) {
+	protected Context getContext(Flow loopControl, Context context, MethodDeclaration methodDeclaration,
+			ASTNode methodInvocation) {
 		return null;
 	}
 
@@ -387,15 +389,18 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 			Expression instance = BindingResolver.getInstanceIfItIsAnObject(expression);
 
 			if (Modifier.isStatic(binding.getModifiers())) {
-				// Person.staticPersonVariable
+				// Case: 01 - Person.staticPersonVariable
+				// Case: 02 - staticPersonVariable
 
 				// 04 - Get the resource of this static variable.
 				IResource resource = HelperCodeAnalyzer.getClassResource(getCallGraph(), instance);
 
-				// 05 - Get the context (top level) of this resource.
-				context = getCallGraph().getStaticContext(resource);
+				if (null != resource) {
+					// 05 - Get the context (top level) of this resource.
+					context = getCallGraph().getStaticContext(resource);
+				}
 			} else {
-				// person.publicPersonVariable
+				// Case: 03 - person.publicPersonVariable
 				context = getCallGraph().getInstanceContext(context, instance);
 			}
 		}

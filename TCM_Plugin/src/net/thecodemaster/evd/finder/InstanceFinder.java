@@ -61,8 +61,7 @@ public class InstanceFinder extends CodeVisitor {
 				addReference(expression);
 				return;
 			}
-
-			// 04 - This is the case where we have to go deeper into the variable's path.
+			// 01 - This is the case where we have to go deeper into the variable's path.
 			inspectNode(loopControl, context, dataFlow, variableBinding.getInitializer());
 		}
 	}

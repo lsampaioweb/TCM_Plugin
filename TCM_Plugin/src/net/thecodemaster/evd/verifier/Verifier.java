@@ -209,14 +209,15 @@ public abstract class Verifier extends CodeAnalyzer {
 	protected void inspectMethodWithSourceCode(Flow loopControl, Context context, DataFlow dataFlow,
 			ASTNode methodInvocation, MethodDeclaration methodDeclaration) {
 		// 01 - Get the context for this method.
-		Context newContext = getContext(context, methodDeclaration, methodInvocation);
+		Context newContext = getContext(loopControl, context, methodDeclaration, methodInvocation);
 
 		// 02 - Now I inspect the body of the method.
 		super.inspectMethodWithSourceCode(loopControl, newContext, dataFlow, methodInvocation, methodDeclaration);
 	}
 
 	@Override
-	protected Context getContext(Context context, MethodDeclaration methodDeclaration, ASTNode methodInvocation) {
+	protected Context getContext(Flow loopControl, Context context, MethodDeclaration methodDeclaration,
+			ASTNode methodInvocation) {
 		// We have 8 cases:
 		// 01 - method(...);
 		// 02 - method1(...).method2(...).method3(...);
@@ -239,7 +240,7 @@ public abstract class Verifier extends CodeAnalyzer {
 				// Cases: 03, 04, 05
 				// The instance must exist, if it does not, it is probably an assignment or syntax error.
 				// Animal a1 = new Animal() / Animal a2 = a1 / a1.method();
-				instance = findRealInstance(context, instance);
+				instance = findRealInstance(loopControl, context, instance);
 
 				return getCallGraph().getInstanceContext(context, methodDeclaration, methodInvocation, instance);
 			} else {
@@ -287,6 +288,11 @@ public abstract class Verifier extends CodeAnalyzer {
 		if (null != getReporter()) {
 			getReporter().addProblem(getCurrentResource(), getId(), dataFlow);
 		}
+	}
+
+	@Override
+	public String toString() {
+		return getName();
 	}
 
 }

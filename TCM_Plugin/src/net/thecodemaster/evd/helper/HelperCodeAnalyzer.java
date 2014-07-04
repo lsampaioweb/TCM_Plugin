@@ -30,16 +30,20 @@ public abstract class HelperCodeAnalyzer {
 	 * @param dataFlow
 	 */
 	public static void updateVariableBindingStatus(VariableBinding variableBinding, DataFlow dataFlow) {
-		EnumVariableStatus status = (dataFlow.hasVulnerablePath()) ? EnumVariableStatus.VULNERABLE
-				: EnumVariableStatus.NOT_VULNERABLE;
-		variableBinding.setStatus(status).setDataFlow(dataFlow);
+		if ((null != variableBinding) && (null != dataFlow)) {
+			EnumVariableStatus status = (dataFlow.hasVulnerablePath()) ? EnumVariableStatus.VULNERABLE
+					: EnumVariableStatus.NOT_VULNERABLE;
+			variableBinding.setStatus(status).setDataFlow(dataFlow);
+		}
 	}
 
 	/**
 	 * @param variableBinding
 	 */
 	public static void updateVariableBindingStatusToPrimitive(VariableBinding variableBinding) {
-		variableBinding.setStatus(EnumVariableStatus.NOT_VULNERABLE);
+		if (null != variableBinding) {
+			variableBinding.setStatus(EnumVariableStatus.NOT_VULNERABLE);
+		}
 	}
 
 	/**
@@ -152,22 +156,24 @@ public abstract class HelperCodeAnalyzer {
 		// 01 - We will need the name of the package where the super class is located.
 		String packageName = null;
 
-		// 02 - We have two cases.
-		// Case 01: QualifiedName: some.package.Animal
-		// Case 02: SimpleName : Animal
-		switch (expression.getNodeType()) {
-			case ASTNode.QUALIFIED_NAME: // 40
-				// The qualified name is the package where the class is located.
-				packageName = ((QualifiedName) expression).getFullyQualifiedName();
-				break;
-			case ASTNode.SIMPLE_NAME: // 42
-				// If we just have the name of the class, we have two cases.
-				// Case 01: The super class is in the same package.
-				// Case 02: The super class is in another package.
-				String instancePackageName = ((SimpleName) expression).getFullyQualifiedName();
+		if (null != expression) {
+			// 02 - We have two cases.
+			// Case 01: QualifiedName: some.package.Animal
+			// Case 02: SimpleName : Animal
+			switch (expression.getNodeType()) {
+				case ASTNode.QUALIFIED_NAME: // 40
+					// The qualified name is the package where the class is located.
+					packageName = ((QualifiedName) expression).getFullyQualifiedName();
+					break;
+				case ASTNode.SIMPLE_NAME: // 42
+					// If we just have the name of the class, we have two cases.
+					// Case 01: The super class is in the same package.
+					// Case 02: The super class is in another package.
+					String instancePackageName = ((SimpleName) expression).getFullyQualifiedName();
 
-				packageName = getPackageName(expression, instancePackageName);
-				break;
+					packageName = getPackageName(expression, instancePackageName);
+					break;
+			}
 		}
 
 		// 08 - Now that we have the package where the super class is located, we can get

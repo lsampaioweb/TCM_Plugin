@@ -121,11 +121,13 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 				VariableBinding variableBindingGlobal = getCallGraph().addFieldDeclaration(classContext, leftHandSide,
 						rightHandSide);
 
-				// 07 - Update the status and the data flow of the global variable.
-				HelperCodeAnalyzer.updateVariableBindingStatus(variableBindingGlobal, variableBindingNew.getDataFlow());
+				if (null != variableBindingGlobal) {
+					// 07 - Update the status and the data flow of the global variable.
+					HelperCodeAnalyzer.updateVariableBindingStatus(variableBindingGlobal, variableBindingNew.getDataFlow());
 
-				// 08 - Update from LOCAL to GLOBAL in the new variable.
-				variableBindingNew.setType(variableBindingGlobal.getType());
+					// 08 - Update from LOCAL to GLOBAL in the new variable.
+					variableBindingNew.setType(variableBindingGlobal.getType());
+				}
 			}
 		}
 	}
@@ -140,7 +142,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		getCallGraph().addMethodInvocation(context, currentMethod, methodInvocation);
 
 		// 03 - Create a context for this method.
-		Context newContext = getContext(context, methodDeclaration, methodInvocation);
+		Context newContext = getContext(loopControl, context, methodDeclaration, methodInvocation);
 
 		// 04 - If this method declaration has parameters, we have to add the values from
 		// the invocation to these parameters.
@@ -172,7 +174,8 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	}
 
 	@Override
-	protected Context getContext(Context context, MethodDeclaration methodDeclaration, ASTNode methodInvocation) {
+	protected Context getContext(Flow loopControl, Context context, MethodDeclaration methodDeclaration,
+			ASTNode methodInvocation) {
 		// We have 8 cases:
 		// 01 - method(...);
 		// 02 - method1(...).method2(...).method3(...);
@@ -203,7 +206,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 				// Cases: 03, 04, 05
 				// The instance must exist, if it does not, it is probably an assignment or syntax error.
 				// Animal a1 = new Animal() / Animal a2 = a1 / a1.method();
-				instance = findRealInstance(context, instance);
+				instance = findRealInstance(loopControl, context, instance);
 
 				return getCallGraph().newInstanceContext(context, methodDeclaration, methodInvocation, instance);
 			} else {
@@ -263,12 +266,12 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		// 01 - Add a reference of the variable into the initializer (if the initializer is also a variable).
 		addReferenceToInitializer(loopControl, context, variableName, initializer);
 
-		// 02 - Add the variable to the current context.
-		VariableBinding variableBinding = getCallGraph().addVariable(context, variableName, initializer);
-
 		// 03 - Inspect the Initializer to verify if this variable is vulnerable.
 		DataFlow newDataFlow = new DataFlow(variableName);
 		inspectNode(loopControl, context, newDataFlow, initializer);
+
+		// 02 - Add the variable to the current context.
+		VariableBinding variableBinding = getCallGraph().addVariable(context, variableName, initializer);
 
 		// 04 - If there is a vulnerable path, then this variable is vulnerable.
 		// But if this variable is of primitive type, then there is nothing to do because they can not be vulnerable.
@@ -359,7 +362,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		if (null != variableBinding) {
 			variableBinding.addReferences(expression);
 		} else {
-			PluginLogger.logError("addReference else: " + expression + " - " + initializer, null);
+			// PluginLogger.logError("addReference else: " + expression + " - " + initializer, null);
 		}
 	}
 

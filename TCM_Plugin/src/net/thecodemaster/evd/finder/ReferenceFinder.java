@@ -63,7 +63,7 @@ public class ReferenceFinder extends CodeVisitor {
 		VariableBinding variableBinding = getCallGraph().getVariableBinding(context, expression);
 
 		if (null != variableBinding) {
-			// 02 - This is the case where we have to go deeper into the variable's path.
+			// 01 - This is the case where we have to go deeper into the variable's path.
 			inspectNode(loopControl, context, dataFlow, variableBinding.getInitializer());
 		}
 	}
