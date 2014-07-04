@@ -9,7 +9,6 @@ import net.thecodemaster.evd.context.Context;
 import net.thecodemaster.evd.graph.flow.DataFlow;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.helper.HelperCodeAnalyzer;
-import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.marker.MarkerManager;
 import net.thecodemaster.evd.point.EntryPoint;
 import net.thecodemaster.evd.point.SanitizationPoint;
@@ -130,7 +129,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 			if (!userCanceledProcess(getProgressMonitor())) {
 				// 02 - Set the current resource.
 				setCurrentResource(resource);
-				PluginLogger.logIfDebugging(resource.getName());
+				// PluginLogger.logIfDebugging(resource.getName());
 
 				// 03 - Inform the user what is the current process of the plug-in.
 				setSubTask(getSubTaskMessage());

@@ -77,8 +77,7 @@ public class BindingResolver {
 	}
 
 	public static MethodDeclaration getParentMethodDeclaration(ASTNode node) {
-		MethodDeclaration methodDeclaration = (MethodDeclaration) findAncestor(node, ASTNode.METHOD_DECLARATION);
-		return methodDeclaration;
+		return (MethodDeclaration) findAncestor(node, ASTNode.METHOD_DECLARATION);
 	}
 
 	public static ASTNode getFirstParentBeforeBlock(ASTNode node) {
