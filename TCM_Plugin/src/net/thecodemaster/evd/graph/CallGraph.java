@@ -319,7 +319,9 @@ public class CallGraph {
 				}
 			}
 
-			return getLastReference(vbs);
+			if (vbs.size() == 1) {
+				return getLastReference(vbs);
+			}
 		}
 
 		return null;

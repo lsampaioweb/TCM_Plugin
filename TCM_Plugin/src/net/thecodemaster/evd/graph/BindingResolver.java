@@ -211,6 +211,7 @@ public class BindingResolver {
 				case ASTNode.METHOD_INVOCATION: // 32
 				case ASTNode.RETURN_STATEMENT: // 41
 				case ASTNode.SUPER_CONSTRUCTOR_INVOCATION: // 46
+				case ASTNode.SUPER_METHOD_INVOCATION: // 48
 					return node;
 				case ASTNode.VARIABLE_DECLARATION_FRAGMENT: // 59
 					return ((VariableDeclarationFragment) node).getName();

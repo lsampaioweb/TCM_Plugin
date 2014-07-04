@@ -91,6 +91,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		Expression rightHandSide = node.getRightHandSide();
 
 		switch (leftHandSide.getNodeType()) {
+			case ASTNode.ARRAY_ACCESS: // 02
 			case ASTNode.FIELD_ACCESS: // 22
 			case ASTNode.SIMPLE_NAME: // 42
 			case ASTNode.SUPER_FIELD_ACCESS: // 47
@@ -100,7 +101,8 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 				context = getContext(context, leftHandSide);
 				break;
 			default:
-				PluginLogger.logError("inspectAssignment Default Node Type: " + node.getNodeType() + " - " + node, null);
+				PluginLogger.logError("inspectAssignment Default Node Type: " + leftHandSide.getNodeType() + " - "
+						+ leftHandSide, null);
 		}
 
 		// 02 - Try to find if this variable already exists into the current context.
@@ -130,6 +132,23 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 				}
 			}
 		}
+	}
+
+	/**
+	 * 32
+	 */
+	@Override
+	protected void inspectEachMethodInvocationOfChainInvocations(Flow loopControl, Context context, DataFlow dataFlow,
+			Expression methodInvocation) {
+		if (methodInvocation.getNodeType() == ASTNode.METHOD_INVOCATION) {
+			// 01 - Check if this method invocation has an instance.
+			Expression instance = BindingResolver.getInstanceIfItIsAnObject(methodInvocation);
+
+			// 02 - Add a method reference to this variable (if it is a variable).
+			addReferenceToInitializer(loopControl, context, methodInvocation, instance);
+		}
+
+		super.inspectEachMethodInvocationOfChainInvocations(loopControl, context, dataFlow, methodInvocation);
 	}
 
 	@Override
