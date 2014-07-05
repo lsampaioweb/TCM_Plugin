@@ -264,14 +264,6 @@ public abstract class Verifier extends CodeAnalyzer {
 		}
 	}
 
-	// /**
-	// * 60
-	// */
-	// @Override
-	// protected void inspectVariableDeclarationStatement(Flow loopControl, Context context, DataFlow dataFlow,
-	// VariableDeclarationStatement statement) {
-	// }
-
 	/**
 	 * An exit point might have more that one parameter and each of these parameter might have different rules (acceptable
 	 * values). That is why we need to check.
