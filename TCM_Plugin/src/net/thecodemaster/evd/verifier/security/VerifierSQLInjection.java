@@ -60,9 +60,12 @@ public class VerifierSQLInjection extends Verifier {
 			return;
 		}
 
-		// 01 - Informs that this node is a vulnerability.
-		dataFlow.addNodeToPath(expression).hasVulnerablePath(Constant.Vulnerability.SQL_INJECTION_STRING_CONCATENATION,
-				getStringConcatenationMessage());
+		// 02 - Check if this node matches the rules for the current parameter.
+		if (!matchRules(getRules(), expression)) {
+			// 03 - Informs that this node is a vulnerability.
+			dataFlow.addNodeToPath(expression).hasVulnerablePath(Constant.Vulnerability.SQL_INJECTION_STRING_CONCATENATION,
+					getStringConcatenationMessage());
+		}
 	}
 
 	/**

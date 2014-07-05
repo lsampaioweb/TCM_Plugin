@@ -107,6 +107,10 @@ public abstract class Verifier extends CodeAnalyzer {
 		this.rules = rules;
 	}
 
+	protected void resetRules() {
+		this.rules = null;
+	}
+
 	protected List<ExitPoint> getExitPoints() {
 		if (null == exitPoints) {
 			// Loads all the ExitPoints of this verifier.
@@ -209,6 +213,7 @@ public abstract class Verifier extends CodeAnalyzer {
 						reportVulnerability(dataFlow);
 					}
 				}
+				resetRules();
 			}
 			index++;
 		}
@@ -272,11 +277,11 @@ public abstract class Verifier extends CodeAnalyzer {
 	 * values). That is why we need to check.
 	 * 
 	 * @param rules
-	 * @param parameter
+	 * @param node
 	 * @return
 	 */
-	protected boolean matchRules(List<Integer> rules, Expression parameter) {
-		if (null == parameter) {
+	protected boolean matchRules(List<Integer> rules, ASTNode node) {
+		if ((null == rules) || (null == node)) {
 			// There is nothing we can do to verify it.
 			return true;
 		}
@@ -286,14 +291,14 @@ public abstract class Verifier extends CodeAnalyzer {
 		// 1 LITERAL and sanitized values are valid.
 		for (Integer astNodeValue : rules) {
 			if (astNodeValue == Constant.LITERAL) {
-				switch (parameter.getNodeType()) {
+				switch (node.getNodeType()) {
 					case ASTNode.STRING_LITERAL:
 					case ASTNode.CHARACTER_LITERAL:
 					case ASTNode.NUMBER_LITERAL:
 					case ASTNode.NULL_LITERAL:
 						return true;
 				}
-			} else if (astNodeValue == parameter.getNodeType()) {
+			} else if (astNodeValue == node.getNodeType()) {
 				return true;
 			}
 		}

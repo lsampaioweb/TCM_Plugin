@@ -67,9 +67,12 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 			return;
 		}
 
-		// 02 - Informs that this node is a vulnerability.
-		dataFlow.addNodeToPath((Expression) node).hasVulnerablePath(
-				Constant.Vulnerability.SECURITY_MISCONFIGURATION_HARD_CODED_CONTENT, message);
+		// 02 - Check if this node matches the rules for the current parameter.
+		if (!matchRules(getRules(), node)) {
+			// 03 - Informs that this node is a vulnerability.
+			dataFlow.addNodeToPath((Expression) node).hasVulnerablePath(
+					Constant.Vulnerability.SECURITY_MISCONFIGURATION_HARD_CODED_CONTENT, message);
+		}
 	}
 
 	/**
