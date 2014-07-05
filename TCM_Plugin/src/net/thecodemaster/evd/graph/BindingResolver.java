@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ConstructorInvocation;
+import org.eclipse.jdt.core.dom.EnhancedForStatement;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.IBinding;
@@ -215,6 +216,9 @@ public class BindingResolver {
 					return node;
 				case ASTNode.VARIABLE_DECLARATION_FRAGMENT: // 59
 					return ((VariableDeclarationFragment) node).getName();
+				case ASTNode.ENHANCED_FOR_STATEMENT: // 70
+					SingleVariableDeclaration parameter = ((EnhancedForStatement) node).getParameter();
+					return (null != parameter) ? parameter.getName() : null;
 			}
 
 			node = node.getParent();

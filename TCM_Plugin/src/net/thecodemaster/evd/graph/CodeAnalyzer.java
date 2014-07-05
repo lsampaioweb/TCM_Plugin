@@ -363,6 +363,8 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 			dataFlow.replace(variableBinding.getDataFlow());
 		} else if (variableBinding.getStatus().equals(EnumVariableStatus.UNKNOWN)) {
 			// 01 - This is the case where we have to go deeper into the variable's path.
+			PluginLogger.logIfDebugging((null != variableBinding.getInitializer() ? variableBinding.getInitializer()
+					.toString() : ""));
 			inspectNode(loopControl, context, dataFlow, variableBinding.getInitializer());
 
 			// 02 - If there is a vulnerable path, then this variable is vulnerable.

@@ -19,6 +19,7 @@ import net.thecodemaster.evd.xmlloader.LoaderExitPoint;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
@@ -159,15 +160,14 @@ public abstract class Verifier extends CodeAnalyzer {
 		return super.addElementToLoopControl(loopControl, node);
 	}
 
-	// /**
-	// * 07
-	// */
-	// @Override
-	// protected void inspectAssignment(Flow loopControl, Context context, DataFlow dataFlow, Assignment expression) {
-	// Expression rightHandSide = expression.getRightHandSide();
-	//
-	// inspectNode(loopControl, context, dataFlow.addNodeToPath(rightHandSide), rightHandSide);
-	// }
+	/**
+	 * 07
+	 */
+	@Override
+	protected void inspectAssignment(Flow loopControl, Context context, DataFlow dataFlow, Assignment expression) {
+		Expression rightHandSide = expression.getRightHandSide();
+		inspectNode(loopControl, context, dataFlow.addNodeToPath(rightHandSide), rightHandSide);
+	}
 
 	/**
 	 * 32
@@ -258,6 +258,14 @@ public abstract class Verifier extends CodeAnalyzer {
 			}
 		}
 	}
+
+	// /**
+	// * 60
+	// */
+	// @Override
+	// protected void inspectVariableDeclarationStatement(Flow loopControl, Context context, DataFlow dataFlow,
+	// VariableDeclarationStatement statement) {
+	// }
 
 	/**
 	 * An exit point might have more that one parameter and each of these parameter might have different rules (acceptable

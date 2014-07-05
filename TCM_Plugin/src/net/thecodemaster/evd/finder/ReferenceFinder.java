@@ -11,6 +11,7 @@ import net.thecodemaster.evd.graph.flow.Flow;
 import net.thecodemaster.evd.helper.Creator;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -43,6 +44,16 @@ public class ReferenceFinder extends CodeVisitor {
 
 		// 03 - Return the found reference (if any).
 		return (!getReferences().isEmpty()) ? getReferences().get(0) : null;
+	}
+
+	@Override
+	protected Flow addElementToLoopControl(Flow loopControl, ASTNode node) {
+		switch (node.getNodeType()) {
+			case ASTNode.SIMPLE_NAME: // 42
+				loopControl = loopControl.addChild(node);
+		}
+
+		return super.addElementToLoopControl(loopControl, node);
 	}
 
 	/**
