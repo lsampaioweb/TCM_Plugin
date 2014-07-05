@@ -128,8 +128,8 @@ public class ReporterView implements IReporter {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void addProblem(IResource resource, int typeProblem, DataFlow dataFlow) {
-		addToViewDataModel(resource, typeProblem, dataFlow);
+	public void addProblem(IResource resource, int typeProblem, List<DataFlow> allVulnerablePaths) {
+		addToViewDataModel(resource, typeProblem, allVulnerablePaths);
 
 		// 02 - Update the view so the new data can appear and the old ones can be removed.
 		updateView();
@@ -171,46 +171,49 @@ public class ReporterView implements IReporter {
 		}
 	}
 
-	private void addToViewDataModel(IResource resource, int typeProblem, DataFlow df) {
-		ViewDataModel parent = null;
-		ViewDataModel currentVdm;
-		// Expression root = df.getRoot();
-		List<List<DataFlow>> allVulnerablePaths = df.getAllVulnerablePaths();
+	private void addToViewDataModel(IResource resource, int typeProblem, List<DataFlow> dataFlows) {
+		for (DataFlow dataFlow : dataFlows) {
+			ViewDataModel parent = null;
+			ViewDataModel currentVdm;
 
-		for (List<DataFlow> vulnerablePaths : allVulnerablePaths) {
-			// The first element is where the vulnerability was exploited.
-			DataFlow firstElement = df;
+			List<List<DataFlow>> allVulnerablePaths = dataFlow.getAllVulnerablePaths();
 
-			// The last element is where the vulnerability entered into the application.
-			DataFlow lastElement = vulnerablePaths.get(vulnerablePaths.size() - 1);
+			for (List<DataFlow> vulnerablePaths : allVulnerablePaths) {
+				// The first element is where the vulnerability was exploited.
+				DataFlow firstElement = dataFlow;
 
-			// The path that lead to the vulnerability.
-			String fullPath = getFullPath(vulnerablePaths);
+				// The last element is where the vulnerability entered into the application.
+				DataFlow lastElement = vulnerablePaths.get(vulnerablePaths.size() - 1);
 
-			if ((null == parent) && (!firstElement.equals(lastElement))) {
-				String message = getMessageByNumberOfVulnerablePaths(allVulnerablePaths, firstElement);
+				// The path that lead to the vulnerability.
+				String fullPath = getFullPath(vulnerablePaths);
 
-				parent = createViewDataModelElement(resource, typeProblem, firstElement.getRoot(), message, null);
-				if (null != parent) {
-					// if (!resource.equals(parent.getResource())) {
-					// FIXME - We have duplicated data.
-					// clearOldProblems(parent.getResource());
-					// }
+				if ((null == parent) && (!firstElement.equals(lastElement))) {
+					String message = getMessageByNumberOfVulnerablePaths(allVulnerablePaths, firstElement);
 
-					rootVdm.addChildren(parent);
+					parent = createViewDataModelElement(resource, typeProblem, firstElement.getRoot(), message, null);
+					if (null != parent) {
+						// if (!resource.equals(parent.getResource())) {
+						// FIXME - We have duplicated data.
+						// clearOldProblems(parent.getResource());
+						// }
+
+						rootVdm.addChildren(parent);
+					}
 				}
-			}
 
-			currentVdm = createViewDataModelElement(resource, lastElement.getTypeProblem(), lastElement.getRoot(),
-					lastElement.getMessage(), fullPath);
-			if (null != currentVdm) {
-				if (null != parent) {
-					parent.addChildren(currentVdm);
-				} else {
-					rootVdm.addChildren(currentVdm);
+				currentVdm = createViewDataModelElement(resource, lastElement.getTypeProblem(), lastElement.getRoot(),
+						lastElement.getMessage(), fullPath);
+				if (null != currentVdm) {
+					if (null != parent) {
+						parent.addChildren(currentVdm);
+					} else {
+						rootVdm.addChildren(currentVdm);
+					}
 				}
 			}
 		}
+
 	}
 
 	private String getMessageByNumberOfVulnerablePaths(List<List<DataFlow>> allVulnerablePaths, DataFlow firstElement) {

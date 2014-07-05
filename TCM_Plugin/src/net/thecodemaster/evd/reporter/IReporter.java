@@ -41,9 +41,9 @@ public interface IReporter {
 	 *          The resource where the vulnerability was found.
 	 * @param typeProblem
 	 *          The type of the problem.
-	 * @param dataFlow
+	 * @param allVulnerablePaths
 	 *          The data flow of the vulnerability, from where it started to where it finished. {@link DataFlow}.
 	 */
-	void addProblem(IResource resource, int typeProblem, DataFlow dataFlow);
+	void addProblem(IResource resource, int typeProblem, List<DataFlow> allVulnerablePaths);
 
 }

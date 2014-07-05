@@ -134,6 +134,10 @@ public abstract class Verifier extends CodeAnalyzer {
 
 		super.run(getProgressMonitor(), callGraph, resources);
 
+		if (allVulnerablePaths.size() > 0) {
+			reportVulnerability(allVulnerablePaths);
+		}
+
 		return allVulnerablePaths;
 	}
 
@@ -200,7 +204,6 @@ public abstract class Verifier extends CodeAnalyzer {
 
 					if (dataFlow.hasVulnerablePath()) {
 						allVulnerablePaths.add(dataFlow);
-						// reportVulnerability(dataFlow);
 					}
 				}
 				resetRules();
@@ -288,9 +291,9 @@ public abstract class Verifier extends CodeAnalyzer {
 		return false;
 	}
 
-	protected void reportVulnerability(DataFlow dataFlow) {
+	protected void reportVulnerability(List<DataFlow> allVulnerablePaths) {
 		if (null != getReporter()) {
-			getReporter().addProblem(getCurrentResource(), getId(), dataFlow);
+			getReporter().addProblem(getCurrentResource(), getId(), allVulnerablePaths);
 		}
 	}
 
