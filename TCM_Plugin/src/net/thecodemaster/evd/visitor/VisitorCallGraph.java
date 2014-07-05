@@ -5,8 +5,6 @@ import java.util.List;
 import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.helper.HelperProjects;
-import net.thecodemaster.evd.helper.Timer;
-import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.reporter.Reporter;
 import net.thecodemaster.evd.ui.l10n.Message;
 
@@ -143,18 +141,18 @@ public class VisitorCallGraph implements IResourceVisitor, IResourceDeltaVisitor
 				if (cu.isStructureKnown()) {
 					setSubTask(Message.Plugin.VISITOR_CALL_GRAPH_SUB_TASK + resource.getName());
 					// Creates the AST for the ICompilationUnits.
-					Timer timer = (new Timer("01.1.1 - Parsing: " + resource.getName())).start();
+					// Timer timer = (new Timer("01.1.1 - Parsing: " + resource.getName())).start();
 					CompilationUnit cUnit = parse(cu);
-					PluginLogger.logIfDebugging(timer.stop().toString());
+					// PluginLogger.logIfDebugging(timer.stop().toString());
 
 					// Visit the compilation unit.
-					timer = (new Timer("01.1.2 - Visiting: " + resource.getName())).start();
+					// timer = (new Timer("01.1.2 - Visiting: " + resource.getName())).start();
 
 					// Remove old interactions of this resource.
 					getCallGraph().remove(resource);
 
 					cUnit.accept(new VisitorCompilationUnit(resource, getCallGraph()));
-					PluginLogger.logIfDebugging(timer.stop().toString());
+					// PluginLogger.logIfDebugging(timer.stop().toString());
 
 					// Add this resource to the list of updated resources.
 					resourcesUpdated.add(resource);
