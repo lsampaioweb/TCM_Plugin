@@ -676,7 +676,6 @@ public abstract class CodeVisitor {
 				return getConstructorInvocationDeclaration(invocation, EnumTypeDeclaration.CONSTRUCTOR);
 
 			case ASTNode.METHOD_INVOCATION: // 32
-				// PluginLogger.logIfDebugging(invocation.toString());
 				return getMethodInvocationDeclaration(loopControl, context, (MethodInvocation) invocation,
 						EnumTypeDeclaration.METHOD);
 

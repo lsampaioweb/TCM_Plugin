@@ -154,16 +154,6 @@ public abstract class Verifier extends CodeAnalyzer {
 		inspectNode(new Flow(root), context, new DataFlow(root), methodDeclaration.getBody());
 	}
 
-	@Override
-	protected Flow addElementToLoopControl(Flow loopControl, ASTNode node) {
-		switch (node.getNodeType()) {
-			case ASTNode.SIMPLE_NAME: // 42
-				loopControl = loopControl.addChild(node);
-		}
-
-		return super.addElementToLoopControl(loopControl, node);
-	}
-
 	/**
 	 * 07
 	 */
@@ -210,7 +200,7 @@ public abstract class Verifier extends CodeAnalyzer {
 
 					if (dataFlow.hasVulnerablePath()) {
 						allVulnerablePaths.add(dataFlow);
-						reportVulnerability(dataFlow);
+						// reportVulnerability(dataFlow);
 					}
 				}
 				resetRules();

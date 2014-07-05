@@ -10,7 +10,6 @@ import net.thecodemaster.evd.graph.flow.DataFlow;
 import net.thecodemaster.evd.graph.flow.Flow;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.helper.HelperCodeAnalyzer;
-import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.marker.MarkerManager;
 import net.thecodemaster.evd.point.EntryPoint;
 import net.thecodemaster.evd.point.SanitizationPoint;
@@ -131,7 +130,6 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 			if (!userCanceledProcess(getProgressMonitor())) {
 				// 02 - Set the current resource.
 				setCurrentResource(resource);
-				PluginLogger.logIfDebugging(resource.getName());
 
 				// 03 - Inform the user what is the current process of the plug-in.
 				setSubTask(getSubTaskMessage());
@@ -363,8 +361,6 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 			dataFlow.replace(variableBinding.getDataFlow());
 		} else if (variableBinding.getStatus().equals(EnumVariableStatus.UNKNOWN)) {
 			// 01 - This is the case where we have to go deeper into the variable's path.
-			PluginLogger.logIfDebugging((null != variableBinding.getInitializer() ? variableBinding.getInitializer()
-					.toString() : ""));
 			inspectNode(loopControl, context, dataFlow, variableBinding.getInitializer());
 
 			// 02 - If there is a vulnerable path, then this variable is vulnerable.
