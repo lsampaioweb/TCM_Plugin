@@ -2,7 +2,7 @@
 <feature
       id="TCM_EVD_Feature"
       label="Detector and Security View"
-      version="0.0.3.qualifier"
+      version="0.1.2.qualifier"
       provider-name="thecodemaster.net">
 
    <description>
