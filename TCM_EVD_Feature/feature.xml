@@ -2,11 +2,11 @@
 <feature
       id="TCM_EVD_Feature"
       label="Detector and Security View"
-      version="0.1.4.qualifier"
+      version="0.1.6.qualifier"
       provider-name="thecodemaster.net">
 
    <description>
-      Version: 0.1.4
+      Version: 0.1.6
 Supported vulnerabilities:
 01 - Command Injection
 02 - Cookie Poisoning
@@ -18,11 +18,28 @@ Supported vulnerabilities:
    </description>
 
    <copyright>
-      Free to use.
+      This is just a prototype but it is free to use.
    </copyright>
 
    <license url="">
-      Free to use.
+      Dear Developer,
+
+I was wondering if you could spend some minutes of your precious time by helping me. As part of my dissertation entitled &quot;Early Vulnerability Detection for Supporting Secure Programming&quot;, I developed an Eclipse plug-in (still just a prototype) that performs security vulnerability detection while the developer is creating/editing the source code.
+
+You can install the plug-in as you usually do when working with Eclipse, however, if you have any doubts on &quot;How to Install the plug-in&quot;, there is a How-To at: http://www.inf.puc-rio.br/~lsampaio/plugin/early_vulnerability_detector/Tutorial.
+
+The plug-in&apos;s link:
+http://www.inf.puc-rio.br/~lsampaio/plugin/early_vulnerability_detector/latest/
+
+You can test the plug-in with some of your own projects, however, if you want you can download, import and test a sample project created by me which contains dozens of known security vulnerabilities. More about this project in the attached pdf.
+
+The sample&apos;s link:
+http://www.inf.puc-rio.br/~lsampaio/plugin/early_vulnerability_detector/latest/WebDemo.zip
+
+I would really appreciate your feedback on regards to ANYTHING. The images used, the text to inform the vulnerabilities, the options provided by the plug-in, the English words, false positives, false negatives and anything else that comes to your mind.
+
+Thank you in advance,
+Luciano Sampaio
    </license>
 
    <plugin

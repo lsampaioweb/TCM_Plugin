@@ -21,11 +21,11 @@ public class ResolutionEntryPointNotSanitized extends AbstractResolution {
 		ViewDataModel vdm = vdms.get(0);
 
 		String expression = (null != vdm.getExpr()) ? vdm.getExpr().toString() : "";
-		// String fullPath = getFullPath(vdm);
-		String description = String.format(resolutionMessage.getDescription(), expression, expression);
+		String description = (null != resolutionMessage.getDescription()) ? resolutionMessage.getDescription() : "";
+		String descriptionFormatted = String.format(description, expression, expression);
 
 		setLabel(resolutionMessage.getLabel());
-		setDescription(description);
+		setDescription(descriptionFormatted);
 	}
 
 	/**

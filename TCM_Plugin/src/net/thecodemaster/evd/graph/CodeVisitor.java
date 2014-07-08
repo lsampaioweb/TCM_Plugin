@@ -250,21 +250,21 @@ public abstract class CodeVisitor {
 	}
 
 	/**
-	 * 02
+	 * 02 int a = <b>array[1]<b/>
 	 */
 	protected void inspectArrayAccess(Flow loopControl, Context context, DataFlow dataFlow, ArrayAccess expression) {
 		inspectNode(loopControl, context, dataFlow, expression.getArray());
 	}
 
 	/**
-	 * 03
+	 * 03 int[] array = new int[] <b>{1, 2};<b/>
 	 */
 	protected void inspectArrayCreation(Flow loopControl, Context context, DataFlow dataFlow, ArrayCreation expression) {
 		iterateOverParameters(loopControl, context, dataFlow, expression.getInitializer());
 	}
 
 	/**
-	 * 04
+	 * 04 int[] array = <b>{1, 2};<b/>
 	 */
 	protected void inspectArrayInitializer(Flow loopControl, Context context, DataFlow dataFlow,
 			ArrayInitializer expression) {
@@ -272,7 +272,7 @@ public abstract class CodeVisitor {
 	}
 
 	/**
-	 * 07
+	 * 07 b = a;
 	 */
 	protected void inspectAssignment(Flow loopControl, Context context, DataFlow dataFlow, Assignment expression) {
 		Expression leftHandSide = expression.getLeftHandSide();
@@ -308,7 +308,7 @@ public abstract class CodeVisitor {
 	}
 
 	/**
-	 * 11
+	 * 11 Person a = <b>(Person) object;<b/>
 	 */
 	protected void inspectCastExpression(Flow loopControl, Context context, DataFlow dataFlow, CastExpression expression) {
 		inspectNode(loopControl, context, dataFlow, expression.getExpression());
@@ -322,7 +322,7 @@ public abstract class CodeVisitor {
 	}
 
 	/**
-	 * 14
+	 * 14 new Person(...);
 	 */
 	protected void inspectClassInstanceCreation(Flow loopControl, Context context, DataFlow dataFlow,
 			ClassInstanceCreation node) {
@@ -330,7 +330,7 @@ public abstract class CodeVisitor {
 	}
 
 	/**
-	 * 16
+	 * 16 (null != a) ? a : b;
 	 */
 	protected void inspectConditionExpression(Flow loopControl, Context context, DataFlow dataFlow,
 			ConditionalExpression expression) {
@@ -364,6 +364,7 @@ public abstract class CodeVisitor {
 	 */
 	protected void inspectDoStatement(Flow loopControl, Context context, DataFlow dataFlow, DoStatement statement) {
 		inspectNode(loopControl, context, dataFlow, statement.getBody());
+		inspectNode(loopControl, context, dataFlow.addNodeToPath(null), statement.getExpression());
 	}
 
 	/**
@@ -594,6 +595,7 @@ public abstract class CodeVisitor {
 	 * 61
 	 */
 	protected void inspectWhileStatement(Flow loopControl, Context context, DataFlow dataFlow, WhileStatement statement) {
+		inspectNode(loopControl, context, dataFlow.addNodeToPath(null), statement.getExpression());
 		inspectNode(loopControl, context, dataFlow, statement.getBody());
 	}
 

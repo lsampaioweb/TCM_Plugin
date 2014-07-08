@@ -23,13 +23,16 @@ public class SQLInjection extends AbstractTestVerifier {
 
 	@Test
 	public void test() {
-		Assert.assertEquals(2, allVulnerablePaths.size());
+		Assert.assertEquals(3, allVulnerablePaths.size());
 
 		List<DataFlow> vulnerablePaths01 = allVulnerablePaths.get(0);
 		Assert.assertEquals(2, vulnerablePaths01.size());
 
 		List<DataFlow> vulnerablePaths02 = allVulnerablePaths.get(1);
-		Assert.assertEquals(29, vulnerablePaths02.size());
+		Assert.assertEquals(2, vulnerablePaths02.size());
+
+		List<DataFlow> vulnerablePaths03 = allVulnerablePaths.get(2);
+		Assert.assertEquals(32, vulnerablePaths03.size());
 	}
 
 }
