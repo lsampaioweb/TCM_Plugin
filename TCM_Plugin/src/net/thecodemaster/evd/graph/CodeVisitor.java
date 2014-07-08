@@ -399,6 +399,7 @@ public abstract class CodeVisitor {
 	 * 25
 	 */
 	protected void inspectIfStatement(Flow loopControl, Context context, DataFlow dataFlow, IfStatement statement) {
+		inspectNode(loopControl, context, dataFlow.addNodeToPath(null), statement.getExpression());
 		inspectNode(loopControl, context, dataFlow.addNodeToPath(null), statement.getThenStatement());
 		inspectNode(loopControl, context, dataFlow.addNodeToPath(null), statement.getElseStatement());
 	}

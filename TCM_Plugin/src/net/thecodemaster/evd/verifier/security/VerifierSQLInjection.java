@@ -33,7 +33,9 @@ public class VerifierSQLInjection extends Verifier {
 	 */
 	@Override
 	protected void inspectInfixExpression(Flow loopControl, Context context, DataFlow dataFlow, InfixExpression expression) {
-		processStringConcatenation(dataFlow, expression);
+		if (!hasVulnerability(dataFlow, expression)) {
+			super.inspectInfixExpression(loopControl, context, dataFlow, expression);
+		}
 	}
 
 	/**
@@ -42,7 +44,9 @@ public class VerifierSQLInjection extends Verifier {
 	@Override
 	protected void inspectPostfixExpression(Flow loopControl, Context context, DataFlow dataFlow,
 			PostfixExpression expression) {
-		processStringConcatenation(dataFlow, expression);
+		if (!hasVulnerability(dataFlow, expression)) {
+			super.inspectPostfixExpression(loopControl, context, dataFlow, expression);
+		}
 	}
 
 	/**
@@ -51,13 +55,15 @@ public class VerifierSQLInjection extends Verifier {
 	@Override
 	protected void inspectPrefixExpression(Flow loopControl, Context context, DataFlow dataFlow,
 			PrefixExpression expression) {
-		processStringConcatenation(dataFlow, expression);
+		if (!hasVulnerability(dataFlow, expression)) {
+			super.inspectPrefixExpression(loopControl, context, dataFlow, expression);
+		}
 	}
 
-	private void processStringConcatenation(DataFlow dataFlow, Expression expression) {
+	private boolean hasVulnerability(DataFlow dataFlow, Expression expression) {
 		// 01 - Check if there is a marker, in case there is, we should BELIEVE it is not vulnerable.
 		if (hasMarkerAtPosition(expression)) {
-			return;
+			return false;
 		}
 
 		// 02 - Check if this node matches the rules for the current parameter.
@@ -65,7 +71,10 @@ public class VerifierSQLInjection extends Verifier {
 			// 03 - Informs that this node is a vulnerability.
 			dataFlow.addNodeToPath(expression).hasVulnerablePath(Constant.Vulnerability.SQL_INJECTION_STRING_CONCATENATION,
 					getStringConcatenationMessage());
+			return true;
 		}
+
+		return false;
 	}
 
 	/**

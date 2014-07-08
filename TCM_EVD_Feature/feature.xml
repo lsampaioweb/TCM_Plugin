@@ -2,11 +2,11 @@
 <feature
       id="TCM_EVD_Feature"
       label="Detector and Security View"
-      version="0.1.2.qualifier"
+      version="0.1.4.qualifier"
       provider-name="thecodemaster.net">
 
    <description>
-      Version: 0.0.1
+      Version: 0.1.4
 Supported vulnerabilities:
 01 - Command Injection
 02 - Cookie Poisoning
