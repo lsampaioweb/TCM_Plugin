@@ -115,6 +115,7 @@ public class BuilderJob extends Job {
 	}
 
 	public void run() {
+		// setPriority(Job.INTERACTIVE); // The highest priority.
 		schedule();
 	}
 

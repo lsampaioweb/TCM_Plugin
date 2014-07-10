@@ -11,8 +11,7 @@ import net.thecodemaster.evd.verifier.Verifier;
 
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.InfixExpression;
-import org.eclipse.jdt.core.dom.PostfixExpression;
-import org.eclipse.jdt.core.dom.PrefixExpression;
+import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 import org.eclipse.jdt.core.dom.SimpleName;
 
 /**
@@ -29,34 +28,18 @@ public class VerifierSQLInjection extends Verifier {
 	}
 
 	/**
-	 * 27
+	 * 27 <br/>
+	 * a + b <br/>
+	 * a == b<br/>
+	 * a != b
 	 */
 	@Override
 	protected void inspectInfixExpression(Flow loopControl, Context context, DataFlow dataFlow, InfixExpression expression) {
-		if (!hasVulnerability(dataFlow, expression)) {
+		Operator operator = expression.getOperator();
+
+		if (((null != operator) && (!operator.equals(InfixExpression.Operator.PLUS)))
+				|| (!hasVulnerability(dataFlow, expression))) {
 			super.inspectInfixExpression(loopControl, context, dataFlow, expression);
-		}
-	}
-
-	/**
-	 * 37
-	 */
-	@Override
-	protected void inspectPostfixExpression(Flow loopControl, Context context, DataFlow dataFlow,
-			PostfixExpression expression) {
-		if (!hasVulnerability(dataFlow, expression)) {
-			super.inspectPostfixExpression(loopControl, context, dataFlow, expression);
-		}
-	}
-
-	/**
-	 * 38
-	 */
-	@Override
-	protected void inspectPrefixExpression(Flow loopControl, Context context, DataFlow dataFlow,
-			PrefixExpression expression) {
-		if (!hasVulnerability(dataFlow, expression)) {
-			super.inspectPrefixExpression(loopControl, context, dataFlow, expression);
 		}
 	}
 

@@ -44,6 +44,8 @@ public abstract class AbstractTestVerifier {
 	@Before
 	public void setUp() {
 		try {
+			allVulnerablePaths = Creator.newList();
+
 			// 01 - Create the callGraph object.
 			CallGraph callGraph = new CallGraph();
 
@@ -62,7 +64,6 @@ public abstract class AbstractTestVerifier {
 				// 05 - Get the list of verifiers that will be executed.
 				List<Verifier> verifiers = createListVerifiers();
 
-				allVulnerablePaths = Creator.newList();
 				// 06 - Run the verifications.
 				for (Verifier verifier : verifiers) {
 					List<DataFlow> currentList = verifier.run(null, callGraph, resources);
