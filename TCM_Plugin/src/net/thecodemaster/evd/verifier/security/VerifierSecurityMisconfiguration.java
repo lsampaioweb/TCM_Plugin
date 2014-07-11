@@ -40,28 +40,28 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 
 	@Override
 	protected void inspectCharacterLiteral(Flow loopControl, Context context, DataFlow dataFlow, CharacterLiteral node) {
-		if (!hasVulnerability(dataFlow, node, getMessageLiteral(node.charValue()))) {
+		if (!hasVulnerability(loopControl, dataFlow, node, getMessageLiteral(node.charValue()))) {
 			super.inspectCharacterLiteral(loopControl, context, dataFlow, node);
 		}
 	}
 
 	@Override
 	protected void inspectNullLiteral(Flow loopControl, Context context, DataFlow dataFlow, NullLiteral node) {
-		if (!hasVulnerability(dataFlow, node, getMessageNullLiteral())) {
+		if (!hasVulnerability(loopControl, dataFlow, node, getMessageNullLiteral())) {
 			super.inspectNullLiteral(loopControl, context, dataFlow, node);
 		}
 	}
 
 	@Override
 	protected void inspectNumberLiteral(Flow loopControl, Context context, DataFlow dataFlow, NumberLiteral node) {
-		if (!hasVulnerability(dataFlow, node, getMessageLiteral(node.getToken()))) {
+		if (!hasVulnerability(loopControl, dataFlow, node, getMessageLiteral(node.getToken()))) {
 			super.inspectNumberLiteral(loopControl, context, dataFlow, node);
 		}
 	}
 
 	@Override
 	protected void inspectStringLiteral(Flow loopControl, Context context, DataFlow dataFlow, StringLiteral node) {
-		if (!hasVulnerability(dataFlow, node, getMessageLiteral(node.getLiteralValue()))) {
+		if (!hasVulnerability(loopControl, dataFlow, node, getMessageLiteral(node.getLiteralValue()))) {
 			super.inspectStringLiteral(loopControl, context, dataFlow, node);
 		}
 	}
@@ -69,7 +69,7 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 	/**
 	 * 13, 33, 34, 45
 	 */
-	private boolean hasVulnerability(DataFlow dataFlow, ASTNode node, String message) {
+	private boolean hasVulnerability(Flow loopControl, DataFlow dataFlow, ASTNode node, String message) {
 		// 01 - Check if there is a marker, in case there is, we should BELIEVE it is not vulnerable.
 		if (hasMarkerAtPosition(node)) {
 			return false;
@@ -80,6 +80,7 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 			// 03 - Informs that this node is a vulnerability.
 			dataFlow.addNodeToPath((Expression) node).hasVulnerablePath(
 					Constant.Vulnerability.SECURITY_MISCONFIGURATION_HARD_CODED_CONTENT, message);
+			dataFlow.setFullPath(loopControl);
 			return true;
 		}
 

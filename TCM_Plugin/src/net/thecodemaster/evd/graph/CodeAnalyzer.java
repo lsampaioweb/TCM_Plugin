@@ -317,6 +317,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 
 			// We found a invocation to a entry point method.
 			newDataFlow.hasVulnerablePath(Constant.Vulnerability.ENTRY_POINT, message);
+			newDataFlow.setFullPath(loopControl);
 			return;
 		}
 

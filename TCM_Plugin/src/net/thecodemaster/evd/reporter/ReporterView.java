@@ -7,6 +7,7 @@ import net.thecodemaster.evd.Activator;
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.graph.BindingResolver;
 import net.thecodemaster.evd.graph.flow.DataFlow;
+import net.thecodemaster.evd.graph.flow.Flow;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.helper.HelperViewDataModel;
 import net.thecodemaster.evd.logger.PluginLogger;
@@ -269,15 +270,30 @@ public class ReporterView implements IReporter {
 	}
 
 	private String getFullPath(List<DataFlow> listVulnerablePaths) {
-		StringBuilder fullPath = new StringBuilder();
+		List<String> fullPath = Creator.newList();
 		for (DataFlow vulnerablePath : listVulnerablePaths) {
-			if (0 != fullPath.length()) {
-				fullPath.append(Constant.SEPARATOR_FULL_PATH);
+			Flow flow = vulnerablePath.getFullPath();
+
+			if (null != flow) {
+				fullPath.add(0, flow.getFullPath());
 			}
+
 			Expression root = vulnerablePath.getRoot();
-			fullPath.append((null != root) ? root.toString() : "");
+			if (null != root) {
+				fullPath.add(root.toString());
+			}
 		}
-		return fullPath.toString();
+
+		StringBuilder sb = new StringBuilder();
+		for (String value : fullPath) {
+			if (0 != sb.length()) {
+				sb.append(Constant.SEPARATOR_FULL_PATH);
+			}
+
+			sb.append(value);
+		}
+
+		return sb.toString();
 	}
 
 	/**

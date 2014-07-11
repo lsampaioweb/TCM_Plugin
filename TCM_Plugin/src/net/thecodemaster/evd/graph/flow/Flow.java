@@ -2,6 +2,7 @@ package net.thecodemaster.evd.graph.flow;
 
 import java.util.List;
 
+import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.helper.Creator;
 
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -123,6 +124,31 @@ public class Flow {
 		String root = (null != getRoot()) ? getRoot().toString() : "";
 		String parent = (null != getParent()) ? getParent().toString() : "";
 		return String.format("%s - %s", parent, root);
+	}
+
+	public String getFullPath() {
+		// 01 - The first element is the parent.
+		Flow currentFlow = getParent();
+		List<String> fullPath = Creator.newList();
+
+		while (null != currentFlow) {
+			ASTNode root = currentFlow.getRoot();
+
+			if (null != root) {
+				fullPath.add(0, root.toString());
+			}
+
+			currentFlow = currentFlow.getParent();
+		}
+
+		StringBuilder sb = new StringBuilder();
+		for (String value : fullPath) {
+			if (0 != sb.length()) {
+				sb.append(Constant.SEPARATOR_FULL_PATH);
+			}
+			sb.append(value);
+		}
+		return sb.toString();
 	}
 
 }

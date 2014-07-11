@@ -38,12 +38,12 @@ public class VerifierSQLInjection extends Verifier {
 		Operator operator = expression.getOperator();
 
 		if (((null != operator) && (!operator.equals(InfixExpression.Operator.PLUS)))
-				|| (!hasVulnerability(dataFlow, expression))) {
+				|| (!hasVulnerability(loopControl, dataFlow, expression))) {
 			super.inspectInfixExpression(loopControl, context, dataFlow, expression);
 		}
 	}
 
-	private boolean hasVulnerability(DataFlow dataFlow, Expression expression) {
+	private boolean hasVulnerability(Flow loopControl, DataFlow dataFlow, Expression expression) {
 		// 01 - Check if there is a marker, in case there is, we should BELIEVE it is not vulnerable.
 		if (hasMarkerAtPosition(expression)) {
 			return false;
@@ -54,6 +54,7 @@ public class VerifierSQLInjection extends Verifier {
 			// 03 - Informs that this node is a vulnerability.
 			dataFlow.addNodeToPath(expression).hasVulnerablePath(Constant.Vulnerability.SQL_INJECTION_STRING_CONCATENATION,
 					getStringConcatenationMessage());
+			dataFlow.setFullPath(loopControl);
 			return true;
 		}
 

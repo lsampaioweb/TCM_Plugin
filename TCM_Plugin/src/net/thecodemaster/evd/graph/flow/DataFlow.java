@@ -39,6 +39,7 @@ public class DataFlow {
 	 * This list holds that actual paths that ARE vulnerable.
 	 */
 	private final List<List<DataFlow>>	allVulnerablePaths;
+	private Flow												fullPath;
 
 	public DataFlow(Expression root) {
 		this.root = root;
@@ -77,6 +78,14 @@ public class DataFlow {
 
 	public List<List<DataFlow>> getAllVulnerablePaths() {
 		return allVulnerablePaths;
+	}
+
+	public Flow getFullPath() {
+		return fullPath;
+	}
+
+	public void setFullPath(Flow fullPath) {
+		this.fullPath = fullPath;
 	}
 
 	public DataFlow addNodeToPath(Expression node) {
