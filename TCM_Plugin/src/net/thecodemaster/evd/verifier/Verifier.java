@@ -128,11 +128,12 @@ public abstract class Verifier extends CodeAnalyzer {
 	 * @param reporter
 	 * @return
 	 */
-	public List<DataFlow> run(Reporter reporter, CallGraph callGraph, List<IResource> resources) {
+	public List<DataFlow> run(Reporter reporter, CallGraph callGraph,
+			Map<IResource, Map<MethodDeclaration, List<ASTNode>>> resourcesAndMethodsToProcess) {
 		setReporter(reporter);
 		allVulnerablePaths = Creator.newList();
 
-		super.run(getProgressMonitor(), callGraph, resources);
+		super.run(getProgressMonitor(), callGraph, resourcesAndMethodsToProcess);
 
 		if (allVulnerablePaths.size() > 0) {
 			reportVulnerability(allVulnerablePaths);

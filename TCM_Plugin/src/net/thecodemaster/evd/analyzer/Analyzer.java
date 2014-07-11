@@ -1,16 +1,18 @@
 package net.thecodemaster.evd.analyzer;
 
 import java.util.List;
+import java.util.Map;
 
 import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.helper.Creator;
-import net.thecodemaster.evd.helper.Timer;
-import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.reporter.Reporter;
 import net.thecodemaster.evd.verifier.Verifier;
+import net.thecodemaster.evd.verifier.VerifierJob;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 
 /**
  * The Analyzer is like a category of one or several verifiers. On this first version we only have a
@@ -57,15 +59,20 @@ public abstract class Analyzer {
 	 *          The list of modified resources that needs to be verified.
 	 */
 	public void run(Reporter reporter, CallGraph callGraph, List<IResource> resources) {
-		// 01 - Iterate over the list of verifiers.
-		for (Verifier verifier : getVerifiers()) {
+		if (getVerifiers().size() > 0) {
+			Map<IResource, Map<MethodDeclaration, List<ASTNode>>> resourcesAndMethodsToProcess = getVerifiers().get(0)
+					.getMethodsToProcess(callGraph, resources);
 
-			// 02 - Before invoking the run method of the current verifier, it is important to check if the user canceled the
-			// process.
-			if (!userCanceledProcess(reporter)) {
-				Timer timer = (new Timer("01.3.1 - Verifier: " + verifier.getName())).start();
-				verifier.run(reporter, callGraph, resources);
-				PluginLogger.logIfDebugging(timer.stop().toString());
+			// 04 - Iterate over the list of verifiers.
+			for (Verifier verifier : getVerifiers()) {
+
+				// 05 - Before invoking the run method of the current verifier,
+				// it is important to check if the user canceled the process.
+				if (!userCanceledProcess(reporter)) {
+					VerifierJob jobDelta = new VerifierJob(verifier.getName());
+					jobDelta.run(verifier, reporter, callGraph, resourcesAndMethodsToProcess);
+					// verifier.run(reporter, callGraph, resourcesAndMethodsToProcess);
+				}
 			}
 		}
 	}

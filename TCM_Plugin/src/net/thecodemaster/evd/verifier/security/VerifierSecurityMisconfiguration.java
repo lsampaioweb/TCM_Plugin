@@ -92,7 +92,8 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 	@Override
 	protected void inspectSimpleName(Flow loopControl, Context context, DataFlow dataFlow, SimpleName expression,
 			VariableBinding variableBinding) {
-		if ((null != variableBinding) && (variableBinding.getStatus().equals(EnumVariableStatus.NOT_VULNERABLE))) {
+		if ((null != getRules())
+				&& ((null != variableBinding) && (variableBinding.getStatus().equals(EnumVariableStatus.NOT_VULNERABLE)))) {
 
 			// The SQL Injection verifier also needs to know if the variable has its content from a string concatenation.
 			inspectNode(loopControl, context, dataFlow, variableBinding.getInitializer());

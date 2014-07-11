@@ -2,6 +2,7 @@ package net.thecodemaster.evd.visitor;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import net.thecodemaster.evd.context.Context;
 import net.thecodemaster.evd.graph.BindingResolver;
@@ -51,9 +52,11 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		return Message.Plugin.VISITOR_POINTS_TO_ANALYSIS_SUB_TASK + getCurrentResource().getName();
 	}
 
-	@Override
 	public void run(IProgressMonitor monitor, CallGraph callGraph, List<IResource> resources) {
-		super.run(monitor, callGraph, resources);
+		Map<IResource, Map<MethodDeclaration, List<ASTNode>>> resourcesAndMethodsToProcess = getMethodsToProcess(callGraph,
+				resources);
+
+		super.run(monitor, callGraph, resourcesAndMethodsToProcess);
 	}
 
 	/**

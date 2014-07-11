@@ -121,21 +121,22 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 		return ((null != getProgressMonitor()) && (getProgressMonitor().isCanceled()));
 	}
 
-	protected void run(IProgressMonitor monitor, CallGraph callGraph, List<IResource> resources) {
+	protected void run(IProgressMonitor monitor, CallGraph callGraph,
+			Map<IResource, Map<MethodDeclaration, List<ASTNode>>> resourcesAndMethodsToProcess) {
 		setProgressMonitor(monitor);
 		setCallGraph(callGraph);
 
 		// 01 - Iterate over all the resources.
-		for (IResource resource : resources) {
+		for (Entry<IResource, Map<MethodDeclaration, List<ASTNode>>> entry : resourcesAndMethodsToProcess.entrySet()) {
 			if (!userCanceledProcess(getProgressMonitor())) {
 				// 02 - Set the current resource.
-				setCurrentResource(resource);
+				setCurrentResource(entry.getKey());
 
 				// 03 - Inform the user what is the current process of the plug-in.
 				setSubTask(getSubTaskMessage());
 
 				// 04 - Get the list of methods that will be processed from this resource.
-				Map<MethodDeclaration, List<ASTNode>> methodsToProcess = getMethodsToProcess(resources, resource);
+				Map<MethodDeclaration, List<ASTNode>> methodsToProcess = entry.getValue();
 
 				// 05 - Process the detection on these methods.
 				run(methodsToProcess);
@@ -146,12 +147,29 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 		}
 	}
 
-	protected Map<MethodDeclaration, List<ASTNode>> getMethodsToProcess(List<IResource> resources, IResource resource) {
+	public Map<IResource, Map<MethodDeclaration, List<ASTNode>>> getMethodsToProcess(CallGraph callGraph,
+			List<IResource> resources) {
+		Map<IResource, Map<MethodDeclaration, List<ASTNode>>> resourcesAndMethodsToProcess = Creator.newMap();
+
+		// 01 - Iterate over all the resources.
+		for (IResource resource : resources) {
+			// 02 - Get the list of methods that will be processed from this resource.
+			Map<MethodDeclaration, List<ASTNode>> methodsToProcess = getMethodsToProcess(callGraph, resources, resource);
+
+			// 03 - Add it to the list.
+			resourcesAndMethodsToProcess.put(resource, methodsToProcess);
+		}
+
+		return resourcesAndMethodsToProcess;
+	}
+
+	protected Map<MethodDeclaration, List<ASTNode>> getMethodsToProcess(CallGraph callGraph, List<IResource> resources,
+			IResource resource) {
 		// This map contains the method that will be processed and its invokers.
 		Map<MethodDeclaration, List<ASTNode>> methodsToProcess = Creator.newMap();
 
 		// 01 - Get the list of methods in the current resource and its invocations.
-		Map<MethodDeclaration, List<ASTNode>> methods = getCallGraph().getMethods(resource);
+		Map<MethodDeclaration, List<ASTNode>> methods = callGraph.getMethods(resource);
 
 		// 02 - Iterate over all the method declarations of the current resource.
 		for (MethodDeclaration methodDeclaration : methods.keySet()) {
@@ -160,7 +178,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 			// not invoked by any other method in the same file. Because if the method
 			// is invoked, eventually it will be processed.
 			// 03 - Get the list of methods that invokes this method.
-			Map<MethodDeclaration, List<ASTNode>> invokers = getCallGraph().getInvokers(methodDeclaration);
+			Map<MethodDeclaration, List<ASTNode>> invokers = callGraph.getInvokers(methodDeclaration);
 			if (invokers.size() > 0) {
 				// 04 - Iterate over all the methods that invokes this method.
 				for (Entry<MethodDeclaration, List<ASTNode>> caller : invokers.entrySet()) {

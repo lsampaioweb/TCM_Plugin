@@ -28,6 +28,8 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.junit.Before;
 
 public abstract class AbstractTestVerifier {
@@ -64,12 +66,17 @@ public abstract class AbstractTestVerifier {
 				// 05 - Get the list of verifiers that will be executed.
 				List<Verifier> verifiers = createListVerifiers();
 
-				// 06 - Run the verifications.
-				for (Verifier verifier : verifiers) {
-					List<DataFlow> currentList = verifier.run(null, callGraph, resources);
+				if (verifiers.size() > 0) {
+					Map<IResource, Map<MethodDeclaration, List<ASTNode>>> resourcesAndMethodsToProcess = verifiers.get(0)
+							.getMethodsToProcess(callGraph, resources);
 
-					if (currentList.size() > 0) {
-						allVulnerablePaths.add(currentList);
+					// 06 - Run the verifications.
+					for (Verifier verifier : verifiers) {
+						List<DataFlow> currentList = verifier.run(null, callGraph, resourcesAndMethodsToProcess);
+
+						if (currentList.size() > 0) {
+							allVulnerablePaths.add(currentList);
+						}
 					}
 				}
 

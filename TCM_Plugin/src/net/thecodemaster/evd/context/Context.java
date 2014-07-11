@@ -135,7 +135,9 @@ public class Context {
 			// 05 - Get the list of occurrences of this variable.
 			List<VariableBinding> vbs = context.getVariableBindings(variableBinding.getBinding());
 
-			return (null != vbs) ? vbs : emptyList;
+			if (vbs.size() > 0) {
+				return vbs;
+			}
 		}
 
 		return emptyList;
