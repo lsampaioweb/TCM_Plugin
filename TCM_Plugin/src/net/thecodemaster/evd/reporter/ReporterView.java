@@ -271,11 +271,13 @@ public class ReporterView implements IReporter {
 
 	private String getFullPath(List<DataFlow> listVulnerablePaths) {
 		List<String> fullPath = Creator.newList();
+		boolean hasAddedFullPath = false;
 		for (DataFlow vulnerablePath : listVulnerablePaths) {
 			Flow flow = vulnerablePath.getFullPath();
 
-			if (null != flow) {
+			if ((!hasAddedFullPath) && (null != flow)) {
 				fullPath.add(0, flow.getFullPath());
+				hasAddedFullPath = true;
 			}
 
 			Expression root = vulnerablePath.getRoot();

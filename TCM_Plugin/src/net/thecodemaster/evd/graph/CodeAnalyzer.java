@@ -417,7 +417,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 					// 05 - Get the context (top level) of this resource.
 					context = getCallGraph().getStaticContext(resource);
 				}
-			} else {
+			} else if (null != instance) {
 				// Case: 03 - person.publicPersonVariable
 				context = getCallGraph().getInstanceContext(context, instance);
 			}

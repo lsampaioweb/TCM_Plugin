@@ -12,6 +12,8 @@ import net.thecodemaster.evd.verifier.Verifier;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.InfixExpression.Operator;
 import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -36,6 +38,22 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 
 	protected String getMessageNullLiteral() {
 		return String.format(Message.VerifierSecurityVulnerability.NULL_LITERAL);
+	}
+
+	/**
+	 * 27 <br/>
+	 * a + b <br/>
+	 * a == b<br/>
+	 * a != b
+	 */
+	@Override
+	protected void inspectInfixExpression(Flow loopControl, Context context, DataFlow dataFlow, InfixExpression expression) {
+		Operator operator = expression.getOperator();
+		if ((null == getRules()) || (operator.equals(InfixExpression.Operator.PLUS))) {
+			super.inspectInfixExpression(loopControl, context, dataFlow, expression);
+		} else {
+			super.inspectInfixExpression(loopControl, context, new DataFlow(expression), expression);
+		}
 	}
 
 	@Override

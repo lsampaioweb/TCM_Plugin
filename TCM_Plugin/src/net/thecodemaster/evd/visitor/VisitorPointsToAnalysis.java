@@ -148,8 +148,10 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 			// 01 - Check if this method invocation has an instance.
 			Expression instance = BindingResolver.getInstanceIfItIsAnObject(methodInvocation);
 
-			// 02 - Add a method reference to this variable (if it is a variable).
-			addReferenceToInitializer(loopControl, context, methodInvocation, instance);
+			if (null != instance) {
+				// 02 - Add a method reference to this variable (if it is a variable).
+				addReferenceToInitializer(loopControl, context, methodInvocation, instance);
+			}
 		}
 
 		super.inspectEachMethodInvocationOfChainInvocations(loopControl, context, dataFlow, methodInvocation);

@@ -334,9 +334,11 @@ public abstract class CodeVisitor {
 	 */
 	protected void inspectConditionExpression(Flow loopControl, Context context, DataFlow dataFlow,
 			ConditionalExpression expression) {
+		Expression conditionalExpression = expression.getExpression();
 		Expression thenExpression = expression.getThenExpression();
 		Expression elseExpression = expression.getElseExpression();
 
+		inspectNode(loopControl, context, dataFlow.addNodeToPath(conditionalExpression), conditionalExpression);
 		inspectNode(loopControl, context, dataFlow.addNodeToPath(thenExpression), thenExpression);
 		inspectNode(loopControl, context, dataFlow.addNodeToPath(elseExpression), elseExpression);
 	}
