@@ -13,6 +13,7 @@ import net.thecodemaster.evd.graph.flow.DataFlow;
 import net.thecodemaster.evd.graph.flow.Flow;
 import net.thecodemaster.evd.helper.HelperCodeAnalyzer;
 import net.thecodemaster.evd.logger.PluginLogger;
+import net.thecodemaster.evd.ui.enumeration.EnumVariableStatus;
 import net.thecodemaster.evd.ui.l10n.Message;
 
 import org.eclipse.core.resources.IResource;
@@ -128,7 +129,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
 				if (null != variableBindingGlobal) {
 					// 07 - Update the status and the data flow of the global variable.
-					HelperCodeAnalyzer.updateVariableBindingStatus(variableBindingGlobal, variableBindingNew.getDataFlow());
+					HelperCodeAnalyzer.updateVariableBinding(variableBindingGlobal, variableBindingNew.getDataFlow());
 
 					// 08 - Update from LOCAL to GLOBAL in the new variable.
 					variableBindingNew.setType(variableBindingGlobal.getType());
@@ -152,6 +153,33 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		}
 
 		super.inspectEachMethodInvocationOfChainInvocations(loopControl, context, dataFlow, methodInvocation);
+	}
+
+	@Override
+	protected void methodHasBeenProcessed(Flow loopControl, Context context, DataFlow dataFlow,
+			Expression methodInvocation, MethodDeclaration methodDeclaration, VariableBinding variableBinding) {
+		// We found a vulnerability.
+		if (dataFlow.hasVulnerablePath()) {
+			// There are 2 sub-cases: When is a method from an object and when is a method from a library.
+			// 01 - stringBuilder.append("...");
+			// 02 - System.out.println("..."); Nothing else to do.
+
+			// 02 - Check if this method invocation is being call from a vulnerable object.
+			if (null != variableBinding) {
+				variableBinding.setStatus(EnumVariableStatus.VULNERABLE);
+				HelperCodeAnalyzer.updateVariableBindingDataFlow(variableBinding, dataFlow);
+			}
+		} else {
+			super
+					.methodHasBeenProcessed(loopControl, context, dataFlow, methodInvocation, methodDeclaration, variableBinding);
+		}
+	}
+
+	@Override
+	protected void UpdateIfVulnerable(Flow loopControl, Context context, DataFlow dataFlow,
+			VariableBinding variableBinding) {
+		// 02 - If there is a vulnerable path, then this variable is vulnerable.
+		HelperCodeAnalyzer.updateVariableBinding(variableBinding, dataFlow);
 	}
 
 	@Override
@@ -300,7 +328,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		if (HelperCodeAnalyzer.isPrimitive(variableName)) {
 			HelperCodeAnalyzer.updateVariableBindingStatusToPrimitive(variableBinding);
 		} else {
-			HelperCodeAnalyzer.updateVariableBindingStatus(variableBinding, newDataFlow);
+			HelperCodeAnalyzer.updateVariableBinding(variableBinding, newDataFlow);
 		}
 
 		return variableBinding;

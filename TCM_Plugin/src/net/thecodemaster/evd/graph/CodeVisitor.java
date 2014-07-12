@@ -454,15 +454,19 @@ public abstract class CodeVisitor {
 	 */
 	protected void inspectPostfixExpression(Flow loopControl, Context context, DataFlow dataFlow,
 			PostfixExpression expression) {
-		// inspectNode(loopControl, context, dataFlow, expression.getOperand());
+		Expression operand = expression.getOperand();
+
+		inspectNode(loopControl, context, dataFlow.addNodeToPath(operand), operand);
 	}
 
 	/**
-	 * 38 ++i
+	 * 38 ++i !value
 	 */
 	protected void inspectPrefixExpression(Flow loopControl, Context context, DataFlow dataFlow,
 			PrefixExpression expression) {
-		// inspectNode(loopControl, context, dataFlow, expression.getOperand());
+		Expression operand = expression.getOperand();
+
+		inspectNode(loopControl, context, dataFlow.addNodeToPath(operand), operand);
 	}
 
 	/**

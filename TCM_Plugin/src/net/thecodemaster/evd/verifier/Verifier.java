@@ -9,9 +9,11 @@ import net.thecodemaster.evd.graph.BindingResolver;
 import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.CodeAnalyzer;
 import net.thecodemaster.evd.graph.Parameter;
+import net.thecodemaster.evd.graph.VariableBinding;
 import net.thecodemaster.evd.graph.flow.DataFlow;
 import net.thecodemaster.evd.graph.flow.Flow;
 import net.thecodemaster.evd.helper.Creator;
+import net.thecodemaster.evd.helper.HelperCodeAnalyzer;
 import net.thecodemaster.evd.point.ExitPoint;
 import net.thecodemaster.evd.reporter.Reporter;
 import net.thecodemaster.evd.xmlloader.LoaderExitPoint;
@@ -182,6 +184,13 @@ public abstract class Verifier extends CodeAnalyzer {
 		} else {
 			super.inspectEachMethodInvocationOfChainInvocations(loopControl, context, dataFlow, methodInvocation);
 		}
+	}
+
+	@Override
+	protected void UpdateIfVulnerable(Flow loopControl, Context context, DataFlow dataFlow,
+			VariableBinding variableBinding) {
+		// 02 - If there is a vulnerable path, then this variable is vulnerable.
+		HelperCodeAnalyzer.updateVariableBindingDataFlow(variableBinding, dataFlow);
 	}
 
 	protected void inspectExitPoint(Flow loopControl, Context context, Expression method, ExitPoint exitPoint) {

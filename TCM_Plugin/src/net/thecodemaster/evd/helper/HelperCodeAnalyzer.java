@@ -25,15 +25,22 @@ import org.eclipse.jdt.core.dom.SimpleName;
  */
 public abstract class HelperCodeAnalyzer {
 
-	/**
-	 * @param variableBinding
-	 * @param dataFlow
-	 */
+	public static void updateVariableBinding(VariableBinding variableBinding, DataFlow dataFlow) {
+		updateVariableBindingStatus(variableBinding, dataFlow);
+		updateVariableBindingDataFlow(variableBinding, dataFlow);
+	}
+
 	public static void updateVariableBindingStatus(VariableBinding variableBinding, DataFlow dataFlow) {
 		if ((null != variableBinding) && (null != dataFlow)) {
 			EnumVariableStatus status = (dataFlow.hasVulnerablePath()) ? EnumVariableStatus.VULNERABLE
 					: EnumVariableStatus.NOT_VULNERABLE;
-			variableBinding.setStatus(status).setDataFlow(dataFlow);
+			variableBinding.setStatus(status);
+		}
+	}
+
+	public static void updateVariableBindingDataFlow(VariableBinding variableBinding, DataFlow dataFlow) {
+		if ((null != variableBinding) && (null != dataFlow)) {
+			variableBinding.setDataFlow(dataFlow);
 		}
 	}
 

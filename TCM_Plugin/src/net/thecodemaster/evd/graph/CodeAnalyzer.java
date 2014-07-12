@@ -344,17 +344,13 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 
 		VariableBinding variableBinding = HelperCodeAnalyzer.getVariableBindingIfItIsAnObject(getCallGraph(), context,
 				methodInvocation);
-		// We found a vulnerability.
-		if (dataFlow.hasVulnerablePath()) {
-			// There are 2 sub-cases: When is a method from an object and when is a method from a library.
-			// 01 - stringBuilder.append("...");
-			// 02 - System.out.println("..."); Nothing else to do.
 
-			// 02 - Check if this method invocation is being call from a vulnerable object.
-			if (null != variableBinding) {
-				variableBinding.setStatus(EnumVariableStatus.VULNERABLE).setDataFlow(dataFlow);
-			}
-		} else if (null == methodDeclaration) {
+		methodHasBeenProcessed(loopControl, context, dataFlow, methodInvocation, methodDeclaration, variableBinding);
+	}
+
+	protected void methodHasBeenProcessed(Flow loopControl, Context context, DataFlow dataFlow,
+			Expression methodInvocation, MethodDeclaration methodDeclaration, VariableBinding variableBinding) {
+		if (null == methodDeclaration) {
 			// 01 - Check if this method invocation is being call from a vulnerable object.
 			// Only methods that we do not have the implementation should get here.
 			if (null != variableBinding) {
@@ -383,8 +379,12 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 			inspectNode(loopControl, context, dataFlow, variableBinding.getInitializer());
 
 			// 02 - If there is a vulnerable path, then this variable is vulnerable.
-			HelperCodeAnalyzer.updateVariableBindingStatus(variableBinding, dataFlow);
+			UpdateIfVulnerable(loopControl, context, dataFlow, variableBinding);
 		}
+	}
+
+	protected void UpdateIfVulnerable(Flow loopControl, Context context, DataFlow dataFlow,
+			VariableBinding variableBinding) {
 	}
 
 	/**

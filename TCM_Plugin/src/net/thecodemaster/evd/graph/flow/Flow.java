@@ -54,7 +54,8 @@ public class Flow {
 		Flow current = this;
 
 		while (null != current) {
-			if ((null != node) && (node.equals(current.getRoot()))) {
+			// (node.equals(current.getRoot()))) // We have to verify if they are the same instance.
+			if ((null != node) && (node == current.getRoot())) {
 				setLoop(true);
 				break;
 			}
