@@ -136,7 +136,7 @@ public abstract class Message extends NLS {
 
 		public static String				DESCRIPTION;
 		public static String				VULNERABILITY;
-		public static String				LOCATION;
+		public static String				LINE;
 		public static String				RESOURCE;
 		public static String				PATH;
 		public static String				SINGLE_VULNERABILITY;

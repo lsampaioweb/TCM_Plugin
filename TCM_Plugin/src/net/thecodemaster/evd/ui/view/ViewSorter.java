@@ -35,9 +35,9 @@ class ViewSorter extends ViewerSorter {
 		sorters = Creator.newList();
 
 		setSorterOrder(Message.View.RESOURCE);
-		setSorterOrder(Message.View.LOCATION);
-		setSorterOrder(Message.View.DESCRIPTION);
+		setSorterOrder(Message.View.LINE);
 		setSorterOrder(Message.View.VULNERABILITY);
+		setSorterOrder(Message.View.DESCRIPTION);
 		setSorterOrder(Message.View.PATH);
 	}
 
@@ -73,7 +73,7 @@ class ViewSorter extends ViewerSorter {
 				}
 			};
 		}
-		if (text.equals(Message.View.LOCATION)) {
+		if (text.equals(Message.View.LINE)) {
 			return new Comparator<ViewDataModel>() {
 				@Override
 				public int compare(ViewDataModel i1, ViewDataModel i2) {
