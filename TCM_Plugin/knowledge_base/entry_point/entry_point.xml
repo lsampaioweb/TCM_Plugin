@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<entrypoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="entry_point_schema.xsd">
+<entrypoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="entry_point_schema.xsd">
 	<!-- javax.servlet.ServletRequest -->
 	<entrypoint id="01">
 		<qualifiedname>javax.servlet.(http.Http)?ServletRequest</qualifiedname>
@@ -161,5 +160,48 @@
 		<qualifiedname>java.sql.ResultSet</qualifiedname>
 		<methodname>getString</methodname>
 		<parameters type="java.lang.Integer" />
+	</entrypoint>
+	<!-- java.awt.TextComponent -->
+	<entrypoint id="38">
+		<qualifiedname>java.awt.TextComponent</qualifiedname>
+		<methodname>getSelectedText</methodname>
+	</entrypoint>
+	<entrypoint id="39">
+		<qualifiedname>java.awt.TextComponent</qualifiedname>
+		<methodname>getText</methodname>
+	</entrypoint>
+	<!-- java.io.Console -->
+	<entrypoint id="40">
+		<qualifiedname>java.io.Console</qualifiedname>
+		<methodname>readLine</methodname>
+	</entrypoint>
+	<entrypoint id="41">
+		<qualifiedname>java.io.Console</qualifiedname>
+		<methodname>readLine</methodname>
+		<parameters type="java.lang.String" />
+		<parameters type="java.lang.Object" />
+	</entrypoint>
+	<entrypoint id="42">
+		<qualifiedname>java.io.Console</qualifiedname>
+		<methodname>readPassword</methodname>
+	</entrypoint>
+	<!-- java.io.DataInputStream -->
+	<entrypoint id="43">
+		<qualifiedname>java.io.DataInputStream</qualifiedname>
+		<methodname>readLine</methodname>
+	</entrypoint>
+	<entrypoint id="44">
+		<qualifiedname>java.io.DataInputStream</qualifiedname>
+		<methodname>readUTF</methodname>
+	</entrypoint>
+	<entrypoint id="45">
+		<qualifiedname>java.io.DataInputStream</qualifiedname>
+		<methodname>readUTF</methodname>
+		<parameters type="java.io.DataInput" />
+	</entrypoint>
+	<!-- java.io.LineNumberReader -->
+	<entrypoint id="46">
+		<qualifiedname>java.io.LineNumberReader</qualifiedname>
+		<methodname>readLine</methodname>
 	</entrypoint>
 </entrypoints>

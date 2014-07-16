@@ -14,7 +14,7 @@ import net.thecodemaster.evd.verifier.security.VerifierCrossSiteScripting;
 import net.thecodemaster.evd.verifier.security.VerifierPathTraversal;
 import net.thecodemaster.evd.verifier.security.VerifierSQLInjection;
 import net.thecodemaster.evd.verifier.security.VerifierSecurityMisconfiguration;
-import net.thecodemaster.evd.verifier.security.VerifierUnvalidatedRedirecting;
+import net.thecodemaster.evd.verifier.security.VerifierHTTPResponseSplitting;
 import net.thecodemaster.evd.visitor.VisitorCallGraph;
 import net.thecodemaster.evd.visitor.VisitorPointsToAnalysis;
 
@@ -180,7 +180,7 @@ public abstract class AbstractTestVerifier {
 		verifiers.add(new VerifierPathTraversal());
 		verifiers.add(new VerifierSecurityMisconfiguration());
 		verifiers.add(new VerifierSQLInjection());
-		verifiers.add(new VerifierUnvalidatedRedirecting());
+		verifiers.add(new VerifierHTTPResponseSplitting());
 
 		return verifiers;
 	}

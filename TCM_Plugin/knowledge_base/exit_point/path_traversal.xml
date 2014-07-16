@@ -54,4 +54,26 @@
 		<parameters type="java.lang.Object" rules="1" />
 		<parameters type="java.lang.Object" rules="1" />
 	</exitpoint>
+	<!-- java.lang.Class -->
+	<exitpoint id="10">
+		<qualifiedname>java.lang.Class</qualifiedname>
+		<methodname>getResource</methodname>
+		<parameters type="java.lang.String" rules="1" />
+	</exitpoint>
+	<exitpoint id="11">
+		<qualifiedname>java.lang.Class</qualifiedname>
+		<methodname>getResourceAsStream</methodname>
+		<parameters type="java.lang.String" rules="1" />
+	</exitpoint>
+	<!-- javax.mail.internet.InternetAddress -->
+	<exitpoint id="12">
+		<qualifiedname>javax.mail.internet.InternetAddress</qualifiedname>
+		<methodname>InternetAddress</methodname>
+		<parameters type="java.lang.String" rules="1" />
+	</exitpoint>
+	<exitpoint id="13">
+		<qualifiedname>javax.mail.internet.InternetAddress</qualifiedname>
+		<methodname>parse</methodname>
+		<parameters type="java.lang.String" rules="1" />
+	</exitpoint>
 </exitpoints>

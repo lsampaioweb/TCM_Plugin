@@ -27,7 +27,7 @@ public abstract class Constant {
 	public static final int			VERIFIER_ID_PATH_TRAVERSAL						= 4;
 	public static final int			VERIFIER_ID_SECURITY_MISCONFIGURATION	= 5;
 	public static final int			VERIFIER_ID_SQL_INJECTION							= 6;
-	public static final int			VERIFIER_ID_UNVALIDATED_REDIRECTING		= 7;
+	public static final int			VERIFIER_ID_HTTP_RESPONSE_SPLITTING		= 7;
 
 	public static final int			RESOLUTION_ID_IGNORE_WARNING					= 8;
 
@@ -62,8 +62,8 @@ public abstract class Constant {
 		public static final String	FILE_EXIT_POINT_SECURITY_MISCONFIGURATION	= Folder.EXIT_POINT
 																																							+ "security_misconfiguration.xml";
 		public static final String	FILE_EXIT_POINT_SQL_INJECTION							= Folder.EXIT_POINT + "sql_injection.xml";
-		public static final String	FILE_EXIT_POINT_UNVALIDATED_REDIRECTING		= Folder.EXIT_POINT
-																																							+ "unvalidated_redirecting.xml";
+		public static final String	FILE_EXIT_POINT_HTTP_RESPONSE_SPLITTING		= Folder.EXIT_POINT
+																																							+ "http_response_splitting.xml";
 	}
 
 	public abstract class Icons {
@@ -80,7 +80,7 @@ public abstract class Constant {
 		public static final String	FIELD_PATH_TRAVERSAL						= Activator.PLUGIN_ID + ".PathTraversal";
 		public static final String	FIELD_SECURITY_MISCONFIGURATION	= Activator.PLUGIN_ID + ".SecurityMisconfiguration";
 		public static final String	FIELD_SQL_INJECTION							= Activator.PLUGIN_ID + ".SQLInjection";
-		public static final String	FIELD_UNVALIDATED_REDIRECTING		= Activator.PLUGIN_ID + ".UnvalidatedRedirecting";
+		public static final String	FIELD_HTTP_RESPONSE_SPLITTING		= Activator.PLUGIN_ID + ".httpResponseSplitting";
 
 		public static final String	FIELD_MONITORED_PROJECTS				= Activator.PLUGIN_ID + ".MonitoredProjects";
 	}

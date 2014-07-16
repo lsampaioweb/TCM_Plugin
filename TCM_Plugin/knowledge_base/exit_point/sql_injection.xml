@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<exitpoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="exit_point_schema.xsd">
+<exitpoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="exit_point_schema.xsd">
 	<!-- -1 Anything is valid. -->
 	<!-- 0 Only sanitized values are valid. -->
 	<!-- 1 LITERAL and sanitized values are valid. -->
@@ -69,5 +68,28 @@
 		<parameters type="java.lang.Object" rules="-1" />
 		<parameters type="java.lang.Object" rules="-1" />
 		<parameters type="java.lang.Object" rules="-1" />
+	</exitpoint>
+	<!-- org.hibernate.Session -->
+	<exitpoint id="12">
+		<qualifiedname>org.hibernate.Session</qualifiedname>
+		<methodname>createSQLQuery</methodname>
+		<parameters type="java.lang.String" rules="1" />
+	</exitpoint>
+	<!-- javax.persistence.EntityManager -->
+	<exitpoint id="13">
+		<qualifiedname>javax.persistence.EntityManager</qualifiedname>
+		<methodname>createNativeQuery</methodname>
+		<parameters type="java.lang.String" rules="1" />
+	</exitpoint>
+	<exitpoint id="14">
+		<qualifiedname>javax.persistence.EntityManager</qualifiedname>
+		<methodname>createNativeQuery</methodname>
+		<parameters type="java.lang.String" rules="1" />
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<exitpoint id="15">
+		<qualifiedname>javax.persistence.EntityManager</qualifiedname>
+		<methodname>createQuery</methodname>
+		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 </exitpoints>

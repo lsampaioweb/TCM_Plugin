@@ -7,10 +7,10 @@ import net.thecodemaster.evd.verifier.Verifier;
 /**
  * @author Luciano Sampaio
  */
-public class VerifierUnvalidatedRedirecting extends Verifier {
+public class VerifierHTTPResponseSplitting extends Verifier {
 
-	public VerifierUnvalidatedRedirecting() {
-		super(Constant.VERIFIER_ID_UNVALIDATED_REDIRECTING, Message.Plugin.VERIFIER_NAME_UNVALIDATED_REDIRECTING);
+	public VerifierHTTPResponseSplitting() {
+		super(Constant.VERIFIER_ID_HTTP_RESPONSE_SPLITTING, Message.Plugin.VERIFIER_NAME_HTTP_RESPONSE_SPLITTING);
 	}
 
 }

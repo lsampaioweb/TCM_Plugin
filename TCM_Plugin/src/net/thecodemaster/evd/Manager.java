@@ -92,14 +92,14 @@ public class Manager {
 		boolean securityMisconfiguration = store
 				.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_SECURITY_MISCONFIGURATION);
 		boolean sqlInjection = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_SQL_INJECTION);
-		boolean unvalidatedRedirecting = store
-				.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_UNVALIDATED_REDIRECTING);
+		boolean httpResponseSplitting = store
+				.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_HTTP_RESPONSE_SPLITTING);
 
 		// If at least one was selected, the analyzer is added to the list.
 		if (commandInjection || cookiePoisoning || crossSiteScripting || pathTraversal || securityMisconfiguration
-				|| sqlInjection || unvalidatedRedirecting) {
+				|| sqlInjection || httpResponseSplitting) {
 			addAnalyzer(new AnalyzerSecurityVulnerability(commandInjection, cookiePoisoning, crossSiteScripting,
-					pathTraversal, securityMisconfiguration, sqlInjection, unvalidatedRedirecting));
+					pathTraversal, securityMisconfiguration, sqlInjection, httpResponseSplitting));
 		}
 	}
 

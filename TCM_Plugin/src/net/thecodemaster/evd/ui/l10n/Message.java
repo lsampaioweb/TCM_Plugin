@@ -39,7 +39,7 @@ public abstract class Message extends NLS {
 		public static String				LABEL_PATH_TRAVERSAL;
 		public static String				LABEL_SECURITY_MISCONFIGURATION;
 		public static String				LABEL_SQL_INJECTION;
-		public static String				LABEL_UNVALIDATED_REDIRECTING;
+		public static String				LABEL_HTTP_RESPONSE_SPLITTING;
 
 		public static String				LABEL_MONITORED_PROJECTS;
 
@@ -85,7 +85,7 @@ public abstract class Message extends NLS {
 		public static String				VERIFIER_NAME_PATH_TRAVERSAL;
 		public static String				VERIFIER_NAME_SECURITY_MISCONFIGURATION;
 		public static String				VERIFIER_NAME_SQL_INJECTION;
-		public static String				VERIFIER_NAME_UNVALIDATED_REDIRECTING;
+		public static String				VERIFIER_NAME_HTTP_RESPONSE_SPLITTING;
 
 		public static String				VISITOR_CALL_GRAPH_SUB_TASK;
 		public static String				VISITOR_POINTS_TO_ANALYSIS_SUB_TASK;

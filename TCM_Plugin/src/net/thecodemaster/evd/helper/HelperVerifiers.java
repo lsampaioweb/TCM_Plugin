@@ -23,8 +23,8 @@ public abstract class HelperVerifiers {
 				return Constant.File.FILE_EXIT_POINT_SECURITY_MISCONFIGURATION;
 			case Constant.VERIFIER_ID_SQL_INJECTION:
 				return Constant.File.FILE_EXIT_POINT_SQL_INJECTION;
-			case Constant.VERIFIER_ID_UNVALIDATED_REDIRECTING:
-				return Constant.File.FILE_EXIT_POINT_UNVALIDATED_REDIRECTING;
+			case Constant.VERIFIER_ID_HTTP_RESPONSE_SPLITTING:
+				return Constant.File.FILE_EXIT_POINT_HTTP_RESPONSE_SPLITTING;
 			default:
 				String errorMessage = String.format(Message.Error.FILE_PATH_ID_NOT_FOUND, fileId);
 				PluginLogger.logError(errorMessage, null);
@@ -47,8 +47,8 @@ public abstract class HelperVerifiers {
 				return Message.Plugin.VERIFIER_NAME_SECURITY_MISCONFIGURATION;
 			case Constant.VERIFIER_ID_SQL_INJECTION:
 				return Message.Plugin.VERIFIER_NAME_SQL_INJECTION;
-			case Constant.VERIFIER_ID_UNVALIDATED_REDIRECTING:
-				return Message.Plugin.VERIFIER_NAME_UNVALIDATED_REDIRECTING;
+			case Constant.VERIFIER_ID_HTTP_RESPONSE_SPLITTING:
+				return Message.Plugin.VERIFIER_NAME_HTTP_RESPONSE_SPLITTING;
 
 				// Sub-Vulnerabilities' types.
 			case Constant.Vulnerability.ENTRY_POINT:
