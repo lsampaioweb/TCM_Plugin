@@ -315,15 +315,19 @@ public class Context {
 
 			// 04 - If this variable is static, I want the last reference.
 			if (Modifier.isStatic(entry.getKey().getModifiers())) {
-				// 05 - Get the last reference.
-				currentVariableBindings.add(list.get((list.size() > 0) ? list.size() - 1 : 0));
-			} else {
-				if (0 == type) {
-					// 05 - Get the first reference.
-					currentVariableBindings.add(list.get(0));
-				} else {
+				if (list.size() > 0) {
 					// 05 - Get the last reference.
-					currentVariableBindings.add(list.get((list.size() > 0) ? list.size() - 1 : 0));
+					currentVariableBindings.add(list.get(list.size() - 1));
+				}
+			} else {
+				if (list.size() > 0) {
+					if (0 == type) {
+						// 05 - Get the first reference.
+						currentVariableBindings.add(list.get(0));
+					} else {
+						// 05 - Get the last reference.
+						currentVariableBindings.add(list.get(list.size() - 1));
+					}
 				}
 			}
 
