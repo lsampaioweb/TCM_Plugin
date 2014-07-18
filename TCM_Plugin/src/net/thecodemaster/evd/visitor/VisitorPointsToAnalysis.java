@@ -198,7 +198,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
 		// 04 - If this method declaration has parameters, we have to add the values from
 		// the invocation to these parameters.
-		addParametersToCallGraph(loopControl, newContext, methodInvocation, methodDeclaration);
+		addParametersToCallGraph(loopControl, newContext, dataFlow, methodInvocation, methodDeclaration);
 
 		// 05 - Now I inspect the body of the method.
 		super.inspectMethodWithSourceCode(loopControl, newContext, dataFlow, methodInvocation, methodDeclaration);
@@ -314,20 +314,20 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	 * 07, 60, 70
 	 */
 	private VariableBinding addVariableToCallGraphAndInspectInitializer(Flow loopControl, Context context,
-			DataFlow dataFlow, Expression variableName, Expression initializer) {
+			DataFlow dataFlow, Expression name, Expression initializer) {
 		// 01 - Add a reference of the variable into the initializer (if the initializer is also a variable).
-		addReferenceToInitializer(loopControl, context, variableName, initializer);
+		addReferenceToInitializer(loopControl, context, name, initializer);
 
 		// 03 - Inspect the Initializer to verify if this variable is vulnerable.
-		DataFlow newDataFlow = new DataFlow(variableName);
+		DataFlow newDataFlow = new DataFlow(name);
 		inspectNode(loopControl, context, newDataFlow, initializer);
 
 		// 02 - Add the variable to the current context.
-		VariableBinding variableBinding = getCallGraph().addVariable(context, variableName, initializer);
+		VariableBinding variableBinding = getCallGraph().addVariable(context, name, initializer);
 
 		// 04 - If there is a vulnerable path, then this variable is vulnerable.
 		// But if this variable is of primitive type, then there is nothing to do because they can not be vulnerable.
-		if (HelperCodeAnalyzer.isPrimitive(variableName)) {
+		if (HelperCodeAnalyzer.isPrimitive(name)) {
 			HelperCodeAnalyzer.updateVariableBindingStatusToPrimitive(variableBinding);
 		} else {
 			HelperCodeAnalyzer.updateVariableBinding(variableBinding, newDataFlow);
@@ -336,7 +336,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		return variableBinding;
 	}
 
-	private void addParametersToCallGraph(Flow loopControl, Context context, ASTNode methodInvocation,
+	private void addParametersToCallGraph(Flow loopControl, Context context, DataFlow dataFlow, ASTNode methodInvocation,
 			MethodDeclaration methodDeclaration) {
 		// 01 - Get the parameters of this method declaration.
 		List<SingleVariableDeclaration> parameters = BindingResolver.getParameters(methodDeclaration);
@@ -345,19 +345,30 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 			int parameterIndex = 0;
 			for (SingleVariableDeclaration parameter : parameters) {
 				// 02 - The SimpleName of this parameter will be used for the addVariableToCallGraph.
-				SimpleName parameterName = parameter.getName();
+				SimpleName name = parameter.getName();
 
 				// 03 - Retrieve the variable binding of this parameter from the callGraph.
 				Expression initializer = BindingResolver.getParameterAtIndex(methodInvocation, parameterIndex++);
 
 				// 04 - Add a reference to this variable (if it is a variable).
-				addReferenceToInitializer(loopControl, context, parameterName, initializer);
+				addReferenceToInitializer(loopControl, context, name, initializer);
 
 				// 05 - Add a method reference to this variable (if it is a variable).
 				addReferenceToInitializer(loopControl, context, methodInvocation, initializer);
 
-				// 06 - Add the content with the one that came from the method invocation.
-				getCallGraph().addParameter(context, parameterName, initializer);
+				// 06
+				inspectNode(loopControl, context, dataFlow, initializer);
+
+				// 07 - Add the content with the one that came from the method invocation.
+				VariableBinding variableBinding = getCallGraph().addParameter(context, name, initializer);
+
+				// 08 - If there is a vulnerable path, then this variable is vulnerable.
+				// But if this variable is of primitive type, then there is nothing to do because they can not be vulnerable.
+				if (HelperCodeAnalyzer.isPrimitive(name)) {
+					HelperCodeAnalyzer.updateVariableBindingStatusToPrimitive(variableBinding);
+				} else {
+					HelperCodeAnalyzer.updateVariableBinding(variableBinding, dataFlow);
+				}
 			}
 		}
 	}

@@ -296,6 +296,8 @@ public class BindingResolver {
 				case ASTNode.BLOCK: // 08
 				case ASTNode.METHOD_INVOCATION: // 32
 					return null; // Stop conditions.
+				case ASTNode.ASSIGNMENT: // 07
+					return ((Assignment) node).getLeftHandSide();
 				case ASTNode.QUALIFIED_NAME: // 40 - This is the one we want to find.
 					return ((QualifiedName) node).getQualifier();
 					// case ASTNode.SIMPLE_NAME: // 42 - This is the one we want to find.
