@@ -5,6 +5,7 @@ import java.util.List;
 import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.helper.HelperProjects;
+import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.reporter.Reporter;
 import net.thecodemaster.evd.ui.l10n.Message;
 
@@ -18,6 +19,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -136,26 +138,31 @@ public class VisitorCallGraph implements IResourceVisitor, IResourceDeltaVisitor
 	public boolean visit(IResource resource) throws CoreException {
 		if (!userCanceledProcess(getProgressMonitor())) {
 			if (HelperProjects.isToPerformDetection(resource)) {
-				ICompilationUnit cu = JavaCore.createCompilationUnitFrom((IFile) resource);
+				try {
+					ICompilationUnit cu = JavaCore.createCompilationUnitFrom((IFile) resource);
 
-				if (cu.isStructureKnown()) {
-					setSubTask(Message.Plugin.VISITOR_CALL_GRAPH_SUB_TASK + resource.getName());
-					// Creates the AST for the ICompilationUnits.
-					// Timer timer = (new Timer("01.1.1 - Parsing: " + resource.getName())).start();
-					CompilationUnit cUnit = parse(cu);
-					// PluginLogger.logIfDebugging(timer.stop().toString());
+					if (cu.isStructureKnown()) {
+						setSubTask(Message.Plugin.VISITOR_CALL_GRAPH_SUB_TASK + resource.getName());
+						// Creates the AST for the ICompilationUnits.
+						// Timer timer = (new Timer("01.1.1 - Parsing: " + resource.getName())).start();
+						CompilationUnit cUnit = parse(cu);
+						// PluginLogger.logIfDebugging(timer.stop().toString());
 
-					// Visit the compilation unit.
-					// timer = (new Timer("01.1.2 - Visiting: " + resource.getName())).start();
+						// Visit the compilation unit.
+						// timer = (new Timer("01.1.2 - Visiting: " + resource.getName())).start();
 
-					// Remove old interactions of this resource.
-					getCallGraph().remove(resource);
+						// Remove old interactions of this resource.
+						getCallGraph().remove(resource);
 
-					cUnit.accept(new VisitorCompilationUnit(resource, getCallGraph()));
-					// PluginLogger.logIfDebugging(timer.stop().toString());
+						cUnit.accept(new VisitorCompilationUnit(resource, getCallGraph()));
+						// PluginLogger.logIfDebugging(timer.stop().toString());
 
-					// Add this resource to the list of updated resources.
-					resourcesUpdated.add(resource);
+						// Add this resource to the list of updated resources.
+						resourcesUpdated.add(resource);
+					}
+				} catch (JavaModelException e) {
+					String resourceName = (null != resource) ? resource.getName() : "";
+					PluginLogger.logError(resourceName, e);
 				}
 			}
 			// Returns true to continue visiting children.

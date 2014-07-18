@@ -69,27 +69,38 @@
 		<parameters type="java.lang.Object" rules="-1" />
 		<parameters type="java.lang.Object" rules="-1" />
 	</exitpoint>
-	<!-- org.hibernate.Session -->
-	<exitpoint id="12">
-		<qualifiedname>org.hibernate.Session</qualifiedname>
-		<methodname>createSQLQuery</methodname>
-		<parameters type="java.lang.String" rules="1" />
-	</exitpoint>
 	<!-- javax.persistence.EntityManager -->
-	<exitpoint id="13">
+	<exitpoint id="12">
 		<qualifiedname>javax.persistence.EntityManager</qualifiedname>
 		<methodname>createNativeQuery</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
-	<exitpoint id="14">
+	<exitpoint id="13">
 		<qualifiedname>javax.persistence.EntityManager</qualifiedname>
 		<methodname>createNativeQuery</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.Object" rules="1" />
 	</exitpoint>
-	<exitpoint id="15">
+	<exitpoint id="14">
 		<qualifiedname>javax.persistence.EntityManager</qualifiedname>
 		<methodname>createQuery</methodname>
+		<parameters type="java.lang.String" rules="1" />
+	</exitpoint>
+	<!-- org.hibernate.Session 3x -->
+	<!-- net.sf.hibernate.Session 2x -->
+	<exitpoint id="15">
+		<qualifiedname>(org|net.sf).hibernate.Session</qualifiedname>
+		<methodname>createSQLQuery</methodname>
+		<parameters type="java.lang.String" rules="1" />
+	</exitpoint>
+	<exitpoint id="16">
+		<qualifiedname>(org|net.sf).hibernate.Session</qualifiedname>
+		<methodname>createQuery</methodname>
+		<parameters type="java.lang.String" rules="1" />
+	</exitpoint>
+	<exitpoint id="17">
+		<qualifiedname>(org|net.sf).hibernate.Session</qualifiedname>
+		<methodname>find</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 </exitpoints>
