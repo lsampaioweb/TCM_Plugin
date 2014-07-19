@@ -1,27 +1,23 @@
 package net.thecodemaster.evd.verifier;
 
 import java.util.List;
-import java.util.Map;
 
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.context.Context;
 import net.thecodemaster.evd.graph.BindingResolver;
 import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.CodeAnalyzer;
-import net.thecodemaster.evd.graph.Parameter;
 import net.thecodemaster.evd.graph.VariableBinding;
 import net.thecodemaster.evd.graph.flow.DataFlow;
 import net.thecodemaster.evd.graph.flow.Flow;
-import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.helper.HelperCodeAnalyzer;
 import net.thecodemaster.evd.point.ExitPoint;
-import net.thecodemaster.evd.reporter.Reporter;
 import net.thecodemaster.evd.xmlloader.LoaderExitPoint;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Assignment;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
@@ -43,17 +39,9 @@ public abstract class Verifier extends CodeAnalyzer {
 	 */
 	private final String		name;
 	/**
-	 * The object that know how and where to report the found vulnerabilities.
-	 */
-	private Reporter				reporter;
-	/**
 	 * List with all the ExitPoints of this verifier.
 	 */
 	private List<ExitPoint>	exitPoints;
-	/**
-	 * List with all the vulnerable paths found by this verifier.
-	 */
-	private List<DataFlow>	allVulnerablePaths;
 	/**
 	 * The rules that the current parameter must obey.
 	 */
@@ -72,7 +60,7 @@ public abstract class Verifier extends CodeAnalyzer {
 		this.name = name;
 	}
 
-	protected int getId() {
+	public int getId() {
 		return id;
 	}
 
@@ -80,85 +68,36 @@ public abstract class Verifier extends CodeAnalyzer {
 		return name;
 	}
 
-	protected void setReporter(Reporter reporter) {
-		this.reporter = reporter;
-	}
-
-	protected Reporter getReporter() {
-		return reporter;
-	}
-
-	@Override
-	protected IProgressMonitor getProgressMonitor() {
-		if ((null != getReporter()) && (null != getReporter().getProgressMonitor())) {
-			return getReporter().getProgressMonitor();
-		}
-		return null;
-	}
-
-	@Override
-	protected String getSubTaskMessage() {
-		return String.format("%s: %s", getName(), getCurrentResource().getName());
-	}
-
 	protected List<Integer> getRules() {
 		return rules;
 	}
 
-	protected void setRules(List<Integer> rules) {
+	private void setRules(List<Integer> rules) {
 		this.rules = rules;
 	}
 
-	protected void resetRules() {
-		this.rules = null;
-	}
-
-	protected List<ExitPoint> getExitPoints() {
+	public List<ExitPoint> getExitPoints() {
 		if (null == exitPoints) {
 			// Loads all the ExitPoints of this verifier.
-			exitPoints = (new LoaderExitPoint(getId())).load();
+			exitPoints = (new LoaderExitPoint(this)).load();
 		}
 
 		return exitPoints;
 	}
 
-	/**
-	 * The public run method that will be invoked by the Analyzer.
-	 * 
-	 * @param resources
-	 * @param callGraph
-	 * @param reporter
-	 * @return
-	 */
-	public List<DataFlow> run(Reporter reporter, CallGraph callGraph,
-			Map<IResource, Map<MethodDeclaration, List<ASTNode>>> resourcesAndMethodsToProcess) {
-		setReporter(reporter);
-		allVulnerablePaths = Creator.newList();
-
-		super.run(getProgressMonitor(), callGraph, resourcesAndMethodsToProcess);
-
-		if (allVulnerablePaths.size() > 0) {
-			reportVulnerability(allVulnerablePaths);
+	public void run(CallGraph callGraph, IResource resource, CompilationUnit compilationUnit, Flow loopControl,
+			Context context, DataFlow dataFlow, Expression expression, List<Integer> rules) {
+		if (requiredExtraInspection(dataFlow)) {
+			setCallGraph(callGraph);
+			setCurrentResource(resource);
+			setCurrentCompilationUnit(compilationUnit);
+			setRules(rules);
+			inspectNode(loopControl, context, dataFlow, expression);
 		}
-
-		return allVulnerablePaths;
 	}
 
-	/**
-	 * Run the vulnerability detection on the current method declaration.
-	 * 
-	 * @param methodDeclaration
-	 */
-	@Override
-	protected void run(MethodDeclaration methodDeclaration, ASTNode invoker) {
-		// 01 - Get the context for this method.
-		Context context = getCallGraph().getContext(getCurrentResource(), methodDeclaration, invoker);
-
-		// 02 - Get the root/first element that will be processed.
-		Expression root = methodDeclaration.getName();
-
-		// 03 - Start the detection on each and every line of this method.
-		inspectNode(new Flow(root), context, new DataFlow(root), methodDeclaration.getBody());
+	protected boolean requiredExtraInspection(DataFlow dataFlow) {
+		return false;
 	}
 
 	/**
@@ -170,56 +109,11 @@ public abstract class Verifier extends CodeAnalyzer {
 		inspectNode(loopControl, context, dataFlow.addNodeToPath(rightHandSide), rightHandSide);
 	}
 
-	/**
-	 * 32
-	 */
-	@Override
-	protected void inspectEachMethodInvocationOfChainInvocations(Flow loopControl, Context context, DataFlow dataFlow,
-			Expression methodInvocation) {
-		// 02 - Check if the method is an Exit-Point (Only verifiers check that).
-		ExitPoint exitPoint = BindingResolver.getExitPointIfMethodIsOne(getExitPoints(), methodInvocation);
-
-		if (null != exitPoint) {
-			inspectExitPoint(loopControl, context, methodInvocation, exitPoint);
-		} else {
-			super.inspectEachMethodInvocationOfChainInvocations(loopControl, context, dataFlow, methodInvocation);
-		}
-	}
-
 	@Override
 	protected void UpdateIfVulnerable(Flow loopControl, Context context, DataFlow dataFlow,
 			VariableBinding variableBinding) {
 		// 02 - If there is a vulnerable path, then this variable is vulnerable.
 		HelperCodeAnalyzer.updateVariableBindingDataFlow(variableBinding, dataFlow);
-	}
-
-	protected void inspectExitPoint(Flow loopControl, Context context, Expression method, ExitPoint exitPoint) {
-		// 01 - Get the parameters (received) from the current method.
-		List<Expression> receivedParameters = BindingResolver.getParameters(method);
-
-		// 02 - Get the expected parameters of the ExitPoint method.
-		Map<Parameter, List<Integer>> expectedParameters = exitPoint.getParameters();
-
-		int index = 0;
-		for (List<Integer> currentRules : expectedParameters.values()) {
-			// If the rules are null, it means the expected parameter can be anything. (We do not care for it).
-			if (null != currentRules) {
-				setRules(currentRules);
-				Expression expression = receivedParameters.get(index);
-				DataFlow dataFlow = new DataFlow(expression);
-
-				// 03 - Check if there is a marker, in case there is, we should BELIEVE it is not vulnerable.
-				if (!hasMarkerAtPosition(expression)) {
-					inspectNode(loopControl, context, dataFlow, expression);
-
-					if (dataFlow.hasVulnerablePath()) {
-						allVulnerablePaths.add(dataFlow);
-					}
-				}
-				resetRules();
-			}
-			index++;
-		}
 	}
 
 	@Override
@@ -299,12 +193,6 @@ public abstract class Verifier extends CodeAnalyzer {
 		}
 
 		return false;
-	}
-
-	protected void reportVulnerability(List<DataFlow> allVulnerablePaths) {
-		if (null != getReporter()) {
-			getReporter().addProblem(getCurrentResource(), getId(), allVulnerablePaths);
-		}
 	}
 
 	@Override

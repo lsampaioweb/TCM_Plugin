@@ -328,10 +328,6 @@ public class CallGraph {
 					return variableBinding;
 				}
 			}
-
-			// if (vbs.size() == 1) {
-			// return getLastReference(vbs);
-			// }
 		}
 
 		return null;

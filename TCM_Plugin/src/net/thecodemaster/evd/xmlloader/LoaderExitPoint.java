@@ -9,6 +9,7 @@ import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.helper.HelperVerifiers;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.point.ExitPoint;
+import net.thecodemaster.evd.verifier.Verifier;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -20,10 +21,12 @@ import org.w3c.dom.NodeList;
  */
 public class LoaderExitPoint extends LoaderXML {
 
-	private final int	fileId;
+	private final int				fileId;
+	private final Verifier	verifier;
 
-	public LoaderExitPoint(int fileId) {
-		this.fileId = fileId;
+	public LoaderExitPoint(Verifier verifier) {
+		this.verifier = verifier;
+		this.fileId = verifier.getId();
 	}
 
 	@Override
@@ -57,7 +60,7 @@ public class LoaderExitPoint extends LoaderXML {
 
 					String qualifiedName = getTagValueFromElement(element, Constant.XMLLoader.TAG_QUALIFIED_NAME);
 					String methodName = getTagValueFromElement(element, Constant.XMLLoader.TAG_METHOD_NAME);
-					ExitPoint exitPoint = new ExitPoint(qualifiedName, methodName);
+					ExitPoint exitPoint = new ExitPoint(verifier, qualifiedName, methodName);
 
 					Map<Parameter, List<Integer>> params = Creator.newMap();
 

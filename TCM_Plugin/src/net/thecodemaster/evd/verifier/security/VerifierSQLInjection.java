@@ -23,6 +23,13 @@ public class VerifierSQLInjection extends Verifier {
 		super(Constant.VERIFIER_ID_SQL_INJECTION, Message.Plugin.VERIFIER_NAME_SQL_INJECTION);
 	}
 
+	@Override
+	protected boolean requiredExtraInspection(DataFlow dataFlow) {
+		// If the dataflow is ok, we then inspect if there are other types of problems.
+		// For example if there is String concatenation.
+		return !dataFlow.hasVulnerablePath();
+	}
+
 	private String getStringConcatenationMessage() {
 		return Message.VerifierSecurityVulnerability.STRING_CONCATENATION;
 	}
@@ -72,8 +79,6 @@ public class VerifierSQLInjection extends Verifier {
 
 			// The SQL Injection verifier also needs to know if the variable has its content from a string concatenation.
 			inspectNode(loopControl, context, dataFlow, variableBinding.getInitializer());
-		} else {
-			super.inspectSimpleName(loopControl, context, dataFlow, expression, variableBinding);
 		}
 	}
 

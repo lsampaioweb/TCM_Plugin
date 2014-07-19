@@ -4,17 +4,23 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.context.Context;
 import net.thecodemaster.evd.graph.BindingResolver;
 import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.CodeAnalyzer;
+import net.thecodemaster.evd.graph.Parameter;
 import net.thecodemaster.evd.graph.VariableBinding;
 import net.thecodemaster.evd.graph.flow.DataFlow;
 import net.thecodemaster.evd.graph.flow.Flow;
+import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.helper.HelperCodeAnalyzer;
 import net.thecodemaster.evd.logger.PluginLogger;
+import net.thecodemaster.evd.point.ExitPoint;
+import net.thecodemaster.evd.reporter.Reporter;
 import net.thecodemaster.evd.ui.enumeration.EnumVariableStatus;
 import net.thecodemaster.evd.ui.l10n.Message;
+import net.thecodemaster.evd.verifier.Verifier;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -48,16 +54,73 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
  */
 public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
+	/**
+	 * The list of all verifiers of this analyzer.
+	 */
+	private List<Verifier>	verifiers;
+	/**
+	 * The object that know how and where to report the found vulnerabilities.
+	 */
+	private Reporter				reporter;
+	/**
+	 * List with all the vulnerable paths found by this verifier.
+	 */
+	private List<DataFlow>	allVulnerablePaths;
+
+	public VisitorPointsToAnalysis() {
+		verifiers = Creator.newList();
+	}
+
+	private List<Verifier> getVerifiers() {
+		return verifiers;
+	}
+
+	private void setVerifiers(List<Verifier> verifiers) {
+		this.verifiers = verifiers;
+	}
+
+	private void setReporter(Reporter reporter) {
+		this.reporter = reporter;
+	}
+
+	private Reporter getReporter() {
+		return reporter;
+	}
+
+	@Override
+	protected IProgressMonitor getProgressMonitor() {
+		if (null != getReporter()) {
+			return getReporter().getProgressMonitor();
+		}
+		return null;
+	}
+
 	@Override
 	protected String getSubTaskMessage() {
 		return Message.Plugin.VISITOR_POINTS_TO_ANALYSIS_SUB_TASK + getCurrentResource().getName();
 	}
 
-	public void run(IProgressMonitor monitor, CallGraph callGraph, List<IResource> resources) {
-		Map<IResource, Map<MethodDeclaration, List<ASTNode>>> resourcesAndMethodsToProcess = getMethodsToProcess(callGraph,
-				resources);
+	public List<DataFlow> run(List<IResource> resources, CallGraph callGraph, List<Verifier> verifiers, Reporter reporter) {
+		setVerifiers(verifiers);
+		setReporter(reporter);
+		allVulnerablePaths = Creator.newList();
 
-		super.run(monitor, callGraph, resourcesAndMethodsToProcess);
+		Map<IResource, Map<MethodDeclaration, List<ASTNode>>> resourcesAndMethodsToProcess = getMethodsToProcess(resources,
+				callGraph);
+
+		super.run(resourcesAndMethodsToProcess, callGraph, getProgressMonitor());
+
+		if (allVulnerablePaths.size() > 0) {
+			reportVulnerability(allVulnerablePaths);
+		}
+
+		return allVulnerablePaths;
+	}
+
+	private void reportVulnerability(List<DataFlow> allVulnerablePaths) {
+		if (null != getReporter()) {
+			getReporter().addProblem(getCurrentResource(), 1, allVulnerablePaths);
+		}
 	}
 
 	/**
@@ -67,16 +130,13 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	 */
 	@Override
 	protected void run(MethodDeclaration methodDeclaration, ASTNode invoker) {
-		// 01 - TODO -
-		// If there is a invoker we have to add the parameters and do more stuff.
-
-		// 02 - Create a context for this method.
+		// 01 - Create a context for this method.
 		Context context = getCallGraph().newContext(getCurrentResource(), methodDeclaration, invoker);
 
-		// 03 - Get the root/first element that will be processed.
+		// 02 - Get the root/first element that will be processed.
 		Expression root = methodDeclaration.getName();
 
-		// 04 - Start the detection on each and every line of this method.
+		// 03 - Start the detection on each and every line of this method.
 		inspectNode(new Flow(root), context, new DataFlow(root), methodDeclaration.getBody());
 	}
 
@@ -144,17 +204,101 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	@Override
 	protected void inspectEachMethodInvocationOfChainInvocations(Flow loopControl, Context context, DataFlow dataFlow,
 			Expression methodInvocation) {
-		if (methodInvocation.getNodeType() == ASTNode.METHOD_INVOCATION) {
-			// 01 - Check if this method invocation has an instance.
-			Expression instance = BindingResolver.getInstanceIfItIsAnObject(methodInvocation);
+		// 01 - Check if this method invocation has an instance.
+		Expression instance = BindingResolver.getInstanceIfItIsAnObject(methodInvocation);
 
-			if (null != instance) {
-				// 02 - Add a method reference to this variable (if it is a variable).
+		// 02 - Get a new data flow or a child from the parent.
+		DataFlow newDataFlow = HelperCodeAnalyzer.getDataFlow(dataFlow, methodInvocation);
+
+		if (null != instance) {
+			// 03 - Check if the method is a Sanitization-Point.
+			if (isMethodASanitizationPoint(methodInvocation)) {
+				// If a sanitization method is being invoked, then we do not have a vulnerability.
+				return;
+			}
+
+			// 04 - Check if the method is an Entry-Point.
+			if (isMethodAnEntryPoint(methodInvocation)) {
+				// 05 - Check if there is a marker, in case there is, we should BELIEVE it is not vulnerable.
+				if (hasMarkerAtPosition(methodInvocation)) {
+					return;
+				}
+
+				String message = getMessageEntryPoint(BindingResolver.getFullName(methodInvocation));
+
+				// We found a invocation to a entry point method.
+				newDataFlow.hasVulnerablePath(Constant.Vulnerability.ENTRY_POINT, message);
+				newDataFlow.setFullPath(loopControl);
+				return;
+			}
+
+			// 06 - Add a method reference to this instance. i.e: a.method(a);
+			if (methodInvocation.getNodeType() == ASTNode.METHOD_INVOCATION) {
 				addReferenceToInitializer(loopControl, context, methodInvocation, instance);
+			}
+
+			// 07 - Check if the method is an Exit-Point (Only verifiers check that).
+			ExitPoint exitPoint = getExitPointIfMethodIsOne(methodInvocation);
+
+			if (null != exitPoint) {
+				inspectExitPoint(loopControl, context, methodInvocation, exitPoint);
+				return;
 			}
 		}
 
-		super.inspectEachMethodInvocationOfChainInvocations(loopControl, context, dataFlow, methodInvocation);
+		// 08 - There are 2 cases: When we have the source code of this method and when we do not.
+		super.inspectMethodInvocationWithOrWithOutSourceCode(loopControl, context, newDataFlow, methodInvocation);
+	}
+
+	private boolean isMethodASanitizationPoint(Expression methodInvocation) {
+		return (BindingResolver.isMethodASanitizationPoint(getSanitizationPoints(), methodInvocation));
+	}
+
+	private boolean isMethodAnEntryPoint(Expression methodInvocation) {
+		return (BindingResolver.isMethodAnEntryPoint(getEntryPoints(), methodInvocation));
+	}
+
+	private ExitPoint getExitPointIfMethodIsOne(Expression methodInvocation) {
+		return BindingResolver.getExitPointIfMethodIsOne(getVerifiers(), methodInvocation);
+	}
+
+	protected void inspectExitPoint(Flow loopControl, Context context, Expression method, ExitPoint exitPoint) {
+		// 01 - Get the parameters (received) from the current method.
+		List<Expression> receivedParameters = BindingResolver.getParameters(method);
+
+		// 02 - Get the expected parameters of the ExitPoint method.
+		Map<Parameter, List<Integer>> expectedParameters = exitPoint.getParameters();
+
+		int index = 0;
+		for (List<Integer> currentRules : expectedParameters.values()) {
+			// If the rules are null, it means the expected parameter can be anything. (We do not care for it).
+			if (null != currentRules) {
+				Expression expression = receivedParameters.get(index);
+				DataFlow dataFlow = new DataFlow(expression);
+
+				// 03 - Check if there is a marker, in case there is, we should BELIEVE it is not vulnerable.
+				if (!hasMarkerAtPosition(expression)) {
+					// 04 - Add a method reference to this variable (if it is a variable).
+					addReferenceToInitializer(loopControl, context, method, expression);
+
+					// 05 -
+					inspectNode(loopControl, context, dataFlow, expression);
+
+					// 06 -
+					Verifier verifier = exitPoint.getVerifier();
+
+					// 07 -
+					verifier.run(getCallGraph(), getCurrentResource(), getCurrentCompilationUnit(), loopControl, context,
+							dataFlow, expression, currentRules);
+
+					// 08 -
+					if (dataFlow.hasVulnerablePath()) {
+						allVulnerablePaths.add(dataFlow);
+					}
+				}
+			}
+			index++;
+		}
 	}
 
 	@Override

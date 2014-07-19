@@ -28,6 +28,13 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 		super(Constant.VERIFIER_ID_SECURITY_MISCONFIGURATION, Message.Plugin.VERIFIER_NAME_SECURITY_MISCONFIGURATION);
 	}
 
+	@Override
+	protected boolean requiredExtraInspection(DataFlow dataFlow) {
+		// If the dataflow is ok, we then inspect if there are other types of problems.
+		// For example if there is hard coded code.
+		return !dataFlow.hasVulnerablePath();
+	}
+
 	protected String getMessageLiteral(String value) {
 		return String.format(Message.VerifierSecurityVulnerability.LITERAL, value);
 	}
@@ -116,8 +123,6 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 
 			// The SQL Injection verifier also needs to know if the variable has its content from a string concatenation.
 			inspectNode(loopControl, context, dataFlow, variableBinding.getInitializer());
-		} else {
-			super.inspectSimpleName(loopControl, context, dataFlow, expression, variableBinding);
 		}
 	}
 

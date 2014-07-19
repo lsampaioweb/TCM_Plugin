@@ -34,12 +34,12 @@ public class VerifierJob extends Job {
 		super(name);
 	}
 
-	public void run(Verifier verifier, Reporter reporter, CallGraph callGraph,
-			Map<IResource, Map<MethodDeclaration, List<ASTNode>>> resourcesAndMethodsToProcess) {
-		setVerifier(verifier);
+	public void run(Reporter reporter, CallGraph callGraph,
+			Map<IResource, Map<MethodDeclaration, List<ASTNode>>> resourcesAndMethodsToProcess, Verifier verifier) {
 		setReporter(reporter);
 		setCallGraph(callGraph);
 		setResourcesAndMethodsToProcess(resourcesAndMethodsToProcess);
+		setVerifier(verifier);
 
 		schedule();
 	}
@@ -81,7 +81,7 @@ public class VerifierJob extends Job {
 	protected IStatus run(IProgressMonitor monitor) {
 		try {
 			Timer timer = (new Timer("01.3.1 - Verifier: " + getVerifier().getName())).start();
-			getVerifier().run(getReporter(), getCallGraph(), getResourcesAndMethodsToProcess());
+			// getVerifier().run(getResourcesAndMethodsToProcess(), getCallGraph(), getReporter());
 			PluginLogger.logIfDebugging(timer.stop().toString());
 		} catch (Exception e) {
 			PluginLogger.logError(e);

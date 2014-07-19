@@ -2,18 +2,12 @@ package net.thecodemaster.evd.graph;
 
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import net.thecodemaster.evd.context.Context;
-import net.thecodemaster.evd.finder.InstanceFinder;
-import net.thecodemaster.evd.finder.ReferenceFinder;
 import net.thecodemaster.evd.graph.flow.DataFlow;
 import net.thecodemaster.evd.graph.flow.Flow;
-import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.logger.PluginLogger;
-import net.thecodemaster.evd.ui.enumeration.EnumTypeDeclaration;
 
-import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ArrayAccess;
 import org.eclipse.jdt.core.dom.ArrayCreation;
@@ -36,14 +30,10 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.ForStatement;
-import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.Modifier;
-import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NullLiteral;
 import org.eclipse.jdt.core.dom.NumberLiteral;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
@@ -63,39 +53,12 @@ import org.eclipse.jdt.core.dom.SynchronizedStatement;
 import org.eclipse.jdt.core.dom.ThisExpression;
 import org.eclipse.jdt.core.dom.ThrowStatement;
 import org.eclipse.jdt.core.dom.TryStatement;
-import org.eclipse.jdt.core.dom.Type;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
 
 public abstract class CodeVisitor {
-
-	/**
-	 * This object contains all the methods, variables and their interactions, on the project that is being analyzed.
-	 */
-	private CallGraph	callGraph;
-	/**
-	 * The current resource that is being analyzed.
-	 */
-	private IResource	currentResource;
-
-	protected void setCallGraph(CallGraph callGraph) {
-		this.callGraph = callGraph;
-	}
-
-	protected CallGraph getCallGraph() {
-		return callGraph;
-	}
-
-	protected void setCurrentResource(IResource currentResource) {
-		this.currentResource = currentResource;
-	}
-
-	protected IResource getCurrentResource() {
-		return currentResource;
-	}
 
 	protected void inspectNode(Flow loopControl, Context context, DataFlow dataFlow, ASTNode node) {
 		if (null == node) {
@@ -496,7 +459,7 @@ public abstract class CodeVisitor {
 	}
 
 	/**
-	 * 42
+	 * 42 variable
 	 */
 	protected void inspectSimpleName(Flow loopControl, Context context, DataFlow dataFlow, SimpleName expression) {
 	}
@@ -560,14 +523,14 @@ public abstract class CodeVisitor {
 	}
 
 	/**
-	 * 52
+	 * 52 this.
 	 */
 	protected void inspectThisExpression(Flow loopControl, Context context, DataFlow dataFlow, ThisExpression expression) {
 		inspectNode(loopControl, context, dataFlow, expression.getQualifier());
 	}
 
 	/**
-	 * 53
+	 * 53 throw new ...
 	 */
 	protected void inspectThrowStatement(Flow loopControl, Context context, DataFlow dataFlow, ThrowStatement statement) {
 		inspectNode(loopControl, context, dataFlow, statement.getExpression());
@@ -666,343 +629,6 @@ public abstract class CodeVisitor {
 	 * 14, 17, 32, 46, 48
 	 */
 	protected void inspectInvocation(Flow loopControl, Context context, DataFlow dataFlow, ASTNode invocation) {
-		MethodDeclaration methodDeclaration = getMethodDeclaration(loopControl, context, invocation);
-		if (null != methodDeclaration) {
-			// We have the source code.
-			inspectMethodWithSourceCode(loopControl, context, dataFlow, invocation, methodDeclaration);
-		} else {
-			// We do not have the source code.
-			inspectMethodWithOutSourceCode(loopControl, context, dataFlow, invocation);
-		}
-	}
-
-	protected void inspectMethodWithSourceCode(Flow loopControl, Context context, DataFlow dataFlow,
-			ASTNode methodInvocation, MethodDeclaration methodDeclaration) {
-		inspectNode(loopControl, context, dataFlow, methodDeclaration.getBody());
-	}
-
-	protected void inspectMethodWithOutSourceCode(Flow loopControl, Context context, DataFlow dataFlow,
-			ASTNode methodInvocation) {
-		iterateOverParameters(loopControl, context, dataFlow, methodInvocation);
-	}
-
-	protected MethodDeclaration getMethodDeclaration(Flow loopControl, Context context, ASTNode invocation) {
-		switch (invocation.getNodeType()) {
-			case ASTNode.CLASS_INSTANCE_CREATION: // 14
-				return getClassInstanceCreationDeclaration((ClassInstanceCreation) invocation, EnumTypeDeclaration.CONSTRUCTOR);
-
-			case ASTNode.CONSTRUCTOR_INVOCATION: // 17
-				return getConstructorInvocationDeclaration(invocation, EnumTypeDeclaration.CONSTRUCTOR);
-
-			case ASTNode.METHOD_INVOCATION: // 32
-				return getMethodInvocationDeclaration(loopControl, context, (MethodInvocation) invocation,
-						EnumTypeDeclaration.METHOD);
-
-			case ASTNode.SUPER_CONSTRUCTOR_INVOCATION: // 46
-				return getSuperInvocationDeclaration(invocation, EnumTypeDeclaration.CONSTRUCTOR);
-
-			case ASTNode.SUPER_METHOD_INVOCATION: // 48
-				return getSuperInvocationDeclaration(invocation, EnumTypeDeclaration.METHOD);
-			default:
-				PluginLogger.logError("getMethodDeclaration Default Node Type: " + invocation.getNodeType() + " - "
-						+ invocation, null);
-				return null;
-		}
-	}
-
-	/**
-	 * 14
-	 */
-	private MethodDeclaration getClassInstanceCreationDeclaration(ClassInstanceCreation invocation,
-			EnumTypeDeclaration typeDeclaration) {
-		// 01 - new Class(...);
-		// 01.1 - It can be an InnerClass or a normal class.
-		// 01.2 - With or without constructor.
-		// 01.3 - The name of the Class is the name of the file + ".java".
-		// 01.4 - It can be in the same package or in another one.
-
-		// TODO - It can be an InnerClass or a normal class.
-		// Try to find if the current resource has any inner classes.
-
-		// 01 - Get the name/type of the class.
-		// 02 - Get the resource of the class.
-		IResource resource = getResource(invocation.getType());
-
-		// 03 - Search the source code of the constructor that was invoked.
-		return getMethodDeclaration(resource, invocation, typeDeclaration);
-	}
-
-	/**
-	 * 17
-	 */
-	private MethodDeclaration getConstructorInvocationDeclaration(ASTNode invocation, EnumTypeDeclaration typeDeclaration) {
-		// 01 - this(...);
-		// 01.1 - It has to be inside the current resource.
-
-		// 01 - Get the resource of this constructor.
-		IResource resource = getResource(invocation);
-
-		// 02 - Search the source code of the constructor that was invoked.
-		return getMethodDeclaration(resource, invocation, typeDeclaration);
-	}
-
-	/**
-	 * 32
-	 */
-	private MethodDeclaration getMethodInvocationDeclaration(Flow loopControl, Context context,
-			MethodInvocation invocation, EnumTypeDeclaration typeDeclaration) {
-		// 01.1 - It can be inside the current resource.
-		// 01.2 - It can be inside one of the super classes.
-		// 01.3 - It can be in the same package or in another one.
-
-		// 01 - Get the binding of this invocation;
-		IBinding binding = BindingResolver.resolveBinding(invocation);
-		if (null != binding) {
-			// 02 - Get the name of the object (instance or static) that is invoking this method.
-			Expression invokerName = BindingResolver.getNameIfItIsAnObject(invocation);
-
-			if ((Modifier.isStatic(binding.getModifiers())) && (null != invokerName)) {
-				// If this invocation is to a static method and it has an invoker.
-				// 03.1 - Static.method(...);
-				// 03.2 - package.name.Static.method(...);
-
-				// 03 - Resource that has the source code of this invocation.
-				IResource resource = getResource((Name) invokerName);
-
-				// 04 - Search the source code of the method that was invoked.
-				return getMethodDeclaration(resource, invocation, typeDeclaration);
-			} else {
-				IResource resource = null;
-				Type className = null;
-				if (null != invokerName) {
-					// 03.1 - p.method(...); Person p = new Employee();
-					// 03.2 - Interface.method(...); List/ArrayList/LinkedList.
-					// These are the most complicated case.
-					Expression realReference = findRealReference(loopControl, context, invokerName);
-
-					if (null != realReference) {
-						className = ((ClassInstanceCreation) realReference).getType();
-						// 04 - Get the resource of this real reference.
-						resource = getResource(className);
-
-						typeDeclaration = EnumTypeDeclaration.METHOD_INHERITANCE;
-					}
-				} else {
-					// 03.1 - method(...);
-					// 03.2 - staticMethod(...);
-					// 03.3 - this.method(...);
-					// 04 - Get the resource of this method.
-					resource = getResource(invocation);
-				}
-				return getMethodDeclarationFromCurrentClassOrSuperClasses(resource, invocation, typeDeclaration, className);
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * 46, 48
-	 */
-	private MethodDeclaration getSuperInvocationDeclaration(ASTNode invocation, EnumTypeDeclaration typeDeclaration) {
-		// 01 - super(...);
-		// 01.1 - It has to be inside one of the super classes.
-		// 02 - super.method(...);
-		// 02.1 - It has to be inside one of the super classes.
-
-		return getMethodDeclarationFromSuperClasses(invocation, typeDeclaration, null);
-	}
-
-	private IResource getResource(ASTNode invocation) {
-		return BindingResolver.getResource(invocation);
-	}
-
-	private IResource getResource(Type className) {
-		return BindingResolver.getResource(getCallGraph(), className);
-	}
-
-	private IResource getResource(Name name) {
-		return BindingResolver.getResource(getCallGraph(), name);
-	}
-
-	private MethodDeclaration getMethodDeclarationFromCurrentClassOrSuperClasses(IResource resource, ASTNode invocation,
-			EnumTypeDeclaration typeDeclaration, Type className) {
-		// 02 - Try to find the source code into the current resource.
-		MethodDeclaration methodDeclaration = getMethodDeclaration(resource, invocation, typeDeclaration);
-		if (null != methodDeclaration) {
-			return methodDeclaration;
-		}
-
-		// 03 - Try to find the source code into the super classes.
-		return getMethodDeclarationFromSuperClasses(invocation, typeDeclaration, className);
-	}
-
-	private MethodDeclaration getMethodDeclarationFromSuperClasses(ASTNode invocation,
-			EnumTypeDeclaration typeDeclaration, Type className) {
-		List<IResource> resources = Creator.newList();
-
-		if (null == className) {
-			// 01 - Get the list of resources from the super class of this invocation.
-			resources = getListOfResourcesFromSuperClasses(invocation);
-		} else {
-			resources = getListOfResourcesFromSuperClasses(className);
-		}
-
-		return getMethodDeclarationFromResources(invocation, typeDeclaration, resources);
-	}
-
-	private List<IResource> getListOfResourcesFromSuperClasses(ASTNode node) {
-		// 01 - Get the type declaration based on the invocation node.
-		TypeDeclaration typeDeclaration = BindingResolver.getTypeDeclaration(node);
-
-		if (null != typeDeclaration) {
-			// 02 - Get the name/type of the super class.
-			Type superClassName = typeDeclaration.getSuperclassType();
-
-			return getListOfResourcesFromSuperClasses(superClassName);
-		}
-
-		// 03 - If the type Declaration is null, we return an empty list.
-		List<IResource> emptyList = Creator.newList();
-		return emptyList;
-	}
-
-	private MethodDeclaration getMethodDeclarationFromResources(ASTNode invocation, EnumTypeDeclaration typeDeclaration,
-			List<IResource> resources) {
-		for (IResource resource : resources) {
-			// 02 - Search the source code of the constructor that was invoked.
-			MethodDeclaration methodDeclaration = getMethodDeclaration(resource, invocation, typeDeclaration);
-			if (null != methodDeclaration) {
-				return methodDeclaration;
-			}
-		}
-
-		// The source code was not found.
-		return null;
-
-	}
-
-	private List<IResource> getListOfResourcesFromSuperClasses(Type superClassName) {
-		// 01 - Create the list that will contain the super classes.
-		List<IResource> resources = Creator.newList();
-
-		while (null != superClassName) {
-			// 05 - Get the resource of the class.
-			IResource resource = getResource(superClassName);
-
-			// 06 - If the resource of the super class was not found,
-			// e.g Library that we do not have the source code, there is nothing we can do.
-			if (null == resource) {
-				break;
-			}
-
-			// 07 - If the resource is not null and it is not already in the list. We add it to the list.
-			if (!resources.contains(resource)) {
-				resources.add(resource);
-			}
-
-			// 08 - Get the methods from this resource.
-			superClassName = getCallGraph().getSuperClass(resource);
-		}
-
-		// 09 - Return the list with the resources of all the super classes.
-		return resources;
-	}
-
-	private MethodDeclaration getMethodDeclaration(IResource resource, ASTNode invocation,
-			EnumTypeDeclaration typeDeclaration) {
-		if (null != resource) {
-			// 01 - Get the list of methods in the current resource and its invocations.
-			Map<MethodDeclaration, List<ASTNode>> methods = getCallGraph().getMethods(resource);
-
-			if (EnumTypeDeclaration.CONSTRUCTOR.equals(typeDeclaration)) {
-				// 02 - Iterate through the list to verify if we have the implementation of this method in our list.
-				for (MethodDeclaration methodDeclaration : methods.keySet()) {
-					// 03 - Verify if these methods have the same parameters.
-					if ((methodDeclaration.isConstructor())
-							&& (BindingResolver.haveSameParameters(methodDeclaration, invocation))) {
-						return methodDeclaration;
-					}
-				}
-			} else if (EnumTypeDeclaration.METHOD.equals(typeDeclaration)) {
-				// 02 - Iterate through the list to verify if we have the implementation of this method in our list.
-				for (MethodDeclaration methodDeclaration : methods.keySet()) {
-					// 03 - Verify if these methods are the same.
-					if (BindingResolver.areMethodsEqual(methodDeclaration, invocation)) {
-						return methodDeclaration;
-					}
-				}
-			} else if (EnumTypeDeclaration.METHOD_INHERITANCE.equals(typeDeclaration)) {
-				// 02 - Iterate through the list to verify if we have the implementation of this method in our list.
-				for (MethodDeclaration methodDeclaration : methods.keySet()) {
-					// 03 - Verify if these methods have the same name and parameters.
-					if (BindingResolver.haveSameNameAndParameters(methodDeclaration, invocation)) {
-						return methodDeclaration;
-					}
-				}
-			}
-		}
-
-		return null;
-	}
-
-	/**
-	 * This first implementation will return the first reference that is found.<br/>
-	 * FIXME - There are complex cases that more that one type of reference can be returned. <br/>
-	 * Case 01: Animal a = new Animal(); <br/>
-	 * Case 02: Animal a = new Person();<br/>
-	 * Case 03: Animal a = new Employee();<br/>
-	 * Case 04: Animal a = getObject(); <br/>
-	 * <br/>
-	 * getObject() { if (return new Employee()) else (return new Person()); }<br/>
-	 * a.methodToInvoke(); <br/>
-	 * What is the method to inspect ?
-	 */
-	private Expression findRealReference(Flow loopControl, Context context, Expression invokerName) {
-		// 01 - Get the last reference of this object.
-		VariableBinding variableBinding = getCallGraph().getVariableBinding(context, invokerName);
-
-		if (null != variableBinding) {
-			// 02 - Try to find where this variable was created.
-			ReferenceFinder finder = new ReferenceFinder(getCallGraph(), getCurrentResource());
-
-			// 03 - Return the real reference of this object.
-			return finder.getReference(loopControl, context, variableBinding.getInitializer());
-		}
-
-		return null;
-	}
-
-	/**
-	 * This first implementation will return the first reference that is found.<br/>
-	 * FIXME - The instance must exist, if it does not, it is probably an assignment or syntax error. <br/>
-	 * Case 01: <br/>
-	 * Animal a1 = new Animal() <br/>
-	 * Animal a2 = a1 <br/>
-	 * a2.method(); <br/>
-	 * <br/>
-	 */
-	protected Expression findRealInstance(Flow loopControl, Context context, Expression instance) {
-		Expression instanceReturn = null;
-		// 01 - Check if this instance has a context.
-		Context instanceContext = getCallGraph().getInstanceContext(context, instance);
-
-		// 02 - If the context is equal it means it does not exist.
-		if (instanceContext.equals(context)) {
-			// 03 - Get the last reference of this object.
-			VariableBinding variableBinding = getCallGraph().getVariableBinding(context, instance);
-
-			if (null != variableBinding) {
-				// 03 - Try to find where this variable was created.
-				InstanceFinder finder = new InstanceFinder(getCallGraph(), getCurrentResource());
-
-				// 04 - Return the real reference of this object.
-				instanceReturn = finder.getReference(loopControl, context, variableBinding.getInitializer());
-			}
-		}
-
-		// 05 - Return the new or the same(old) instance.
-		return (null != instanceReturn) ? instanceReturn : instance;
 	}
 
 }

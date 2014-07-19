@@ -45,7 +45,7 @@ public class VisitorCallGraph implements IResourceVisitor, IResourceDeltaVisitor
 	private final CallGraph				callGraph;
 	private IProgressMonitor			progressMonitor;
 
-	public VisitorCallGraph(IProgressMonitor monitor, CallGraph callGraph) {
+	public VisitorCallGraph(CallGraph callGraph, IProgressMonitor monitor) {
 		resourcesUpdated = Creator.newList();
 		this.callGraph = callGraph;
 		setProgressMonitor(monitor);

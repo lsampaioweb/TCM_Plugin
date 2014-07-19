@@ -10,7 +10,6 @@ import net.thecodemaster.evd.helper.Timer;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.ui.l10n.Message;
 import net.thecodemaster.evd.visitor.VisitorCallGraph;
-import net.thecodemaster.evd.visitor.VisitorPointsToAnalysis;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -138,21 +137,14 @@ public class BuilderJob extends Job {
 					List<IResource> resourcesUpdated = Creator.newList();
 					if (!userCanceledProcess(monitor)) {
 						// 03 - Use the VISITOR pattern to create/populate the call graph.
-						resourcesUpdated = createCallGraph(new VisitorCallGraph(monitor, callGraph));
+						resourcesUpdated = createCallGraph(callGraph, monitor);
 					} else {
 						return Status.CANCEL_STATUS;
 					}
 
 					if (!userCanceledProcess(monitor)) {
-						// 04 - Link variables and methods to content.
-						populateCallGraph(monitor, callGraph, resourcesUpdated);
-					} else {
-						return Status.CANCEL_STATUS;
-					}
-
-					if (!userCanceledProcess(monitor)) {
-						// 05 - Run the plug-in's verifications.
-						runDetection(monitor, callGraph, resourcesUpdated, manager);
+						// 04 - Run the plug-in's verifications.
+						runDetection(resourcesUpdated, callGraph, manager, monitor);
 					} else {
 						return Status.CANCEL_STATUS;
 					}
@@ -177,8 +169,10 @@ public class BuilderJob extends Job {
 		return Status.OK_STATUS;
 	}
 
-	private List<IResource> createCallGraph(VisitorCallGraph visitorCallGraph) throws CoreException {
+	private List<IResource> createCallGraph(CallGraph callGraph, IProgressMonitor monitor) throws CoreException {
 		List<IResource> resourcesUpdated = Creator.newList();
+
+		VisitorCallGraph visitorCallGraph = new VisitorCallGraph(callGraph, monitor);
 
 		if (null != getDelta()) {
 			Timer timer = (new Timer("01.1 - Call Graph Delta: ")).start();
@@ -195,19 +189,11 @@ public class BuilderJob extends Job {
 		return resourcesUpdated;
 	}
 
-	private void populateCallGraph(IProgressMonitor monitor, CallGraph callGraph, List<IResource> resourcesUpdated) {
-		Timer timer = (new Timer("01.2 - Points-to Analysis: ")).start();
-		// 04 - Link variables and methods to content.
-		VisitorPointsToAnalysis pointToAnalysis = new VisitorPointsToAnalysis();
-		pointToAnalysis.run(monitor, callGraph, resourcesUpdated);
-		PluginLogger.logIfDebugging(timer.stop().toString());
-	}
-
-	private void runDetection(IProgressMonitor monitor, CallGraph callGraph, List<IResource> resourcesUpdated,
-			Manager manager) {
-		Timer timer = (new Timer("01.3 - Plug-in verifications: ")).start();
+	private void runDetection(List<IResource> resourcesUpdated, CallGraph callGraph, Manager manager,
+			IProgressMonitor monitor) {
+		Timer timer = (new Timer("01.2 - Plug-in verifications: ")).start();
 		// 05 - Perform the plug-in's verifications.
-		manager.run(monitor, callGraph, resourcesUpdated);
+		manager.run(resourcesUpdated, callGraph, monitor);
 		PluginLogger.logIfDebugging(timer.stop().toString());
 	}
 

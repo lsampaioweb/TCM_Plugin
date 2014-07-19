@@ -11,10 +11,10 @@ import net.thecodemaster.evd.verifier.Verifier;
 import net.thecodemaster.evd.verifier.security.VerifierCommandInjection;
 import net.thecodemaster.evd.verifier.security.VerifierCookiePoisoning;
 import net.thecodemaster.evd.verifier.security.VerifierCrossSiteScripting;
+import net.thecodemaster.evd.verifier.security.VerifierHTTPResponseSplitting;
 import net.thecodemaster.evd.verifier.security.VerifierPathTraversal;
 import net.thecodemaster.evd.verifier.security.VerifierSQLInjection;
 import net.thecodemaster.evd.verifier.security.VerifierSecurityMisconfiguration;
-import net.thecodemaster.evd.verifier.security.VerifierHTTPResponseSplitting;
 import net.thecodemaster.evd.visitor.VisitorCallGraph;
 import net.thecodemaster.evd.visitor.VisitorPointsToAnalysis;
 
@@ -28,8 +28,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.junit.Before;
 
 public abstract class AbstractTestVerifier {
@@ -52,35 +50,28 @@ public abstract class AbstractTestVerifier {
 			CallGraph callGraph = new CallGraph();
 
 			// 02 - The visitor that will populate the callGraph.
-			VisitorCallGraph visitorCallGraph = new VisitorCallGraph(null, callGraph);
+			VisitorCallGraph visitorCallGraph = new VisitorCallGraph(callGraph, null);
 
 			// 03 - The files that will be processed.
 			List<IResource> resources = getResources();
 			for (IResource resource : resources) {
 				visitorCallGraph.visit(resource);
 
-				// 04 - The class that will set the status(VULNERABLE, NOT_VULNERABLE) of all the variables.
-				VisitorPointsToAnalysis pointToAnalysis = new VisitorPointsToAnalysis();
-				pointToAnalysis.run(null, callGraph, resources);
-
-				// 05 - Get the list of verifiers that will be executed.
+				// 04 - Get the list of verifiers that will be executed.
 				List<Verifier> verifiers = createListVerifiers();
 
 				if (verifiers.size() > 0) {
-					Map<IResource, Map<MethodDeclaration, List<ASTNode>>> resourcesAndMethodsToProcess = verifiers.get(0)
-							.getMethodsToProcess(callGraph, resources);
+					// 05 - The class that will set the status(VULNERABLE, NOT_VULNERABLE) of all the variables.
+					VisitorPointsToAnalysis pointToAnalysis = new VisitorPointsToAnalysis();
 
-					// 06 - Run the verifications.
-					for (Verifier verifier : verifiers) {
-						List<DataFlow> currentList = verifier.run(null, callGraph, resourcesAndMethodsToProcess);
+					List<DataFlow> currentList = pointToAnalysis.run(resources, callGraph, verifiers, null);
 
-						if (currentList.size() > 0) {
-							allVulnerablePaths.add(currentList);
-						}
+					if (currentList.size() > 0) {
+						allVulnerablePaths.add(currentList);
 					}
 				}
 
-				// 07 - Each JUnit perform its own tests now.
+				// 06 - Each JUnit perform its own tests now.
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

@@ -12,6 +12,7 @@ import net.thecodemaster.evd.point.AbstractPoint;
 import net.thecodemaster.evd.point.EntryPoint;
 import net.thecodemaster.evd.point.ExitPoint;
 import net.thecodemaster.evd.point.SanitizationPoint;
+import net.thecodemaster.evd.verifier.Verifier;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.IJavaElement;
@@ -690,33 +691,44 @@ public class BindingResolver {
 		return false;
 	}
 
-	public static ExitPoint getExitPointIfMethodIsOne(List<ExitPoint> exitPoints, Expression method) {
-		for (ExitPoint currentExitPoint : exitPoints) {
-			if (methodsHaveSameNameAndPackage(currentExitPoint, method)) {
-				// 01 - Get the expected arguments of this method.
-				Map<Parameter, List<Integer>> expectedParameters = currentExitPoint.getParameters();
+	public static ExitPoint getExitPointIfMethodIsOne(List<Verifier> verifiers, Expression method) {
+		// 01 - Iterate all the verifiers.
+		for (Verifier verifier : verifiers) {
 
-				// 02 - Get the received parameters of the current method.
-				List<Expression> receivedParameters = getParameters(method);
+			// 02 - Get the list of exit-points.
+			List<ExitPoint> exitPoints = verifier.getExitPoints();
 
-				// 03 - It is necessary to check the number of parameters and its types
-				// because it may exist methods with the same names but different parameters.
-				if (expectedParameters.size() == receivedParameters.size()) {
-					boolean isMethodAnExitPoint = true;
-					int index = 0;
-					for (Parameter expectedParameter : expectedParameters.keySet()) {
-						ITypeBinding typeBinding = receivedParameters.get(index++).resolveTypeBinding();
+			// 03 - Iterate over all the exit-points of each verifier.
+			for (ExitPoint currentExitPoint : exitPoints) {
 
-						// Verify if all the parameters are the ones expected. However, there is a case
-						// where an Object is expected, and any type is accepted.
-						if (!parametersHaveSameType(expectedParameter.getType(), typeBinding)) {
-							isMethodAnExitPoint = false;
-							break;
+				// 04 - Check if the method have the same name and package.
+				if (methodsHaveSameNameAndPackage(currentExitPoint, method)) {
+
+					// 05 - Get the expected arguments of this method.
+					Map<Parameter, List<Integer>> expectedParameters = currentExitPoint.getParameters();
+
+					// 06 - Get the received parameters of the current method.
+					List<Expression> receivedParameters = getParameters(method);
+
+					// 07 - It is necessary to check the number of parameters and its types
+					// because it may exist methods with the same names but different parameters.
+					if (expectedParameters.size() == receivedParameters.size()) {
+						boolean isMethodAnExitPoint = true;
+						int index = 0;
+						for (Parameter expectedParameter : expectedParameters.keySet()) {
+							ITypeBinding typeBinding = receivedParameters.get(index++).resolveTypeBinding();
+
+							// Verify if all the parameters are the ones expected. However, there is a case
+							// where an Object is expected, and any type is accepted.
+							if (!parametersHaveSameType(expectedParameter.getType(), typeBinding)) {
+								isMethodAnExitPoint = false;
+								break;
+							}
 						}
-					}
 
-					if (isMethodAnExitPoint) {
-						return currentExitPoint;
+						if (isMethodAnExitPoint) {
+							return currentExitPoint;
+						}
 					}
 				}
 			}
