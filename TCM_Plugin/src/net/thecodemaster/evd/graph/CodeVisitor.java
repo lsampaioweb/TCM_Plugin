@@ -136,6 +136,9 @@ public abstract class CodeVisitor {
 			case ASTNode.CAST_EXPRESSION: // 11
 				inspectCastExpression(loopControl, context, dataFlow, (CastExpression) node);
 				break;
+			case ASTNode.CATCH_CLAUSE: // 12
+				inspectCatchClause(loopControl, context, dataFlow, (CatchClause) node);
+				break;
 			case ASTNode.CHARACTER_LITERAL: // 13
 				inspectCharacterLiteral(loopControl, context, dataFlow, (CharacterLiteral) node);
 				break;
@@ -312,6 +315,13 @@ public abstract class CodeVisitor {
 	 */
 	protected void inspectCastExpression(Flow loopControl, Context context, DataFlow dataFlow, CastExpression expression) {
 		inspectNode(loopControl, context, dataFlow, expression.getExpression());
+	}
+
+	/**
+	 * 12
+	 */
+	protected void inspectCatchClause(Flow loopControl, Context context, DataFlow dataFlow, CatchClause expression) {
+		inspectNode(loopControl, context, dataFlow, expression.getBody());
 	}
 
 	/**
