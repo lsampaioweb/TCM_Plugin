@@ -88,7 +88,6 @@ public abstract class Message extends NLS {
 		public static String				VERIFIER_NAME_HTTP_RESPONSE_SPLITTING;
 
 		public static String				VISITOR_CALL_GRAPH_SUB_TASK;
-		public static String				VISITOR_POINTS_TO_ANALYSIS_SUB_TASK;
 
 		static {
 			// Initialize resource bundle.

@@ -1,6 +1,7 @@
 package net.thecodemaster.evd.graph;
 
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -15,6 +16,7 @@ import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.marker.MarkerManager;
 import net.thecodemaster.evd.point.EntryPoint;
 import net.thecodemaster.evd.point.SanitizationPoint;
+import net.thecodemaster.evd.reporter.Reporter;
 import net.thecodemaster.evd.ui.enumeration.EnumTypeDeclaration;
 import net.thecodemaster.evd.ui.enumeration.EnumVariableStatus;
 import net.thecodemaster.evd.ui.l10n.Message;
@@ -63,9 +65,9 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	 */
 	private static List<SanitizationPoint>	sanitizers;
 	/**
-	 * The object is responsible to update the progress bar of the user interface.
+	 * The object that know how and where to report the found vulnerabilities.
 	 */
-	private IProgressMonitor								progressMonitor;
+	private Reporter												reporter;
 
 	protected void setCallGraph(CallGraph callGraph) {
 		this.callGraph = callGraph;
@@ -85,6 +87,15 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 
 	protected void setCurrentCompilationUnit(CompilationUnit currentCompilationUnit) {
 		this.currentCompilationUnit = currentCompilationUnit;
+	}
+
+	protected void setCurrentCompilationUnit(List<MethodDeclaration> methodsToProcess) {
+		if (0 < methodsToProcess.size()) {
+			MethodDeclaration methodDeclaration = methodsToProcess.get(0);
+			if (null != methodDeclaration) {
+				setCurrentCompilationUnit(BindingResolver.getCompilationUnit(methodDeclaration));
+			}
+		}
 	}
 
 	protected CompilationUnit getCurrentCompilationUnit() {
@@ -109,15 +120,22 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 		return sanitizers;
 	}
 
-	protected void setProgressMonitor(IProgressMonitor progressMonitor) {
-		this.progressMonitor = progressMonitor;
+	protected void setReporter(Reporter reporter) {
+		this.reporter = reporter;
+	}
+
+	protected Reporter getReporter() {
+		return reporter;
 	}
 
 	protected IProgressMonitor getProgressMonitor() {
-		return progressMonitor;
+		if (null != getReporter()) {
+			return getReporter().getProgressMonitor();
+		}
+		return null;
 	}
 
-	protected String getSubTaskMessage() {
+	protected String getSubTaskMessage(int numberOfResourcesProcessed, int numberOfResources) {
 		return null;
 	}
 
@@ -151,24 +169,28 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 		return ((null != getProgressMonitor()) && (getProgressMonitor().isCanceled()));
 	}
 
-	protected void run(Map<IResource, Map<MethodDeclaration, List<ASTNode>>> resourcesAndMethodsToProcess,
-			CallGraph callGraph, IProgressMonitor monitor) {
+	protected void run(Map<IResource, List<MethodDeclaration>> resourcesAndMethodsToProcess, CallGraph callGraph) {
 		setCallGraph(callGraph);
-		setProgressMonitor(monitor);
+
+		int numberOfResources = resourcesAndMethodsToProcess.size();
+		int numberOfResourcesProcessed = 0;
 
 		// 01 - Iterate over all the resources.
-		for (Entry<IResource, Map<MethodDeclaration, List<ASTNode>>> entry : resourcesAndMethodsToProcess.entrySet()) {
+		for (Entry<IResource, List<MethodDeclaration>> entry : resourcesAndMethodsToProcess.entrySet()) {
 			if (!userCanceledProcess(getProgressMonitor())) {
 				// 02 - Set the current resource.
 				setCurrentResource(entry.getKey());
 
 				// 03 - Inform the user what is the current process of the plug-in.
-				setSubTask(getSubTaskMessage());
+				setSubTask(getSubTaskMessage(++numberOfResourcesProcessed, numberOfResources));
 
 				// 04 - Get the list of methods that will be processed from this resource.
-				Map<MethodDeclaration, List<ASTNode>> methodsToProcess = entry.getValue();
+				List<MethodDeclaration> methodsToProcess = entry.getValue();
 
-				// 05 - Process the detection on these methods.
+				// 05 - We need the compilation unit to check if there are markers in the current resource.
+				setCurrentCompilationUnit(methodsToProcess);
+
+				// 06 - Process the detection on these methods.
 				run(methodsToProcess);
 			} else {
 				// 02 - The user has stopped the process.
@@ -182,24 +204,12 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	 * 
 	 * @param methodDeclaration
 	 */
-	protected void run(Map<MethodDeclaration, List<ASTNode>> methodsToProcess) {
-		for (Entry<MethodDeclaration, List<ASTNode>> methodDeclaration : methodsToProcess.entrySet()) {
-			// 01 - We need the compilation unit to check if there are markers in the current resource.
-			setCurrentCompilationUnit(BindingResolver.getCompilationUnit(methodDeclaration.getKey()));
-
-			// 02 - If this method is not invoked by any other, this method can be an entry method.
+	protected void run(List<MethodDeclaration> methodsToProcess) {
+		for (MethodDeclaration methodDeclaration : methodsToProcess) {
+			// 01 - If this method is not invoked by any other, this method can be an entry method.
 			// Main(), doGet or just a never used method.
-			if (0 == methodDeclaration.getValue().size()) {
-
-				// 03 - Process the detection on the current method.
-				run(methodDeclaration.getKey(), null);
-			} else {
-				for (ASTNode invoker : methodDeclaration.getValue()) {
-
-					// 04 - Process the detection on the current method.
-					run(methodDeclaration.getKey(), invoker);
-				}
-			}
+			// 02 - Process the detection on the current method.
+			run(methodDeclaration);
 		}
 	}
 
@@ -208,74 +218,61 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	 * 
 	 * @param methodDeclaration
 	 */
-	protected void run(MethodDeclaration methodDeclaration, ASTNode invoker) {
+	protected void run(MethodDeclaration methodDeclaration) {
 	}
 
-	public Map<IResource, Map<MethodDeclaration, List<ASTNode>>> getMethodsToProcess(List<IResource> resources,
-			CallGraph callGraph) {
-		Map<IResource, Map<MethodDeclaration, List<ASTNode>>> resourcesAndMethodsToProcess = Creator.newMap();
+	protected Map<IResource, List<MethodDeclaration>> getMethodsToProcess(List<IResource> resources, CallGraph callGraph) {
+		Map<IResource, List<MethodDeclaration>> resourcesAndMethodsToProcess = Creator.newMap();
 
-		// 01 - Iterate over all the resources.
-		for (IResource resource : resources) {
-			// 02 - Get the list of methods that will be processed from this resource.
-			Map<MethodDeclaration, List<ASTNode>> methodsToProcess = getMethodsToProcess(resources, callGraph, resource);
+		ListIterator<IResource> iterator = resources.listIterator();
+
+		while (iterator.hasNext()) {
+			IResource resource = iterator.next();
+
+			List<MethodDeclaration> methodsToProcess = Creator.newList();
+
+			// 02 - Get the list of methods in the current resource and its invocations.
+			Map<MethodDeclaration, List<ASTNode>> methods = callGraph.getMethods(resource);
+
+			// 03 - Iterate over all the method declarations of the current resource.
+			for (MethodDeclaration methodDeclaration : methods.keySet()) {
+
+				// To avoid unnecessary processing, we only process methods that are
+				// not invoked by any other method in the same file. Because if the method
+				// is invoked, eventually it will be processed.
+				// 04 - Get the list of methods that invokes this method.
+				Map<MethodDeclaration, List<ASTNode>> invokers = callGraph.getInvokers(methodDeclaration);
+				if (invokers.size() > 0) {
+					// 05 - Iterate over all the methods that invokes this method.
+					for (Entry<MethodDeclaration, List<ASTNode>> caller : invokers.entrySet()) {
+
+						// 06 - Get the resource of this method (caller).
+						IResource resourceCaller = BindingResolver.getResource(caller.getKey());
+
+						// 07 - If this method is invoked by a method from another resource
+						// and that resource is not in the list of resources that are going to be processed.
+						if ((null != resourceCaller) && (!resourceCaller.equals(resource)) && (!resources.contains(resourceCaller))) {
+
+							// 08 - Add the resource caller to the list of resources that should be processed.
+							iterator.add(resourceCaller);
+							// 09 - Make the iterator "see" this new element.
+							iterator.previous();
+							// 10 - Clear any old warnings.
+							getReporter().clearOldProblems(resourceCaller);
+						}
+					}
+				} else {
+					// 04 - This method should be processed, add it to the list.
+					methodsToProcess.add(methodDeclaration);
+				}
+
+			}
 
 			// 03 - Add it to the list.
 			resourcesAndMethodsToProcess.put(resource, methodsToProcess);
 		}
 
 		return resourcesAndMethodsToProcess;
-	}
-
-	protected Map<MethodDeclaration, List<ASTNode>> getMethodsToProcess(List<IResource> resources, CallGraph callGraph,
-			IResource resource) {
-		// This map contains the method that will be processed and its invokers.
-		Map<MethodDeclaration, List<ASTNode>> methodsToProcess = Creator.newMap();
-
-		// 01 - Get the list of methods in the current resource and its invocations.
-		Map<MethodDeclaration, List<ASTNode>> methods = callGraph.getMethods(resource);
-
-		// 02 - Iterate over all the method declarations of the current resource.
-		for (MethodDeclaration methodDeclaration : methods.keySet()) {
-
-			// To avoid unnecessary processing, we only process methods that are
-			// not invoked by any other method in the same file. Because if the method
-			// is invoked, eventually it will be processed.
-			// 03 - Get the list of methods that invokes this method.
-			Map<MethodDeclaration, List<ASTNode>> invokers = callGraph.getInvokers(methodDeclaration);
-			if (invokers.size() > 0) {
-				// 04 - Iterate over all the methods that invokes this method.
-				for (Entry<MethodDeclaration, List<ASTNode>> caller : invokers.entrySet()) {
-
-					// 05 - Get the resource of this method (caller).
-					IResource resourceCaller = BindingResolver.getResource(caller.getKey());
-
-					// 06 - If this method is invoked by a method from another resource
-					// and that resource is not in the list of resources that are going to be processed.
-					if ((null != resourceCaller) && (!resourceCaller.equals(resource)) && (!resources.contains(resourceCaller))) {
-
-						// 07 - Care only about the invocations to this method.
-						if (!methodsToProcess.containsKey(methodDeclaration)) {
-							List<ASTNode> invocations = Creator.newList();
-
-							// Create a empty list of method invocations.
-							methodsToProcess.put(methodDeclaration, invocations);
-						}
-
-						// 08 - This method should be processed, add it to the list.
-						methodsToProcess.get(methodDeclaration).addAll(caller.getValue());
-					}
-				}
-			} else {
-				List<ASTNode> emptyInvokers = Creator.newList();
-
-				// 04 - This method should be processed, add it to the list.
-				methodsToProcess.put(methodDeclaration, emptyInvokers);
-			}
-
-		}
-
-		return methodsToProcess;
 	}
 
 	/**
@@ -344,17 +341,26 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 		// getServletContext().getRequestDispatcher(login).forward(request, response);
 		// 01 - There are 2 cases: When we have the source code of this method and when we do not.
 		MethodDeclaration methodDeclaration = getMethodDeclaration(loopControl, context, methodInvocation);
+
+		inspectMethodInvocationWithOrWithOutSourceCode(loopControl, context, dataFlow, methodInvocation, methodDeclaration);
+
+		VariableBinding variableBinding = HelperCodeAnalyzer.getVariableBindingIfItIsAnObject(getCallGraph(), context,
+				methodInvocation);
+
+		methodHasBeenProcessed(loopControl, context, dataFlow, methodInvocation, methodDeclaration, variableBinding);
+	}
+
+	/**
+	 * 32
+	 */
+	private void inspectMethodInvocationWithOrWithOutSourceCode(Flow loopControl, Context context, DataFlow dataFlow,
+			ASTNode methodInvocation, MethodDeclaration methodDeclaration) {
 		if (null != methodDeclaration) {
 			// We have the source code.
 			inspectMethodWithSourceCode(loopControl, context, dataFlow, methodInvocation, methodDeclaration);
 		} else {
 			inspectMethodWithOutSourceCode(loopControl, context, dataFlow, methodInvocation);
 		}
-
-		VariableBinding variableBinding = HelperCodeAnalyzer.getVariableBindingIfItIsAnObject(getCallGraph(), context,
-				methodInvocation);
-
-		methodHasBeenProcessed(loopControl, context, dataFlow, methodInvocation, methodDeclaration, variableBinding);
 	}
 
 	protected void methodHasBeenProcessed(Flow loopControl, Context context, DataFlow dataFlow,
@@ -497,13 +503,8 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	@Override
 	protected void inspectInvocation(Flow loopControl, Context context, DataFlow dataFlow, ASTNode invocation) {
 		MethodDeclaration methodDeclaration = getMethodDeclaration(loopControl, context, invocation);
-		if (null != methodDeclaration) {
-			// We have the source code.
-			inspectMethodWithSourceCode(loopControl, context, dataFlow, invocation, methodDeclaration);
-		} else {
-			// We do not have the source code.
-			inspectMethodWithOutSourceCode(loopControl, context, dataFlow, invocation);
-		}
+
+		inspectMethodInvocationWithOrWithOutSourceCode(loopControl, context, dataFlow, invocation, methodDeclaration);
 	}
 
 	protected void inspectMethodWithSourceCode(Flow loopControl, Context context, DataFlow dataFlow,
