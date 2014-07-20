@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
+import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 
@@ -34,7 +35,11 @@ public abstract class HelperCodeAnalyzer {
 		if ((null != variableBinding) && (null != dataFlow)) {
 			EnumVariableStatus status = (dataFlow.hasVulnerablePath()) ? EnumVariableStatus.VULNERABLE
 					: EnumVariableStatus.NOT_VULNERABLE;
-			variableBinding.setStatus(status);
+
+			// If the status is already vulnerable, we should not change to not vulnerable.
+			if (!variableBinding.getStatus().equals(EnumVariableStatus.VULNERABLE)) {
+				variableBinding.setStatus(status);
+			}
 		}
 	}
 
@@ -100,9 +105,14 @@ public abstract class HelperCodeAnalyzer {
 		while (null != node) {
 			switch (node.getNodeType()) {
 				case ASTNode.BLOCK: // 08
-				case ASTNode.INFIX_EXPRESSION: // 27
 					return new DataFlow(expression);
-
+				case ASTNode.INFIX_EXPRESSION: // 27
+					InfixExpression infixExpression = (InfixExpression) node;
+					if (infixExpression.getOperator().equals(InfixExpression.Operator.PLUS)) {
+						return dataFlow.addNodeToPath(expression);
+					} else {
+						return new DataFlow(expression);
+					}
 				case ASTNode.ASSIGNMENT: // 07
 				case ASTNode.CLASS_INSTANCE_CREATION: // 14
 				case ASTNode.METHOD_INVOCATION: // 32

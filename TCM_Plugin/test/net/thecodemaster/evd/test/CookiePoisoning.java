@@ -26,7 +26,7 @@ public class CookiePoisoning extends AbstractTestVerifier {
 		Assert.assertEquals(1, allVulnerablePaths.size());
 
 		List<DataFlow> vulnerablePaths01 = allVulnerablePaths.get(0);
-		Assert.assertEquals(11, vulnerablePaths01.size());
+		Assert.assertEquals(12, vulnerablePaths01.size());
 	}
 
 }

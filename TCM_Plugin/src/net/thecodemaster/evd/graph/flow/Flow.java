@@ -129,7 +129,7 @@ public class Flow {
 
 	public String getFullPath(List<String> fullPathAlreadyAdded) {
 		// 01 - The first element is the parent.
-		Flow currentFlow = getParent();
+		Flow currentFlow = this;
 		List<String> fullPath = Creator.newList();
 
 		while (null != currentFlow) {

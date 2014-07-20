@@ -26,7 +26,7 @@ public class CommandInjection extends AbstractTestVerifier {
 		Assert.assertEquals(1, allVulnerablePaths.size());
 
 		List<DataFlow> vulnerablePaths01 = allVulnerablePaths.get(0);
-		Assert.assertEquals(3, vulnerablePaths01.size());
+		Assert.assertEquals(4, vulnerablePaths01.size());
 	}
 
 }

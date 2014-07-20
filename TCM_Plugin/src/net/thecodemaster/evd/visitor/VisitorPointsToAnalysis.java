@@ -201,7 +201,6 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
 			// We found a invocation to a entry point method.
 			newDataFlow.hasVulnerablePath(Constant.Vulnerability.ENTRY_POINT, message);
-			newDataFlow.setFullPath(loopControl);
 			return;
 		}
 
@@ -252,7 +251,8 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 			// If the rules are null, it means the expected parameter can be anything. (We do not care for it).
 			if (null != currentRules) {
 				Expression expression = receivedParameters.get(index);
-				DataFlow newDataFlow = dataFlow.addNodeToPath(expression);
+				DataFlow newDataFlow = new DataFlow(expression);
+				// newDataFlow = newDataFlow.addNodeToPath(expression);
 
 				// 03 - Check if there is a marker, in case there is, we should BELIEVE it is not vulnerable.
 				if (!hasMarkerAtPosition(expression)) {
@@ -271,17 +271,17 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 								newDataFlow, expression, currentRules);
 
 						// 08 - If the data flow has a vulnerable path, we set the verifier who found it.
-						if (dataFlow.hasVulnerablePath()) {
-							dataFlow.setTypeProblem(verifier.getId());
+						if (newDataFlow.hasVulnerablePath()) {
+							newDataFlow.setTypeProblem(verifier.getId());
+							newDataFlow.setFullPath(loopControl);
+							allVulnerablePaths.add(newDataFlow);
+
+							dataFlow.replace(newDataFlow);
 						}
 					}
 				}
 			}
 			index++;
-		}
-		// 08 -
-		if (dataFlow.hasVulnerablePath()) {
-			allVulnerablePaths.add(dataFlow);
 		}
 	}
 
