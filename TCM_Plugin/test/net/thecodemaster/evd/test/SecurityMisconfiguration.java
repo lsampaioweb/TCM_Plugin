@@ -18,7 +18,7 @@ public class SecurityMisconfiguration extends AbstractTestVerifier {
 
 		resourceNames.put(AbstractTestVerifier.PACKAGE_SERVLET, newList("SecurityMisconfiguration.java"));
 
-		return getRersources(resourceNames);
+		return getResources(resourceNames);
 	}
 
 	@Test

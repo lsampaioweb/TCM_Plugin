@@ -80,7 +80,7 @@ public abstract class AbstractTestVerifier {
 
 	protected abstract List<IResource> getResources();
 
-	protected List<IResource> getRersources(Map<String, List<String>> resourcesPackagesAndNames) {
+	protected List<IResource> getResources(Map<String, List<String>> resourcesPackagesAndNames) {
 		List<IResource> resources = Creator.newList();
 
 		// 01 - Get the main project.

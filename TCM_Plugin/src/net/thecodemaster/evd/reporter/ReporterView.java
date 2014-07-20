@@ -129,8 +129,8 @@ public class ReporterView implements IReporter {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void addProblem(IResource resource, int typeProblem, List<DataFlow> allVulnerablePaths) {
-		addToViewDataModel(resource, typeProblem, allVulnerablePaths);
+	public void addProblem(IResource resource, List<DataFlow> allVulnerablePaths) {
+		addToViewDataModel(resource, allVulnerablePaths);
 
 		// 02 - Update the view so the new data can appear and the old ones can be removed.
 		updateView();
@@ -172,7 +172,7 @@ public class ReporterView implements IReporter {
 		}
 	}
 
-	private void addToViewDataModel(IResource resource, int typeProblem, List<DataFlow> dataFlows) {
+	private void addToViewDataModel(IResource resource, List<DataFlow> dataFlows) {
 		for (DataFlow dataFlow : dataFlows) {
 			ViewDataModel parent = null;
 			ViewDataModel currentVdm;
@@ -192,13 +192,9 @@ public class ReporterView implements IReporter {
 				if ((null == parent) && (!firstElement.equals(lastElement))) {
 					String message = getMessageByNumberOfVulnerablePaths(allVulnerablePaths, firstElement);
 
-					parent = createViewDataModelElement(resource, typeProblem, firstElement.getRoot(), message, null);
+					parent = createViewDataModelElement(resource, firstElement.getTypeProblem(), firstElement.getRoot(), message,
+							null);
 					if (null != parent) {
-						// if (!resource.equals(parent.getResource())) {
-						// FIXME - We have duplicated data.
-						// clearOldProblems(parent.getResource());
-						// }
-
 						rootVdm.addChildren(parent);
 					}
 				}
@@ -276,7 +272,7 @@ public class ReporterView implements IReporter {
 			Flow flow = vulnerablePath.getFullPath();
 
 			if ((!hasAddedFullPath) && (null != flow)) {
-				fullPath.add(0, flow.getFullPath());
+				fullPath.add(0, flow.getFullPath(fullPath));
 				hasAddedFullPath = true;
 			}
 

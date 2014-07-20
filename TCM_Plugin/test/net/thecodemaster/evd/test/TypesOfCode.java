@@ -18,7 +18,7 @@ public class TypesOfCode extends AbstractTestVerifier {
 
 		resourceNames.put(AbstractTestVerifier.PACKAGE_SERVLET, newList("TypesOfCode.java"));
 
-		return getRersources(resourceNames);
+		return getResources(resourceNames);
 	}
 
 	@Test

@@ -18,7 +18,7 @@ public class UnvalidatedRedirecting extends AbstractTestVerifier {
 
 		resourceNames.put(AbstractTestVerifier.PACKAGE_SERVLET, newList("UnvalidatedRedirecting.java"));
 
-		return getRersources(resourceNames);
+		return getResources(resourceNames);
 	}
 
 	@Test

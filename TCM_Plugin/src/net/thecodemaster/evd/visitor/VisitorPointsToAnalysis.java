@@ -18,7 +18,6 @@ import net.thecodemaster.evd.helper.HelperCodeAnalyzer;
 import net.thecodemaster.evd.logger.PluginLogger;
 import net.thecodemaster.evd.point.ExitPoint;
 import net.thecodemaster.evd.reporter.Reporter;
-import net.thecodemaster.evd.ui.enumeration.EnumVariableStatus;
 import net.thecodemaster.evd.verifier.Verifier;
 
 import org.eclipse.core.resources.IResource;
@@ -81,11 +80,12 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	public List<DataFlow> run(List<IResource> resources, CallGraph callGraph, List<Verifier> verifiers, Reporter reporter) {
 		setVerifiers(verifiers);
 		setReporter(reporter);
+		setCallGraph(callGraph);
 		allVulnerablePaths = Creator.newList();
 
-		Map<IResource, List<MethodDeclaration>> resourcesAndMethodsToProcess = getMethodsToProcess(resources, callGraph);
+		Map<IResource, List<MethodDeclaration>> resourcesAndMethodsToProcess = getMethodsToProcess(resources);
 
-		super.run(resourcesAndMethodsToProcess, callGraph);
+		super.run(resourcesAndMethodsToProcess);
 
 		if (allVulnerablePaths.size() > 0) {
 			reportVulnerability(allVulnerablePaths);
@@ -96,7 +96,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
 	private void reportVulnerability(List<DataFlow> allVulnerablePaths) {
 		if (null != getReporter()) {
-			getReporter().addProblem(getCurrentResource(), 1, allVulnerablePaths);
+			getReporter().addProblem(getCurrentResource(), allVulnerablePaths);
 		}
 	}
 
@@ -181,14 +181,14 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	@Override
 	protected void inspectEachMethodInvocationOfChainInvocations(Flow loopControl, Context context, DataFlow dataFlow,
 			Expression methodInvocation) {
-		// 01 - Get a new data flow or a child from the parent.
-		DataFlow newDataFlow = HelperCodeAnalyzer.getDataFlow(dataFlow, methodInvocation);
-
-		// 02 - Check if the method is a Sanitization-Point.
+		// 01 - Check if the method is a Sanitization-Point.
 		if (isMethodASanitizationPoint(methodInvocation)) {
 			// If a sanitization method is being invoked, then we do not have a vulnerability.
 			return;
 		}
+
+		// 02 - Get a new data flow or a child from the parent.
+		DataFlow newDataFlow = HelperCodeAnalyzer.getDataFlow(dataFlow, methodInvocation);
 
 		// 03 - Check if the method is an Entry-Point.
 		if (isMethodAnEntryPoint(methodInvocation)) {
@@ -252,7 +252,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 			// If the rules are null, it means the expected parameter can be anything. (We do not care for it).
 			if (null != currentRules) {
 				Expression expression = receivedParameters.get(index);
-				DataFlow newDataFlow = new DataFlow(expression);
+				DataFlow newDataFlow = dataFlow.addNodeToPath(expression);
 
 				// 03 - Check if there is a marker, in case there is, we should BELIEVE it is not vulnerable.
 				if (!hasMarkerAtPosition(expression)) {
@@ -265,23 +265,41 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 					// 06 -
 					Verifier verifier = exitPoint.getVerifier();
 
-					// 07 -
-					verifier.run(getCallGraph(), getCurrentResource(), getCurrentCompilationUnit(), loopControl, context,
-							newDataFlow, expression, currentRules);
+					if (null != verifier) {
+						// 07 - Some verifiers required most tests.
+						verifier.run(getCallGraph(), getCurrentResource(), getCurrentCompilationUnit(), loopControl, context,
+								newDataFlow, expression, currentRules);
 
-					// 08 -
-					if (newDataFlow.hasVulnerablePath()) {
-						allVulnerablePaths.add(newDataFlow);
+						// 08 - If the data flow has a vulnerable path, we set the verifier who found it.
+						if (dataFlow.hasVulnerablePath()) {
+							dataFlow.setTypeProblem(verifier.getId());
+						}
 					}
 				}
 			}
 			index++;
 		}
+		// 08 -
+		if (dataFlow.hasVulnerablePath()) {
+			allVulnerablePaths.add(dataFlow);
+		}
+	}
+
+	private void updateDataBinding(Expression expression, DataFlow dataFlow, VariableBinding variableBinding) {
+		if (HelperCodeAnalyzer.isPrimitive(expression)) {
+			HelperCodeAnalyzer.updateVariableBindingStatusToPrimitive(variableBinding);
+		} else {
+			HelperCodeAnalyzer.updateVariableBinding(variableBinding, dataFlow);
+		}
 	}
 
 	@Override
 	protected void methodHasBeenProcessed(Flow loopControl, Context context, DataFlow dataFlow,
-			Expression methodInvocation, MethodDeclaration methodDeclaration, VariableBinding variableBinding) {
+			Expression methodInvocation, MethodDeclaration methodDeclaration) {
+		// 01 - Get a variable binding if it is an object.
+		VariableBinding variableBinding = HelperCodeAnalyzer.getVariableBindingIfItIsAnObject(getCallGraph(), context,
+				methodInvocation);
+
 		// We found a vulnerability.
 		if (dataFlow.hasVulnerablePath()) {
 			// There are 2 sub-cases: When is a method from an object and when is a method from a library.
@@ -289,10 +307,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 			// 02 - System.out.println("..."); Nothing else to do.
 
 			// 02 - Check if this method invocation is being call from a vulnerable object.
-			if (null != variableBinding) {
-				variableBinding.setStatus(EnumVariableStatus.VULNERABLE);
-				HelperCodeAnalyzer.updateVariableBindingDataFlow(variableBinding, dataFlow);
-			}
+			updateDataBinding(methodInvocation, dataFlow, variableBinding);
 		} else {
 			super
 					.methodHasBeenProcessed(loopControl, context, dataFlow, methodInvocation, methodDeclaration, variableBinding);
@@ -300,8 +315,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	}
 
 	@Override
-	protected void UpdateIfVulnerable(Flow loopControl, Context context, DataFlow dataFlow,
-			VariableBinding variableBinding) {
+	protected void UpdateIfVulnerable(DataFlow dataFlow, VariableBinding variableBinding) {
 		// 02 - If there is a vulnerable path, then this variable is vulnerable.
 		HelperCodeAnalyzer.updateVariableBinding(variableBinding, dataFlow);
 	}
@@ -440,20 +454,15 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		// 01 - Add a reference of the variable into the initializer (if the initializer is also a variable).
 		addReferenceToInitializer(loopControl, context, name, initializer);
 
-		// 03 - Inspect the Initializer to verify if this variable is vulnerable.
+		// 02 - Inspect the Initializer to verify if this variable is vulnerable.
 		DataFlow newDataFlow = new DataFlow(name);
 		inspectNode(loopControl, context, newDataFlow, initializer);
 
-		// 02 - Add the variable to the current context.
+		// 03 - Add the variable to the current context.
 		VariableBinding variableBinding = getCallGraph().addVariable(context, name, initializer);
 
-		// 04 - If there is a vulnerable path, then this variable is vulnerable.
-		// But if this variable is of primitive type, then there is nothing to do because they can not be vulnerable.
-		if (HelperCodeAnalyzer.isPrimitive(name)) {
-			HelperCodeAnalyzer.updateVariableBindingStatusToPrimitive(variableBinding);
-		} else {
-			HelperCodeAnalyzer.updateVariableBinding(variableBinding, newDataFlow);
-		}
+		// 04 - Update the data binding of this variable.
+		updateDataBinding(name, newDataFlow, variableBinding);
 
 		return variableBinding;
 	}
@@ -478,19 +487,18 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 				// 05 - Add a method reference to this variable (if it is a variable).
 				addReferenceToInitializer(loopControl, context, methodInvocation, initializer);
 
-				// 06
-				inspectNode(loopControl, context, dataFlow, initializer);
+				// 06 - Create a new Data flow for this parameter.
+				DataFlow newDataFlow = new DataFlow(name);
 
-				// 07 - Add the content with the one that came from the method invocation.
+				// 07 - Inspect this element.
+				inspectNode(loopControl, context, newDataFlow.addNodeToPath(initializer), initializer);
+
+				// 08 - Add the content with the one that came from the method invocation.
 				VariableBinding variableBinding = getCallGraph().addParameter(context, name, initializer);
 
-				// 08 - If there is a vulnerable path, then this variable is vulnerable.
+				// 09 - If there is a vulnerable path, then this variable is vulnerable.
 				// But if this variable is of primitive type, then there is nothing to do because they can not be vulnerable.
-				if (HelperCodeAnalyzer.isPrimitive(name)) {
-					HelperCodeAnalyzer.updateVariableBindingStatusToPrimitive(variableBinding);
-				} else {
-					HelperCodeAnalyzer.updateVariableBinding(variableBinding, dataFlow);
-				}
+				updateDataBinding(name, newDataFlow, variableBinding);
 			}
 		}
 	}

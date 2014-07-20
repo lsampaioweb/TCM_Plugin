@@ -25,7 +25,7 @@ public class Flow {
 		this.parent = parent;
 	}
 
-	private ASTNode getRoot() {
+	public ASTNode getRoot() {
 		return root;
 	}
 
@@ -127,7 +127,7 @@ public class Flow {
 		return String.format("%s - %s", parent, root);
 	}
 
-	public String getFullPath() {
+	public String getFullPath(List<String> fullPathAlreadyAdded) {
 		// 01 - The first element is the parent.
 		Flow currentFlow = getParent();
 		List<String> fullPath = Creator.newList();
@@ -144,10 +144,24 @@ public class Flow {
 
 		StringBuilder sb = new StringBuilder();
 		for (String value : fullPath) {
-			if (0 != sb.length()) {
-				sb.append(Constant.SEPARATOR_FULL_PATH);
+
+			boolean shouldAddElement = true;
+			// If this element is already added to the full path. We can stop, the next elements will be repeated ones.
+			for (String alreadyAdded : fullPathAlreadyAdded) {
+				if (value.equals(alreadyAdded)) {
+					shouldAddElement = false;
+					break;
+				}
 			}
-			sb.append(value);
+
+			if (shouldAddElement) {
+				if (0 != sb.length()) {
+					sb.append(Constant.SEPARATOR_FULL_PATH);
+				}
+				sb.append(value);
+			} else {
+				break;
+			}
 		}
 		return sb.toString();
 	}

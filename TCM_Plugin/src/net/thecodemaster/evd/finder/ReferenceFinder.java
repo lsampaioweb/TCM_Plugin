@@ -4,7 +4,7 @@ import java.util.List;
 
 import net.thecodemaster.evd.context.Context;
 import net.thecodemaster.evd.graph.CallGraph;
-import net.thecodemaster.evd.graph.CodeAnalyzer;
+import net.thecodemaster.evd.graph.CodeVisitor;
 import net.thecodemaster.evd.graph.VariableBinding;
 import net.thecodemaster.evd.graph.flow.DataFlow;
 import net.thecodemaster.evd.graph.flow.Flow;
@@ -16,7 +16,7 @@ import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.SimpleName;
 
-public class ReferenceFinder extends CodeAnalyzer {
+public class ReferenceFinder extends CodeVisitor {
 
 	private final List<Expression>	references;
 

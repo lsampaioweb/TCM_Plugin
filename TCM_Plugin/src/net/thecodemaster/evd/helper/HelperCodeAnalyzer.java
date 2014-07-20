@@ -100,6 +100,7 @@ public abstract class HelperCodeAnalyzer {
 		while (null != node) {
 			switch (node.getNodeType()) {
 				case ASTNode.BLOCK: // 08
+				case ASTNode.INFIX_EXPRESSION: // 27
 					return new DataFlow(expression);
 
 				case ASTNode.ASSIGNMENT: // 07

@@ -18,7 +18,7 @@ public class VariableDeclaration extends AbstractTestVerifier {
 
 		resourceNames.put(AbstractTestVerifier.PACKAGE_SERVLET, newList("VariableDeclaration.java"));
 
-		return getRersources(resourceNames);
+		return getResources(resourceNames);
 	}
 
 	@Test

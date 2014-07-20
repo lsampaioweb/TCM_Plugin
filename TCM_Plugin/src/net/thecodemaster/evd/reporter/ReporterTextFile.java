@@ -31,7 +31,7 @@ public class ReporterTextFile implements IReporter {
 	}
 
 	@Override
-	public void addProblem(IResource resource, int typeProblem, List<DataFlow> allVulnerablePaths) {
+	public void addProblem(IResource resource, List<DataFlow> allVulnerablePaths) {
 		// TODO Auto-generated method stub
 
 	}

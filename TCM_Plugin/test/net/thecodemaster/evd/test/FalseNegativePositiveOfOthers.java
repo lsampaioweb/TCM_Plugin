@@ -18,7 +18,7 @@ public class FalseNegativePositiveOfOthers extends AbstractTestVerifier {
 
 		resourceNames.put(AbstractTestVerifier.PACKAGE_SERVLET, newList("FalseNegativePositiveOfOthers.java"));
 
-		return getRersources(resourceNames);
+		return getResources(resourceNames);
 	}
 
 	@Test

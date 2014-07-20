@@ -110,8 +110,7 @@ public abstract class Verifier extends CodeAnalyzer {
 	}
 
 	@Override
-	protected void UpdateIfVulnerable(Flow loopControl, Context context, DataFlow dataFlow,
-			VariableBinding variableBinding) {
+	protected void UpdateIfVulnerable(DataFlow dataFlow, VariableBinding variableBinding) {
 		// 02 - If there is a vulnerable path, then this variable is vulnerable.
 		HelperCodeAnalyzer.updateVariableBindingDataFlow(variableBinding, dataFlow);
 	}

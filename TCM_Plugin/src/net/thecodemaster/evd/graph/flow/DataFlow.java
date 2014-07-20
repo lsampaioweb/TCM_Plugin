@@ -64,7 +64,7 @@ public class DataFlow {
 		return typeProblem;
 	}
 
-	private void setTypeProblem(int typeProblem) {
+	public void setTypeProblem(int typeProblem) {
 		this.typeProblem = typeProblem;
 	}
 

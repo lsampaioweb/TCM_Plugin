@@ -137,9 +137,9 @@ public class Reporter implements IReporter {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void addProblem(IResource resource, int typeProblem, List<DataFlow> allVulnerablePaths) {
+	public void addProblem(IResource resource, List<DataFlow> allVulnerablePaths) {
 		for (IReporter reporter : getReporters()) {
-			reporter.addProblem(resource, typeProblem, allVulnerablePaths);
+			reporter.addProblem(resource, allVulnerablePaths);
 		}
 	}
 

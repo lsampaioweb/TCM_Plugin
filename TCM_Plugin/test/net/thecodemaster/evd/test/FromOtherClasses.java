@@ -21,7 +21,7 @@ public class FromOtherClasses extends AbstractTestVerifier {
 		resourceNames.put(AbstractTestVerifier.PACKAGE_SERVLET,
 				newList("Person.java", "Employee.java", "FromOtherClasses.java"));
 
-		return getRersources(resourceNames);
+		return getResources(resourceNames);
 	}
 
 	@Test

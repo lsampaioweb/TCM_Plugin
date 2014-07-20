@@ -50,7 +50,7 @@
       <page
             category="NET.THECODEMASTER.EVD.UI.PREFERENCE.PAGE.ACKNOWLEDGEMENTS"
             class="net.thecodemaster.evd.ui.preference.page.Settings"
-            id="NET.THECODEMASTER.EVD.UI.PREFERENCE.PAGE.SETTINGS"
+            id="net.thecodemaster.evd.ui.PREFERENCE.PAGE.SETTINGS"
             name="%preference.page.settings">
       </page>
       <page

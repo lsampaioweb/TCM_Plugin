@@ -8,6 +8,7 @@ import net.thecodemaster.evd.graph.flow.DataFlow;
 import net.thecodemaster.evd.graph.flow.Flow;
 import net.thecodemaster.evd.logger.PluginLogger;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ArrayAccess;
 import org.eclipse.jdt.core.dom.ArrayCreation;
@@ -59,6 +60,31 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
 
 public abstract class CodeVisitor {
+
+	/**
+	 * This object contains all the methods, variables and their interactions, on the project that is being analyzed.
+	 */
+	private CallGraph	callGraph;
+	/**
+	 * The current resource that is being analyzed.
+	 */
+	private IResource	currentResource;
+
+	protected void setCallGraph(CallGraph callGraph) {
+		this.callGraph = callGraph;
+	}
+
+	protected CallGraph getCallGraph() {
+		return callGraph;
+	}
+
+	protected void setCurrentResource(IResource currentResource) {
+		this.currentResource = currentResource;
+	}
+
+	protected IResource getCurrentResource() {
+		return currentResource;
+	}
 
 	protected void inspectNode(Flow loopControl, Context context, DataFlow dataFlow, ASTNode node) {
 		if (null == node) {
@@ -311,7 +337,7 @@ public abstract class CodeVisitor {
 		Expression thenExpression = expression.getThenExpression();
 		Expression elseExpression = expression.getElseExpression();
 
-		inspectNode(loopControl, context, dataFlow.addNodeToPath(conditionalExpression), conditionalExpression);
+		inspectNode(loopControl, context, dataFlow.addNodeToPath(null), conditionalExpression);
 		inspectNode(loopControl, context, dataFlow.addNodeToPath(thenExpression), thenExpression);
 		inspectNode(loopControl, context, dataFlow.addNodeToPath(elseExpression), elseExpression);
 	}
