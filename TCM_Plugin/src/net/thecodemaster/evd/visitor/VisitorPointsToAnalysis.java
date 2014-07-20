@@ -307,7 +307,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 			// 02 - System.out.println("..."); Nothing else to do.
 
 			// 02 - Check if this method invocation is being call from a vulnerable object.
-			updateDataBinding(methodInvocation, dataFlow, variableBinding);
+			UpdateIfVulnerable(variableBinding, dataFlow);
 		} else {
 			super
 					.methodHasBeenProcessed(loopControl, context, dataFlow, methodInvocation, methodDeclaration, variableBinding);
@@ -315,7 +315,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	}
 
 	@Override
-	protected void UpdateIfVulnerable(DataFlow dataFlow, VariableBinding variableBinding) {
+	protected void UpdateIfVulnerable(VariableBinding variableBinding, DataFlow dataFlow) {
 		// 02 - If there is a vulnerable path, then this variable is vulnerable.
 		HelperCodeAnalyzer.updateVariableBinding(variableBinding, dataFlow);
 	}
