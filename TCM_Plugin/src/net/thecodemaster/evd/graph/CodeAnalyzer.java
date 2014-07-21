@@ -227,6 +227,8 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 							iterator.previous();
 							// 10 - Clear any old warnings.
 							getReporter().clearOldProblems(resourceCaller);
+							// 11 - Remove old contexts of this resource.
+							getCallGraph().removeChildContexts(resourceCaller);
 						}
 					}
 				} else {

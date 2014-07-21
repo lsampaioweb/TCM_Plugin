@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import net.thecodemaster.evd.constant.Constant;
 import net.thecodemaster.evd.context.Context;
 import net.thecodemaster.evd.helper.Creator;
+import net.thecodemaster.evd.ui.enumeration.EnumVariableStatus;
 import net.thecodemaster.evd.ui.enumeration.EnumVariableType;
 
 import org.eclipse.core.resources.IResource;
@@ -237,21 +238,44 @@ public class CallGraph {
 		return context;
 	}
 
-	/**
-	 * @param resource
-	 */
 	public void remove(IResource resource) {
 		getContexts().remove(resource);
 	}
 
-	/** Variables */
-	/**
-	 * @param variableName
-	 * @param type
-	 * @param type
-	 * @param initializer
-	 * @return
-	 */
+	public void removeChildContexts(IResource resource) {
+		// 01 - Get the context of the provided resource.
+		Context context = getContexts().get(resource);
+
+		if (null != context) {
+			context.getChildrenContexts().clear();
+		}
+		// Reset the global variables.
+		resetGlobalVariables(context);
+	}
+
+	private void resetGlobalVariables(Context context) {
+		for (Entry<IBinding, List<VariableBinding>> entry : context.getVariables().entrySet()) {
+			List<VariableBinding> vbs = entry.getValue();
+
+			// If there is only one reference, we just reset the status.
+			if ((null == vbs) || (vbs.size() == 0)) {
+				continue;
+			}
+
+			// If there several reference, we keep the first one and delete the others.
+			VariableBinding vb = vbs.get(0);
+
+			// Clear all the other.
+			vbs.clear();
+
+			// Reset to UNKNOWN.
+			vb.setStatus(EnumVariableStatus.UNKNOWN);
+
+			// Re-add to the list.
+			vbs.add(vb);
+		}
+	}
+
 	private VariableBinding createVariableBinding(Expression variableName, EnumVariableType type, Expression initializer) {
 		return new VariableBinding(resolveBinding(variableName), type, initializer);
 	}
