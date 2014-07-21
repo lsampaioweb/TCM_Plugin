@@ -147,6 +147,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 			if (!userCanceledProcess(getProgressMonitor())) {
 				// 02 - Set the current resource.
 				setCurrentResource(entry.getKey());
+				// System.out.println(entry.getKey());
 
 				// 03 - Inform the user what is the current process of the plug-in.
 				setSubTask(getSubTaskMessage(++numberOfResourcesProcessed, numberOfResources));

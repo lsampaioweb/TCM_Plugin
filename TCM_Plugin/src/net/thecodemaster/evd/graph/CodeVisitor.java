@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ArrayAccess;
 import org.eclipse.jdt.core.dom.ArrayCreation;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
+import org.eclipse.jdt.core.dom.AssertStatement;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
@@ -120,6 +121,9 @@ public abstract class CodeVisitor {
 				break;
 			case ASTNode.ARRAY_INITIALIZER: // 04
 				inspectArrayInitializer(loopControl, context, dataFlow, (ArrayInitializer) node);
+				break;
+			case ASTNode.ASSERT_STATEMENT: // 06
+				inspectAssertStatement(loopControl, context, dataFlow, (AssertStatement) node);
 				break;
 			case ASTNode.ASSIGNMENT: // 07
 				inspectAssignment(loopControl, context, dataFlow, (Assignment) node);
@@ -272,6 +276,13 @@ public abstract class CodeVisitor {
 	protected void inspectArrayInitializer(Flow loopControl, Context context, DataFlow dataFlow,
 			ArrayInitializer expression) {
 		iterateOverParameters(loopControl, context, dataFlow, expression);
+	}
+
+	/**
+	 * 06 assert(...);
+	 */
+	protected void inspectAssertStatement(Flow loopControl, Context context, DataFlow dataFlow, AssertStatement expression) {
+		// Nothing to do.
 	}
 
 	/**

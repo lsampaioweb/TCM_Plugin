@@ -252,6 +252,7 @@ public class BindingResolver {
 				case ASTNode.STRING_LITERAL: // 45
 				case ASTNode.SUPER_METHOD_INVOCATION: // 48
 				case ASTNode.THIS_EXPRESSION: // 52
+				case ASTNode.TYPE_LITERAL: // 57
 					return null;
 				default:
 					PluginLogger.logError("getExpression default:" + node.getNodeType() + " - " + node, null);

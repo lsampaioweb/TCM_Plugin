@@ -107,6 +107,8 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 	 */
 	@Override
 	protected void run(MethodDeclaration methodDeclaration) {
+		// System.out.println(methodDeclaration);
+
 		// 01 - Create a context for this method.
 		Context context = getCallGraph().newContext(getCurrentResource(), methodDeclaration, null);
 
@@ -166,7 +168,8 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
 				if (null != variableBindingGlobal) {
 					// 07 - Update the status and the data flow of the global variable.
-					HelperCodeAnalyzer.updateVariableBinding(variableBindingGlobal, variableBindingNew.getDataFlow());
+					variableBindingGlobal.setStatus(variableBindingNew.getStatus());
+					HelperCodeAnalyzer.updateVariableBindingDataFlow(variableBindingGlobal, variableBindingNew.getDataFlow());
 
 					// 08 - Update from LOCAL to GLOBAL in the new variable.
 					variableBindingNew.setType(variableBindingGlobal.getType());
