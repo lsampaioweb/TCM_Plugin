@@ -148,13 +148,13 @@
 	</exitpoint>
 	<!-- javax.servlet.http.HttpSession -->
 	<exitpoint id="26">
-		<qualifiedname>javax.servlet.(http.Http)?HttpSession</qualifiedname>
+		<qualifiedname>javax.servlet.(http.Http)?Session</qualifiedname>
 		<methodname>setAttribute</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.Object" rules="1" />
 	</exitpoint>
 	<exitpoint id="27">
-		<qualifiedname>javax.servlet.(http.Http)?HttpSession</qualifiedname>
+		<qualifiedname>javax.servlet.(http.Http)?Session</qualifiedname>
 		<methodname>putValue</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.Object" rules="1" />

@@ -1,10 +1,12 @@
 package net.thecodemaster.evd.xmlloader;
 
 import java.util.List;
+import java.util.Map;
 
 import net.thecodemaster.evd.constant.Constant;
+import net.thecodemaster.evd.graph.Parameter;
 import net.thecodemaster.evd.helper.Creator;
-import net.thecodemaster.evd.point.SanitizationPoint;
+import net.thecodemaster.evd.point.SanitizationPointManager;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -22,14 +24,13 @@ public class LoaderSanitizationPoint extends LoaderXML {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public List<SanitizationPoint> load() {
-		return (List<SanitizationPoint>) super.load();
+	public SanitizationPointManager load() {
+		return (SanitizationPointManager) super.load();
 	}
 
 	@Override
-	protected List<SanitizationPoint> load(String file) {
-		List<SanitizationPoint> sanitizers = Creator.newList();
+	protected SanitizationPointManager load(String file) {
+		SanitizationPointManager manager = new SanitizationPointManager();
 
 		// It gets the object that knows how to handle XML files.
 		Document document = getDocument(file);
@@ -45,12 +46,12 @@ public class LoaderSanitizationPoint extends LoaderXML {
 
 					Element element = (Element) node;
 
-					String qualifiedName = getTagValueFromElement(element, Constant.XMLLoader.TAG_QUALIFIED_NAME);
+					// Get the package name.
+					String packageName = getTagValueFromElement(element, Constant.XMLLoader.TAG_QUALIFIED_NAME);
+					// Get the method name.
 					String methodName = getTagValueFromElement(element, Constant.XMLLoader.TAG_METHOD_NAME);
-					SanitizationPoint sanitizer = new SanitizationPoint(qualifiedName, methodName);
 
-					List<String> params = Creator.newList();
-
+					Map<Parameter, List<Integer>> params = Creator.newMap();
 					// It gets the list of element by the type of "sanitizers".
 					NodeList nodeListParameters = element.getElementsByTagName(Constant.XMLLoader.TAG_PARAMETERS);
 
@@ -62,20 +63,15 @@ public class LoaderSanitizationPoint extends LoaderXML {
 
 							String type = getAttributeValueFromElement(elementParameter, Constant.XMLLoader.TAG_PARAMETERS_TYPE);
 
-							params.add(type);
+							params.put(new Parameter(type), null);
 						}
 					}
-					sanitizer.setParameters(params);
-
-					// It adds the new object to the list.
-					if (!sanitizers.contains(sanitizer)) {
-						sanitizers.add(sanitizer);
-					}
+					manager.add(methodName, packageName, params);
 				}
 			}
 		}
 
-		return sanitizers;
+		return manager;
 	}
 
 }

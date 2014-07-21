@@ -1,10 +1,12 @@
 package net.thecodemaster.evd.xmlloader;
 
 import java.util.List;
+import java.util.Map;
 
 import net.thecodemaster.evd.constant.Constant;
+import net.thecodemaster.evd.graph.Parameter;
 import net.thecodemaster.evd.helper.Creator;
-import net.thecodemaster.evd.point.EntryPoint;
+import net.thecodemaster.evd.point.EntryPointManager;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -22,14 +24,13 @@ public class LoaderEntryPoint extends LoaderXML {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public List<EntryPoint> load() {
-		return (List<EntryPoint>) super.load();
+	public EntryPointManager load() {
+		return (EntryPointManager) super.load();
 	}
 
 	@Override
-	protected List<EntryPoint> load(String file) {
-		List<EntryPoint> entryPoints = Creator.newList();
+	protected EntryPointManager load(String file) {
+		EntryPointManager manager = new EntryPointManager();
 
 		// It gets the object that knows how to handle XML files.
 		Document document = getDocument(file);
@@ -45,12 +46,12 @@ public class LoaderEntryPoint extends LoaderXML {
 
 					Element element = (Element) node;
 
-					String qualifiedName = getTagValueFromElement(element, Constant.XMLLoader.TAG_QUALIFIED_NAME);
+					// Get the package name.
+					String packageName = getTagValueFromElement(element, Constant.XMLLoader.TAG_QUALIFIED_NAME);
+					// Get the method name.
 					String methodName = getTagValueFromElement(element, Constant.XMLLoader.TAG_METHOD_NAME);
-					EntryPoint entryPoint = new EntryPoint(qualifiedName, methodName);
 
-					List<String> params = Creator.newList();
-
+					Map<Parameter, List<Integer>> params = Creator.newMap();
 					// It gets the list of element by the type of "entrypoints".
 					NodeList nodeListParameters = element.getElementsByTagName(Constant.XMLLoader.TAG_PARAMETERS);
 
@@ -62,20 +63,15 @@ public class LoaderEntryPoint extends LoaderXML {
 
 							String type = getAttributeValueFromElement(elementParameter, Constant.XMLLoader.TAG_PARAMETERS_TYPE);
 
-							params.add(type);
+							params.put(new Parameter(type), null);
 						}
 					}
-					entryPoint.setParameters(params);
-
-					// It adds the new object to the list.
-					if (!entryPoints.contains(entryPoint)) {
-						entryPoints.add(entryPoint);
-					}
+					manager.add(methodName, packageName, params);
 				}
 			}
 		}
 
-		return entryPoints;
+		return manager;
 	}
 
 }

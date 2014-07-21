@@ -229,16 +229,16 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		super.inspectMethodInvocationWithOrWithOutSourceCode(loopControl, context, newDataFlow, methodInvocation);
 	}
 
-	private boolean isMethodASanitizationPoint(Expression methodInvocation) {
-		return (BindingResolver.isMethodASanitizationPoint(getSanitizationPoints(), methodInvocation));
+	private boolean isMethodAnEntryPoint(Expression methodInvocation) {
+		return getEntryPointManager().isMethodAnEntryPoint(methodInvocation);
 	}
 
-	private boolean isMethodAnEntryPoint(Expression methodInvocation) {
-		return (BindingResolver.isMethodAnEntryPoint(getEntryPoints(), methodInvocation));
+	private boolean isMethodASanitizationPoint(Expression methodInvocation) {
+		return getSanitizationManager().isMethodASanitizationPoint(methodInvocation);
 	}
 
 	private ExitPoint getExitPointIfMethodIsOne(Expression methodInvocation) {
-		return BindingResolver.getExitPointIfMethodIsOne(getVerifiers(), methodInvocation);
+		return getExitPointManager().getExitPointIfMethodIsOne(getVerifiers(), methodInvocation);
 	}
 
 	protected void inspectExitPoint(Flow loopControl, Context context, DataFlow dataFlow, Expression method,

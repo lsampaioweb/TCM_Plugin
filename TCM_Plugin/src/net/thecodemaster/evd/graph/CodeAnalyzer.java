@@ -11,8 +11,9 @@ import net.thecodemaster.evd.graph.flow.Flow;
 import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.helper.HelperCodeAnalyzer;
 import net.thecodemaster.evd.marker.MarkerManager;
-import net.thecodemaster.evd.point.EntryPoint;
-import net.thecodemaster.evd.point.SanitizationPoint;
+import net.thecodemaster.evd.point.EntryPointManager;
+import net.thecodemaster.evd.point.ExitPointManager;
+import net.thecodemaster.evd.point.SanitizationPointManager;
 import net.thecodemaster.evd.reporter.Reporter;
 import net.thecodemaster.evd.ui.enumeration.EnumVariableStatus;
 import net.thecodemaster.evd.ui.l10n.Message;
@@ -44,11 +45,15 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	/**
 	 * List with all the EntryPoints (shared among other instances of the verifiers).
 	 */
-	private static List<EntryPoint>					entryPoints;
+	private static EntryPointManager				entryPointManager;
 	/**
 	 * List with all the Sanitizers (shared among other instances of the verifiers).
 	 */
-	private static List<SanitizationPoint>	sanitizers;
+	private static SanitizationPointManager	sanitizationPointManager;
+	/**
+	 * List with all the EntryPoints (shared among other instances of the verifiers).
+	 */
+	private static ExitPointManager					exitPointManager;
 	/**
 	 * The object that know how and where to report the found vulnerabilities.
 	 */
@@ -71,22 +76,31 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 		return currentCompilationUnit;
 	}
 
-	protected static List<EntryPoint> getEntryPoints() {
-		if (null == entryPoints) {
+	protected static EntryPointManager getEntryPointManager() {
+		if (null == entryPointManager) {
 			// Loads all the EntryPoints.
-			entryPoints = (new LoaderEntryPoint()).load();
+			entryPointManager = (new LoaderEntryPoint()).load();
 		}
 
-		return entryPoints;
+		return entryPointManager;
 	}
 
-	protected static List<SanitizationPoint> getSanitizationPoints() {
-		if (null == sanitizers) {
+	protected static SanitizationPointManager getSanitizationManager() {
+		if (null == sanitizationPointManager) {
 			// Loads all the Sanitizers.
-			sanitizers = (new LoaderSanitizationPoint()).load();
+			sanitizationPointManager = (new LoaderSanitizationPoint()).load();
 		}
 
-		return sanitizers;
+		return sanitizationPointManager;
+	}
+
+	protected static ExitPointManager getExitPointManager() {
+		if (null == exitPointManager) {
+			// Loads all the Sanitizers.
+			exitPointManager = new ExitPointManager();
+		}
+
+		return exitPointManager;
 	}
 
 	protected void setReporter(Reporter reporter) {
