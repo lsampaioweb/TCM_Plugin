@@ -294,7 +294,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	protected void inspectEachMethodInvocationOfChainInvocations(Flow loopControl, Context context, DataFlow dataFlow,
 			Expression methodInvocation) {
 		// 01 - Get a new data flow or a child from the parent.
-		DataFlow newDataFlow = HelperCodeAnalyzer.getDataFlow(dataFlow, methodInvocation);
+		DataFlow newDataFlow = HelperCodeAnalyzer.getDataFlowMethodInvocation(dataFlow, methodInvocation);
 
 		// 02 - There are 2 cases: When we have the source code of this method and when we do not.
 		inspectMethodInvocationWithOrWithOutSourceCode(loopControl, context, newDataFlow, methodInvocation);

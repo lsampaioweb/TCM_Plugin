@@ -191,7 +191,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		}
 
 		// 02 - Get a new data flow or a child from the parent.
-		DataFlow newDataFlow = HelperCodeAnalyzer.getDataFlow(dataFlow, methodInvocation);
+		DataFlow newDataFlow = HelperCodeAnalyzer.getDataFlowMethodInvocation(dataFlow, methodInvocation);
 
 		// 03 - Check if the method is an Entry-Point.
 		if (isMethodAnEntryPoint(methodInvocation)) {
@@ -255,7 +255,6 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 			if (null != currentRules) {
 				Expression expression = receivedParameters.get(index);
 				DataFlow newDataFlow = new DataFlow(expression);
-				// newDataFlow = newDataFlow.addNodeToPath(expression);
 
 				// 03 - Check if there is a marker, in case there is, we should BELIEVE it is not vulnerable.
 				if (!hasMarkerAtPosition(expression)) {
@@ -458,7 +457,9 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		addReferenceToInitializer(loopControl, context, name, initializer);
 
 		// 02 - Inspect the Initializer to verify if this variable is vulnerable.
-		DataFlow newDataFlow = new DataFlow(name);
+		DataFlow newDataFlow = HelperCodeAnalyzer.getDataFlowVariable(dataFlow, name);
+		// DataFlow newDataFlow = new DataFlow(name);
+
 		inspectNode(loopControl, context, newDataFlow, initializer);
 
 		// 03 - Add the variable to the current context.

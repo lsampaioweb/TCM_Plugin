@@ -76,13 +76,40 @@ public abstract class HelperCodeAnalyzer {
 	}
 
 	/**
+	 * 07, 60, 70
+	 */
+	public static DataFlow getDataFlowVariable(DataFlow dataFlow, Expression variableName) {
+		// 01 String a = "".
+		// 02 a = "";
+		// 03 for(String value: list);
+		// 04 print(a = "");
+		ASTNode node = variableName.getParent();
+		while (null != node) {
+			switch (node.getNodeType()) {
+				case ASTNode.CLASS_INSTANCE_CREATION: // 14
+				case ASTNode.METHOD_INVOCATION: // 32
+					return dataFlow.addNodeToPath(variableName);
+					// case ASTNode.ASSIGNMENT: // 07
+				case ASTNode.BLOCK: // 08
+				case ASTNode.VARIABLE_DECLARATION_FRAGMENT: // 59
+				case ASTNode.ENHANCED_FOR_STATEMENT: // 70
+					return new DataFlow(variableName);
+			}
+
+			node = node.getParent();
+		}
+
+		return new DataFlow(variableName);
+	}
+
+	/**
 	 * 32
 	 * 
 	 * @param dataFlow
 	 * @param methodInvocation
 	 * @return
 	 */
-	public static DataFlow getDataFlow(DataFlow dataFlow, Expression methodInvocation) {
+	public static DataFlow getDataFlowMethodInvocation(DataFlow dataFlow, Expression methodInvocation) {
 		// 01 request.getParameter("b");
 		// 02 boolean b = Boolean.valueOf(request.getParameter("b"));
 		// 03 String a = request.getParameter("a");
@@ -91,7 +118,7 @@ public abstract class HelperCodeAnalyzer {
 		if (isPrimitive(methodInvocation)) {
 			return new DataFlow(methodInvocation);
 		} else {
-			return getDataFlowBasedOnTheParent(dataFlow, methodInvocation);
+			return getDataFlowBasedOnTheParentMethodInvocation(dataFlow, methodInvocation);
 		}
 	}
 
@@ -100,7 +127,7 @@ public abstract class HelperCodeAnalyzer {
 	 * @param expression
 	 * @return
 	 */
-	public static DataFlow getDataFlowBasedOnTheParent(DataFlow dataFlow, Expression expression) {
+	public static DataFlow getDataFlowBasedOnTheParentMethodInvocation(DataFlow dataFlow, Expression expression) {
 		ASTNode node = expression.getParent();
 		while (null != node) {
 			switch (node.getNodeType()) {
