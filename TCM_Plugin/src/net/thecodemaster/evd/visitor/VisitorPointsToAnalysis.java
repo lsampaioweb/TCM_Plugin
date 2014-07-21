@@ -279,7 +279,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 							newDataFlow.setFullPath(loopControl);
 							allVulnerablePaths.add(newDataFlow);
 
-							dataFlow.replace(newDataFlow);
+							dataFlow.addNodeToPath(expression).replace(newDataFlow);
 						}
 					}
 				}
