@@ -20,6 +20,7 @@ public class Context {
 
 	private IResource																		resource;
 	private Context																			parent;
+	private Context																			instanceContext;
 	private final Map<IBinding, List<VariableBinding>>	variables;
 	private final Map<MethodDeclaration, List<ASTNode>>	methods;
 
@@ -81,7 +82,7 @@ public class Context {
 		// 04 - Get the list of occurrences of this variable.
 		List<VariableBinding> vbs = getVariableBindings(binding);
 
-		// 05 - If this is the first occurrences, we have to check if this is a
+		// 05 - If this is the first occurrence, we have to check if this is a
 		// local or global variable.
 		updateParentContextIfGlobalVariable(vbs, variableBinding);
 
@@ -128,15 +129,28 @@ public class Context {
 
 		Context context = this;
 		// 02 - Iterate until it reaches the top level parent.
-		while (null != context.getParent()) {
+		while (null != context) {
+			Context instanceContext = context.getInstanceContext();
+
+			if (null != instanceContext) {
+				// 05 - Get the list of occurrences of this variable.
+				List<VariableBinding> vbs = instanceContext.getVariableBindings(variableBinding.getBinding());
+
+				if (vbs.size() > 0) {
+					return vbs;
+				}
+			}
+
 			// 03 - Become the parent.
 			context = context.getParent();
 
-			// 05 - Get the list of occurrences of this variable.
-			List<VariableBinding> vbs = context.getVariableBindings(variableBinding.getBinding());
+			if (null != context) {
+				// 05 - Get the list of occurrences of this variable.
+				List<VariableBinding> vbs = context.getVariableBindings(variableBinding.getBinding());
 
-			if (vbs.size() > 0) {
-				return vbs;
+				if (vbs.size() > 0) {
+					return vbs;
+				}
 			}
 		}
 
@@ -245,19 +259,12 @@ public class Context {
 		return isClassContext;
 	}
 
-	public Context getParentClassContext() {
-		Context context = this;
+	public void addInstanceContext(Context instanceContext) {
+		this.instanceContext = instanceContext;
+	}
 
-		// 01 - Iterate until it reaches the top level parent.
-		while (null != context) {
-			if ((context.isClassContext()) || (null == context.getParent())) {
-				return context;
-			}
-
-			context = context.getParent();
-		}
-
-		return null;
+	public Context getInstanceContext() {
+		return instanceContext;
 	}
 
 	public void merge(Context otherContext) {

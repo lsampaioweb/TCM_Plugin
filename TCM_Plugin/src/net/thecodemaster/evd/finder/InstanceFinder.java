@@ -3,6 +3,7 @@ package net.thecodemaster.evd.finder;
 import java.util.List;
 
 import net.thecodemaster.evd.context.Context;
+import net.thecodemaster.evd.graph.BindingResolver;
 import net.thecodemaster.evd.graph.CallGraph;
 import net.thecodemaster.evd.graph.CodeVisitor;
 import net.thecodemaster.evd.graph.VariableBinding;
@@ -12,6 +13,7 @@ import net.thecodemaster.evd.helper.Creator;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.SimpleName;
 
@@ -53,6 +55,18 @@ public class InstanceFinder extends CodeVisitor {
 		}
 
 		return super.addElementToLoopControl(loopControl, node);
+	}
+
+	/**
+	 * 14
+	 */
+	@Override
+	protected void inspectClassInstanceCreation(Flow loopControl, Context context, DataFlow dataFlow,
+			ClassInstanceCreation node) {
+		Expression instance = BindingResolver.getInstanceIfItIsAnObject(node);
+		if (null != instance) {
+			addReference(instance);
+		}
 	}
 
 	/**

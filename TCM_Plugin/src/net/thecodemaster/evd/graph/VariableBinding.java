@@ -1,9 +1,6 @@
 package net.thecodemaster.evd.graph;
 
-import java.util.List;
-
 import net.thecodemaster.evd.graph.flow.DataFlow;
-import net.thecodemaster.evd.helper.Creator;
 import net.thecodemaster.evd.ui.enumeration.EnumVariableStatus;
 import net.thecodemaster.evd.ui.enumeration.EnumVariableType;
 
@@ -16,13 +13,13 @@ import org.eclipse.jdt.core.dom.IBinding;
  */
 public class VariableBinding {
 
-	private IBinding						binding;
-	private Expression					initializer;
-	private EnumVariableStatus	status;
-	private EnumVariableType		type;
-	private DataFlow						dataFlow;
+	private IBinding										binding;
+	private Expression									initializer;
+	private EnumVariableStatus					status;
+	private EnumVariableType						type;
+	private DataFlow										dataFlow;
 
-	private final List<ASTNode>	references;
+	private final ReferenceManager	referenceManager;
 
 	public VariableBinding(IBinding binding, EnumVariableType type, Expression initializer) {
 		setBinding(binding);
@@ -30,7 +27,7 @@ public class VariableBinding {
 		setInitializer(initializer);
 		setStatus(EnumVariableStatus.UNKNOWN);
 
-		references = Creator.newList();
+		referenceManager = new ReferenceManager();
 	}
 
 	public IBinding getBinding() {
@@ -49,12 +46,12 @@ public class VariableBinding {
 		this.initializer = initializer;
 	}
 
-	public void addReferences(ASTNode reference) {
-		getReferences().add(reference);
+	public void addReference(ASTNode reference, int contextId) {
+		getReferenceManager().add(reference, contextId);
 	}
 
-	public List<ASTNode> getReferences() {
-		return references;
+	public ReferenceManager getReferenceManager() {
+		return referenceManager;
 	}
 
 	public EnumVariableStatus getStatus() {

@@ -109,21 +109,32 @@ public class CallGraph {
 	}
 
 	public Context getInstanceContext(Context context, Expression instance) {
+		if (null == instance) {
+			return context;
+		}
+
 		IBinding otherBinding = resolveBinding(instance);
 
-		// 01 - Iterate over all the children of this context.
-		for (Context childContext : context.getChildrenContexts()) {
-
-			// Check if the instance of this context is the one I am looking for.
-			Expression currentInstance = childContext.getInstance();
-			if ((null != currentInstance) && (null != instance)) {
-				IBinding currentBinding = resolveBinding(currentInstance);
-
-				if ((null != currentBinding) && (currentBinding.equals(otherBinding))) {
-					return childContext;
+		Context currentContext = context;
+		while (null != currentContext) {
+			// 01 - Iterate over all the children of this context.
+			for (Context childContext : currentContext.getChildrenContexts()) {
+				if (!childContext.isClassContext()) {
+					continue;
 				}
-			}
 
+				// Check if the instance of this context is the one I am looking for.
+				Expression currentInstance = childContext.getInstance();
+				if (null != currentInstance) {
+					IBinding currentBinding = resolveBinding(currentInstance);
+
+					if ((null != currentBinding) && (currentBinding.equals(otherBinding))) {
+						return childContext;
+					}
+				}
+
+			}
+			currentContext = currentContext.getParent();
 		}
 
 		return context;
@@ -214,13 +225,19 @@ public class CallGraph {
 		Context instanceContext = getInstanceContext(parentContext, instance);
 
 		// 02 - Create a context.
-		Context context = newContext(instanceContext, method, invoker);
+		Context context = newContext(parentContext, method, invoker);
 
 		// 03 - Set the object that will hold this context.
 		context.setInstance(instance);
 
 		// 04 - Copy the variables and methods from the classContext to this new context.
 		context.mergeVariables(instanceContext, 1);
+
+		// 05 - Add this new context as a child to the instanceContext.
+		instanceContext.addChildContext(context);
+
+		// 06 - This context is part of the instanceContext.
+		context.addInstanceContext(instanceContext);
 
 		return context;
 	}
@@ -347,7 +364,7 @@ public class CallGraph {
 			if (null != expression) {
 
 				// 03 - Get the variable binding if the expression matches one of the references of this variable.
-				VariableBinding variableBinding = getVariableBindingIfReferenceMatch(vbs, expression);
+				VariableBinding variableBinding = getVariableBindingIfReferenceMatch(vbs, expression, context);
 				if (null != variableBinding) {
 					return variableBinding;
 				}
@@ -362,12 +379,12 @@ public class CallGraph {
 	 * @param expression
 	 * @return
 	 */
-	private VariableBinding getVariableBindingIfReferenceMatch(List<VariableBinding> vbs, ASTNode expression) {
+	private VariableBinding getVariableBindingIfReferenceMatch(List<VariableBinding> vbs, ASTNode expression,
+			Context context) {
 		for (VariableBinding variableBinding : vbs) {
-			for (ASTNode currentReference : variableBinding.getReferences()) {
-				if (currentReference.equals(expression)) {
-					return variableBinding;
-				}
+			ReferenceManager referenceManager = variableBinding.getReferenceManager();
+			if (referenceManager.hasReference(expression, context.hashCode())) {
+				return variableBinding;
 			}
 		}
 		return null;

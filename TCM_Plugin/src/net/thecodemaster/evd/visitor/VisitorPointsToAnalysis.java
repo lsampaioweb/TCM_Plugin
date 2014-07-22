@@ -158,8 +158,9 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		// 04 - If the variable did not exist before and exists now, it means it is a reference to a global (inheritance)
 		// variable.
 		if ((null == variableBindingOld) && (null != variableBindingNew)) {
+
 			// 05 - Get the class context. (if any).
-			Context classContext = context.getParentClassContext();
+			Context classContext = context.getInstanceContext();
 
 			if (null != classContext) {
 				// 06 - Add the variable to the class context.
@@ -458,7 +459,6 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
 		// 02 - Inspect the Initializer to verify if this variable is vulnerable.
 		DataFlow newDataFlow = HelperCodeAnalyzer.getDataFlowVariable(dataFlow, name);
-		// DataFlow newDataFlow = new DataFlow(name);
 
 		inspectNode(loopControl, context, newDataFlow, initializer);
 
@@ -557,7 +557,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
 		VariableBinding variableBinding = getCallGraph().getLastReference(context, initializer);
 		if (null != variableBinding) {
-			variableBinding.addReferences(expression);
+			variableBinding.addReference(expression, context.hashCode());
 		} else {
 			// PluginLogger.logError("addReference else: " + expression + " - " + initializer, null);
 		}
