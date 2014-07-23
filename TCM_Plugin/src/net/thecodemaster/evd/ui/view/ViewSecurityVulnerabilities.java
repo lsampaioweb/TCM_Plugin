@@ -9,12 +9,19 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.jface.action.IMenuListener;
+import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IStatusLineManager;
+import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IDoubleClickListener;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.ui.IEditorDescriptor;
@@ -29,7 +36,8 @@ import org.eclipse.ui.texteditor.ITextEditor;
 
 public class ViewSecurityVulnerabilities extends ViewPart {
 
-	private static TreeViewer	viewer;
+	private static TreeViewer				viewer;
+	private CopyToClipBoardHandler	copyToClipBoardHandler;
 
 	public void showView() {
 		try {
@@ -56,7 +64,11 @@ public class ViewSecurityVulnerabilities extends ViewPart {
 		viewer.setSorter(sorter);
 		viewer.setInput(getViewSite());
 
+		copyToClipBoardHandler = new CopyToClipBoardHandler(parent, this, viewer);
+
 		hookDoubleClick();
+		hookSelectionListener();
+		hookContextMenu();
 	}
 
 	/**
@@ -77,43 +89,14 @@ public class ViewSecurityVulnerabilities extends ViewPart {
 		}
 		tree.setHeaderVisible(true);
 		tree.setLinesVisible(true);
-
-		// hookListener(tree);
 	}
-
-	// private static void hookListener(Tree tree) {
-	// Listener listener = new Listener() {
-	// @Override
-	// public void handleEvent(Event e) {
-	// final TreeItem treeItem = (TreeItem) e.item;
-	// // Update the user interface asynchronously.
-	// Display.getDefault().asyncExec(new Runnable() {
-	// @Override
-	// public void run() {
-	// try {
-	// if ((null != treeItem) && (!treeItem.isDisposed())) {
-	// for (TreeColumn tc : treeItem.getParent().getColumns()) {
-	// tc.pack();
-	// }
-	// }
-	// } catch (Exception e) {
-	// PluginLogger.logError(e);
-	// }
-	// }
-	// });
-	// }
-	// };
-	//
-	// tree.addListener(SWT.Collapse, listener);
-	// tree.addListener(SWT.Expand, listener);
-	// }
 
 	private void hookDoubleClick() {
 		viewer.addDoubleClickListener(new IDoubleClickListener() {
 			@Override
 			public void doubleClick(DoubleClickEvent event) {
-				IStructuredSelection selection = (IStructuredSelection) viewer.getSelection();
-				if (selection.isEmpty()) {
+				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+				if ((selection == null) || (selection.isEmpty())) {
 					return;
 				}
 
@@ -121,6 +104,55 @@ public class ViewSecurityVulnerabilities extends ViewPart {
 				gotoMarker(vdm.getMarker());
 			}
 		});
+	}
+
+	private void hookSelectionListener() {
+		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
+			@Override
+			public void selectionChanged(SelectionChangedEvent event) {
+				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+				if ((selection != null) && (!selection.isEmpty())) {
+					int size = selection.toArray().length;
+					if (size > 0) {
+						IStatusLineManager slManager = getViewSite().getActionBars().getStatusLineManager();
+
+						slManager.setMessage(getMessageSelectionListener(size));
+					}
+				}
+			}
+
+			private String getMessageSelectionListener(int totalItems) {
+				String messageTemplate = "";
+				if (totalItems == 1) {
+					messageTemplate = Message.View.SINGLE_SELECTION;
+				} else {
+					messageTemplate = Message.View.MULTIPLE_SELECTION;
+				}
+
+				return String.format(messageTemplate, totalItems);
+			}
+		});
+	}
+
+	private void hookContextMenu() {
+		MenuManager menuMgr = new MenuManager();
+		menuMgr.setRemoveAllWhenShown(true);
+		menuMgr.addMenuListener(new IMenuListener() {
+			@Override
+			public void menuAboutToShow(IMenuManager manager) {
+				fillContextMenu(manager);
+			}
+		});
+		Menu menu = menuMgr.createContextMenu(viewer.getControl());
+		viewer.getControl().setMenu(menu);
+		getSite().registerContextMenu(menuMgr, viewer);
+	}
+
+	private void fillContextMenu(IMenuManager manager) {
+		manager.add(copyToClipBoardHandler);
+
+		// Other plug-ins can contribute there actions here
+		// manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
 
 	private void gotoMarker(IMarker marker) {

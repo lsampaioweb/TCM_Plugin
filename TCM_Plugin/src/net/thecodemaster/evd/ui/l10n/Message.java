@@ -124,6 +124,8 @@ public abstract class Message extends NLS {
 		public static String				FILE_PATH_ID_NOT_FOUND;
 		public static String				TYPE_VULNERABILITY_NOT_FOUND;
 
+		public static String				COPY_TO_CLIPBOARD_TITLE_FAIL;
+		public static String				COPY_TO_CLIPBOARD_MESSAGE_FAIL;
 		static {
 			// Initialize resource bundle.
 			NLS.initializeMessages(BUNDLE_NAME, Error.class);
@@ -144,6 +146,12 @@ public abstract class Message extends NLS {
 
 		public static String				SINGLE_TOTAL_NUMBER_OF_VULNERABILITIES;
 		public static String				MULTIPLE_TOTAL_NUMBER_OF_VULNERABILITIES;
+
+		public static String				SINGLE_SELECTION;
+		public static String				MULTIPLE_SELECTION;
+
+		public static String				COPY_TO_CLIPBOARD_TEXT;
+		public static String				COPY_TO_CLIPBOARD_TOOLTIP;
 
 		static {
 			// Initialize resource bundle.
