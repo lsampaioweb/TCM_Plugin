@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
-      id="TCM_EVD_Feature"
+      id="TCM_ESVD_Feature"
       label="Detector and Security View"
-      version="0.2.4.qualifier"
+      version="0.2.6.qualifier"
       provider-name="thecodemaster.net">
 
    <description>
-      Version: 0.2.4
+      Version: 0.2.6
 Supported vulnerabilities:
 01 - Command Injection
 02 - Cookie Poisoning
 03 - Cross-Site Scripting (XSS)
-04 - Path Traversal
-05 - Security Misconfiguration
-06 - SQL Injection
-07 - HTTP Response Splitting
+04 - HTTP Response Splitting
+05 - Log Forging
+06 - Path Traversal
+07 - Reflection Injection
+08 - Security Misconfiguration
+09 - SQL Injection
    </description>
 
    <copyright>

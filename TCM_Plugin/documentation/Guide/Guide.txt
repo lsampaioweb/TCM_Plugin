@@ -3,7 +3,7 @@ Instruction for the current project.
 Full name: 
   TheCodeMaster Early Vulnerability Detector Plug-in.
 Acronym: 
-  TCM_EVD
+  TCM_ESVD
 
 Special Comments:
   All names should be in the singular form.
@@ -11,15 +11,15 @@ Special Comments:
   All variables should be private and their get/sets private as well until some method really needs it.
   
 Packages' Names:
-  01 - net.thecodemaster.evd
-  02 - net.thecodemaster.evd.ui
-  03 - net.thecodemaster.evd.helper
-  04 - net.thecodemaster.evd.l10n
-  05 - net.thecodemaster.evd...
+  01 - net.thecodemaster.esvd
+  02 - net.thecodemaster.esvd.ui
+  03 - net.thecodemaster.esvd.helper
+  04 - net.thecodemaster.esvd.l10n
+  05 - net.thecodemaster.esvd...
 
 Eclipse Ids:
   Should all be capitalized.
-  TCM_EVD_AAA....
+  TCM_ESVD_AAA....
 
 Comment:
 @Author: Luciano Sampaio

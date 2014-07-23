@@ -4,15 +4,15 @@
    <extension
          point="org.eclipse.ui.views">
       <category
-            id="tcm.early.vulnerability.detector.TCM_EVD_VIEW_CATEGORY"
+            id="tcm.early.vulnerability.detector.TCM_ESVD_VIEW_CATEGORY"
             name="%view.category.name">
       </category>
       <view
             allowMultiple="false"
-            category="tcm.early.vulnerability.detector.TCM_EVD_VIEW_CATEGORY"
-            class="net.thecodemaster.evd.ui.view.ViewSecurityVulnerabilities"
+            category="tcm.early.vulnerability.detector.TCM_ESVD_VIEW_CATEGORY"
+            class="net.thecodemaster.esvd.ui.view.ViewSecurityVulnerabilities"
             icon="icon/View.png"
-            id="tcm.early.vulnerability.detector.TCM_EVD_VIEW"
+            id="tcm.early.vulnerability.detector.TCM_ESVD_VIEW"
             name="%view.name"
             restorable="true">
       </view>
@@ -22,7 +22,7 @@
       <perspectiveExtension
             targetID="org.eclipse.jdt.ui.JavaPerspective">
          <view
-               id="tcm.early.vulnerability.detector.TCM_EVD_VIEW"
+               id="tcm.early.vulnerability.detector.TCM_ESVD_VIEW"
                minimized="false"
                ratio="0.5"
                relationship="bottom"
@@ -31,40 +31,40 @@
       </perspectiveExtension>
    </extension>
    <extension
-         id="NET.THECODEMASTER.EVD.UI.PREFERENCES"
+         id="NET.THECODEMASTER.ESVD.UI.PREFERENCES"
          point="org.eclipse.core.runtime.preferences">
       <initializer
-            class="net.thecodemaster.evd.ui.preference.page.PreferenceInitializer">
+            class="net.thecodemaster.esvd.ui.preference.page.PreferenceInitializer">
       </initializer>
    </extension>
    <extension
          point="org.eclipse.ui.preferencePages">
       <page
-            class="net.thecodemaster.evd.ui.preference.page.Acknowledgements"
-            id="NET.THECODEMASTER.EVD.UI.PREFERENCE.PAGE.ACKNOWLEDGEMENTS"
+            class="net.thecodemaster.esvd.ui.preference.page.Acknowledgements"
+            id="NET.THECODEMASTER.ESVD.UI.PREFERENCE.PAGE.ACKNOWLEDGEMENTS"
             name="%preference.page.acknowledgements">
          <keywordReference
-               id="NET.THECODEMASTER.EVD.UI.KEYWORDS">
+               id="NET.THECODEMASTER.ESVD.UI.KEYWORDS">
          </keywordReference>
       </page>
       <page
-            category="NET.THECODEMASTER.EVD.UI.PREFERENCE.PAGE.ACKNOWLEDGEMENTS"
-            class="net.thecodemaster.evd.ui.preference.page.Settings"
-            id="net.thecodemaster.evd.ui.PREFERENCE.PAGE.SETTINGS"
+            category="NET.THECODEMASTER.ESVD.UI.PREFERENCE.PAGE.ACKNOWLEDGEMENTS"
+            class="net.thecodemaster.esvd.ui.preference.page.Settings"
+            id="net.thecodemaster.esvd.ui.PREFERENCE.PAGE.SETTINGS"
             name="%preference.page.settings">
       </page>
       <page
-            category="NET.THECODEMASTER.EVD.UI.PREFERENCE.PAGE.ACKNOWLEDGEMENTS"
-            class="net.thecodemaster.evd.ui.preference.page.SecurityVulnerability"
-            id="NET.THECODEMASTER.EVD.UI.PREFERENCE.PAGE.SECURITY_VULNERABILITIES"
+            category="NET.THECODEMASTER.ESVD.UI.PREFERENCE.PAGE.ACKNOWLEDGEMENTS"
+            class="net.thecodemaster.esvd.ui.preference.page.SecurityVulnerability"
+            id="NET.THECODEMASTER.ESVD.UI.PREFERENCE.PAGE.SECURITY_VULNERABILITIES"
             name="%preference.page.security_vulnerabilities">
       </page>
    </extension>
    <extension
          point="org.eclipse.ui.keywords">
       <keyword
-            id="NET.THECODEMASTER.EVD.UI.KEYWORDS"
-            label="%preference.page.tcm_evd.keyword">
+            id="NET.THECODEMASTER.ESVD.UI.KEYWORDS"
+            label="%preference.page.tcm_esvd.keyword">
       </keyword>
    </extension>
    <extension
@@ -74,8 +74,8 @@
             locationURI="popup:org.eclipse.ui.popup.any?before=additions">
          <menu
                icon="icon/Menu.png"
-               id="NET.THECODEMASTER.EVD.UI.MENU.ROOT"
-               label="%menu.tcm_evd">
+               id="NET.THECODEMASTER.ESVD.UI.MENU.ROOT"
+               label="%menu.tcm_esvd">
             <visibleWhen
                   checkEnabled="false">
                <with
@@ -95,7 +95,7 @@
                </with>
             </visibleWhen>
             <command
-                  commandId="net.thecodemaster.evd.ui.command.enable_plugin"
+                  commandId="net.thecodemaster.esvd.ui.command.enable_plugin"
                   label="%menu.enable_plugin.label"
                   style="push"
                   tooltip="%menu.enable_plugin.tooltip">
@@ -105,13 +105,13 @@
                         variable="selection">
                      <test
                            forcePluginActivation="true"
-                           property="net.thecodemaster.evd.ui.propertytester.isEnabled">
+                           property="net.thecodemaster.esvd.ui.propertytester.isEnabled">
                      </test>
                   </with>
                </visibleWhen>
             </command>
             <command
-                  commandId="net.thecodemaster.evd.ui.command.disable_plugin"
+                  commandId="net.thecodemaster.esvd.ui.command.disable_plugin"
                   label="%menu.disable_plugin.label"
                   style="push"
                   tooltip="%menu.disable_plugin.tooltip">
@@ -121,13 +121,13 @@
                         variable="selection">
                      <test
                            forcePluginActivation="true"
-                           property="net.thecodemaster.evd.ui.propertytester.isDisabled">
+                           property="net.thecodemaster.esvd.ui.propertytester.isDisabled">
                      </test>
                   </with>
                </visibleWhen>
             </command>
             <command
-                  commandId="net.thecodemaster.evd.ui.command.open_settings"
+                  commandId="net.thecodemaster.esvd.ui.command.open_settings"
                   label="%menu.open_settings.label"
                   style="push"
                   tooltip="%menu.open_settings.tooltip">
@@ -138,58 +138,58 @@
    <extension
          point="org.eclipse.ui.commands">
       <command
-            defaultHandler="net.thecodemaster.evd.ui.command.EnableScanOnProject"
-            id="net.thecodemaster.evd.ui.command.enable_plugin"
+            defaultHandler="net.thecodemaster.esvd.ui.command.EnableScanOnProject"
+            id="net.thecodemaster.esvd.ui.command.enable_plugin"
             name="%menu.enable_plugin.label">
       </command>
       <command
-            defaultHandler="net.thecodemaster.evd.ui.command.DisableScanOnProject"
-            id="net.thecodemaster.evd.ui.command.disable_plugin"
+            defaultHandler="net.thecodemaster.esvd.ui.command.DisableScanOnProject"
+            id="net.thecodemaster.esvd.ui.command.disable_plugin"
             name="%menu.disable_plugin.label">
       </command>
       <command
-            defaultHandler="net.thecodemaster.evd.ui.command.OpenSettingsPreferencePage"
-            id="net.thecodemaster.evd.ui.command.open_settings"
+            defaultHandler="net.thecodemaster.esvd.ui.command.OpenSettingsPreferencePage"
+            id="net.thecodemaster.esvd.ui.command.open_settings"
             name="%menu.open_settings.label">
       </command>
    </extension>
    <extension
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester
-            class="net.thecodemaster.evd.ui.propertytester.EnableDisableMenu"
-            id="NET.THECODEMASTER.EVD.UI.PROPERTYTESTER.ENABLEDISABLEMENU"
-            namespace="net.thecodemaster.evd.ui.propertytester"
+            class="net.thecodemaster.esvd.ui.propertytester.EnableDisableMenu"
+            id="NET.THECODEMASTER.ESVD.UI.PROPERTYTESTER.ENABLEDISABLEMENU"
+            namespace="net.thecodemaster.esvd.ui.propertytester"
             properties="isEnabled, isDisabled"
             type="org.eclipse.jface.viewers.ISelection">
       </propertyTester>
    </extension>
    <extension
-         id="TCM_EVD_BUILDER"
-         name="%tcm_evd.builder"
+         id="TCM_ESVD_BUILDER"
+         name="%tcm_esvd.builder"
          point="org.eclipse.core.resources.builders">
       <builder
             hasNature="true">
          <run
-               class="net.thecodemaster.evd.builder.IncrementalBuilder">
+               class="net.thecodemaster.esvd.builder.IncrementalBuilder">
          </run>
       </builder>
    </extension>
    <extension
-         id="TCM_EVD_NATURE"
-         name="%tcm_evd.nature"
+         id="TCM_ESVD_NATURE"
+         name="%tcm_esvd.nature"
          point="org.eclipse.core.resources.natures">
       <runtime>
          <run
-               class="net.thecodemaster.evd.nature.Nature">
+               class="net.thecodemaster.esvd.nature.Nature">
          </run>
       </runtime>
       <builder
-            id="tcm.early.vulnerability.detector.TCM_EVD_BUILDER">
+            id="tcm.early.vulnerability.detector.TCM_ESVD_BUILDER">
       </builder>
    </extension>
    <extension
-         id="TCM_EVD_MARKER"
-         name="%tcm_evd.marker"
+         id="TCM_ESVD_MARKER"
+         name="%tcm_esvd.marker"
          point="org.eclipse.core.resources.markers">
       <persistent
             value="true">
@@ -198,12 +198,12 @@
             type="org.eclipse.core.resources.problemmarker">
       </super>
       <attribute
-            name="TCM_EVD_TYPE_SECURITY_VULNERABILITY">
+            name="TCM_ESVD_TYPE_SECURITY_VULNERABILITY">
       </attribute>
    </extension>
    <extension
-         id="TCM_EVD_MARKER_INVISIBLE"
-         name="%tcm_evd.marker.invisible"
+         id="TCM_ESVD_MARKER_INVISIBLE"
+         name="%tcm_esvd.marker.invisible"
          point="org.eclipse.core.resources.markers">
       <persistent
             value="true">
@@ -213,27 +213,27 @@
       </super>
    </extension>
    <extension
-         id="TCM_EVD_MARKER_RESOLUTION"
+         id="TCM_ESVD_MARKER_RESOLUTION"
          point="org.eclipse.ui.ide.markerResolution">
       <markerResolutionGenerator
-            class="net.thecodemaster.evd.marker.resolution.GeneratorResolutionSecurityVulnerability"
-            markerType="tcm.early.vulnerability.detector.TCM_EVD_MARKER">
+            class="net.thecodemaster.esvd.marker.resolution.GeneratorResolutionSecurityVulnerability"
+            markerType="tcm.early.vulnerability.detector.TCM_ESVD_MARKER">
       </markerResolutionGenerator>
    </extension>
    <extension
-         id="TCM_EVD_MARKER_ANNOTATION"
+         id="TCM_ESVD_MARKER_ANNOTATION"
          point="org.eclipse.ui.editors.annotationTypes">
       <type
             markerSeverity="1"
-            markerType="tcm.early.vulnerability.detector.TCM_EVD_MARKER"
-            name="TCM_EVD_MARKER_ANNOTATION">
+            markerType="tcm.early.vulnerability.detector.TCM_ESVD_MARKER"
+            name="TCM_ESVD_MARKER_ANNOTATION">
       </type>
    </extension>
    <extension
-         id="TCM_EVD_MARKER_ANNOTATION_SPECIFICATION"
+         id="TCM_ESVD_MARKER_ANNOTATION_SPECIFICATION"
          point="org.eclipse.ui.editors.markerAnnotationSpecification">
       <specification
-            annotationType="TCM_EVD_MARKER_ANNOTATION"
+            annotationType="TCM_ESVD_MARKER_ANNOTATION"
             colorPreferenceKey="org.eclipse.viatra2.slice.color"
             colorPreferenceValue="243,199,64"
             contributesToHeader="false"
@@ -242,20 +242,20 @@
             icon="icon/Warning.png"
             includeOnPreferencePage="true"
             isGoToNextNavigationTarget="true"
-            isGoToNextNavigationTargetKey="TCM_EVD_IsGoToNextNavigationTarget"
+            isGoToNextNavigationTargetKey="TCM_ESVD_IsGoToNextNavigationTarget"
             isGoToPreviousNavigationTarget="true"
-            isGoToPreviousNavigationTargetKey="TCM_EVD_IsGoToPreviousNavigationTarget"
-            label="%tcm_evd.marker.label"
+            isGoToPreviousNavigationTargetKey="TCM_ESVD_IsGoToPreviousNavigationTarget"
+            label="%tcm_esvd.marker.label"
             overviewRulerPreferenceKey="org.eclipse.viatra2.slice.overview"
             overviewRulerPreferenceValue="true"
             presentationLayer="0"
             quickFixIcon="icon/QuickFix.png"
             showInNextPrevDropdownToolbarAction="true"
-            showInNextPrevDropdownToolbarActionKey="TCM_EVD_ShowInNextPrevDropdownToolbarAction"
+            showInNextPrevDropdownToolbarActionKey="TCM_ESVD_ShowInNextPrevDropdownToolbarAction"
             symbolicIcon="warning"
             textPreferenceKey="org.eclipse.viatra2.slice.text"
             textPreferenceValue="true"
-            textStylePreferenceKey="TCM_EVD_TextStylePreference"
+            textStylePreferenceKey="TCM_ESVD_TextStylePreference"
             textStylePreferenceValue="PROBLEM_UNDERLINE"
             verticalRulerPreferenceKey="org.eclipse.viatra2.slice.ruler"
             verticalRulerPreferenceValue="true">

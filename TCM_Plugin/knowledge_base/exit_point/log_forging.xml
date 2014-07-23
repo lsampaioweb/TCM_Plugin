@@ -38,29 +38,53 @@
 	</exitpoint>
 	<exitpoint id="07">
 		<qualifiedname><![CDATA[java.util.logging.Logger]]></qualifiedname>
-		<methodname>info</methodname>
+		<methodname>finer</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<exitpoint id="08">
 		<qualifiedname><![CDATA[java.util.logging.Logger]]></qualifiedname>
-		<methodname>warning</methodname>
+		<methodname>finest</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<exitpoint id="09">
 		<qualifiedname><![CDATA[java.util.logging.Logger]]></qualifiedname>
-		<methodname>severe</methodname>
+		<methodname>info</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<exitpoint id="10">
+		<qualifiedname><![CDATA[java.util.logging.Logger]]></qualifiedname>
+		<methodname>warning</methodname>
+		<parameters type="java.lang.String" rules="1" />
+	</exitpoint>
+	<exitpoint id="11">
+		<qualifiedname><![CDATA[java.util.logging.Logger]]></qualifiedname>
+		<methodname>severe</methodname>
+		<parameters type="java.lang.String" rules="1" />
+	</exitpoint>
+	<exitpoint id="12">
 		<qualifiedname><![CDATA[java.util.logging.Logger]]></qualifiedname>
 		<methodname>entering</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
-	<exitpoint id="11">
+	<exitpoint id="13">
+		<qualifiedname><![CDATA[java.util.logging.Logger]]></qualifiedname>
+		<methodname>entering</methodname>
+		<parameters type="java.lang.String" rules="1" />
+		<parameters type="java.lang.String" rules="1" />
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<exitpoint id="14">
 		<qualifiedname><![CDATA[java.util.logging.Logger]]></qualifiedname>
 		<methodname>log</methodname>
 		<parameters type="java.util.logging.Level" rules="1" />
 		<parameters type="java.lang.String" rules="1" />
+	</exitpoint>
+	<exitpoint id="15">
+		<qualifiedname><![CDATA[java.util.logging.Logger]]></qualifiedname>
+		<methodname>log</methodname>
+		<parameters type="java.util.logging.Level" rules="1" />
+		<parameters type="java.lang.String" rules="1" />
+		<parameters type="java.lang.Object" rules="1" />
 	</exitpoint>
 </exitpoints>
