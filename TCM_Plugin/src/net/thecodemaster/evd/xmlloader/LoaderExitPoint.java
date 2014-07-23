@@ -58,7 +58,9 @@ public class LoaderExitPoint extends LoaderXML {
 
 					Element element = (Element) node;
 
-					String qualifiedName = getTagValueFromElement(element, Constant.XMLLoader.TAG_QUALIFIED_NAME);
+					// String qualifiedName = getTagValueFromElement(element, Constant.XMLLoader.TAG_QUALIFIED_NAME);
+					String qualifiedName = getCDataFromElement(element, Constant.XMLLoader.TAG_QUALIFIED_NAME);
+
 					String methodName = getTagValueFromElement(element, Constant.XMLLoader.TAG_METHOD_NAME);
 					ExitPoint exitPoint = new ExitPoint(verifier, qualifiedName, methodName);
 

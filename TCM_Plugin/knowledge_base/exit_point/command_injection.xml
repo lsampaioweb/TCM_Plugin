@@ -6,18 +6,18 @@
 	<!-- X1;X2;... These are the accepted values. -->
 	<!-- java.lang.Runtime -->
 	<exitpoint id="01">
-		<qualifiedname>java.lang.Runtime</qualifiedname>
+		<qualifiedname><![CDATA[java.lang.Runtime]]></qualifiedname>
 		<methodname>exec</methodname>
 		<parameters type="java.lang.Object" rules="1" />
 	</exitpoint>
 	<exitpoint id="02">
-		<qualifiedname>java.lang.Runtime</qualifiedname>
+		<qualifiedname><![CDATA[java.lang.Runtime]]></qualifiedname>
 		<methodname>exec</methodname>
 		<parameters type="java.lang.Object" rules="1" />
 		<parameters type="java.lang.Object" rules="1" />
 	</exitpoint>
 	<exitpoint id="03">
-		<qualifiedname>java.lang.Runtime</qualifiedname>
+		<qualifiedname><![CDATA[java.lang.Runtime]]></qualifiedname>
 		<methodname>exec</methodname>
 		<parameters type="java.lang.Object" rules="1" />
 		<parameters type="java.lang.Object" rules="1" />
@@ -25,24 +25,24 @@
 	</exitpoint>
 	<!-- javax.xml.xpath.XPath -->
 	<exitpoint id="04">
-		<qualifiedname>javax.xml.xpath.XPath</qualifiedname>
+		<qualifiedname><![CDATA[javax.xml.xpath.XPath]]></qualifiedname>
 		<methodname>compile</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<!-- java.lang.Thread -->
 	<exitpoint id="05">
-		<qualifiedname>java.lang.Thread</qualifiedname>
+		<qualifiedname><![CDATA[java.lang.Thread]]></qualifiedname>
 		<methodname>sleep</methodname>
 		<parameters type="java.lang.Object" rules="1" />
 	</exitpoint>
 	<!-- java.lang.System -->
 	<exitpoint id="06">
-		<qualifiedname>java.lang.System</qualifiedname>
+		<qualifiedname><![CDATA[java.lang.System]]></qualifiedname>
 		<methodname>load</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<exitpoint id="07">
-		<qualifiedname>java.lang.System</qualifiedname>
+		<qualifiedname><![CDATA[java.lang.System]]></qualifiedname>
 		<methodname>loadLibrary</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>

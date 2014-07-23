@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resolutions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="resolution_schema.xsd">
-	<resolution type="8">
+	<resolution type="10">
 		<label><![CDATA[Ignore this warning]]></label>
 		<description>
     <![CDATA[

@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<exitpoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:noNamespaceSchemaLocation="exit_point_schema.xsd">
+<exitpoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="exit_point_schema.xsd">
 	<!-- -1 Anything is valid. -->
 	<!-- 0 Only sanitized values are valid. -->
 	<!-- 1 LITERAL and sanitized values are valid. -->
 	<!-- X1;X2;... These are the accepted values. -->
 	<!-- javax.servlet.http.Cookie -->
 	<exitpoint id="01">
-		<qualifiedname>javax.servlet.http.Cookie</qualifiedname>
+		<qualifiedname><![CDATA[javax.servlet.http.Cookie]]></qualifiedname>
 		<methodname>Cookie</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<exitpoint id="02">
-		<qualifiedname>javax.servlet.http.Cookie</qualifiedname>
+		<qualifiedname><![CDATA[javax.servlet.http.Cookie]]></qualifiedname>
 		<methodname>Cookie</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.String" rules="1" />
@@ -21,22 +20,22 @@
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<exitpoint id="03">
-		<qualifiedname>javax.servlet.http.Cookie</qualifiedname>
+		<qualifiedname><![CDATA[javax.servlet.http.Cookie]]></qualifiedname>
 		<methodname>setComment</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<exitpoint id="04">
-		<qualifiedname>javax.servlet.http.Cookie</qualifiedname>
+		<qualifiedname><![CDATA[javax.servlet.http.Cookie]]></qualifiedname>
 		<methodname>setDomain</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<exitpoint id="05">
-		<qualifiedname>javax.servlet.http.Cookie</qualifiedname>
+		<qualifiedname><![CDATA[javax.servlet.http.Cookie]]></qualifiedname>
 		<methodname>setPath</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<exitpoint id="06">
-		<qualifiedname>javax.servlet.http.Cookie</qualifiedname>
+		<qualifiedname><![CDATA[javax.servlet.http.Cookie]]></qualifiedname>
 		<methodname>setValue</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>

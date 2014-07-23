@@ -5,12 +5,12 @@
 	<!-- 1 LITERAL and sanitized values are valid. -->
 	<!-- X1;X2;... These are the accepted values. -->
 	<exitpoint id="01">
-		<qualifiedname>java.sql.DriverManager</qualifiedname>
+		<qualifiedname><![CDATA[java.sql.DriverManager]]></qualifiedname>
 		<methodname>getConnection</methodname>
 		<parameters type="java.lang.String" rules="0" />
 	</exitpoint>
 	<exitpoint id="02">
-		<qualifiedname>java.sql.DriverManager</qualifiedname>
+		<qualifiedname><![CDATA[java.sql.DriverManager]]></qualifiedname>
 		<methodname>getConnection</methodname>
 		<parameters type="java.lang.String" rules="-1" />
 		<parameters type="java.lang.String" rules="0" />

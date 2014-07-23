@@ -6,155 +6,134 @@
 	<!-- X1;X2;... These are the accepted values. -->
 	<!-- java.io.PrintWriter -->
 	<exitpoint id="01">
-		<qualifiedname>java.io.PrintWriter</qualifiedname>
+		<qualifiedname><![CDATA[java.io.PrintWriter]]></qualifiedname>
 		<methodname>print</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<exitpoint id="02">
-		<qualifiedname>java.io.PrintWriter</qualifiedname>
+		<qualifiedname><![CDATA[java.io.PrintWriter]]></qualifiedname>
 		<methodname>print</methodname>
 		<parameters type="java.lang.Object" rules="1" />
 	</exitpoint>
 	<exitpoint id="03">
-		<qualifiedname>java.io.PrintWriter</qualifiedname>
+		<qualifiedname><![CDATA[java.io.PrintWriter]]></qualifiedname>
 		<methodname>println</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<exitpoint id="04">
-		<qualifiedname>java.io.PrintWriter</qualifiedname>
+		<qualifiedname><![CDATA[java.io.PrintWriter]]></qualifiedname>
 		<methodname>println</methodname>
 		<parameters type="java.lang.Object" rules="1" />
 	</exitpoint>
 	<exitpoint id="05">
-		<qualifiedname>java.io.PrintWriter</qualifiedname>
+		<qualifiedname><![CDATA[java.io.PrintWriter]]></qualifiedname>
 		<methodname>write</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<exitpoint id="06">
-		<qualifiedname>java.io.PrintWriter</qualifiedname>
+		<qualifiedname><![CDATA[java.io.PrintWriter]]></qualifiedname>
 		<methodname>write</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.Object" rules="-1" />
 		<parameters type="java.lang.Object" rules="-1" />
 	</exitpoint>
-	<!-- java.io.PrintStream -->
+	<!-- javax.servlet.ServletOutputStream -->
 	<exitpoint id="07">
-		<qualifiedname>java.io.PrintStream</qualifiedname>
+		<qualifiedname><![CDATA[javax.servlet.ServletOutputStream]]></qualifiedname>
 		<methodname>print</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<exitpoint id="08">
-		<qualifiedname>java.io.PrintStream</qualifiedname>
-		<methodname>print</methodname>
-		<parameters type="java.lang.Object" rules="1" />
-	</exitpoint>
-	<exitpoint id="09">
-		<qualifiedname>java.io.PrintStream</qualifiedname>
-		<methodname>println</methodname>
-		<parameters type="java.lang.String" rules="1" />
-	</exitpoint>
-	<exitpoint id="10">
-		<qualifiedname>java.io.PrintStream</qualifiedname>
-		<methodname>println</methodname>
-		<parameters type="java.lang.Object" rules="1" />
-	</exitpoint>
-	<!-- javax.servlet.ServletOutputStream -->
-	<exitpoint id="11">
-		<qualifiedname>javax.servlet.ServletOutputStream</qualifiedname>
-		<methodname>print</methodname>
-		<parameters type="java.lang.String" rules="1" />
-	</exitpoint>
-	<exitpoint id="12">
-		<qualifiedname>javax.servlet.ServletOutputStream</qualifiedname>
+		<qualifiedname><![CDATA[javax.servlet.ServletOutputStream]]></qualifiedname>
 		<methodname>println</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<!-- javax.servlet.jsp.JspWriter -->
-	<exitpoint id="13">
-		<qualifiedname>javax.servlet.jsp.JspWriter</qualifiedname>
+	<exitpoint id="09">
+		<qualifiedname><![CDATA[javax.servlet.jsp.JspWriter]]></qualifiedname>
 		<methodname>print</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
-	<exitpoint id="14">
-		<qualifiedname>javax.servlet.jsp.JspWriter</qualifiedname>
+	<exitpoint id="10">
+		<qualifiedname><![CDATA[javax.servlet.jsp.JspWriter]]></qualifiedname>
 		<methodname>println</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
-	<!-- javax.servlet.http.HttpServletRequest -->
-	<exitpoint id="15">
-		<qualifiedname>javax.servlet.(http.Http)?ServletRequest</qualifiedname>
+	<!-- javax.servlet.ServletRequest -->
+	<exitpoint id="11">
+		<qualifiedname><![CDATA[javax.servlet.ServletRequest]]></qualifiedname>
 		<methodname>setAttribute</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.Object" rules="1" />
 	</exitpoint>
-	<exitpoint id="16">
-		<qualifiedname>javax.servlet.(http.Http)?ServletRequest</qualifiedname>
+	<exitpoint id="12">
+		<qualifiedname><![CDATA[javax.servlet.ServletRequest]]></qualifiedname>
 		<methodname>setCharacterEncoding</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<!-- javax.servlet.http.HttpServletResponse -->
-	<exitpoint id="17">
-		<qualifiedname>javax.servlet.(http.Http)?ServletResponse</qualifiedname>
+	<exitpoint id="13">
+		<qualifiedname><![CDATA[javax.servlet.http.HttpServletResponse]]></qualifiedname>
 		<methodname>sendError</methodname>
 		<parameters type="java.lang.Object" rules="-1" />
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
-	<exitpoint id="18">
-		<qualifiedname>javax.servlet.(http.Http)?ServletResponse</qualifiedname>
+	<exitpoint id="14">
+		<qualifiedname><![CDATA[javax.servlet.http.HttpServletResponse]]></qualifiedname>
 		<methodname>setDateHeader</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.Object" rules="-1" />
 	</exitpoint>
-	<exitpoint id="19">
-		<qualifiedname>javax.servlet.(http.Http)?ServletResponse</qualifiedname>
+	<exitpoint id="15">
+		<qualifiedname><![CDATA[javax.servlet.http.HttpServletResponse]]></qualifiedname>
 		<methodname>addDateHeader</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.Object" rules="-1" />
 	</exitpoint>
-	<exitpoint id="20">
-		<qualifiedname>javax.servlet.(http.Http)?ServletResponse</qualifiedname>
+	<exitpoint id="16">
+		<qualifiedname><![CDATA[javax.servlet.http.HttpServletResponse]]></qualifiedname>
 		<methodname>setHeader</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
-	<exitpoint id="21">
-		<qualifiedname>javax.servlet.(http.Http)?ServletResponse</qualifiedname>
+	<exitpoint id="17">
+		<qualifiedname><![CDATA[javax.servlet.http.HttpServletResponse]]></qualifiedname>
 		<methodname>addHeader</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
-	<exitpoint id="22">
-		<qualifiedname>javax.servlet.(http.Http)?ServletResponse</qualifiedname>
+	<exitpoint id="18">
+		<qualifiedname><![CDATA[javax.servlet.http.HttpServletResponse]]></qualifiedname>
 		<methodname>setIntHeader</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.Object" rules="-1" />
 	</exitpoint>
-	<exitpoint id="23">
-		<qualifiedname>javax.servlet.(http.Http)?ServletResponse</qualifiedname>
+	<exitpoint id="19">
+		<qualifiedname><![CDATA[javax.servlet.http.HttpServletResponse]]></qualifiedname>
 		<methodname>addIntHeader</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.Object" rules="-1" />
 	</exitpoint>
 	<!-- javax.servlet.ServletResponse -->
-	<exitpoint id="24">
-		<qualifiedname>javax.servlet.(http.Http)?ServletResponse</qualifiedname>
+	<exitpoint id="20">
+		<qualifiedname><![CDATA[javax.servlet.ServletResponse]]></qualifiedname>
 		<methodname>setCharacterEncoding</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
-	<exitpoint id="25">
-		<qualifiedname>javax.servlet.(http.Http)?ServletResponse</qualifiedname>
+	<exitpoint id="21">
+		<qualifiedname><![CDATA[javax.servlet.ServletResponse]]></qualifiedname>
 		<methodname>setContentType</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<!-- javax.servlet.http.HttpSession -->
-	<exitpoint id="26">
-		<qualifiedname>javax.servlet.(http.Http)?Session</qualifiedname>
+	<exitpoint id="22">
+		<qualifiedname><![CDATA[javax.servlet.http.HttpSession]]></qualifiedname>
 		<methodname>setAttribute</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.Object" rules="1" />
 	</exitpoint>
-	<exitpoint id="27">
-		<qualifiedname>javax.servlet.(http.Http)?Session</qualifiedname>
+	<exitpoint id="23">
+		<qualifiedname><![CDATA[javax.servlet.http.HttpSession]]></qualifiedname>
 		<methodname>putValue</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.Object" rules="1" />

@@ -24,12 +24,14 @@ public abstract class Constant {
 	public static final int			VERIFIER_ID_COMMAND_INJECTION					= 1;
 	public static final int			VERIFIER_ID_COOKIE_POISONING					= 2;
 	public static final int			VERIFIER_ID_CROSS_SITE_SCRIPTING			= 3;
-	public static final int			VERIFIER_ID_PATH_TRAVERSAL						= 4;
-	public static final int			VERIFIER_ID_SECURITY_MISCONFIGURATION	= 5;
-	public static final int			VERIFIER_ID_SQL_INJECTION							= 6;
-	public static final int			VERIFIER_ID_HTTP_RESPONSE_SPLITTING		= 7;
+	public static final int			VERIFIER_ID_HTTP_RESPONSE_SPLITTING		= 4;
+	public static final int			VERIFIER_ID_LOG_FORGING								= 5;
+	public static final int			VERIFIER_ID_PATH_TRAVERSAL						= 6;
+	public static final int			VERIFIER_ID_REFLECTION_INJECTION			= 7;
+	public static final int			VERIFIER_ID_SECURITY_MISCONFIGURATION	= 8;
+	public static final int			VERIFIER_ID_SQL_INJECTION							= 9;
 
-	public static final int			RESOLUTION_ID_IGNORE_WARNING					= 8;
+	public static final int			RESOLUTION_ID_IGNORE_WARNING					= 10;
 
 	public static final String	OBJECT																= "java.lang.Object";
 	public static final int			LITERAL																= 1;
@@ -58,12 +60,19 @@ public abstract class Constant {
 		public static final String	FILE_EXIT_POINT_COOKIE_POISONING					= Folder.EXIT_POINT + "cookie_poisoning.xml";
 		public static final String	FILE_EXIT_POINT_CROSS_SITE_SCRIPTING			= Folder.EXIT_POINT
 																																							+ "cross_site_scripting.xml";
-		public static final String	FILE_EXIT_POINT_PATH_TRAVERSAL						= Folder.EXIT_POINT + "path_traversal.xml";
-		public static final String	FILE_EXIT_POINT_SECURITY_MISCONFIGURATION	= Folder.EXIT_POINT
-																																							+ "security_misconfiguration.xml";
-		public static final String	FILE_EXIT_POINT_SQL_INJECTION							= Folder.EXIT_POINT + "sql_injection.xml";
+
 		public static final String	FILE_EXIT_POINT_HTTP_RESPONSE_SPLITTING		= Folder.EXIT_POINT
 																																							+ "http_response_splitting.xml";
+
+		public static final String	FILE_EXIT_POINT_LOG_FORGING								= Folder.EXIT_POINT + "log_forging.xml";
+
+		public static final String	FILE_EXIT_POINT_PATH_TRAVERSAL						= Folder.EXIT_POINT + "path_traversal.xml";
+		public static final String	FILE_EXIT_POINT_REFLECTION_INJECTION			= Folder.EXIT_POINT
+																																							+ "reflection_injection.xml";
+		public static final String	FILE_EXIT_POINT_SECURITY_MISCONFIGURATION	= Folder.EXIT_POINT
+																																							+ "security_misconfiguration.xml";
+
+		public static final String	FILE_EXIT_POINT_SQL_INJECTION							= Folder.EXIT_POINT + "sql_injection.xml";
 	}
 
 	public abstract class Icons {
@@ -77,10 +86,12 @@ public abstract class Constant {
 		public static final String	FIELD_COMMAND_INJECTION					= Activator.PLUGIN_ID + ".CommandInjection";
 		public static final String	FIELD_COOKIE_POISONING					= Activator.PLUGIN_ID + ".CookiePoisoning";
 		public static final String	FIELD_CROSS_SITE_SCRIPTING			= Activator.PLUGIN_ID + ".CrossSiteScripting";
+		public static final String	FIELD_HTTP_RESPONSE_SPLITTING		= Activator.PLUGIN_ID + ".HttpResponseSplitting";
+		public static final String	FIELD_LOG_FORGING								= Activator.PLUGIN_ID + ".LogForging";
 		public static final String	FIELD_PATH_TRAVERSAL						= Activator.PLUGIN_ID + ".PathTraversal";
+		public static final String	FIELD_REFLECTION_INJECTION			= Activator.PLUGIN_ID + ".ReflectionInjection";
 		public static final String	FIELD_SECURITY_MISCONFIGURATION	= Activator.PLUGIN_ID + ".SecurityMisconfiguration";
 		public static final String	FIELD_SQL_INJECTION							= Activator.PLUGIN_ID + ".SQLInjection";
-		public static final String	FIELD_HTTP_RESPONSE_SPLITTING		= Activator.PLUGIN_ID + ".httpResponseSplitting";
 
 		public static final String	FIELD_MONITORED_PROJECTS				= Activator.PLUGIN_ID + ".MonitoredProjects";
 	}

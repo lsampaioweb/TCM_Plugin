@@ -17,14 +17,18 @@ public abstract class HelperVerifiers {
 				return Constant.File.FILE_EXIT_POINT_COOKIE_POISONING;
 			case Constant.VERIFIER_ID_CROSS_SITE_SCRIPTING:
 				return Constant.File.FILE_EXIT_POINT_CROSS_SITE_SCRIPTING;
+			case Constant.VERIFIER_ID_HTTP_RESPONSE_SPLITTING:
+				return Constant.File.FILE_EXIT_POINT_HTTP_RESPONSE_SPLITTING;
+			case Constant.VERIFIER_ID_LOG_FORGING:
+				return Constant.File.FILE_EXIT_POINT_LOG_FORGING;
 			case Constant.VERIFIER_ID_PATH_TRAVERSAL:
 				return Constant.File.FILE_EXIT_POINT_PATH_TRAVERSAL;
+			case Constant.VERIFIER_ID_REFLECTION_INJECTION:
+				return Constant.File.FILE_EXIT_POINT_REFLECTION_INJECTION;
 			case Constant.VERIFIER_ID_SECURITY_MISCONFIGURATION:
 				return Constant.File.FILE_EXIT_POINT_SECURITY_MISCONFIGURATION;
 			case Constant.VERIFIER_ID_SQL_INJECTION:
 				return Constant.File.FILE_EXIT_POINT_SQL_INJECTION;
-			case Constant.VERIFIER_ID_HTTP_RESPONSE_SPLITTING:
-				return Constant.File.FILE_EXIT_POINT_HTTP_RESPONSE_SPLITTING;
 			default:
 				String errorMessage = String.format(Message.Error.FILE_PATH_ID_NOT_FOUND, fileId);
 				PluginLogger.logError(errorMessage, null);
@@ -41,14 +45,18 @@ public abstract class HelperVerifiers {
 				return Message.Plugin.VERIFIER_NAME_COOKIE_POISONING;
 			case Constant.VERIFIER_ID_CROSS_SITE_SCRIPTING:
 				return Message.Plugin.VERIFIER_NAME_CROSS_SITE_SCRIPTING;
+			case Constant.VERIFIER_ID_HTTP_RESPONSE_SPLITTING:
+				return Message.Plugin.VERIFIER_NAME_HTTP_RESPONSE_SPLITTING;
+			case Constant.VERIFIER_ID_LOG_FORGING:
+				return Message.Plugin.VERIFIER_NAME_LOG_FORGING;
 			case Constant.VERIFIER_ID_PATH_TRAVERSAL:
 				return Message.Plugin.VERIFIER_NAME_PATH_TRAVERSAL;
+			case Constant.VERIFIER_ID_REFLECTION_INJECTION:
+				return Message.Plugin.VERIFIER_NAME_REFLECTION_INJECTION;
 			case Constant.VERIFIER_ID_SECURITY_MISCONFIGURATION:
 				return Message.Plugin.VERIFIER_NAME_SECURITY_MISCONFIGURATION;
 			case Constant.VERIFIER_ID_SQL_INJECTION:
 				return Message.Plugin.VERIFIER_NAME_SQL_INJECTION;
-			case Constant.VERIFIER_ID_HTTP_RESPONSE_SPLITTING:
-				return Message.Plugin.VERIFIER_NAME_HTTP_RESPONSE_SPLITTING;
 
 				// Sub-Vulnerabilities' types.
 			case Constant.Vulnerability.ENTRY_POINT:

@@ -6,63 +6,63 @@
 	<!-- X1;X2;... These are the accepted values. -->
 	<!-- java.sql.(Prepared)?Statement -->
 	<exitpoint id="01">
-		<qualifiedname>java.sql.(Prepared)?Statement</qualifiedname>
+		<qualifiedname><![CDATA[java.sql.(Prepared)?Statement]]></qualifiedname>
 		<methodname>addBatch</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<exitpoint id="02">
-		<qualifiedname>java.sql.(Prepared)?Statement</qualifiedname>
+		<qualifiedname><![CDATA[java.sql.(Prepared)?Statement]]></qualifiedname>
 		<methodname>execute</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<exitpoint id="03">
-		<qualifiedname>java.sql.(Prepared)?Statement</qualifiedname>
+		<qualifiedname><![CDATA[java.sql.(Prepared)?Statement]]></qualifiedname>
 		<methodname>execute</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.Object" rules="-1" />
 	</exitpoint>
 	<exitpoint id="04">
-		<qualifiedname>java.sql.(Prepared)?Statement</qualifiedname>
+		<qualifiedname><![CDATA[java.sql.(Prepared)?Statement]]></qualifiedname>
 		<methodname>executeQuery</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<exitpoint id="05">
-		<qualifiedname>java.sql.(Prepared)?Statement</qualifiedname>
+		<qualifiedname><![CDATA[java.sql.(Prepared)?Statement]]></qualifiedname>
 		<methodname>executeUpdate</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<exitpoint id="06">
-		<qualifiedname>java.sql.(Prepared)?Statement</qualifiedname>
+		<qualifiedname><![CDATA[java.sql.(Prepared)?Statement]]></qualifiedname>
 		<methodname>executeUpdate</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.Object" rules="-1" />
 	</exitpoint>
 	<!-- java.sql.Connection -->
 	<exitpoint id="07">
-		<qualifiedname>java.sql.Connection</qualifiedname>
+		<qualifiedname><![CDATA[java.sql.Connection]]></qualifiedname>
 		<methodname>prepareStatement</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<exitpoint id="08">
-		<qualifiedname>java.sql.Connection</qualifiedname>
+		<qualifiedname><![CDATA[java.sql.Connection]]></qualifiedname>
 		<methodname>prepareStatement</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.Object" rules="-1" />
 	</exitpoint>
 	<exitpoint id="09">
-		<qualifiedname>java.sql.Connection</qualifiedname>
+		<qualifiedname><![CDATA[java.sql.Connection]]></qualifiedname>
 		<methodname>prepareCall</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<exitpoint id="10">
-		<qualifiedname>java.sql.Connection</qualifiedname>
+		<qualifiedname><![CDATA[java.sql.Connection]]></qualifiedname>
 		<methodname>prepareCall</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.Object" rules="-1" />
 		<parameters type="java.lang.Object" rules="-1" />
 	</exitpoint>
 	<exitpoint id="11">
-		<qualifiedname>java.sql.Connection</qualifiedname>
+		<qualifiedname><![CDATA[java.sql.Connection]]></qualifiedname>
 		<methodname>prepareCall</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.Object" rules="-1" />
@@ -71,35 +71,35 @@
 	</exitpoint>
 	<!-- javax.persistence.EntityManager -->
 	<exitpoint id="12">
-		<qualifiedname>javax.persistence.EntityManager</qualifiedname>
+		<qualifiedname><![CDATA[javax.persistence.EntityManager]]></qualifiedname>
 		<methodname>createNativeQuery</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<exitpoint id="13">
-		<qualifiedname>javax.persistence.EntityManager</qualifiedname>
+		<qualifiedname><![CDATA[javax.persistence.EntityManager]]></qualifiedname>
 		<methodname>createNativeQuery</methodname>
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.Object" rules="1" />
 	</exitpoint>
 	<exitpoint id="14">
-		<qualifiedname>javax.persistence.EntityManager</qualifiedname>
+		<qualifiedname><![CDATA[javax.persistence.EntityManager]]></qualifiedname>
 		<methodname>createQuery</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<!-- org.hibernate.Session 3x -->
 	<!-- net.sf.hibernate.Session 2x -->
 	<exitpoint id="15">
-		<qualifiedname>(org|net.sf).hibernate.Session</qualifiedname>
+		<qualifiedname><![CDATA[(org|net.sf).hibernate.Session]]></qualifiedname>
 		<methodname>createSQLQuery</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<exitpoint id="16">
-		<qualifiedname>(org|net.sf).hibernate.Session</qualifiedname>
+		<qualifiedname><![CDATA[(org|net.sf).hibernate.Session]]></qualifiedname>
 		<methodname>createQuery</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
 	<exitpoint id="17">
-		<qualifiedname>(org|net.sf).hibernate.Session</qualifiedname>
+		<qualifiedname><![CDATA[(org|net.sf).hibernate.Session]]></qualifiedname>
 		<methodname>find</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>

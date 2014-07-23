@@ -12,7 +12,9 @@ import net.thecodemaster.evd.verifier.security.VerifierCommandInjection;
 import net.thecodemaster.evd.verifier.security.VerifierCookiePoisoning;
 import net.thecodemaster.evd.verifier.security.VerifierCrossSiteScripting;
 import net.thecodemaster.evd.verifier.security.VerifierHTTPResponseSplitting;
+import net.thecodemaster.evd.verifier.security.VerifierLogForging;
 import net.thecodemaster.evd.verifier.security.VerifierPathTraversal;
+import net.thecodemaster.evd.verifier.security.VerifierReflectionInjection;
 import net.thecodemaster.evd.verifier.security.VerifierSQLInjection;
 import net.thecodemaster.evd.verifier.security.VerifierSecurityMisconfiguration;
 import net.thecodemaster.evd.visitor.VisitorCallGraph;
@@ -168,10 +170,12 @@ public abstract class AbstractTestVerifier {
 		verifiers.add(new VerifierCommandInjection());
 		verifiers.add(new VerifierCookiePoisoning());
 		verifiers.add(new VerifierCrossSiteScripting());
+		verifiers.add(new VerifierHTTPResponseSplitting());
+		verifiers.add(new VerifierLogForging());
 		verifiers.add(new VerifierPathTraversal());
+		verifiers.add(new VerifierReflectionInjection());
 		verifiers.add(new VerifierSecurityMisconfiguration());
 		verifiers.add(new VerifierSQLInjection());
-		verifiers.add(new VerifierHTTPResponseSplitting());
 
 		return verifiers;
 	}

@@ -88,18 +88,20 @@ public class Manager {
 		boolean commandInjection = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_COMMAND_INJECTION);
 		boolean cookiePoisoning = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_COOKIE_POISONING);
 		boolean crossSiteScripting = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_CROSS_SITE_SCRIPTING);
+		boolean httpResponseSplitting = store
+				.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_HTTP_RESPONSE_SPLITTING);
+		boolean logForging = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_LOG_FORGING);
 		boolean pathTraversal = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_PATH_TRAVERSAL);
+		boolean reflectionInjection = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_REFLECTION_INJECTION);
 		boolean securityMisconfiguration = store
 				.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_SECURITY_MISCONFIGURATION);
 		boolean sqlInjection = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_SQL_INJECTION);
-		boolean httpResponseSplitting = store
-				.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_HTTP_RESPONSE_SPLITTING);
 
 		// If at least one was selected, the analyzer is added to the list.
-		if (commandInjection || cookiePoisoning || crossSiteScripting || pathTraversal || securityMisconfiguration
-				|| sqlInjection || httpResponseSplitting) {
+		if (commandInjection || cookiePoisoning || crossSiteScripting || httpResponseSplitting || logForging
+				|| pathTraversal || reflectionInjection || securityMisconfiguration || sqlInjection) {
 			addAnalyzer(new AnalyzerSecurityVulnerability(commandInjection, cookiePoisoning, crossSiteScripting,
-					pathTraversal, securityMisconfiguration, sqlInjection, httpResponseSplitting));
+					httpResponseSplitting, logForging, pathTraversal, reflectionInjection, securityMisconfiguration, sqlInjection));
 		}
 	}
 
