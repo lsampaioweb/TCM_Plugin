@@ -108,7 +108,7 @@ public abstract class CodeVisitor {
 
 		// 02 - To avoid infinitive loop, this check is necessary.
 		if (hasLoop(loopControl)) {
-			PluginLogger.logIfDebugging("A loop was found: " + loopControl);
+			// PluginLogger.logIfDebugging("A loop was found: " + loopControl);
 			return;
 		}
 
