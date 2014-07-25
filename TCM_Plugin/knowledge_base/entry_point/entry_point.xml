@@ -223,4 +223,20 @@
 		<qualifiedname>javax.servlet.http.HttpSession</qualifiedname>
 		<methodname>getValueNames</methodname>
 	</entrypoint>
+	<!-- java.lang.System -->
+	<entrypoint id="51">
+		<qualifiedname>java.lang.System</qualifiedname>
+		<methodname>getProperty</methodname>
+		<parameters type="java.lang.String" />
+	</entrypoint>
+	<entrypoint id="52">
+		<qualifiedname>java.lang.System</qualifiedname>
+		<methodname>getProperty</methodname>
+		<parameters type="java.lang.String" />
+		<parameters type="java.lang.String" />
+	</entrypoint>
+	<entrypoint id="53">
+		<qualifiedname>java.lang.System</qualifiedname>
+		<methodname>getProperties</methodname>
+	</entrypoint>
 </entrypoints>

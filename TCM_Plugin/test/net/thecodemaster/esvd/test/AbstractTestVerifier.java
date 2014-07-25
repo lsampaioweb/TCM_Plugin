@@ -37,7 +37,7 @@ public abstract class AbstractTestVerifier {
 	protected List<List<DataFlow>>	allVulnerablePaths;
 
 	protected static final String		PROJECT							= "WebDemo";
-	protected static final String		PROJECT_TEST				= "WebDemoTest";
+	protected static final String		PROJECT_TEST				= "01 - WebDemoTest";
 
 	protected static final String		PACKAGE_BASE				= "src/base";
 	protected static final String		PACKAGE_OTHER_PACK	= "src/other/pack";
