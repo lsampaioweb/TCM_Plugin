@@ -18,6 +18,7 @@ import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
+import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
@@ -111,8 +112,9 @@ public class ViewSecurityVulnerabilities extends ViewPart {
 			@Override
 			public void selectionChanged(SelectionChangedEvent event) {
 				IStructuredSelection selection = (IStructuredSelection) event.getSelection();
-				if ((selection != null) && (!selection.isEmpty())) {
-					int size = selection.toArray().length;
+				if ((selection != null) && (!selection.isEmpty()) && (selection instanceof TreeSelection)) {
+					TreeSelection treeSelection = (TreeSelection) selection;
+					int size = treeSelection.getPaths().length;
 					if (size > 0) {
 						IStatusLineManager slManager = getViewSite().getActionBars().getStatusLineManager();
 

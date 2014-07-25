@@ -208,6 +208,9 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 
 		ListIterator<IResource> iterator = resources.listIterator();
 
+		// 01 - The list will contain the list of resource callers that were added to also be processed.
+		List<IResource> addedResourceCallers = Creator.newList();
+
 		while (iterator.hasNext()) {
 			IResource resource = iterator.next();
 
@@ -239,10 +242,10 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 							iterator.add(resourceCaller);
 							// 09 - Make the iterator "see" this new element.
 							iterator.previous();
-							// 10 - Clear any old warnings.
-							getReporter().clearOldProblems(resourceCaller);
-							// 11 - Remove old contexts of this resource.
+							// 10 - Remove old contexts of this resource.
 							getCallGraph().removeChildContexts(resourceCaller);
+							// 11 - Add the resourceCaller to the list.
+							addedResourceCallers.add(resourceCaller);
 						}
 					}
 				} else {
@@ -254,6 +257,11 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 
 			// 03 - Add it to the list.
 			resourcesAndMethodsToProcess.put(resource, methodsToProcess);
+		}
+
+		// 11 - If any resourceCaller was inserted to be processed. We have to clear any old problems (if any).
+		if (null != getReporter()) {
+			getReporter().clearOldProblems(addedResourceCallers);
 		}
 
 		return resourcesAndMethodsToProcess;

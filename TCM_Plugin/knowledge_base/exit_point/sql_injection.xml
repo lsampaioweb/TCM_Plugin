@@ -103,4 +103,56 @@
 		<methodname>find</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
+	<exitpoint id="18">
+		<qualifiedname><![CDATA[(org|net.sf).hibernate.Session]]></qualifiedname>
+		<methodname>find</methodname>
+		<parameters type="java.lang.String" rules="1" />
+		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<exitpoint id="19">
+		<qualifiedname><![CDATA[(org|net.sf).hibernate.Session]]></qualifiedname>
+		<methodname>delete</methodname>
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<exitpoint id="20">
+		<qualifiedname><![CDATA[(org|net.sf).hibernate.Session]]></qualifiedname>
+		<methodname>delete</methodname>
+		<parameters type="java.lang.String" rules="1" />
+		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<exitpoint id="21">
+		<qualifiedname><![CDATA[(org|net.sf).hibernate.Session]]></qualifiedname>
+		<methodname>save</methodname>
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<exitpoint id="22">
+		<qualifiedname><![CDATA[(org|net.sf).hibernate.Session]]></qualifiedname>
+		<methodname>save</methodname>
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<exitpoint id="23">
+		<qualifiedname><![CDATA[(org|net.sf).hibernate.Session]]></qualifiedname>
+		<methodname>save</methodname>
+		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<exitpoint id="24">
+		<qualifiedname><![CDATA[(org|net.sf).hibernate.Session]]></qualifiedname>
+		<methodname>saveOrUpdate</methodname>
+		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<exitpoint id="25">
+		<qualifiedname><![CDATA[(org|net.sf).hibernate.Session]]></qualifiedname>
+		<methodname>update</methodname>
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<exitpoint id="26">
+		<qualifiedname><![CDATA[(org|net.sf).hibernate.Session]]></qualifiedname>
+		<methodname>update</methodname>
+		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
 </exitpoints>
