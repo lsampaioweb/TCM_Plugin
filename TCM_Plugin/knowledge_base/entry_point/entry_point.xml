@@ -64,179 +64,198 @@
 		<qualifiedname>javax.servlet.ServletRequest</qualifiedname>
 		<methodname>getLocalAddr</methodname>
 	</entrypoint>
-	<!-- javax.servlet.http.HttpServletRequest -->
 	<entrypoint id="16">
+		<qualifiedname>javax.servlet.ServletRequest</qualifiedname>
+		<methodname>getReader</methodname>
+	</entrypoint>
+	<!-- javax.servlet.http.HttpServletRequest -->
+	<entrypoint id="17">
 		<qualifiedname>javax.servlet.http.HttpServletRequest</qualifiedname>
 		<methodname>getAuthType</methodname>
 	</entrypoint>
-	<entrypoint id="17">
+	<entrypoint id="18">
 		<qualifiedname>javax.servlet.http.HttpServletRequest</qualifiedname>
 		<methodname>getHeader</methodname>
 		<parameters type="java.lang.String" />
 	</entrypoint>
-	<entrypoint id="18">
+	<entrypoint id="19">
 		<qualifiedname>javax.servlet.http.HttpServletRequest</qualifiedname>
 		<methodname>getHeaders</methodname>
 		<parameters type="java.lang.String" />
 	</entrypoint>
-	<entrypoint id="19">
+	<entrypoint id="20">
 		<qualifiedname>javax.servlet.http.HttpServletRequest</qualifiedname>
 		<methodname>getMethod</methodname>
 	</entrypoint>
-	<entrypoint id="20">
+	<entrypoint id="21">
 		<qualifiedname>javax.servlet.http.HttpServletRequest</qualifiedname>
 		<methodname>getPathInfo</methodname>
 	</entrypoint>
-	<entrypoint id="21">
+	<entrypoint id="22">
 		<qualifiedname>javax.servlet.http.HttpServletRequest</qualifiedname>
 		<methodname>getPathTranslated</methodname>
 	</entrypoint>
-	<entrypoint id="22">
+	<entrypoint id="23">
 		<qualifiedname>javax.servlet.http.HttpServletRequest</qualifiedname>
 		<methodname>getContextPath</methodname>
 	</entrypoint>
-	<entrypoint id="23">
+	<entrypoint id="24">
 		<qualifiedname>javax.servlet.http.HttpServletRequest</qualifiedname>
 		<methodname>getQueryString</methodname>
 	</entrypoint>
-	<entrypoint id="24">
+	<entrypoint id="25">
 		<qualifiedname>javax.servlet.http.HttpServletRequest</qualifiedname>
 		<methodname>getRemoteUser</methodname>
 	</entrypoint>
-	<entrypoint id="25">
+	<entrypoint id="26">
 		<qualifiedname>javax.servlet.http.HttpServletRequest</qualifiedname>
 		<methodname>getRequestedSessionId</methodname>
 	</entrypoint>
-	<entrypoint id="26">
+	<entrypoint id="27">
 		<qualifiedname>javax.servlet.http.HttpServletRequest</qualifiedname>
 		<methodname>getRequestURI</methodname>
 	</entrypoint>
-	<entrypoint id="27">
+	<entrypoint id="28">
 		<qualifiedname>javax.servlet.http.HttpServletRequest</qualifiedname>
 		<methodname>getRequestURL</methodname>
 	</entrypoint>
-	<entrypoint id="28">
+	<entrypoint id="29">
 		<qualifiedname>javax.servlet.http.HttpServletRequest</qualifiedname>
 		<methodname>getServletPath</methodname>
 	</entrypoint>
 	<!-- javax.servlet.http.Cookie -->
-	<entrypoint id="29">
+	<entrypoint id="30">
 		<qualifiedname>javax.servlet.http.Cookie</qualifiedname>
 		<methodname>getComment</methodname>
 	</entrypoint>
-	<entrypoint id="30">
+	<entrypoint id="31">
 		<qualifiedname>javax.servlet.http.Cookie</qualifiedname>
 		<methodname>getDomain</methodname>
 	</entrypoint>
-	<entrypoint id="31">
+	<entrypoint id="32">
 		<qualifiedname>javax.servlet.http.Cookie</qualifiedname>
 		<methodname>getPath</methodname>
 	</entrypoint>
-	<entrypoint id="32">
+	<entrypoint id="33">
 		<qualifiedname>javax.servlet.http.Cookie</qualifiedname>
 		<methodname>getName</methodname>
 	</entrypoint>
-	<entrypoint id="33">
+	<entrypoint id="34">
 		<qualifiedname>javax.servlet.http.Cookie</qualifiedname>
 		<methodname>getValue</methodname>
 	</entrypoint>
 	<!-- javax.servlet.ServletConfig -->
-	<entrypoint id="34">
+	<entrypoint id="35">
 		<qualifiedname>javax.servlet.ServletConfig</qualifiedname>
 		<methodname>getInitParameter</methodname>
 		<parameters type="java.lang.String" />
 	</entrypoint>
-	<entrypoint id="35">
+	<entrypoint id="36">
 		<qualifiedname>javax.servlet.ServletConfig</qualifiedname>
 		<methodname>getInitParameterNames</methodname>
 	</entrypoint>
 	<!-- java.sql.ResultSet -->
-	<entrypoint id="36">
+	<entrypoint id="37">
 		<qualifiedname>java.sql.ResultSet</qualifiedname>
 		<methodname>getString</methodname>
 		<parameters type="java.lang.String" />
 	</entrypoint>
-	<entrypoint id="37">
+	<entrypoint id="38">
 		<qualifiedname>java.sql.ResultSet</qualifiedname>
 		<methodname>getString</methodname>
 		<parameters type="java.lang.Integer" />
 	</entrypoint>
 	<!-- java.awt.TextComponent -->
-	<entrypoint id="38">
+	<entrypoint id="39">
 		<qualifiedname>java.awt.TextComponent</qualifiedname>
 		<methodname>getSelectedText</methodname>
 	</entrypoint>
-	<entrypoint id="39">
+	<entrypoint id="40">
 		<qualifiedname>java.awt.TextComponent</qualifiedname>
 		<methodname>getText</methodname>
 	</entrypoint>
 	<!-- java.io.Console -->
-	<entrypoint id="40">
+	<entrypoint id="41">
 		<qualifiedname>java.io.Console</qualifiedname>
 		<methodname>readLine</methodname>
 	</entrypoint>
-	<entrypoint id="41">
+	<entrypoint id="42">
 		<qualifiedname>java.io.Console</qualifiedname>
 		<methodname>readLine</methodname>
 		<parameters type="java.lang.String" />
 		<parameters type="java.lang.Object" />
 	</entrypoint>
-	<entrypoint id="42">
+	<entrypoint id="43">
 		<qualifiedname>java.io.Console</qualifiedname>
 		<methodname>readPassword</methodname>
 	</entrypoint>
 	<!-- java.io.DataInputStream -->
-	<entrypoint id="43">
+	<entrypoint id="44">
 		<qualifiedname>java.io.DataInputStream</qualifiedname>
 		<methodname>readLine</methodname>
 	</entrypoint>
-	<entrypoint id="44">
+	<entrypoint id="45">
 		<qualifiedname>java.io.DataInputStream</qualifiedname>
 		<methodname>readUTF</methodname>
 	</entrypoint>
-	<entrypoint id="45">
+	<entrypoint id="46">
 		<qualifiedname>java.io.DataInputStream</qualifiedname>
 		<methodname>readUTF</methodname>
 		<parameters type="java.io.DataInput" />
 	</entrypoint>
 	<!-- java.io.LineNumberReader -->
-	<entrypoint id="46">
+	<entrypoint id="47">
 		<qualifiedname>java.io.LineNumberReader</qualifiedname>
 		<methodname>readLine</methodname>
 	</entrypoint>
 	<!-- javax.servlet.http.HttpSession -->
-	<entrypoint id="47">
+	<entrypoint id="48">
 		<qualifiedname>javax.servlet.http.HttpSession</qualifiedname>
 		<methodname>getAttribute</methodname>
 		<parameters type="java.lang.String" />
 	</entrypoint>
-	<entrypoint id="48">
+	<entrypoint id="49">
 		<qualifiedname>javax.servlet.http.HttpSession</qualifiedname>
 		<methodname>getAttributeNames</methodname>
 	</entrypoint>
-	<entrypoint id="49">
+	<entrypoint id="50">
 		<qualifiedname>javax.servlet.http.HttpSession</qualifiedname>
 		<methodname>getValue</methodname>
 		<parameters type="java.lang.String" />
 	</entrypoint>
-	<entrypoint id="50">
+	<entrypoint id="51">
 		<qualifiedname>javax.servlet.http.HttpSession</qualifiedname>
 		<methodname>getValueNames</methodname>
 	</entrypoint>
 	<!-- java.lang.System -->
-	<entrypoint id="51">
-		<qualifiedname>java.lang.System</qualifiedname>
-		<methodname>getProperty</methodname>
-		<parameters type="java.lang.String" />
-	</entrypoint>
 	<entrypoint id="52">
 		<qualifiedname>java.lang.System</qualifiedname>
 		<methodname>getProperty</methodname>
 		<parameters type="java.lang.String" />
-		<parameters type="java.lang.String" />
 	</entrypoint>
 	<entrypoint id="53">
 		<qualifiedname>java.lang.System</qualifiedname>
+		<methodname>getProperty</methodname>
+		<parameters type="java.lang.String" />
+		<parameters type="java.lang.String" />
+	</entrypoint>
+	<entrypoint id="54">
+		<qualifiedname>java.lang.System</qualifiedname>
 		<methodname>getProperties</methodname>
+	</entrypoint>
+	<!-- javax.servlet.ServletContext -->
+	<entrypoint id="55">
+		<qualifiedname>javax.servlet.ServletContext</qualifiedname>
+		<methodname>getResourceAsStream</methodname>
+		<parameters type="java.lang.String" />
+	</entrypoint>
+	<entrypoint id="56">
+		<qualifiedname>javax.servlet.ServletContext</qualifiedname>
+		<methodname>getRealPath</methodname>
+		<parameters type="java.lang.String" />
+	</entrypoint>
+	<entrypoint id="57">
+		<qualifiedname>javax.servlet.ServletContext</qualifiedname>
+		<methodname>getHeaderNames</methodname>
 	</entrypoint>
 </entrypoints>
