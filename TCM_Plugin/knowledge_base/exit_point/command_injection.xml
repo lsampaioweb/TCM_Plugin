@@ -46,4 +46,23 @@
 		<methodname>loadLibrary</methodname>
 		<parameters type="java.lang.String" rules="1" />
 	</exitpoint>
+	<!-- org.apache.xmlrpc.XmlRpcClient -->
+	<exitpoint id="08">
+		<qualifiedname><![CDATA[org.apache.xmlrpc.XmlRpcClient]]></qualifiedname>
+		<methodname>XmlRpcClient</methodname>
+		<parameters type="java.lang.String" rules="1" />
+	</exitpoint>
+	<exitpoint id="09">
+		<qualifiedname><![CDATA[org.apache.xmlrpc.XmlRpcClient]]></qualifiedname>
+		<methodname>execute</methodname>
+		<parameters type="java.lang.String" rules="1" />
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<exitpoint id="10">
+		<qualifiedname><![CDATA[org.apache.xmlrpc.XmlRpcClient]]></qualifiedname>
+		<methodname>executeAsync</methodname>
+		<parameters type="java.lang.String" rules="1" />
+		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
 </exitpoints>

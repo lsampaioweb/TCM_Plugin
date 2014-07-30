@@ -87,4 +87,96 @@
 		<parameters type="java.lang.String" rules="1" />
 		<parameters type="java.lang.Object" rules="1" />
 	</exitpoint>
+	<!-- org.apache.commons.logging.Log -->
+	<exitpoint id="16">
+		<qualifiedname><![CDATA[org.apache.commons.logging.Log]]></qualifiedname>
+		<methodname>debug</methodname>
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<exitpoint id="17">
+		<qualifiedname><![CDATA[org.apache.commons.logging.Log]]></qualifiedname>
+		<methodname>debug</methodname>
+		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<exitpoint id="18">
+		<qualifiedname><![CDATA[org.apache.commons.logging.Log]]></qualifiedname>
+		<methodname>error</methodname>
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<exitpoint id="19">
+		<qualifiedname><![CDATA[org.apache.commons.logging.Log]]></qualifiedname>
+		<methodname>error</methodname>
+		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<exitpoint id="20">
+		<qualifiedname><![CDATA[org.apache.commons.logging.Log]]></qualifiedname>
+		<methodname>fatal</methodname>
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<exitpoint id="21">
+		<qualifiedname><![CDATA[org.apache.commons.logging.Log]]></qualifiedname>
+		<methodname>fatal</methodname>
+		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<exitpoint id="22">
+		<qualifiedname><![CDATA[org.apache.commons.logging.Log]]></qualifiedname>
+		<methodname>info</methodname>
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<exitpoint id="23">
+		<qualifiedname><![CDATA[org.apache.commons.logging.Log]]></qualifiedname>
+		<methodname>info</methodname>
+		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<exitpoint id="24">
+		<qualifiedname><![CDATA[org.apache.commons.logging.Log]]></qualifiedname>
+		<methodname>trace</methodname>
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<exitpoint id="25">
+		<qualifiedname><![CDATA[org.apache.commons.logging.Log]]></qualifiedname>
+		<methodname>trace</methodname>
+		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<exitpoint id="26">
+		<qualifiedname><![CDATA[org.apache.commons.logging.Log]]></qualifiedname>
+		<methodname>warn</methodname>
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<exitpoint id="27">
+		<qualifiedname><![CDATA[org.apache.commons.logging.Log]]></qualifiedname>
+		<methodname>warn</methodname>
+		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<!-- java.io.BufferedWriter -->
+	<exitpoint id="28">
+		<qualifiedname><![CDATA[java.io.BufferedWriter]]></qualifiedname>
+		<methodname>write</methodname>
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<exitpoint id="29">
+		<qualifiedname><![CDATA[java.io.BufferedWriter]]></qualifiedname>
+		<methodname>write</methodname>
+		<parameters type="java.lang.String" rules="1" />
+		<parameters type="java.lang.Object" rules="-1" />
+		<parameters type="java.lang.Object" rules="-1" />
+	</exitpoint>
+	<!-- javax.servlet.ServletContext -->
+	<exitpoint id="30">
+		<qualifiedname><![CDATA[javax.servlet.ServletContext]]></qualifiedname>
+		<methodname>log</methodname>
+		<parameters type="java.lang.String" rules="1" />
+	</exitpoint>
+	<exitpoint id="31">
+		<qualifiedname><![CDATA[javax.servlet.ServletContext]]></qualifiedname>
+		<methodname>log</methodname>
+		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
 </exitpoints>

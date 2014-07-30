@@ -258,4 +258,34 @@
 		<qualifiedname>javax.servlet.ServletContext</qualifiedname>
 		<methodname>getHeaderNames</methodname>
 	</entrypoint>
+	<!-- java.util.Properties -->
+	<entrypoint id="58">
+		<qualifiedname>java.util.Properties</qualifiedname>
+		<methodname>getProperty</methodname>
+		<parameters type="java.lang.String" />
+	</entrypoint>
+	<entrypoint id="59">
+		<qualifiedname>java.util.Properties</qualifiedname>
+		<methodname>getProperty</methodname>
+		<parameters type="java.lang.String" />
+		<parameters type="java.lang.String" />
+	</entrypoint>
+	<!-- java.lang.Class -->
+	<entrypoint id="60">
+		<qualifiedname>java.lang.Class</qualifiedname>
+		<methodname>getResource</methodname>
+		<parameters type="java.lang.String" />
+	</entrypoint>
+	<entrypoint id="61">
+		<qualifiedname>java.lang.Class</qualifiedname>
+		<methodname>getResourceAsStream</methodname>
+		<parameters type="java.lang.String" />
+	</entrypoint>
+	<!-- org.apache.xmlrpc.XmlRpcClient -->
+	<entrypoint id="62">
+		<qualifiedname>org.apache.xmlrpc.XmlRpcClient</qualifiedname>
+		<methodname>execute</methodname>
+		<parameters type="java.lang.String" />
+		<parameters type="java.lang.Object" />
+	</entrypoint>
 </entrypoints>

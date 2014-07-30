@@ -155,4 +155,17 @@
 		<parameters type="java.lang.Object" rules="1" />
 		<parameters type="java.lang.Object" rules="1" />
 	</exitpoint>
+	<exitpoint id="27">
+		<qualifiedname><![CDATA[(org|net.sf).hibernate.Session]]></qualifiedname>
+		<methodname>load</methodname>
+		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<exitpoint id="28">
+		<qualifiedname><![CDATA[(org|net.sf).hibernate.Session]]></qualifiedname>
+		<methodname>load</methodname>
+		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
 </exitpoints>

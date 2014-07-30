@@ -43,7 +43,6 @@ public class ViewSecurityVulnerabilities extends ViewPart {
 	public void showView() {
 		try {
 			Activator.getDefault().showView(Constant.VIEW_ID, null, IWorkbenchPage.VIEW_CREATE);
-			// Activator.getDefault().showView(Constant.VIEW_ID, null, IWorkbenchPage.VIEW_VISIBLE);
 		} catch (PartInitException e) {
 			PluginLogger.logError(e);
 		}
@@ -152,9 +151,6 @@ public class ViewSecurityVulnerabilities extends ViewPart {
 
 	private void fillContextMenu(IMenuManager manager) {
 		manager.add(copyToClipBoardHandler);
-
-		// Other plug-ins can contribute there actions here
-		// manager.add(new Separator(IWorkbenchActionConstants.MB_ADDITIONS));
 	}
 
 	private void gotoMarker(IMarker marker) {

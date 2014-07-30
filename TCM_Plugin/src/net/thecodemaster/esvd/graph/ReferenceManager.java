@@ -8,7 +8,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 
 public class ReferenceManager {
 
-	List<VariableReferenceElement>	references;
+	private final List<VariableReferenceElement>	references;
 
 	public ReferenceManager() {
 		references = Creator.newList();

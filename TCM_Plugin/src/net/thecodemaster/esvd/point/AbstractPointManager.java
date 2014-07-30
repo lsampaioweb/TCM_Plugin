@@ -99,7 +99,7 @@ public class AbstractPointManager {
 		return BindingResolver.getParameters(node);
 	}
 
-	protected boolean parametersHaveSameType(String parameter, ITypeBinding other) {
+	private boolean parametersHaveSameType(String parameter, ITypeBinding other) {
 		return BindingResolver.parametersHaveSameType(parameter, other);
 	}
 }

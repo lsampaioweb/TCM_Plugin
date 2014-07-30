@@ -49,7 +49,7 @@ public abstract class AbstractResolution implements IMarkerResolution2 {
 		return position;
 	}
 
-	protected String getStrPosition() {
+	private String getStrPosition() {
 		return String.format("%02d - ", getPosition());
 	}
 
