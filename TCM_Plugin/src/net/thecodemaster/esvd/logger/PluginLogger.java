@@ -2,6 +2,7 @@ package net.thecodemaster.esvd.logger;
 
 import net.thecodemaster.esvd.Activator;
 
+import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
@@ -39,6 +40,12 @@ public class PluginLogger {
 	}
 
 	private static void log(IStatus status) {
-		Activator.getDefault().getLog().log(status);
+		Activator activator = Activator.getDefault();
+		if (null != activator) {
+			ILog logger = activator.getLog();
+			if (null != logger) {
+				logger.log(status);
+			}
+		}
 	}
 }
