@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: tcm.early.vulnerability.detector;singleton:=true
-Bundle-Version: 0.2.9.qualifier
+Bundle-Version: 0.3.1.qualifier
 Bundle-Activator: net.thecodemaster.esvd.Activator
 Bundle-Vendor: %Bundle-Vendor
 Require-Bundle: org.eclipse.ui,
@@ -13,6 +13,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.ide,
  org.eclipse.ui.editors,
  org.eclipse.jface.text;bundle-version="3.8.101",
- org.junit
+ org.junit;resolution:=optional
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy

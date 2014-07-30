@@ -2,11 +2,11 @@
 <feature
       id="TCM_ESVD_Feature"
       label="Detector and Security View"
-      version="0.2.9.qualifier"
+      version="0.3.1.qualifier"
       provider-name="thecodemaster.net">
 
    <description>
-      Version: 0.2.9
+      Version: 0.3.1
 Supported vulnerabilities:
 01 - Command Injection
 02 - Cookie Poisoning
@@ -43,6 +43,10 @@ I would really appreciate your feedback on regards to ANYTHING. The images used,
 Thank you in advance,
 Luciano Sampaio
    </license>
+
+   <url>
+      <update label="Detector and Security View" url="http://www.inf.puc-rio.br/~lsampaio/plugin/early_vulnerability_detector/latest/"/>
+   </url>
 
    <plugin
          id="tcm.early.vulnerability.detector"
