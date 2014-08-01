@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<resolutions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="resolution_schema.xsd">
-	<resolution type="10">
+<resolutions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="resolution_schema.xsd">
+	<resolution type="20">
 		<label><![CDATA[Ignore this warning]]></label>
 		<description>
     <![CDATA[
@@ -9,7 +10,7 @@ It has the full path: <b>%s</b><br/><br/>
 If you think it is a false positive you can ignore it and this warning will no longer appear.]]>
 		</description>
 	</resolution>
-	<resolution type="20">
+	<resolution type="30">
 		<label><![CDATA[Sanitize this element]]></label>
 		<description><![CDATA[This element should be sanitized to avoid Cross-Site Scripting(XSS).<br/><br/>
     Sample of a vulnarable code:<br/>
@@ -23,11 +24,11 @@ If you think it is a false positive you can ignore it and this warning will no l
     System.out.println(parameter);    
     ]]></description>
 	</resolution>
-	<resolution type="30">
+	<resolution type="40">
 		<label><![CDATA[Remove hard-coded content]]></label>
 		<description><![CDATA[You should retrieve this content from a safe place and remove it from the source code.]]></description>
 	</resolution>
-	<resolution type="40">
+	<resolution type="50">
 		<label><![CDATA[Remove String Concatenation]]></label>
 		<description>
 		  <![CDATA[When you use String Concatenation to create your queries you give

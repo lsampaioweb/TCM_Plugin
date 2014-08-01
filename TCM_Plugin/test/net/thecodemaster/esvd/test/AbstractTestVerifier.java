@@ -12,11 +12,13 @@ import net.thecodemaster.esvd.verifier.security.VerifierCommandInjection;
 import net.thecodemaster.esvd.verifier.security.VerifierCookiePoisoning;
 import net.thecodemaster.esvd.verifier.security.VerifierCrossSiteScripting;
 import net.thecodemaster.esvd.verifier.security.VerifierHTTPResponseSplitting;
+import net.thecodemaster.esvd.verifier.security.VerifierLDAPInjection;
 import net.thecodemaster.esvd.verifier.security.VerifierLogForging;
 import net.thecodemaster.esvd.verifier.security.VerifierPathTraversal;
 import net.thecodemaster.esvd.verifier.security.VerifierReflectionInjection;
 import net.thecodemaster.esvd.verifier.security.VerifierSQLInjection;
 import net.thecodemaster.esvd.verifier.security.VerifierSecurityMisconfiguration;
+import net.thecodemaster.esvd.verifier.security.VerifierXPathInjection;
 import net.thecodemaster.esvd.visitor.VisitorCallGraph;
 import net.thecodemaster.esvd.visitor.VisitorPointsToAnalysis;
 
@@ -36,12 +38,12 @@ public abstract class AbstractTestVerifier {
 
 	protected List<List<DataFlow>>	allVulnerablePaths;
 
-	protected static final String		PROJECT							= "WebDemo";
-	protected static final String		PROJECT_TEST				= "01 - WebDemoTest";
+	protected static final String	PROJECT				= "WebDemo";
+	protected static final String	PROJECT_TEST		= "01 - WebDemoTest";
 
-	protected static final String		PACKAGE_BASE				= "src/base";
-	protected static final String		PACKAGE_OTHER_PACK	= "src/other/pack";
-	protected static final String		PACKAGE_SERVLET			= "src/servlet";
+	protected static final String	PACKAGE_BASE		= "src/base";
+	protected static final String	PACKAGE_OTHER_PACK	= "src/other/pack";
+	protected static final String	PACKAGE_SERVLET		= "src/servlet";
 
 	@Before
 	public void setUp() {
@@ -171,11 +173,13 @@ public abstract class AbstractTestVerifier {
 		verifiers.add(new VerifierCookiePoisoning());
 		verifiers.add(new VerifierCrossSiteScripting());
 		verifiers.add(new VerifierHTTPResponseSplitting());
+		verifiers.add(new VerifierLDAPInjection());
 		verifiers.add(new VerifierLogForging());
 		verifiers.add(new VerifierPathTraversal());
 		verifiers.add(new VerifierReflectionInjection());
 		verifiers.add(new VerifierSecurityMisconfiguration());
 		verifiers.add(new VerifierSQLInjection());
+		verifiers.add(new VerifierXPathInjection());
 
 		return verifiers;
 	}

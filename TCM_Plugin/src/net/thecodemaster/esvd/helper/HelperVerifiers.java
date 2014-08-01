@@ -19,6 +19,8 @@ public abstract class HelperVerifiers {
 				return Constant.File.FILE_EXIT_POINT_CROSS_SITE_SCRIPTING;
 			case Constant.VERIFIER_ID_HTTP_RESPONSE_SPLITTING:
 				return Constant.File.FILE_EXIT_POINT_HTTP_RESPONSE_SPLITTING;
+			case Constant.VERIFIER_ID_LDAP_INJECTION:
+				return Constant.File.FILE_EXIT_POINT_LDAP_INJECTION;
 			case Constant.VERIFIER_ID_LOG_FORGING:
 				return Constant.File.FILE_EXIT_POINT_LOG_FORGING;
 			case Constant.VERIFIER_ID_PATH_TRAVERSAL:
@@ -29,6 +31,8 @@ public abstract class HelperVerifiers {
 				return Constant.File.FILE_EXIT_POINT_SECURITY_MISCONFIGURATION;
 			case Constant.VERIFIER_ID_SQL_INJECTION:
 				return Constant.File.FILE_EXIT_POINT_SQL_INJECTION;
+			case Constant.VERIFIER_ID_XPATH_INJECTION:
+				return Constant.File.FILE_EXIT_POINT_XPATH_INJECTION;
 			default:
 				String errorMessage = String.format(Message.Error.FILE_PATH_ID_NOT_FOUND, fileId);
 				PluginLogger.logError(errorMessage, null);
@@ -47,6 +51,8 @@ public abstract class HelperVerifiers {
 				return Message.Plugin.VERIFIER_NAME_CROSS_SITE_SCRIPTING;
 			case Constant.VERIFIER_ID_HTTP_RESPONSE_SPLITTING:
 				return Message.Plugin.VERIFIER_NAME_HTTP_RESPONSE_SPLITTING;
+			case Constant.VERIFIER_ID_LDAP_INJECTION:
+				return Message.Plugin.VERIFIER_NAME_LDAP_INJECTION;
 			case Constant.VERIFIER_ID_LOG_FORGING:
 				return Message.Plugin.VERIFIER_NAME_LOG_FORGING;
 			case Constant.VERIFIER_ID_PATH_TRAVERSAL:
@@ -57,12 +63,12 @@ public abstract class HelperVerifiers {
 				return Message.Plugin.VERIFIER_NAME_SECURITY_MISCONFIGURATION;
 			case Constant.VERIFIER_ID_SQL_INJECTION:
 				return Message.Plugin.VERIFIER_NAME_SQL_INJECTION;
+			case Constant.VERIFIER_ID_XPATH_INJECTION:
+				return Message.Plugin.VERIFIER_NAME_XPATH_INJECTION;
 
 				// Sub-Vulnerabilities' types.
 			case Constant.Vulnerability.ENTRY_POINT:
 				return Message.VerifierSecurityVulnerability.ENTRY_POINT;
-			case Constant.Vulnerability.UNKNOWN:
-				return Message.VerifierSecurityVulnerability.UNKNOWN;
 			case Constant.Vulnerability.SECURITY_MISCONFIGURATION_HARD_CODED_CONTENT:
 				return Message.VerifierSecurityVulnerability.SECURITY_MISCONFIGURATION_HARD_CODED_CONTENT;
 			case Constant.Vulnerability.SQL_INJECTION_STRING_CONCATENATION:

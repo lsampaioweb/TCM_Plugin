@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<exitpoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="exit_point_schema.xsd">
+<exitpoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="exit_point_schema.xsd">
 	<!-- -1 Anything is valid. -->
 	<!-- 0 Only sanitized values are valid. -->
 	<!-- 1 LITERAL and sanitized values are valid. -->

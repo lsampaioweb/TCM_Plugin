@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<entrypoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="entry_point_schema.xsd">
+<entrypoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="entry_point_schema.xsd">
 	<!-- javax.servlet.ServletRequest -->
 	<entrypoint id="01">
 		<qualifiedname>javax.servlet.ServletRequest</qualifiedname>
@@ -286,6 +287,53 @@
 		<qualifiedname>org.apache.xmlrpc.XmlRpcClient</qualifiedname>
 		<methodname>execute</methodname>
 		<parameters type="java.lang.String" />
+		<parameters type="java.lang.Object" />
+	</entrypoint>
+	<!-- javax.naming.directory.InitialDirContext -->
+	<entrypoint id="63">
+		<qualifiedname>javax.naming.directory.InitialDirContext</qualifiedname>
+		<methodname>search</methodname>
+		<parameters type="java.lang.Object" />
+		<parameters type="java.lang.Object" />
+	</entrypoint>
+	<entrypoint id="64">
+		<qualifiedname>javax.naming.directory.InitialDirContext</qualifiedname>
+		<methodname>search</methodname>
+		<parameters type="java.lang.Object" />
+		<parameters type="java.lang.Object" />
+		<parameters type="java.lang.Object" />
+	</entrypoint>
+	<entrypoint id="65">
+		<qualifiedname>javax.naming.directory.InitialDirContext</qualifiedname>
+		<methodname>search</methodname>
+		<parameters type="java.lang.Object" />
+		<parameters type="java.lang.Object" />
+		<parameters type="java.lang.Object" />
+		<parameters type="java.lang.Object" />
+	</entrypoint>
+	<!-- javax.xml.xpath.XPath -->
+	<entrypoint id="66">
+		<qualifiedname>javax.xml.xpath.XPath</qualifiedname>
+		<methodname>evaluate</methodname>
+		<parameters type="java.lang.String" />
+		<parameters type="java.lang.Object" />
+	</entrypoint>
+	<entrypoint id="67">
+		<qualifiedname>javax.xml.xpath.XPath</qualifiedname>
+		<methodname>evaluate</methodname>
+		<parameters type="java.lang.String" />
+		<parameters type="java.lang.Object" />
+		<parameters type="java.lang.Object" />
+	</entrypoint>
+	<entrypoint id="68">
+		<qualifiedname>javax.xml.xpath.XPathExpression</qualifiedname>
+		<methodname>evaluate</methodname>
+		<parameters type="java.lang.Object" />
+	</entrypoint>
+	<entrypoint id="69">
+		<qualifiedname>javax.xml.xpath.XPathExpression</qualifiedname>
+		<methodname>evaluate</methodname>
+		<parameters type="java.lang.Object" />
 		<parameters type="java.lang.Object" />
 	</entrypoint>
 </entrypoints>
