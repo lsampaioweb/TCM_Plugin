@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<exitpoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="exit_point_schema.xsd">
+<exitpoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="exit_point_schema.xsd">
 	<!-- -1 Anything is valid. -->
 	<!-- 0 Only sanitized values are valid. -->
 	<!-- 1 LITERAL and sanitized values are valid. -->
@@ -175,6 +176,18 @@
 	</exitpoint>
 	<exitpoint id="31">
 		<qualifiedname><![CDATA[javax.servlet.ServletContext]]></qualifiedname>
+		<methodname>log</methodname>
+		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="1" />
+	</exitpoint>
+	<!-- javax.servlet.GenericServlet -->
+	<exitpoint id="32">
+		<qualifiedname><![CDATA[javax.servlet.GenericServlet]]></qualifiedname>
+		<methodname>log</methodname>
+		<parameters type="java.lang.String" rules="1" />
+	</exitpoint>
+	<exitpoint id="33">
+		<qualifiedname><![CDATA[javax.servlet.GenericServlet]]></qualifiedname>
 		<methodname>log</methodname>
 		<parameters type="java.lang.Object" rules="1" />
 		<parameters type="java.lang.Object" rules="1" />
