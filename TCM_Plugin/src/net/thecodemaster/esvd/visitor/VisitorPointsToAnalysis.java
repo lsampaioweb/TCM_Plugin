@@ -94,6 +94,8 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 			reportVulnerability(allVulnerablePaths);
 		}
 
+		PluginLogger.logIfDebugging(String.format("01.2 - Found vulnerabilities: %d", allVulnerablePaths.size()));
+
 		return allVulnerablePaths;
 	}
 

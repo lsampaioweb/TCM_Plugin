@@ -33,11 +33,11 @@ public abstract class Verifier extends CodeAnalyzer {
 	/**
 	 * The id of the current verifier.
 	 */
-	private final int				id;
+	private final int		id;
 	/**
 	 * The name of the current verifier.
 	 */
-	private final String		name;
+	private final String	name;
 	/**
 	 * List with all the ExitPoints of this verifier.
 	 */
@@ -45,15 +45,15 @@ public abstract class Verifier extends CodeAnalyzer {
 	/**
 	 * The rules that the current parameter must obey.
 	 */
-	private List<Integer>		rules;
+	private List<Integer>	rules;
 
 	/**
 	 * @param name
-	 *          The name of the verifier.
+	 *            The name of the verifier.
 	 * @param id
-	 *          The id of the verifier.
+	 *            The id of the verifier.
 	 * @param listEntryPoints
-	 *          List with all the EntryPoints methods.
+	 *            List with all the EntryPoints methods.
 	 */
 	public Verifier(int id, String name) {
 		this.id = id;
@@ -161,8 +161,8 @@ public abstract class Verifier extends CodeAnalyzer {
 	}
 
 	/**
-	 * An exit point might have more that one parameter and each of these parameter might have different rules (acceptable
-	 * values). That is why we need to check.
+	 * An exit point might have more that one parameter and each of these parameter might have different rules
+	 * (acceptable values). That is why we need to check.
 	 * 
 	 * @param rules
 	 * @param node
