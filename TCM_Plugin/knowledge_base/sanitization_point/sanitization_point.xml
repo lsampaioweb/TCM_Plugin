@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<sanitizers xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="sanitization_point_schema.xsd">
+<sanitizers xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="sanitization_point_schema.xsd">
 	<!-- org.owasp.encoder.Encode -->
 	<sanitizer id="01">
 		<qualifiedname>org.owasp.encoder.Encode</qualifiedname>
@@ -169,6 +170,16 @@
 	<sanitizer id="33">
 		<qualifiedname>org.apache.commons.lang.StringEscapeUtils</qualifiedname>
 		<methodname>unescapeCsv</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="34">
+		<qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
+		<methodname>encodeForHTML</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="35">
+		<qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
+		<methodname>encodeForHTMLAttribute</methodname>
 		<parameters type="java.lang.String" />
 	</sanitizer>
 </sanitizers>
