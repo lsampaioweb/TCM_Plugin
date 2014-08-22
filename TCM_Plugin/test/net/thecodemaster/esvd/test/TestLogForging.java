@@ -10,13 +10,13 @@ import org.eclipse.core.resources.IResource;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ReflectionInjection extends AbstractTestVerifier {
+public class TestLogForging extends AbstractTestVerifier {
 
 	@Override
 	protected List<IResource> getResources() {
 		Map<String, List<String>> resourceNames = Creator.newMap();
 
-		resourceNames.put(AbstractTestVerifier.PACKAGE_SERVLET, newList("ReflectionInjection.java"));
+		resourceNames.put(AbstractTestVerifier.PACKAGE_SERVLET, newList("LogForging.java"));
 
 		return getResources(resourceNames);
 	}

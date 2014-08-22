@@ -1,7 +1,10 @@
 package net.thecodemaster.esvd.helper;
 
+import java.util.List;
+
 import net.thecodemaster.esvd.constant.Constant;
 import net.thecodemaster.esvd.logger.PluginLogger;
+import net.thecodemaster.esvd.ui.enumeration.EnumRules;
 import net.thecodemaster.esvd.ui.l10n.Message;
 
 /**
@@ -79,5 +82,17 @@ public abstract class HelperVerifiers {
 				PluginLogger.logError(errorMessage, null);
 				return null;
 		}
+	}
+
+	public static List<EnumRules> getRulesFromValue(int rules) {
+		List<EnumRules> list = Creator.newList();
+
+		for (EnumRules currentRule : EnumRules.values()) {
+			if ((rules & currentRule.value()) == currentRule.value()) {
+				list.add(currentRule);
+			}
+		}
+
+		return list;
 	}
 }

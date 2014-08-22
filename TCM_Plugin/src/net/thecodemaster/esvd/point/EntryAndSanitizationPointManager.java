@@ -17,9 +17,9 @@ public class EntryAndSanitizationPointManager extends AbstractPointManager {
 	// package.send(a);
 	// package.send(a, b);
 	// package2.save();
-	private final Map<String, Map<String, List<Map<Parameter, List<Integer>>>>>	dataPoints;
+	private final Map<String, Map<String, List<Map<Parameter, Integer>>>>	dataPoints;
 
-	private Map<String, Map<String, List<Map<Parameter, List<Integer>>>>> getDataPoints() {
+	private Map<String, Map<String, List<Map<Parameter, Integer>>>> getDataPoints() {
 		return dataPoints;
 	}
 
@@ -27,8 +27,8 @@ public class EntryAndSanitizationPointManager extends AbstractPointManager {
 		dataPoints = Creator.newMap();
 	}
 
-	public void add(String methodName, String packageName, Map<Parameter, List<Integer>> params) {
-		Map<String, List<Map<Parameter, List<Integer>>>> packages = getDataPoints().get(methodName);
+	public void add(String methodName, String packageName, Map<Parameter, Integer> params) {
+		Map<String, List<Map<Parameter, Integer>>> packages = getDataPoints().get(methodName);
 
 		// 01 - Add the method.
 		if (null == packages) {
@@ -37,7 +37,7 @@ public class EntryAndSanitizationPointManager extends AbstractPointManager {
 			getDataPoints().put(methodName, packages);
 		}
 
-		List<Map<Parameter, List<Integer>>> parameters = packages.get(packageName);
+		List<Map<Parameter, Integer>> parameters = packages.get(packageName);
 
 		// 02 - Add the package.
 		if (null == parameters) {
@@ -52,7 +52,7 @@ public class EntryAndSanitizationPointManager extends AbstractPointManager {
 
 	protected boolean hasMethod(Expression method) {
 		// 01 - Try to find if this method is in the list of points.
-		List<Map<Parameter, List<Integer>>> listExpectedParameters = getExpectedParameters(getDataPoints(), method);
+		List<Map<Parameter, Integer>> listExpectedParameters = getExpectedParameters(getDataPoints(), method);
 
 		if (null == listExpectedParameters) {
 			return false;

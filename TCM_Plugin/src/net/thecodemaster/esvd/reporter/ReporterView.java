@@ -18,6 +18,7 @@ import net.thecodemaster.esvd.ui.view.ViewSecurityVulnerabilities;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.swt.widgets.Display;
@@ -134,6 +135,9 @@ public class ReporterView implements IReporter {
 
 		// 02 - Update the view so the new data can appear and the old ones can be removed.
 		updateView();
+
+		// 03 - Just for debugging.
+		PluginLogger.logIfDebugging(String.format("01.2 - Found vulnerabilities: %d", rootVdm.getChildren().size()));
 	}
 
 	private ViewSecurityVulnerabilities createView() {
@@ -173,60 +177,111 @@ public class ReporterView implements IReporter {
 	}
 
 	private void addToViewDataModel(IResource resource, List<DataFlow> dataFlows) {
+		// 01 - Iterate over all data flows found.
 		for (DataFlow dataFlow : dataFlows) {
-			ViewDataModel parent = null;
-			ViewDataModel currentVdm;
 
+			// 02 - Get all vulnerable paths.
 			List<List<DataFlow>> allVulnerablePaths = dataFlow.getAllVulnerablePaths();
 
 			for (List<DataFlow> vulnerablePaths : allVulnerablePaths) {
-				// The first element is where the vulnerability was exploited.
-				DataFlow firstElement = dataFlow;
+				// 03 - Get the first element is where the vulnerability was exploited.
+				DataFlow exitPointElement = dataFlow;
 
-				// The last element is where the vulnerability entered into the application.
-				DataFlow lastElement = vulnerablePaths.get(vulnerablePaths.size() - 1);
+				// 04 - Get the last element is where the vulnerability entered into the application.
+				DataFlow entryPointElement = vulnerablePaths.get(vulnerablePaths.size() - 1);
 
-				// The path that lead to the vulnerability.
+				// 05 - Get the path that lead to the vulnerability.
 				String fullPath = getFullPath(vulnerablePaths);
 
-				if ((null == parent) && (!firstElement.equals(lastElement))) {
-					String message = getMessageByNumberOfVulnerablePaths(allVulnerablePaths, firstElement);
-
-					parent = createViewDataModelElement(resource, firstElement.getTypeProblem(), firstElement.getRoot(), message,
-							null);
-					if (null != parent) {
-						rootVdm.addChildren(parent);
-					}
-				}
-
-				currentVdm = createViewDataModelElement(resource, lastElement.getTypeProblem(), lastElement.getRoot(),
-						lastElement.getMessage(), fullPath);
-				if (null != currentVdm) {
-					if (null != parent) {
-						parent.addChildren(currentVdm);
-					} else {
-						rootVdm.addChildren(currentVdm);
-					}
-				}
+				// 06 - Add the elements into the security view.
+				addElementsToView(resource, exitPointElement, entryPointElement, fullPath);
 			}
 		}
 
 	}
 
-	private String getMessageByNumberOfVulnerablePaths(List<List<DataFlow>> allVulnerablePaths, DataFlow firstElement) {
-		return HelperViewDataModel.getMessageByNumberOfVulnerablePaths(firstElement.getRoot().toString(),
-				allVulnerablePaths.size());
+	private void addElementsToView(IResource resource, DataFlow exitPointElement, DataFlow entryPointElement,
+			String fullPath) {
+		try {
+			// ** Add the exitPointElement to the view.
+
+			// 01 - If there is a marker for this element, it means it is already into the view.
+			IMarker exitPointMarker = getMarkerFromElement(exitPointElement.getRoot());
+
+			// 02 - Get the ViewDataModel of this marker.
+			List<ViewDataModel> vdms = getViewDataModels(exitPointMarker);
+
+			String message = null;
+			ViewDataModel parent = null;
+			ViewDataModel currentVdm = null;
+
+			// 04 - If the size of the list is 0, it means it is the first occurrence.
+			if (vdms.size() == 0) {
+				if (!exitPointElement.equals(entryPointElement)) {
+					// 04.1 - Get the message that will be displayed on the marker.
+					message = getMessageByNumberOfVulnerablePaths(exitPointElement, 1);
+
+					// 04.2 - Create the element that will be add into the view.
+					parent = createViewDataModelElement(resource, exitPointElement, message, null);
+
+					// 04.3 - Add the element into the view.
+					if (null != parent) {
+						rootVdm.addChildren(parent);
+					}
+				}
+			} else {
+				// 04.1 - Get the parent (first) element from the list.
+				parent = vdms.get(0);
+
+				// 04.2 - Get the message that will be displayed on the marker.
+				message = getMessageByNumberOfVulnerablePaths(exitPointElement, parent.getChildren().size() + 1);
+
+				// 04.3 - Update the number of vulnerable paths.
+				exitPointMarker.setAttribute(IMarker.MESSAGE, message);
+				parent.setMessage(message);
+			}
+
+			// ** Add the entryPointElement to the view.
+			currentVdm = createViewDataModelElement(resource, entryPointElement, entryPointElement.getMessage(), fullPath);
+
+			if (null != currentVdm) {
+				if (null != parent) {
+					parent.addChildren(currentVdm);
+				} else {
+					rootVdm.addChildren(currentVdm);
+				}
+			}
+		} catch (CoreException e) {
+			PluginLogger.logError(e);
+		}
 	}
 
-	private ViewDataModel createViewDataModelElement(IResource resource, int typeProblem, Expression expr,
-			String message, String fullPath) {
+	private IMarker getMarkerFromElement(Expression expression) throws JavaModelException {
+		// 01 - Get the Compilation Unit of this expression.
+		CompilationUnit cUnit = BindingResolver.getCompilationUnit(expression);
+
+		if (null != cUnit) {
+			IResource resource = cUnit.getJavaElement().getCorrespondingResource();
+
+			return MarkerManager.hasVulnerableMarkerAtPosition(cUnit, resource, expression);
+		}
+
+		return null;
+	}
+
+	private String getMessageByNumberOfVulnerablePaths(DataFlow firstElement, int nrOfChildren) {
+		return HelperViewDataModel.getMessageByNumberOfVulnerablePaths(firstElement.getRoot().toString(), nrOfChildren);
+	}
+
+	private ViewDataModel createViewDataModelElement(IResource resource, DataFlow dataFlowElement, String message,
+			String fullPath) {
 		try {
-			int startPosition = expr.getStartPosition();
-			int endPosition = startPosition + expr.getLength();
+			int startPosition = dataFlowElement.getRoot().getStartPosition();
+			int endPosition = startPosition + dataFlowElement.getRoot().getLength();
 			int lineNumber = 0;
 
 			// Get the Compilation Unit of this resource.
-			CompilationUnit cUnit = BindingResolver.getCompilationUnit(expr);
+			CompilationUnit cUnit = BindingResolver.getCompilationUnit(dataFlowElement.getRoot());
 			if (null != cUnit) {
 				lineNumber = cUnit.getLineNumber(startPosition);
 				resource = cUnit.getJavaElement().getCorrespondingResource();
@@ -236,11 +291,11 @@ public class ReporterView implements IReporter {
 			// If the element already has one, we have to add the VulnerabilityType to it and return the same marker.
 			// If the element DOES NOT have one, we create one for it.
 
-			IMarker marker = MarkerManager.hasVulnerableMarkerAtPosition(cUnit, resource, expr);
+			IMarker marker = MarkerManager.hasVulnerableMarkerAtPosition(cUnit, resource, dataFlowElement.getRoot());
 			if (null == marker) {
 				Map<String, Object> markerAttributes = Creator.newMap();
 				markerAttributes.put(IMarker.SEVERITY, IMarker.SEVERITY_WARNING);
-				markerAttributes.put(Constant.Marker.TYPE_SECURITY_VULNERABILITY, typeProblem);
+				markerAttributes.put(Constant.Marker.TYPE_SECURITY_VULNERABILITY, dataFlowElement.getTypeProblem());
 				markerAttributes.put(IMarker.MESSAGE, message);
 				markerAttributes.put(IMarker.LINE_NUMBER, lineNumber);
 				markerAttributes.put(IMarker.CHAR_START, startPosition);
@@ -251,8 +306,8 @@ public class ReporterView implements IReporter {
 
 			ViewDataModel vdm = new ViewDataModel();
 			vdm.setMarker(marker);
-			vdm.setExpr(expr);
-			vdm.setTypeVulnerability(typeProblem);
+			vdm.setExpr(dataFlowElement.getRoot());
+			vdm.setTypeVulnerability(dataFlowElement.getTypeProblem());
 			vdm.setMessage(message);
 			vdm.setLineNumber(lineNumber);
 			vdm.setResource(resource);

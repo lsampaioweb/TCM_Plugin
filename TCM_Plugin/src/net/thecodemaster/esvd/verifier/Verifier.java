@@ -2,7 +2,6 @@ package net.thecodemaster.esvd.verifier;
 
 import java.util.List;
 
-import net.thecodemaster.esvd.constant.Constant;
 import net.thecodemaster.esvd.context.Context;
 import net.thecodemaster.esvd.graph.BindingResolver;
 import net.thecodemaster.esvd.graph.CallGraph;
@@ -11,7 +10,9 @@ import net.thecodemaster.esvd.graph.VariableBinding;
 import net.thecodemaster.esvd.graph.flow.DataFlow;
 import net.thecodemaster.esvd.graph.flow.Flow;
 import net.thecodemaster.esvd.helper.HelperCodeAnalyzer;
+import net.thecodemaster.esvd.helper.HelperVerifiers;
 import net.thecodemaster.esvd.point.ExitPoint;
+import net.thecodemaster.esvd.ui.enumeration.EnumRules;
 import net.thecodemaster.esvd.xmlloader.LoaderExitPoint;
 
 import org.eclipse.core.resources.IResource;
@@ -19,6 +20,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 
@@ -33,11 +35,11 @@ public abstract class Verifier extends CodeAnalyzer {
 	/**
 	 * The id of the current verifier.
 	 */
-	private final int		id;
+	private final int				id;
 	/**
 	 * The name of the current verifier.
 	 */
-	private final String	name;
+	private final String		name;
 	/**
 	 * List with all the ExitPoints of this verifier.
 	 */
@@ -45,15 +47,15 @@ public abstract class Verifier extends CodeAnalyzer {
 	/**
 	 * The rules that the current parameter must obey.
 	 */
-	private List<Integer>	rules;
+	private int							rules;
 
 	/**
 	 * @param name
-	 *            The name of the verifier.
+	 *          The name of the verifier.
 	 * @param id
-	 *            The id of the verifier.
+	 *          The id of the verifier.
 	 * @param listEntryPoints
-	 *            List with all the EntryPoints methods.
+	 *          List with all the EntryPoints methods.
 	 */
 	public Verifier(int id, String name) {
 		this.id = id;
@@ -68,11 +70,11 @@ public abstract class Verifier extends CodeAnalyzer {
 		return name;
 	}
 
-	protected List<Integer> getRules() {
+	protected int getRules() {
 		return rules;
 	}
 
-	private void setRules(List<Integer> rules) {
+	private void setRules(int rules) {
 		this.rules = rules;
 	}
 
@@ -86,7 +88,7 @@ public abstract class Verifier extends CodeAnalyzer {
 	}
 
 	public void run(CallGraph callGraph, IResource resource, CompilationUnit compilationUnit, Flow loopControl,
-			Context context, DataFlow dataFlow, Expression expression, List<Integer> rules) {
+			Context context, DataFlow dataFlow, Expression expression, int rules) {
 		if (requiredExtraInspection(dataFlow)) {
 			setCallGraph(callGraph);
 			setCurrentResource(resource);
@@ -161,24 +163,28 @@ public abstract class Verifier extends CodeAnalyzer {
 	}
 
 	/**
-	 * An exit point might have more that one parameter and each of these parameter might have different rules
-	 * (acceptable values). That is why we need to check.
+	 * An exit point might have more that one parameter and each of these parameter might have different rules (acceptable
+	 * values). That is why we need to check.
 	 * 
 	 * @param rules
 	 * @param node
 	 * @return
 	 */
-	protected boolean matchRules(List<Integer> rules, ASTNode node) {
-		if ((null == rules) || (null == node)) {
+	protected boolean matchRules(int rules, ASTNode node) {
+		if ((EnumRules.ANYTHING_IS_VALID.value() == rules) || (null == node)) {
 			// There is nothing we can do to verify it.
 			return true;
 		}
 
-		// -1 Anything is valid.
-		// 0 Only sanitized values are valid.
-		// 1 LITERAL and sanitized values are valid.
-		for (Integer astNodeValue : rules) {
-			if (astNodeValue == Constant.LITERAL) {
+		// ANYTHING_IS_VALID(1),
+		// SANITIZED(2),
+		// LITERAL(4),
+		// STRING_CONCATENATION(8);
+		List<EnumRules> listRules = HelperVerifiers.getRulesFromValue(rules);
+
+		for (EnumRules currentRule : listRules) {
+
+			if (EnumRules.LITERAL == currentRule) {
 				switch (node.getNodeType()) {
 					case ASTNode.STRING_LITERAL:
 					case ASTNode.CHARACTER_LITERAL:
@@ -186,8 +192,31 @@ public abstract class Verifier extends CodeAnalyzer {
 					case ASTNode.NULL_LITERAL:
 						return true;
 				}
-			} else if (astNodeValue == node.getNodeType()) {
-				return true;
+			} else if (EnumRules.STRING_CONCATENATION == currentRule) {
+				// Queries should not be concatenated, but "a" + "b" + "c" is not
+				// a security vulnerability.
+				// TODO - It is not fully implemented.
+				if (ASTNode.INFIX_EXPRESSION == node.getNodeType()) {
+					InfixExpression expression = (InfixExpression) node;
+
+					Expression leftOperand = expression.getLeftOperand();
+					Expression rightOperand = expression.getRightOperand();
+					List<Expression> extendedOperands = BindingResolver.getParameters(expression);
+
+					if (ASTNode.STRING_LITERAL == leftOperand.getNodeType()) {
+						if (ASTNode.STRING_LITERAL == rightOperand.getNodeType()) {
+							if (extendedOperands.size() > 0) {
+								for (Expression extendedOperand : extendedOperands) {
+									if (ASTNode.STRING_LITERAL != extendedOperand.getNodeType()) {
+										return false;
+									}
+								}
+							}
+							return true;
+						}
+					}
+				}
+
 			}
 		}
 

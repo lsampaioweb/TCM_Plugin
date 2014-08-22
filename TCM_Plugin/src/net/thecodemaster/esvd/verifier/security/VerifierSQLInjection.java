@@ -5,6 +5,7 @@ import net.thecodemaster.esvd.context.Context;
 import net.thecodemaster.esvd.graph.VariableBinding;
 import net.thecodemaster.esvd.graph.flow.DataFlow;
 import net.thecodemaster.esvd.graph.flow.Flow;
+import net.thecodemaster.esvd.ui.enumeration.EnumRules;
 import net.thecodemaster.esvd.ui.enumeration.EnumVariableStatus;
 import net.thecodemaster.esvd.ui.l10n.Message;
 import net.thecodemaster.esvd.verifier.Verifier;
@@ -73,7 +74,7 @@ public class VerifierSQLInjection extends Verifier {
 	@Override
 	protected void inspectSimpleName(Flow loopControl, Context context, DataFlow dataFlow, SimpleName expression,
 			VariableBinding variableBinding) {
-		if ((null != getRules())
+		if ((EnumRules.ANYTHING_IS_VALID.value() != getRules())
 				&& ((null != variableBinding) && (variableBinding.getStatus().equals(EnumVariableStatus.NOT_VULNERABLE)))) {
 
 			// The SQL Injection verifier also needs to know if the variable has its content from a string concatenation.

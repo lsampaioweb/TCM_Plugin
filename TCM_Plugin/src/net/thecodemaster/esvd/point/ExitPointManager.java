@@ -30,7 +30,7 @@ public class ExitPointManager extends AbstractPointManager {
 				if (methodsHaveSameNameAndPackage(currentExitPoint, method)) {
 
 					// 06 - Get the expected arguments of this method.
-					Map<Parameter, List<Integer>> expectedParameters = currentExitPoint.getParameters();
+					Map<Parameter, Integer> expectedParameters = currentExitPoint.getParameters();
 
 					// 07 - Verify if they have the same parameters.
 					if (haveSameParameters(expectedParameters, receivedParameters)) {

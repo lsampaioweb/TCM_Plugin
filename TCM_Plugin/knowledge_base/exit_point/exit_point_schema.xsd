@@ -24,7 +24,7 @@
 	<xs:attribute name="rules">
 		<xs:simpleType>
 			<xs:restriction base="xs:string">
-				<xs:pattern value="([-]{0,1}[0-9;]+)" />
+				<xs:pattern value="([-]{0,1}[0-9]+)" />
 			</xs:restriction>
 		</xs:simpleType>
 	</xs:attribute>

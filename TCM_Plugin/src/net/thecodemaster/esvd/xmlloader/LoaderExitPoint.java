@@ -64,7 +64,7 @@ public class LoaderExitPoint extends LoaderXML {
 					String methodName = getTagValueFromElement(element, Constant.XMLLoader.TAG_METHOD_NAME);
 					ExitPoint exitPoint = new ExitPoint(verifier, qualifiedName, methodName);
 
-					Map<Parameter, List<Integer>> params = Creator.newMap();
+					Map<Parameter, Integer> params = Creator.newMap();
 
 					// It gets the list of element by the type of "exitpoints".
 					NodeList nodeListParameters = element.getElementsByTagName(Constant.XMLLoader.TAG_PARAMETERS);
@@ -78,7 +78,7 @@ public class LoaderExitPoint extends LoaderXML {
 							String type = getAttributeValueFromElement(elementParameter, Constant.XMLLoader.TAG_PARAMETERS_TYPE);
 							String rules = getAttributeValueFromElement(elementParameter, Constant.XMLLoader.TAG_PARAMETERS_RULES);
 
-							params.put(new Parameter(type), getListFromRules(rules));
+							params.put(new Parameter(type), getRules(rules));
 						}
 					}
 					exitPoint.setParameters(params);
@@ -94,34 +94,18 @@ public class LoaderExitPoint extends LoaderXML {
 		return exitPoints;
 	}
 
-	private List<Integer> getListFromRules(String rules) {
-		List<Integer> listRules = null;
-
+	private Integer getRules(String rules) {
 		if (null != rules) {
-			String[] elements = rules.split(Constant.SEPARATOR_RESOURCES_TYPE);
-
 			try {
-				for (String element : elements) {
-					int intValue = Integer.valueOf(element);
+				return Integer.valueOf(rules);
 
-					if (intValue == -1) {
-						return null; // Anything is valid.
-					} else if (intValue == 0) {
-						return Creator.newList(); // Only sanitized values are valid.
-					} else {
-						if (null == listRules) {
-							listRules = Creator.newList();
-						}
-						listRules.add(intValue); // These are the accepted values.
-					}
-				}
 			} catch (NumberFormatException e) {
 				PluginLogger.logError(e);
 			}
 
 		}
 
-		return listRules;
+		return -1;
 	}
 
 }

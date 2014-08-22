@@ -1,42 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<exitpoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="exit_point_schema.xsd">
-	<!-- -1 Anything is valid. -->
-	<!-- 0 Only sanitized values are valid. -->
-	<!-- 1 LITERAL and sanitized values are valid. -->
-	<!-- X1;X2;... These are the accepted values. -->
+<exitpoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="exit_point_schema.xsd">
+	<!-- ANYTHING_IS_VALID(1), SANITIZED(2), LITERAL(4), STRING_CONCATENATION(8); -->
+
 	<!-- java.lang.Class -->
 	<exitpoint id="01">
 		<qualifiedname><![CDATA[java.lang.Class]]></qualifiedname>
 		<methodname>forName</methodname>
-		<parameters type="java.lang.String" rules="1" />
+		<parameters type="java.lang.String" rules="6" />
 	</exitpoint>
 	<exitpoint id="02">
 		<qualifiedname><![CDATA[java.lang.Class]]></qualifiedname>
 		<methodname>forName</methodname>
-		<parameters type="java.lang.String" rules="1" />
-		<parameters type="java.lang.Object" rules="1" />
-		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.String" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
 	</exitpoint>
 	<exitpoint id="03">
 		<qualifiedname><![CDATA[java.lang.Class(<[A-Za-z0-9_]*>)?]]></qualifiedname>
 		<methodname>getField</methodname>
-		<parameters type="java.lang.String" rules="1" />
+		<parameters type="java.lang.String" rules="6" />
 	</exitpoint>
 	<exitpoint id="04">
 		<qualifiedname><![CDATA[java.lang.Class(<[A-Za-z0-9_]*>)?]]></qualifiedname>
 		<methodname>getMethod</methodname>
-		<parameters type="java.lang.String" rules="1" />
-		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.String" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
 	</exitpoint>
 	<exitpoint id="05">
 		<qualifiedname><![CDATA[java.lang.Class(<[A-Za-z0-9_]*>)?]]></qualifiedname>
 		<methodname>getDeclaredField</methodname>
-		<parameters type="java.lang.String" rules="1" />
+		<parameters type="java.lang.String" rules="6" />
 	</exitpoint>
 	<exitpoint id="06">
 		<qualifiedname><![CDATA[java.lang.Class(<[A-Za-z0-9_]*>)?]]></qualifiedname>
 		<methodname>getDeclaredMethod</methodname>
-		<parameters type="java.lang.String" rules="1" />
-		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.String" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
 	</exitpoint>
 </exitpoints>

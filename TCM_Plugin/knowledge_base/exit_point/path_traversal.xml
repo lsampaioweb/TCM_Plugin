@@ -1,79 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<exitpoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="exit_point_schema.xsd">
-	<!-- -1 Anything is valid. -->
-	<!-- 0 Only sanitized values are valid. -->
-	<!-- 1 LITERAL and sanitized values are valid. -->
-	<!-- X1;X2;... These are the accepted values. -->
+<exitpoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="exit_point_schema.xsd">
+	<!-- ANYTHING_IS_VALID(1), SANITIZED(2), LITERAL(4), STRING_CONCATENATION(8); -->
+
 	<!-- java.io -->
 	<exitpoint id="01">
 		<qualifiedname><![CDATA[java.io.File]]></qualifiedname>
 		<methodname>File</methodname>
-		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="6" />
 	</exitpoint>
 	<exitpoint id="02">
 		<qualifiedname><![CDATA[java.io.File]]></qualifiedname>
 		<methodname>File</methodname>
-		<parameters type="java.lang.Object" rules="1" />
-		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
 	</exitpoint>
 	<exitpoint id="03">
 		<qualifiedname><![CDATA[java.io.RandomAccessFile]]></qualifiedname>
 		<methodname>RandomAccessFile</methodname>
-		<parameters type="java.lang.Object" rules="1" />
-		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
 	</exitpoint>
 	<exitpoint id="04">
 		<qualifiedname><![CDATA[java.io.FileReader]]></qualifiedname>
 		<methodname>FileReader</methodname>
-		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="6" />
 	</exitpoint>
 	<exitpoint id="05">
 		<qualifiedname><![CDATA[java.io.FileInputStream]]></qualifiedname>
 		<methodname>FileInputStream</methodname>
-		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="6" />
 	</exitpoint>
 	<exitpoint id="06">
 		<qualifiedname><![CDATA[java.io.FileWriter]]></qualifiedname>
 		<methodname>FileWriter</methodname>
-		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="6" />
 	</exitpoint>
 	<exitpoint id="07">
 		<qualifiedname><![CDATA[java.io.FileWriter]]></qualifiedname>
 		<methodname>FileWriter</methodname>
-		<parameters type="java.lang.Object" rules="1" />
-		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
 	</exitpoint>
 	<exitpoint id="08">
 		<qualifiedname><![CDATA[java.io.FileOutputStream]]></qualifiedname>
 		<methodname>FileOutputStream</methodname>
-		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="6" />
 	</exitpoint>
 	<exitpoint id="09">
 		<qualifiedname><![CDATA[java.io.FileOutputStream]]></qualifiedname>
 		<methodname>FileOutputStream</methodname>
-		<parameters type="java.lang.Object" rules="1" />
-		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
 	</exitpoint>
 	<!-- java.lang.Class -->
 	<exitpoint id="10">
 		<qualifiedname><![CDATA[java.lang.Class]]></qualifiedname>
 		<methodname>getResource</methodname>
-		<parameters type="java.lang.String" rules="1" />
+		<parameters type="java.lang.String" rules="6" />
 	</exitpoint>
 	<exitpoint id="11">
 		<qualifiedname><![CDATA[java.lang.Class]]></qualifiedname>
 		<methodname>getResourceAsStream</methodname>
-		<parameters type="java.lang.String" rules="1" />
+		<parameters type="java.lang.String" rules="6" />
 	</exitpoint>
 	<!-- javax.mail.internet.InternetAddress -->
 	<exitpoint id="12">
 		<qualifiedname><![CDATA[javax.mail.internet.InternetAddress]]></qualifiedname>
 		<methodname>InternetAddress</methodname>
-		<parameters type="java.lang.String" rules="1" />
+		<parameters type="java.lang.String" rules="6" />
 	</exitpoint>
 	<exitpoint id="13">
 		<qualifiedname><![CDATA[javax.mail.internet.InternetAddress]]></qualifiedname>
 		<methodname>parse</methodname>
-		<parameters type="java.lang.String" rules="1" />
+		<parameters type="java.lang.String" rules="6" />
 	</exitpoint>
 </exitpoints>
