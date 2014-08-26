@@ -13,15 +13,15 @@ If you think it is a false positive you can ignore it and this warning will no l
 	<resolution type="30">
 		<label><![CDATA[Sanitize this element]]></label>
 		<description><![CDATA[This element should be sanitized to avoid Cross-Site Scripting(XSS).<br/><br/>
-    Sample of a vulnarable code:<br/>
+    Sample of a vulnerable code:<br/>
     String parameter = <b>%s</b>;<br/>
-    System.out.println(parameter);<br/><br/>
+    response.getWriter().print(parameter);<br/><br/>
     
     Possible Solution:<br/>
     import org.owasp.encoder.Encode;<br/>
     ...<br/>
     String parameter = <b>Encode.forHtmlAttribute(%s)</b>;<br/>
-    System.out.println(parameter);    
+    response.getWriter().print(parameter);    
     ]]></description>
 	</resolution>
 	<resolution type="40">
