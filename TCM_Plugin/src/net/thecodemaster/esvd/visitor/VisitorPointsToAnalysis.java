@@ -278,6 +278,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
 						// 08 - If the data flow has a vulnerable path, we set the verifier who found it.
 						if (newDataFlow.hasVulnerablePath()) {
+							newDataFlow.setPriority(verifier.getPriority());
 							newDataFlow.setTypeProblem(verifier.getId());
 							newDataFlow.setFullPath(loopControl);
 							allVulnerablePaths.add(newDataFlow);

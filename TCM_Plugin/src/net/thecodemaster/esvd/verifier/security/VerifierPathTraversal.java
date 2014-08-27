@@ -10,7 +10,8 @@ import net.thecodemaster.esvd.verifier.Verifier;
 public class VerifierPathTraversal extends Verifier {
 
 	public VerifierPathTraversal() {
-		super(Constant.VERIFIER_ID_PATH_TRAVERSAL, Message.Plugin.VERIFIER_NAME_PATH_TRAVERSAL);
+		super(Constant.VERIFIER_ID_PATH_TRAVERSAL, Message.Plugin.VERIFIER_NAME_PATH_TRAVERSAL,
+				Constant.VERIFIER_PRIORITY_PATH_TRAVERSAL);
 	}
 
 }

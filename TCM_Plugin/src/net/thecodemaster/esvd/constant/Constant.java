@@ -9,34 +9,50 @@ import net.thecodemaster.esvd.Activator;
  */
 public abstract class Constant {
 
-	public static final boolean	IS_DEBUGGING													= true;
-	public static final String	JDT_NATURE														= "org.eclipse.jdt.core.javanature";
-	public static final String	NATURE_ID															= Activator.PLUGIN_ID + ".TCM_ESVD_NATURE";
-	public static final String	BUILDER_ID														= Activator.PLUGIN_ID + ".TCM_ESVD_BUILDER";
-	public static final String	VIEW_ID																= Activator.PLUGIN_ID + ".TCM_ESVD_VIEW";
-	public static final String	MARKER_ID															= Activator.PLUGIN_ID + ".TCM_ESVD_MARKER";
-	public static final String	MARKER_ID_INVISIBLE										= Activator.PLUGIN_ID
-																																				+ ".TCM_ESVD_MARKER_INVISIBLE";
+	public static final boolean	IS_DEBUGGING																= true;
+	public static final String	JDT_NATURE																	= "org.eclipse.jdt.core.javanature";
+	public static final String	NATURE_ID																		= Activator.PLUGIN_ID + ".TCM_ESVD_NATURE";
+	public static final String	BUILDER_ID																	= Activator.PLUGIN_ID + ".TCM_ESVD_BUILDER";
+	public static final String	VIEW_ID																			= Activator.PLUGIN_ID + ".TCM_ESVD_VIEW";
+	public static final String	MARKER_ID																		= Activator.PLUGIN_ID + ".TCM_ESVD_MARKER";
+	public static final String	MARKER_ID_INVISIBLE													= Activator.PLUGIN_ID
+																																							+ ".TCM_ESVD_MARKER_INVISIBLE";
 
-	public static final String	SEPARATOR_RESOURCES_TYPE							= ";";
-	public static final String	SEPARATOR_FULL_PATH										= " - ";
-	public static final String	RESOURCE_TYPE_TO_PERFORM_DETECTION		= "java";
+	public static final String	SEPARATOR_RESOURCES_TYPE										= ";";
+	public static final String	SEPARATOR_FULL_PATH													= " - ";
+	public static final String	RESOURCE_TYPE_TO_PERFORM_DETECTION					= "java";
+	public static final String	OBJECT																			= "java.lang.Object";
 
-	public static final int			VERIFIER_ID_COMMAND_INJECTION					= 1;
-	public static final int			VERIFIER_ID_COOKIE_POISONING					= 2;
-	public static final int			VERIFIER_ID_CROSS_SITE_SCRIPTING			= 3;
-	public static final int			VERIFIER_ID_HTTP_RESPONSE_SPLITTING		= 4;
-	public static final int			VERIFIER_ID_LDAP_INJECTION						= 5;
-	public static final int			VERIFIER_ID_LOG_FORGING								= 6;
-	public static final int			VERIFIER_ID_PATH_TRAVERSAL						= 7;
-	public static final int			VERIFIER_ID_REFLECTION_INJECTION			= 8;
-	public static final int			VERIFIER_ID_SECURITY_MISCONFIGURATION	= 9;
-	public static final int			VERIFIER_ID_SQL_INJECTION							= 10;
-	public static final int			VERIFIER_ID_XPATH_INJECTION						= 11;
+	public static final int			VERIFIER_ID_COMMAND_INJECTION								= 1;
+	public static final int			VERIFIER_ID_COOKIE_POISONING								= 2;
+	public static final int			VERIFIER_ID_CROSS_SITE_SCRIPTING						= 3;
+	public static final int			VERIFIER_ID_HTTP_RESPONSE_SPLITTING					= 4;
+	public static final int			VERIFIER_ID_LDAP_INJECTION									= 5;
+	public static final int			VERIFIER_ID_LOG_FORGING											= 6;
+	public static final int			VERIFIER_ID_PATH_TRAVERSAL									= 7;
+	public static final int			VERIFIER_ID_REFLECTION_INJECTION						= 8;
+	public static final int			VERIFIER_ID_SECURITY_MISCONFIGURATION				= 9;
+	public static final int			VERIFIER_ID_SQL_INJECTION										= 10;
+	public static final int			VERIFIER_ID_XPATH_INJECTION									= 11;
 
-	public static final int			RESOLUTION_ID_IGNORE_WARNING					= 20;
+	public static final int			RESOLUTION_ID_IGNORE_WARNING								= 20;
 
-	public static final String	OBJECT																= "java.lang.Object";
+	// Used for raking.
+	// High (1 - 50) / Medium (51 - 100) / Low (101 - 150)
+	public static final int			VERIFIER_PRIORITY_CROSS_SITE_SCRIPTING			= 1;
+	public static final int			VERIFIER_PRIORITY_SQL_INJECTION							= 2;
+	public static final int			VERIFIER_PRIORITY_PATH_TRAVERSAL						= 3;
+
+	public static final int			VERIFIER_PRIORITY_REFLECTION_INJECTION			= 4;
+	public static final int			VERIFIER_PRIORITY_COMMAND_INJECTION					= 5;
+	public static final int			VERIFIER_PRIORITY_XPATH_INJECTION						= 6;
+	public static final int			VERIFIER_PRIORITY_LDAP_INJECTION						= 7;
+
+	public static final int			VERIFIER_PRIORITY_COOKIE_POISONING					= 8;
+	public static final int			VERIFIER_PRIORITY_HTTP_RESPONSE_SPLITTING		= 9;
+
+	public static final int			VERIFIER_PRIORITY_SECURITY_MISCONFIGURATION	= 51;
+	public static final int			VERIFIER_PRIORITY_LOG_FORGING								= 52;
 
 	public abstract class Package {
 		public static final String	UI						= "net.thecodemaster.esvd.ui";

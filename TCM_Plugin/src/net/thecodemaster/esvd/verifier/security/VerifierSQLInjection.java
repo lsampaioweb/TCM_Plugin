@@ -21,7 +21,8 @@ import org.eclipse.jdt.core.dom.SimpleName;
 public class VerifierSQLInjection extends Verifier {
 
 	public VerifierSQLInjection() {
-		super(Constant.VERIFIER_ID_SQL_INJECTION, Message.Plugin.VERIFIER_NAME_SQL_INJECTION);
+		super(Constant.VERIFIER_ID_SQL_INJECTION, Message.Plugin.VERIFIER_NAME_SQL_INJECTION,
+				Constant.VERIFIER_PRIORITY_SQL_INJECTION);
 	}
 
 	@Override

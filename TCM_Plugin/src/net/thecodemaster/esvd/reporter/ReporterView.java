@@ -307,6 +307,7 @@ public class ReporterView implements IReporter {
 			ViewDataModel vdm = new ViewDataModel();
 			vdm.setMarker(marker);
 			vdm.setExpr(dataFlowElement.getRoot());
+			vdm.setPriority(dataFlowElement.getPriority());
 			vdm.setTypeVulnerability(dataFlowElement.getTypeProblem());
 			vdm.setMessage(message);
 			vdm.setLineNumber(lineNumber);

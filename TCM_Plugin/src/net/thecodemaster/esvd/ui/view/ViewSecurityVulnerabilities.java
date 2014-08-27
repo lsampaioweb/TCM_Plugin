@@ -75,9 +75,9 @@ public class ViewSecurityVulnerabilities extends ViewPart {
 	 * Creates columns for the table
 	 */
 	private void createColumns(Tree tree, ViewSorter sorter) {
-		String[] titles = { Message.View.DESCRIPTION, Message.View.LINE, Message.View.VULNERABILITY, Message.View.RESOURCE,
-				Message.View.PATH };
-		int[] bounds = { 500, 40, 150, 190, 550 };
+		String[] titles = { Message.View.DESCRIPTION, Message.View.PRIORITY, Message.View.LINE, Message.View.VULNERABILITY,
+				Message.View.RESOURCE, Message.View.PATH };
+		int[] bounds = { 500, 60, 40, 150, 190, 550 };
 
 		for (int i = 0; i < titles.length; i++) {
 			TreeColumn column = new TreeColumn(tree, SWT.NONE);

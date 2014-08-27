@@ -10,7 +10,8 @@ import net.thecodemaster.esvd.verifier.Verifier;
 public class VerifierHTTPResponseSplitting extends Verifier {
 
 	public VerifierHTTPResponseSplitting() {
-		super(Constant.VERIFIER_ID_HTTP_RESPONSE_SPLITTING, Message.Plugin.VERIFIER_NAME_HTTP_RESPONSE_SPLITTING);
+		super(Constant.VERIFIER_ID_HTTP_RESPONSE_SPLITTING, Message.Plugin.VERIFIER_NAME_HTTP_RESPONSE_SPLITTING,
+				Constant.VERIFIER_PRIORITY_HTTP_RESPONSE_SPLITTING);
 	}
 
 }

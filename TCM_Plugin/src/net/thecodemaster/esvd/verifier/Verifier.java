@@ -41,6 +41,10 @@ public abstract class Verifier extends CodeAnalyzer {
 	 */
 	private final String		name;
 	/**
+	 * The priority of the current verifier.
+	 */
+	private final int				priority;
+	/**
 	 * List with all the ExitPoints of this verifier.
 	 */
 	private List<ExitPoint>	exitPoints;
@@ -57,9 +61,10 @@ public abstract class Verifier extends CodeAnalyzer {
 	 * @param listEntryPoints
 	 *          List with all the EntryPoints methods.
 	 */
-	public Verifier(int id, String name) {
+	public Verifier(int id, String name, int priority) {
 		this.id = id;
 		this.name = name;
+		this.priority = priority;
 	}
 
 	public int getId() {
@@ -68,6 +73,10 @@ public abstract class Verifier extends CodeAnalyzer {
 
 	public String getName() {
 		return name;
+	}
+
+	public int getPriority() {
+		return priority;
 	}
 
 	protected int getRules() {

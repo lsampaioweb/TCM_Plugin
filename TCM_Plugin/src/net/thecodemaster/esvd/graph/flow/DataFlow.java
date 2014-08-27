@@ -24,6 +24,10 @@ public class DataFlow {
 	 */
 	private DataFlow										parent;
 	/**
+	 * The priority of the vulnerability.
+	 */
+	private int													priority;
+	/**
 	 * The type of the vulnerability.
 	 */
 	private int													typeProblem;
@@ -58,6 +62,14 @@ public class DataFlow {
 
 	public DataFlow getParent() {
 		return parent;
+	}
+
+	public int getPriority() {
+		return priority;
+	}
+
+	public void setPriority(int priority) {
+		this.priority = priority;
 	}
 
 	public int getTypeProblem() {

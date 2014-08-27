@@ -10,7 +10,8 @@ import net.thecodemaster.esvd.verifier.Verifier;
 public class VerifierCookiePoisoning extends Verifier {
 
 	public VerifierCookiePoisoning() {
-		super(Constant.VERIFIER_ID_COOKIE_POISONING, Message.Plugin.VERIFIER_NAME_COOKIE_POISONING);
+		super(Constant.VERIFIER_ID_COOKIE_POISONING, Message.Plugin.VERIFIER_NAME_COOKIE_POISONING,
+				Constant.VERIFIER_PRIORITY_COOKIE_POISONING);
 	}
 
 }

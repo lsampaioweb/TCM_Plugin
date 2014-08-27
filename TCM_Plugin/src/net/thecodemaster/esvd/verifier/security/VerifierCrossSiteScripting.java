@@ -10,7 +10,8 @@ import net.thecodemaster.esvd.verifier.Verifier;
 public class VerifierCrossSiteScripting extends Verifier {
 
 	public VerifierCrossSiteScripting() {
-		super(Constant.VERIFIER_ID_CROSS_SITE_SCRIPTING, Message.Plugin.VERIFIER_NAME_CROSS_SITE_SCRIPTING);
+		super(Constant.VERIFIER_ID_CROSS_SITE_SCRIPTING, Message.Plugin.VERIFIER_NAME_CROSS_SITE_SCRIPTING,
+				Constant.VERIFIER_PRIORITY_CROSS_SITE_SCRIPTING);
 	}
 
 }

@@ -35,6 +35,7 @@ class ViewSorter extends ViewerSorter {
 		sorters = Creator.newList();
 
 		setSorterOrder(Message.View.RESOURCE);
+		setSorterOrder(Message.View.PRIORITY);
 		setSorterOrder(Message.View.LINE);
 		setSorterOrder(Message.View.VULNERABILITY);
 		setSorterOrder(Message.View.DESCRIPTION);
@@ -65,6 +66,14 @@ class ViewSorter extends ViewerSorter {
 	}
 
 	private Comparator<ViewDataModel> getComparator(String text) {
+		if (text.equals(Message.View.PRIORITY)) {
+			return new Comparator<ViewDataModel>() {
+				@Override
+				public int compare(ViewDataModel i1, ViewDataModel i2) {
+					return i1.getPriority() - i2.getPriority();
+				}
+			};
+		}
 		if (text.equals(Message.View.DESCRIPTION)) {
 			return new Comparator<ViewDataModel>() {
 				@Override

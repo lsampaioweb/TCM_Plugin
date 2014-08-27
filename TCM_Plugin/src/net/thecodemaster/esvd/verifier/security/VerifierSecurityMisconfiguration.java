@@ -26,7 +26,8 @@ import org.eclipse.jdt.core.dom.StringLiteral;
 public class VerifierSecurityMisconfiguration extends Verifier {
 
 	public VerifierSecurityMisconfiguration() {
-		super(Constant.VERIFIER_ID_SECURITY_MISCONFIGURATION, Message.Plugin.VERIFIER_NAME_SECURITY_MISCONFIGURATION);
+		super(Constant.VERIFIER_ID_SECURITY_MISCONFIGURATION, Message.Plugin.VERIFIER_NAME_SECURITY_MISCONFIGURATION,
+				Constant.VERIFIER_PRIORITY_SECURITY_MISCONFIGURATION);
 	}
 
 	@Override

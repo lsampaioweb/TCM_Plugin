@@ -10,7 +10,8 @@ import net.thecodemaster.esvd.verifier.Verifier;
 public class VerifierLDAPInjection extends Verifier {
 
 	public VerifierLDAPInjection() {
-		super(Constant.VERIFIER_ID_LDAP_INJECTION, Message.Plugin.VERIFIER_NAME_LDAP_INJECTION);
+		super(Constant.VERIFIER_ID_LDAP_INJECTION, Message.Plugin.VERIFIER_NAME_LDAP_INJECTION,
+				Constant.VERIFIER_PRIORITY_LDAP_INJECTION);
 	}
 
 }

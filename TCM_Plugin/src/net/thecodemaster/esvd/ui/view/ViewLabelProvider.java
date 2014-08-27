@@ -10,6 +10,10 @@ import org.eclipse.swt.graphics.Image;
 
 class ViewLabelProvider implements ITableLabelProvider {
 
+	private String getPriority(int priority) {
+		return HelperVerifiers.getPriority(priority);
+	}
+
 	private String getTypeVulnerabilityName(int typeVulnerability) {
 		return HelperVerifiers.getTypeVulnerabilityName(typeVulnerability);
 	}
@@ -45,12 +49,14 @@ class ViewLabelProvider implements ITableLabelProvider {
 			case 0:
 				return vdm.getMessage();
 			case 1:
-				return String.format("%d", vdm.getLineNumber());
+				return getPriority(vdm.getPriority());
 			case 2:
-				return getTypeVulnerabilityName(vdm.getTypeVulnerability());
+				return String.format("%d", vdm.getLineNumber());
 			case 3:
-				return vdm.getResource().getName();
+				return getTypeVulnerabilityName(vdm.getTypeVulnerability());
 			case 4:
+				return vdm.getResource().getName();
+			case 5:
 				return vdm.getFullPath();
 			default:
 				return null;

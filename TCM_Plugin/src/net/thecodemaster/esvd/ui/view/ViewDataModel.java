@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.dom.Expression;
  */
 public class ViewDataModel {
 
+	private int												priority;
 	private int												typeVulnerability;
 	private IResource									resource;
 	private Expression								expr;
@@ -36,6 +37,14 @@ public class ViewDataModel {
 
 	public ViewDataModel() {
 		children = Creator.newList();
+	}
+
+	public int getPriority() {
+		return priority;
+	}
+
+	public void setPriority(int priority) {
+		this.priority = priority;
 	}
 
 	public int getTypeVulnerability() {
@@ -126,6 +135,7 @@ public class ViewDataModel {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result *= prime + getPriority();
 		result *= prime + getTypeVulnerability();
 		result *= prime + getLineNumber();
 		result *= prime + getMessage().hashCode();
@@ -150,6 +160,9 @@ public class ViewDataModel {
 		}
 
 		ViewDataModel other = (ViewDataModel) obj;
+		if (getPriority() != other.getPriority()) {
+			return false;
+		}
 		if (getTypeVulnerability() != other.getTypeVulnerability()) {
 			return false;
 		}
