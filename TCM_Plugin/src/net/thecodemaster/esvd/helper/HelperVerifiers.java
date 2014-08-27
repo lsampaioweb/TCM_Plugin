@@ -45,12 +45,8 @@ public abstract class HelperVerifiers {
 
 	public static String getPriority(int priority) {
 		// High (1 - 50) / Medium (51 - 100) / Low (101 - 150)
-		if ((priority >= 1) && (priority <= 50)) {
-			return Message.View.PRIORITY_HIGH;
-		} else if ((priority >= 51) && (priority <= 100)) {
-			return Message.View.PRIORITY_MEDIUM;
-		} else if ((priority >= 101) && (priority <= 150)) {
-			return Message.View.PRIORITY_LOW;
+		if ((priority >= 1) && (priority <= 11)) {
+			return String.format("%d", priority);
 		}
 
 		return "";

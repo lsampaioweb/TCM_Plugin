@@ -37,22 +37,21 @@ public abstract class Constant {
 
 	public static final int			RESOLUTION_ID_IGNORE_WARNING								= 20;
 
-	// Used for raking.
-	// High (1 - 50) / Medium (51 - 100) / Low (101 - 150)
+	// Used for ranking.
 	public static final int			VERIFIER_PRIORITY_CROSS_SITE_SCRIPTING			= 1;
 	public static final int			VERIFIER_PRIORITY_SQL_INJECTION							= 2;
 	public static final int			VERIFIER_PRIORITY_PATH_TRAVERSAL						= 3;
 
-	public static final int			VERIFIER_PRIORITY_REFLECTION_INJECTION			= 4;
-	public static final int			VERIFIER_PRIORITY_COMMAND_INJECTION					= 5;
+	public static final int			VERIFIER_PRIORITY_COMMAND_INJECTION					= 4;
+	public static final int			VERIFIER_PRIORITY_REFLECTION_INJECTION			= 5;
 	public static final int			VERIFIER_PRIORITY_XPATH_INJECTION						= 6;
 	public static final int			VERIFIER_PRIORITY_LDAP_INJECTION						= 7;
 
 	public static final int			VERIFIER_PRIORITY_COOKIE_POISONING					= 8;
 	public static final int			VERIFIER_PRIORITY_HTTP_RESPONSE_SPLITTING		= 9;
 
-	public static final int			VERIFIER_PRIORITY_SECURITY_MISCONFIGURATION	= 51;
-	public static final int			VERIFIER_PRIORITY_LOG_FORGING								= 52;
+	public static final int			VERIFIER_PRIORITY_SECURITY_MISCONFIGURATION	= 10;
+	public static final int			VERIFIER_PRIORITY_LOG_FORGING								= 11;
 
 	public abstract class Package {
 		public static final String	UI						= "net.thecodemaster.esvd.ui";
