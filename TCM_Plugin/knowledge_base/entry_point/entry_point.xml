@@ -365,4 +365,10 @@
 		<parameters type="java.lang.Object" />
 		<parameters type="java.lang.Object" />
 	</entrypoint>
+	<!-- org.dom4j.io.SAXReader -->
+	<entrypoint id="48">
+		<qualifiedname>org.dom4j.io.SAXReader</qualifiedname>
+		<methodname>read</methodname>
+		<parameters type="java.lang.Object" />
+	</entrypoint>
 </entrypoints>
