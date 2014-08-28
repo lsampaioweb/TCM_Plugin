@@ -26,7 +26,7 @@ public class TestTypesOfCode extends AbstractTestVerifier {
 		Assert.assertEquals(1, allVulnerablePaths.size());
 
 		List<DataFlow> vulnerablePaths01 = allVulnerablePaths.get(0);
-		Assert.assertEquals(5, vulnerablePaths01.size());
+		Assert.assertEquals(8, vulnerablePaths01.size());
 	}
 
 }
