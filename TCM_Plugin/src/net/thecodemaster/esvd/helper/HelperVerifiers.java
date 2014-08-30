@@ -85,6 +85,8 @@ public abstract class HelperVerifiers {
 				return Message.VerifierSecurityVulnerability.SECURITY_MISCONFIGURATION_HARD_CODED_CONTENT;
 			case Constant.Vulnerability.SQL_INJECTION_STRING_CONCATENATION:
 				return Message.VerifierSecurityVulnerability.SQL_INJECTION_STRING_CONCATENATION;
+			case Constant.Vulnerability.INFORMATION_LEAKAGE:
+				return Message.VerifierSecurityVulnerability.INFORMATION_LEAKAGE;
 
 			default:
 				String errorMessage = String.format(Message.Error.TYPE_VULNERABILITY_NOT_FOUND, typeVulnerability);

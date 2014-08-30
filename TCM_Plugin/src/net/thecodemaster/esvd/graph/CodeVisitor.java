@@ -4,14 +4,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import net.thecodemaster.esvd.constant.Constant;
 import net.thecodemaster.esvd.context.Context;
 import net.thecodemaster.esvd.finder.InstanceFinder;
 import net.thecodemaster.esvd.finder.ReferenceFinder;
 import net.thecodemaster.esvd.graph.flow.DataFlow;
 import net.thecodemaster.esvd.graph.flow.Flow;
 import net.thecodemaster.esvd.helper.Creator;
+import net.thecodemaster.esvd.helper.HelperCodeAnalyzer;
 import net.thecodemaster.esvd.logger.PluginLogger;
 import net.thecodemaster.esvd.ui.enumeration.EnumTypeDeclaration;
+import net.thecodemaster.esvd.ui.l10n.Message;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -53,6 +56,7 @@ import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
@@ -591,11 +595,32 @@ public abstract class CodeVisitor {
 		inspectNode(loopControl, context, dataFlow.addNodeToPath(null), statement.getBody());
 
 		List<?> listCatches = statement.catchClauses();
-		for (Object catchClause : listCatches) {
-			inspectNode(loopControl, context, dataFlow.addNodeToPath(null), ((CatchClause) catchClause).getBody());
+		for (Object objCatchClause : listCatches) {
+			// 01 - Type cast to be able to use the right methods.
+			CatchClause catchClause = (CatchClause) objCatchClause;
+
+			// 02 - The exception variable declaration of this catch clause.
+			SingleVariableDeclaration variable = catchClause.getException();
+
+			// 03 - Add the variable of the catch statement to the current context.
+			SimpleName name = variable.getName();
+			VariableBinding variableBinding = getCallGraph().addVariable(context, name, variable.getInitializer());
+
+			// 04 - Make it vulnerable, so if the developer uses it to print to send it back to the browser,
+			// the verifier will catch it.
+			DataFlow newDataFlow = new DataFlow(name);
+			newDataFlow.hasVulnerablePath(Constant.Vulnerability.INFORMATION_LEAKAGE, getInformationLeakageMessage(name));
+			HelperCodeAnalyzer.updateVariableBinding(variableBinding, newDataFlow);
+
+			// 05 - Inspect the body of the catch clause.
+			inspectNode(loopControl, context, dataFlow.addNodeToPath(null), catchClause.getBody());
 		}
 
 		inspectNode(loopControl, context, dataFlow.addNodeToPath(null), statement.getFinally());
+	}
+
+	private String getInformationLeakageMessage(SimpleName name) {
+		return String.format(Message.VerifierSecurityVulnerability.INFORMATION_LEAKAGE_MESSAGE, name.getIdentifier());
 	}
 
 	/**

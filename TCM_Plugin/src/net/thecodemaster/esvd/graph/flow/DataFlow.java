@@ -143,20 +143,22 @@ public class DataFlow {
 	}
 
 	public void replace(DataFlow dataFlow) {
-		typeProblem = dataFlow.typeProblem;
-		message = dataFlow.message;
-		children = dataFlow.children;
+		if (null != dataFlow) {
+			typeProblem = dataFlow.typeProblem;
+			message = dataFlow.message;
+			children = dataFlow.children;
 
-		if (!dataFlow.allVulnerablePaths.isEmpty()) {
+			if (!dataFlow.allVulnerablePaths.isEmpty()) {
 
-			List<List<DataFlow>> copyVulnerablePaths = Creator.newList(dataFlow.allVulnerablePaths);
+				List<List<DataFlow>> copyVulnerablePaths = Creator.newList(dataFlow.allVulnerablePaths);
 
-			// Inform the parent that this path is vulnerable.
-			for (Iterator<List<DataFlow>> iterator = copyVulnerablePaths.iterator(); iterator.hasNext();) {
-				List<DataFlow> copyList = Creator.newList(iterator.next());
-				// This element will be re-added on the currentList.add(this);
-				copyList.remove(0);
-				hasVulnerablePath(copyList);
+				// Inform the parent that this path is vulnerable.
+				for (Iterator<List<DataFlow>> iterator = copyVulnerablePaths.iterator(); iterator.hasNext();) {
+					List<DataFlow> copyList = Creator.newList(iterator.next());
+					// This element will be re-added on the currentList.add(this);
+					copyList.remove(0);
+					hasVulnerablePath(copyList);
+				}
 			}
 		}
 	}

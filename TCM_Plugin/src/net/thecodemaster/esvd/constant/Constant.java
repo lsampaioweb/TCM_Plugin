@@ -150,14 +150,17 @@ public abstract class Constant {
 	}
 
 	public abstract class Vulnerability {
-		// To avoid collision with the id from the Verifiers. 20 - 29
+		// To avoid collision with the id from the Verifiers. 30 - 39
 		public static final int	ENTRY_POINT																		= 30;
 
-		// Security Misconfiguration 30 - 39
+		// Security Misconfiguration 40 - 49
 		public static final int	SECURITY_MISCONFIGURATION_HARD_CODED_CONTENT	= 40;
 
-		// SQL Injection 40 - 49
+		// SQL Injection 50 - 59
 		public static final int	SQL_INJECTION_STRING_CONCATENATION						= 50;
+
+		// SQL Injection 60 - 69
+		public static final int	INFORMATION_LEAKAGE														= 60;
 	}
 
 }
