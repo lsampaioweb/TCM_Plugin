@@ -206,7 +206,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
 			String message = getMessageEntryPoint(BindingResolver.getFullName(methodInvocation));
 
-			// We found a invocation to a entry point method.
+			// We found an invocation to a entry point method.
 			newDataFlow.hasVulnerablePath(Constant.Vulnerability.ENTRY_POINT, message);
 			return;
 		}

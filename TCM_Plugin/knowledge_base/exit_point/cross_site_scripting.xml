@@ -137,4 +137,11 @@
 		<parameters type="java.lang.String" rules="6" />
 		<parameters type="java.lang.Object" rules="6" />
 	</exitpoint>
+	<!-- javax.servlet.ServletContext -->
+	<exitpoint id="24">
+		<qualifiedname><![CDATA[javax.servlet.ServletContext]]></qualifiedname>
+		<methodname>setAttribute</methodname>
+		<parameters type="java.lang.String" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+	</exitpoint>
 </exitpoints>

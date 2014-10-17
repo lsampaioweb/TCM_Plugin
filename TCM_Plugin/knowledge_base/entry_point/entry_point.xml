@@ -292,51 +292,60 @@
 		<qualifiedname>javax.servlet.ServletContext</qualifiedname>
 		<methodname>getHeaderNames</methodname>
 	</entrypoint>
-	<!-- java.util.Properties -->
 	<entrypoint id="65">
+		<qualifiedname>javax.servlet.ServletContext</qualifiedname>
+		<methodname>getAttribute</methodname>
+		<parameters type="java.lang.String" />
+	</entrypoint>
+	<entrypoint id="66">
+		<qualifiedname>javax.servlet.ServletContext</qualifiedname>
+		<methodname>getAttributeNames</methodname>
+	</entrypoint>
+	<!-- java.util.Properties -->
+	<entrypoint id="67">
 		<qualifiedname>java.util.Properties</qualifiedname>
 		<methodname>getProperty</methodname>
 		<parameters type="java.lang.String" />
 	</entrypoint>
-	<entrypoint id="66">
+	<entrypoint id="68">
 		<qualifiedname>java.util.Properties</qualifiedname>
 		<methodname>getProperty</methodname>
 		<parameters type="java.lang.String" />
 		<parameters type="java.lang.String" />
 	</entrypoint>
 	<!-- java.lang.Class -->
-	<entrypoint id="67">
+	<entrypoint id="69">
 		<qualifiedname>java.lang.Class</qualifiedname>
 		<methodname>getResource</methodname>
 		<parameters type="java.lang.String" />
 	</entrypoint>
-	<entrypoint id="68">
+	<entrypoint id="70">
 		<qualifiedname>java.lang.Class</qualifiedname>
 		<methodname>getResourceAsStream</methodname>
 		<parameters type="java.lang.String" />
 	</entrypoint>
 	<!-- org.apache.xmlrpc.XmlRpcClient -->
-	<entrypoint id="69">
+	<entrypoint id="71">
 		<qualifiedname>org.apache.xmlrpc.XmlRpcClient</qualifiedname>
 		<methodname>execute</methodname>
 		<parameters type="java.lang.String" />
 		<parameters type="java.lang.Object" />
 	</entrypoint>
 	<!-- javax.naming.directory.InitialDirContext -->
-	<entrypoint id="70">
-		<qualifiedname>javax.naming.directory.InitialDirContext</qualifiedname>
-		<methodname>search</methodname>
-		<parameters type="java.lang.Object" />
-		<parameters type="java.lang.Object" />
-	</entrypoint>
-	<entrypoint id="71">
-		<qualifiedname>javax.naming.directory.InitialDirContext</qualifiedname>
-		<methodname>search</methodname>
-		<parameters type="java.lang.Object" />
-		<parameters type="java.lang.Object" />
-		<parameters type="java.lang.Object" />
-	</entrypoint>
 	<entrypoint id="72">
+		<qualifiedname>javax.naming.directory.InitialDirContext</qualifiedname>
+		<methodname>search</methodname>
+		<parameters type="java.lang.Object" />
+		<parameters type="java.lang.Object" />
+	</entrypoint>
+	<entrypoint id="73">
+		<qualifiedname>javax.naming.directory.InitialDirContext</qualifiedname>
+		<methodname>search</methodname>
+		<parameters type="java.lang.Object" />
+		<parameters type="java.lang.Object" />
+		<parameters type="java.lang.Object" />
+	</entrypoint>
+	<entrypoint id="74">
 		<qualifiedname>javax.naming.directory.InitialDirContext</qualifiedname>
 		<methodname>search</methodname>
 		<parameters type="java.lang.Object" />
@@ -345,42 +354,42 @@
 		<parameters type="java.lang.Object" />
 	</entrypoint>
 	<!-- javax.xml.xpath.XPath -->
-	<entrypoint id="73">
-		<qualifiedname>javax.xml.xpath.XPath</qualifiedname>
-		<methodname>evaluate</methodname>
-		<parameters type="java.lang.String" />
-		<parameters type="java.lang.Object" />
-	</entrypoint>
-	<entrypoint id="74">
-		<qualifiedname>javax.xml.xpath.XPath</qualifiedname>
-		<methodname>evaluate</methodname>
-		<parameters type="java.lang.String" />
-		<parameters type="java.lang.Object" />
-		<parameters type="java.lang.Object" />
-	</entrypoint>
 	<entrypoint id="75">
+		<qualifiedname>javax.xml.xpath.XPath</qualifiedname>
+		<methodname>evaluate</methodname>
+		<parameters type="java.lang.String" />
+		<parameters type="java.lang.Object" />
+	</entrypoint>
+	<entrypoint id="76">
+		<qualifiedname>javax.xml.xpath.XPath</qualifiedname>
+		<methodname>evaluate</methodname>
+		<parameters type="java.lang.String" />
+		<parameters type="java.lang.Object" />
+		<parameters type="java.lang.Object" />
+	</entrypoint>
+	<entrypoint id="77">
 		<qualifiedname>javax.xml.xpath.XPathExpression</qualifiedname>
 		<methodname>evaluate</methodname>
 		<parameters type="java.lang.Object" />
 	</entrypoint>
-	<entrypoint id="76">
+	<entrypoint id="78">
 		<qualifiedname>javax.xml.xpath.XPathExpression</qualifiedname>
 		<methodname>evaluate</methodname>
 		<parameters type="java.lang.Object" />
 		<parameters type="java.lang.Object" />
 	</entrypoint>
 	<!-- org.dom4j.io.SAXReader -->
-	<entrypoint id="77">
+	<entrypoint id="79">
 		<qualifiedname>org.dom4j.io.SAXReader</qualifiedname>
 		<methodname>read</methodname>
 		<parameters type="java.lang.Object" />
 	</entrypoint>
 	<!-- java.lang.Throwable -->
-	<entrypoint id="78">
+	<entrypoint id="80">
 		<qualifiedname>java.lang.Throwable</qualifiedname>
 		<methodname>getMessage</methodname>
 	</entrypoint>
-	<entrypoint id="79">
+	<entrypoint id="81">
 		<qualifiedname>java.lang.Throwable</qualifiedname>
 		<methodname>getLocalizedMessage</methodname>
 	</entrypoint>
