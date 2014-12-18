@@ -174,12 +174,100 @@
 	</sanitizer>
 	<sanitizer id="34">
 		<qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
-		<methodname>encodeForHTML</methodname>
+		<methodname>canonicalize</methodname>
 		<parameters type="java.lang.String" />
 	</sanitizer>
 	<sanitizer id="35">
 		<qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
+		<methodname>canonicalize</methodname>
+		<parameters type="java.lang.String" />
+		<parameters type="java.lang.Boolean" />
+	</sanitizer>
+	<sanitizer id="36">
+		<qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
+		<methodname>canonicalize</methodname>
+		<parameters type="java.lang.String" />
+		<parameters type="java.lang.Boolean" />
+		<parameters type="java.lang.Boolean" />
+	</sanitizer>
+	<sanitizer id="37">
+		<qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
+		<methodname>decodeForHTML</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="38">
+		<qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
+		<methodname>decodeFromBase64</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="39">
+		<qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
+		<methodname>decodeFromURL</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="40">
+		<qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
+		<methodname>encodeForCSS</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="41">
+		<qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
+		<methodname>encodeForDN</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="42">
+		<qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
+		<methodname>encodeForHTML</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="43">
+		<qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
 		<methodname>encodeForHTMLAttribute</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="44">
+		<qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
+		<methodname>encodeForJavaScript</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="45">
+		<qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
+		<methodname>encodeForLDAP</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="46">
+		<qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
+		<methodname>encodeForOS</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="47">
+		<qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
+		<methodname>encodeForSQL</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="48">
+		<qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
+		<methodname>encodeForURL</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="49">
+		<qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
+		<methodname>encodeForVBScript</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="50">
+		<qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
+		<methodname>encodeForXML</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="51">
+		<qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
+		<methodname>encodeForXMLAttribute</methodname>
+		<parameters type="java.lang.String" />
+	</sanitizer>
+	<sanitizer id="52">
+		<qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
+		<methodname>encodeForXPath</methodname>
 		<parameters type="java.lang.String" />
 	</sanitizer>
 </sanitizers>
