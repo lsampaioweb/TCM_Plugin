@@ -11,7 +11,7 @@ import org.eclipse.core.resources.IProject;
  * 
  * @author Luciano Sampaio
  */
-public class DisableScanOnProject extends AbstracCommand {
+public class DisableScanOnProject extends AbstractCommand {
 
   @Override
   public Object execute(ExecutionEvent event) throws ExecutionException {

@@ -14,7 +14,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
  * 
  * @author Luciano Sampaio
  */
-public class OpenSettingsPreferencePage extends AbstracCommand {
+public class OpenSettingsPreferencePage extends AbstractCommand {
 
 	@Override
 	public final Object execute(final ExecutionEvent event) throws ExecutionException {

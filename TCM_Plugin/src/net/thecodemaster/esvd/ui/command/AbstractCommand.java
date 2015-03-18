@@ -13,7 +13,7 @@ import org.eclipse.core.resources.IProject;
  * 
  * @author Luciano Sampaio
  */
-public abstract class AbstracCommand extends AbstractHandler {
+public abstract class AbstractCommand extends AbstractHandler {
 
 	/**
 	 * Get the list(unique elements) of selected projects by the developer. Even if he/she selected a file.
