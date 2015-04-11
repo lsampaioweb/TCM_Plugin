@@ -38,7 +38,7 @@ import org.osgi.framework.Bundle;
 
 public class ESAPIConfigurationJob extends Job {
 
-	private final static String ESAPI_CONFIG_DIR_NAME = "ASIDE-ESAPI";
+	private final static String ESAPI_CONFIG_DIR_NAME = "esapi_files";
 	private final static String ASIDE_ESAPI_CONTAINER = "ESAPI Libraries";
 	private final static String PROJECT_LIB_PATH = "WebContent"	+ IPath.SEPARATOR + "WEB-INF" + IPath.SEPARATOR + "lib";
 	private final static String PROJECT_WEBINF_PATH = "src" ;//"WebContent" + IPath.SEPARATOR + "WEB-INF";

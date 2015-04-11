@@ -3,6 +3,7 @@ package net.thecodemaster.esvd.builder;
 import java.util.List;
 import java.util.Map;
 
+import net.thecodemaster.esvd.esapi.ESAPIConfigurationJob;
 import net.thecodemaster.esvd.helper.Creator;
 import net.thecodemaster.esvd.logger.PluginLogger;
 import net.thecodemaster.esvd.reporter.Reporter;
@@ -14,6 +15,8 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 
 /**
  * This class is invoked when Eclipse is going to compile(build) the files in a project that is being edited by the
@@ -102,6 +105,12 @@ public class IncrementalBuilder extends IncrementalProjectBuilder {
 					incrementalBuild(delta, monitor);
 				}
 			}
+			
+			//Testing ESAPIConfigurationJob
+			IJavaProject javaProject = JavaCore.create(getProject());
+			ESAPIConfigurationJob job = new ESAPIConfigurationJob(
+					"ESAPI Configuration", getProject(), javaProject);
+			job.scheduleInteractive();
 		} catch (CoreException e) {
 			PluginLogger.logError(e);
 		}
