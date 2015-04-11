@@ -16,3 +16,4 @@ Require-Bundle: org.eclipse.ui,
  org.junit;resolution:=optional
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
+Import-Package: org.eclipse.jdt.launching
