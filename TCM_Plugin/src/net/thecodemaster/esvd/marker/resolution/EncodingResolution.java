@@ -2,12 +2,16 @@ package net.thecodemaster.esvd.marker.resolution;
 
 import java.util.List;
 
+import net.thecodemaster.esvd.esapi.ESAPIConfigurationJob;
 import net.thecodemaster.esvd.graph.BindingResolver;
 import net.thecodemaster.esvd.logger.PluginLogger;
 import net.thecodemaster.esvd.ui.view.ViewDataModel;
 
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
@@ -33,10 +37,17 @@ public class EncodingResolution extends AbstractResolution {
 		try {
 			List<ViewDataModel> vdms = getViewDataModelsFromMarker(marker);
 			ViewDataModel vdm = vdms.get(0);
-			Expression node = vdm.getExpr();
-			CompilationUnit cUnit = BindingResolver.getCompilationUnit(node);
+			Expression expression = vdm.getExpr();
+			CompilationUnit cUnit = BindingResolver.getCompilationUnit(expression);
 
 			insertEncodingImports(cUnit);
+			
+			IJavaProject javaProject = cUnit.getJavaElement().getJavaProject();
+			IProject project = javaProject.getProject();
+			
+			ESAPIConfigurationJob job = new ESAPIConfigurationJob("ESAPI Configuration", project, javaProject);
+			
+			job.scheduleInteractive();
 		} catch (Exception e) {
 			PluginLogger.logError(e);
 		}
