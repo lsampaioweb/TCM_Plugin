@@ -58,7 +58,6 @@ public class EncodingResolution extends AbstractResolution {
 			//FIXME REMOVE THIS CONSTANT AND RECEIVE THE IMPORT AS A PARAMETER
 			final String ESAPI_IMPORT = "org.owasp.esapi.ESAPI";
 
-			ImportRewrite fImportRewrite = ImportRewrite.create(cUnit, true);
 			IEditorPart part = JavaUI.openInEditor(cUnit.getJavaElement(), true, true);
 			if (part == null) {
 				return;
@@ -67,14 +66,14 @@ public class EncodingResolution extends AbstractResolution {
 			if (input == null) {
 				return;
 			}
-			IDocument document = JavaUI.getDocumentProvider()
-					.getDocument(input);
+			IDocument document = JavaUI.getDocumentProvider().getDocument(input);
 
-			TextEdit importEdits = null;
+			ImportRewrite fImportRewrite = ImportRewrite.create(cUnit, true);
 			fImportRewrite.addImport(ESAPI_IMPORT);
+			
+			TextEdit importEdits = null;
 			importEdits = fImportRewrite.rewriteImports(null);
-			importEdits.apply(document, TextEdit.CREATE_UNDO
-					| TextEdit.UPDATE_REGIONS);
+			importEdits.apply(document, TextEdit.CREATE_UNDO | TextEdit.UPDATE_REGIONS);
 		} catch (MalformedTreeException | BadLocationException | CoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
