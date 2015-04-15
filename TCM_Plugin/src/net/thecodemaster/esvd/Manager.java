@@ -25,7 +25,7 @@ import org.eclipse.jface.preference.IPreferenceStore;
  */
 public class Manager {
 
-	private static Manager			instance	= null;
+	private static Manager				instance	= null;
 	/**
 	 * The list with all the implemented analyzers.
 	 */
@@ -33,7 +33,7 @@ public class Manager {
 	/**
 	 * The object that know where and how to report the found vulnerabilities.
 	 */
-	private Reporter				reporter;
+	private Reporter							reporter;
 
 	/**
 	 * Default constructor.
@@ -43,8 +43,8 @@ public class Manager {
 	}
 
 	/**
-	 * The user has changed some options from the tool. It is necessary to reset the list of analyzers and where to
-	 * report the vulnerabilities.
+	 * The user has changed some options from the tool. It is necessary to reset the list of analyzers and where to report
+	 * the vulnerabilities.
 	 */
 	public static void reset() {
 		instance = null;
@@ -81,21 +81,19 @@ public class Manager {
 	 * invoked when the plug-in runs.
 	 * 
 	 * @param store
-	 *            The IPreferenceStore interface represents a table mapping named preferences to values.
+	 *          The IPreferenceStore interface represents a table mapping named preferences to values.
 	 */
 	private void addAnalyzers(IPreferenceStore store) {
 		// Get the options checked by the developer.
 		boolean commandInjection = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_COMMAND_INJECTION);
 		boolean cookiePoisoning = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_COOKIE_POISONING);
-		boolean crossSiteScripting = store
-				.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_CROSS_SITE_SCRIPTING);
+		boolean crossSiteScripting = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_CROSS_SITE_SCRIPTING);
 		boolean httpResponseSplitting = store
 				.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_HTTP_RESPONSE_SPLITTING);
 		boolean ldapInjection = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_LDAP_INJECTION);
 		boolean logForging = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_LOG_FORGING);
 		boolean pathTraversal = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_PATH_TRAVERSAL);
-		boolean reflectionInjection = store
-				.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_REFLECTION_INJECTION);
+		boolean reflectionInjection = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_REFLECTION_INJECTION);
 		boolean securityMisconfiguration = store
 				.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_SECURITY_MISCONFIGURATION);
 		boolean sqlInjection = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_SQL_INJECTION);
@@ -115,7 +113,7 @@ public class Manager {
 	 * Add the provided analyzer to the list of analyzers that will be invoked when the plug-in runs.
 	 * 
 	 * @param analyzer
-	 *            The analyzer that will be added to the list.
+	 *          The analyzer that will be added to the list.
 	 */
 	private void addAnalyzer(Analyzer analyzer) {
 		analyzers.add(analyzer);
@@ -125,7 +123,7 @@ public class Manager {
 	 * Based on the options selected by the user, the outputs are added to the reporter. {@link Reporter}
 	 * 
 	 * @param store
-	 *            The IPreferenceStore interface represents a table mapping named preferences to values.
+	 *          The IPreferenceStore interface represents a table mapping named preferences to values.
 	 */
 	private void addOutputs(IPreferenceStore store) {
 		boolean securityView = store.getBoolean(Constant.PrefPageSettings.FIELD_OUTPUT_SECURITY_VIEW);

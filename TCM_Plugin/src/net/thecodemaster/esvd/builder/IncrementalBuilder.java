@@ -35,8 +35,7 @@ public class IncrementalBuilder extends IncrementalProjectBuilder {
 	 * IncrementalBuild on a project that was not first full built. We need this information for the CallGraph.
 	 */
 	private static List<IProject>	fullBuiltProjects;
-	private BuilderJob						jobProject;
-	private BuilderJob						jobDelta;
+	private BuilderJob						builderJob;
 
 	static {
 		reset();
@@ -121,20 +120,20 @@ public class IncrementalBuilder extends IncrementalProjectBuilder {
 	protected void fullBuild(final IProgressMonitor monitor) {
 		addProjectToFullBuiltList(getProject());
 
-		cancelIfNotRunning(jobProject);
+		cancelIfNotRunning(builderJob);
 
-		jobProject = new BuilderJob(Message.Plugin.JOB, getProject());
-		jobProject.setRule(rule);
-		jobProject.run();
+		builderJob = new BuilderJob(Message.Plugin.JOB, getProject());
+		builderJob.setRule(rule);
+		builderJob.run();
 	}
 
 	protected void incrementalBuild(IResourceDelta delta, IProgressMonitor monitor) {
 		if (wasProjectFullBuilt(getProject())) {
-			cancelIfNotRunning(jobDelta);
+			cancelIfNotRunning(builderJob);
 
-			jobDelta = new BuilderJob(Message.Plugin.JOB, delta);
-			jobDelta.setRule(rule);
-			jobDelta.run();
+			builderJob = new BuilderJob(Message.Plugin.JOB, delta);
+			builderJob.setRule(rule);
+			builderJob.run();
 		} else {
 			// Sometimes Eclipse invokes the incremental build without ever invoked the full build,
 			// but we need at least one full build to create the full CallGraph. After this first time we're OK.

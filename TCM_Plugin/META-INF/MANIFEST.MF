@@ -5,14 +5,14 @@ Bundle-SymbolicName: tcm.early.vulnerability.detector;singleton:=true
 Bundle-Version: 0.3.9.qualifier
 Bundle-Activator: net.thecodemaster.esvd.Activator
 Bundle-Vendor: %Bundle-Vendor
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
+Require-Bundle: org.eclipse.ui;bundle-version="3.106.1",
+ org.eclipse.core.runtime;bundle-version="3.10.0",
  org.eclipse.core.resources;bundle-version="3.8.101",
  org.eclipse.jdt.core;bundle-version="3.9.1",
- org.eclipse.core.expressions,
- org.eclipse.ui.ide,
- org.eclipse.ui.editors,
+ org.eclipse.core.expressions;bundle-version="3.4.600",
+ org.eclipse.ui.ide;bundle-version="3.10.2",
+ org.eclipse.ui.editors;bundle-version="3.8.200",
  org.eclipse.jface.text;bundle-version="3.8.101",
- org.junit;resolution:=optional
+ org.junit;bundle-version="4.11.0"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
