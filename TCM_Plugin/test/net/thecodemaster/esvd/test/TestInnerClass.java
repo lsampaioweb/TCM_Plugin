@@ -10,13 +10,13 @@ import org.eclipse.core.resources.IResource;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CommandInjection extends AbstractTestVerifier {
+public class TestInnerClass extends AbstractTestVerifier {
 
 	@Override
 	protected List<IResource> getResources() {
 		Map<String, List<String>> resourceNames = Creator.newMap();
 
-		resourceNames.put(AbstractTestVerifier.PACKAGE_SERVLET, newList("CommandInjection.java"));
+		resourceNames.put(AbstractTestVerifier.PACKAGE_SERVLET, newList("InnerClass.java"));
 
 		return getResources(resourceNames);
 	}
@@ -26,7 +26,7 @@ public class CommandInjection extends AbstractTestVerifier {
 		Assert.assertEquals(1, allVulnerablePaths.size());
 
 		List<DataFlow> vulnerablePaths01 = allVulnerablePaths.get(0);
-		Assert.assertEquals(7, vulnerablePaths01.size());
+		Assert.assertEquals(3, vulnerablePaths01.size());
 	}
 
 }

@@ -13,6 +13,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ArrayAccess;
+import org.eclipse.jdt.core.dom.ArrayCreation;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
@@ -132,7 +133,8 @@ public class BindingResolver {
 
 				return getPackageName(className, packageNameToSearch);
 			default:
-				PluginLogger.logError("getPackageName Default Node Type: " + className.getNodeType() + " - " + className, null);
+				PluginLogger.logError("getPackageName Default Node Type: " + className.getNodeType() + " - "
+						+ className, null);
 				return null;
 		}
 	}
@@ -157,7 +159,8 @@ public class BindingResolver {
 		}
 
 		if (null == packageName) {
-			packageName = String.format("%s.%s", cu.getPackage().getName().getFullyQualifiedName(), packageNameToSearch);
+			packageName = String
+					.format("%s.%s", cu.getPackage().getName().getFullyQualifiedName(), packageNameToSearch);
 		}
 		return packageName;
 	}
@@ -364,7 +367,7 @@ public class BindingResolver {
 	 * This method was created because the list returned from the arguments is not generic.
 	 * 
 	 * @param arguments
-	 *          The live ordered list of argument expressions in this method invocation expression.
+	 *            The live ordered list of argument expressions in this method invocation expression.
 	 * @return List<Expression>
 	 */
 	@SuppressWarnings("unchecked")
@@ -383,6 +386,8 @@ public class BindingResolver {
 
 		if (null != node) {
 			switch (node.getNodeType()) {
+				case ASTNode.ARRAY_CREATION: // 03
+					return getParameters(((ArrayCreation) node).getInitializer());
 				case ASTNode.ARRAY_INITIALIZER: // 04
 					return getParameters(((ArrayInitializer) node).expressions());
 				case ASTNode.CLASS_INSTANCE_CREATION: // 14

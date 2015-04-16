@@ -10,13 +10,13 @@ import org.eclipse.core.resources.IResource;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class UnvalidatedRedirecting extends AbstractTestVerifier {
+public class TestLDAPInjection extends AbstractTestVerifier {
 
 	@Override
 	protected List<IResource> getResources() {
 		Map<String, List<String>> resourceNames = Creator.newMap();
 
-		resourceNames.put(AbstractTestVerifier.PACKAGE_SERVLET, newList("UnvalidatedRedirecting.java"));
+		resourceNames.put(AbstractTestVerifier.PACKAGE_SERVLET, newList("LDAPInjection.java"));
 
 		return getResources(resourceNames);
 	}
@@ -25,8 +25,8 @@ public class UnvalidatedRedirecting extends AbstractTestVerifier {
 	public void test() {
 		Assert.assertEquals(1, allVulnerablePaths.size());
 
-		List<DataFlow> vulnerablePaths = allVulnerablePaths.get(0);
-		Assert.assertEquals(4, vulnerablePaths.size());
+		List<DataFlow> vulnerablePaths01 = allVulnerablePaths.get(0);
+		Assert.assertEquals(6, vulnerablePaths01.size());
 	}
 
 }

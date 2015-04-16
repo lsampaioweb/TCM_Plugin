@@ -10,16 +10,13 @@ import org.eclipse.core.resources.IResource;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class FromOtherClasses extends AbstractTestVerifier {
+public class TestUnvalidatedRedirecting extends AbstractTestVerifier {
 
 	@Override
 	protected List<IResource> getResources() {
 		Map<String, List<String>> resourceNames = Creator.newMap();
 
-		resourceNames.put(AbstractTestVerifier.PACKAGE_BASE, newList("Animal.java"));
-		resourceNames.put(AbstractTestVerifier.PACKAGE_OTHER_PACK, newList("Animal.java"));
-		resourceNames.put(AbstractTestVerifier.PACKAGE_SERVLET,
-				newList("Person.java", "Employee.java", "FromOtherClasses.java"));
+		resourceNames.put(AbstractTestVerifier.PACKAGE_SERVLET, newList("UnvalidatedRedirecting.java"));
 
 		return getResources(resourceNames);
 	}
@@ -28,8 +25,8 @@ public class FromOtherClasses extends AbstractTestVerifier {
 	public void test() {
 		Assert.assertEquals(1, allVulnerablePaths.size());
 
-		List<DataFlow> vulnerablePaths01 = allVulnerablePaths.get(0);
-		Assert.assertEquals(26, vulnerablePaths01.size());
+		List<DataFlow> vulnerablePaths = allVulnerablePaths.get(0);
+		Assert.assertEquals(4, vulnerablePaths.size());
 	}
 
 }

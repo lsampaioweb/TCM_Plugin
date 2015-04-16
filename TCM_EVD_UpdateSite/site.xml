@@ -3,7 +3,7 @@
    <description name="Early Vulnerability Detector Plug-in" url="http://www.inf.puc-rio.br/~lsampaio/plugin/early_vulnerability_detector/">
       Early Vulnerability Detector Plug-in
    </description>
-   <feature url="features/TCM_ESVD_Feature_0.3.1.201407301551.jar" id="TCM_ESVD_Feature" version="0.3.1.201407301551">
+   <feature url="features/TCM_ESVD_Feature_0.3.9.201410171344.jar" id="TCM_ESVD_Feature" version="0.3.9.201410171344">
       <category name="tcm.early.vulnerability.detector.category"/>
    </feature>
    <category-def name="tcm.early.vulnerability.detector.category" label="Early Vulnerability Detector">

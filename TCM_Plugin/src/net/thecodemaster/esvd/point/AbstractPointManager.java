@@ -12,11 +12,11 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 
 public class AbstractPointManager {
 
-	protected List<Map<Parameter, List<Integer>>> getExpectedParameters(
-			Map<String, Map<String, List<Map<Parameter, List<Integer>>>>> map, Expression method) {
+	protected List<Map<Parameter, Integer>> getExpectedParameters(
+			Map<String, Map<String, List<Map<Parameter, Integer>>>> map, Expression method) {
 		// 01 - Get the method name.
 		// 02 - Verify if this method is in the list of ExitPoints.
-		Map<String, List<Map<Parameter, List<Integer>>>> foundPackages = map.get(getName(method));
+		Map<String, List<Map<Parameter, Integer>>> foundPackages = map.get(getName(method));
 
 		if (null == foundPackages) {
 			return null;
@@ -28,11 +28,11 @@ public class AbstractPointManager {
 		return foundPackages.get(getQualifiedName(method));
 	}
 
-	protected boolean haveSameParameters(List<Map<Parameter, List<Integer>>> listExpectedParameters, Expression method) {
+	protected boolean haveSameParameters(List<Map<Parameter, Integer>> listExpectedParameters, Expression method) {
 		// 01 - Get the received parameters of the current method.
 		List<Expression> receivedParameters = getParameters(method);
 
-		for (Map<Parameter, List<Integer>> expectedParameters : listExpectedParameters) {
+		for (Map<Parameter, Integer> expectedParameters : listExpectedParameters) {
 			if (haveSameParameters(expectedParameters, receivedParameters)) {
 				return true;
 			}
@@ -41,8 +41,7 @@ public class AbstractPointManager {
 		return false;
 	}
 
-	protected boolean haveSameParameters(Map<Parameter, List<Integer>> expectedParameters,
-			List<Expression> receivedParameters) {
+	protected boolean haveSameParameters(Map<Parameter, Integer> expectedParameters, List<Expression> receivedParameters) {
 		// 02 - It is necessary to check the number of parameters and its types
 		// because it may exist methods with the same names but different parameters.
 		if (expectedParameters.size() == receivedParameters.size()) {

@@ -1,68 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<exitpoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="exit_point_schema.xsd">
-	<!-- -1 Anything is valid. -->
-	<!-- 0 Only sanitized values are valid. -->
-	<!-- 1 LITERAL and sanitized values are valid. -->
-	<!-- X1;X2;... These are the accepted values. -->
+<exitpoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="exit_point_schema.xsd">
+	<!-- ANYTHING_IS_VALID(1), SANITIZED(2), LITERAL(4), STRING_CONCATENATION(8); -->
+
 	<!-- java.lang.Runtime -->
 	<exitpoint id="01">
 		<qualifiedname><![CDATA[java.lang.Runtime]]></qualifiedname>
 		<methodname>exec</methodname>
-		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="6" />
 	</exitpoint>
 	<exitpoint id="02">
 		<qualifiedname><![CDATA[java.lang.Runtime]]></qualifiedname>
 		<methodname>exec</methodname>
-		<parameters type="java.lang.Object" rules="1" />
-		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
 	</exitpoint>
 	<exitpoint id="03">
 		<qualifiedname><![CDATA[java.lang.Runtime]]></qualifiedname>
 		<methodname>exec</methodname>
-		<parameters type="java.lang.Object" rules="1" />
-		<parameters type="java.lang.Object" rules="1" />
-		<parameters type="java.lang.String" rules="1" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.String" rules="6" />
 	</exitpoint>
 	<!-- javax.xml.xpath.XPath -->
 	<exitpoint id="04">
 		<qualifiedname><![CDATA[javax.xml.xpath.XPath]]></qualifiedname>
 		<methodname>compile</methodname>
-		<parameters type="java.lang.String" rules="1" />
+		<parameters type="java.lang.String" rules="6" />
 	</exitpoint>
 	<!-- java.lang.Thread -->
 	<exitpoint id="05">
 		<qualifiedname><![CDATA[java.lang.Thread]]></qualifiedname>
 		<methodname>sleep</methodname>
-		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.Object" rules="6" />
 	</exitpoint>
 	<!-- java.lang.System -->
 	<exitpoint id="06">
 		<qualifiedname><![CDATA[java.lang.System]]></qualifiedname>
 		<methodname>load</methodname>
-		<parameters type="java.lang.String" rules="1" />
+		<parameters type="java.lang.String" rules="6" />
 	</exitpoint>
 	<exitpoint id="07">
 		<qualifiedname><![CDATA[java.lang.System]]></qualifiedname>
 		<methodname>loadLibrary</methodname>
-		<parameters type="java.lang.String" rules="1" />
+		<parameters type="java.lang.String" rules="6" />
 	</exitpoint>
 	<!-- org.apache.xmlrpc.XmlRpcClient -->
 	<exitpoint id="08">
 		<qualifiedname><![CDATA[org.apache.xmlrpc.XmlRpcClient]]></qualifiedname>
 		<methodname>XmlRpcClient</methodname>
-		<parameters type="java.lang.String" rules="1" />
+		<parameters type="java.lang.String" rules="6" />
 	</exitpoint>
 	<exitpoint id="09">
 		<qualifiedname><![CDATA[org.apache.xmlrpc.XmlRpcClient]]></qualifiedname>
 		<methodname>execute</methodname>
-		<parameters type="java.lang.String" rules="1" />
-		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.String" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
 	</exitpoint>
 	<exitpoint id="10">
 		<qualifiedname><![CDATA[org.apache.xmlrpc.XmlRpcClient]]></qualifiedname>
 		<methodname>executeAsync</methodname>
-		<parameters type="java.lang.String" rules="1" />
-		<parameters type="java.lang.Object" rules="1" />
-		<parameters type="java.lang.Object" rules="1" />
+		<parameters type="java.lang.String" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
 	</exitpoint>
 </exitpoints>

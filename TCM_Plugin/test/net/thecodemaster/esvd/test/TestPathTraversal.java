@@ -10,13 +10,13 @@ import org.eclipse.core.resources.IResource;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class VariableDeclaration extends AbstractTestVerifier {
+public class TestPathTraversal extends AbstractTestVerifier {
 
 	@Override
 	protected List<IResource> getResources() {
 		Map<String, List<String>> resourceNames = Creator.newMap();
 
-		resourceNames.put(AbstractTestVerifier.PACKAGE_SERVLET, newList("VariableDeclaration.java"));
+		resourceNames.put(AbstractTestVerifier.PACKAGE_SERVLET, newList("PathTraversal.java"));
 
 		return getResources(resourceNames);
 	}
@@ -26,7 +26,7 @@ public class VariableDeclaration extends AbstractTestVerifier {
 		Assert.assertEquals(1, allVulnerablePaths.size());
 
 		List<DataFlow> vulnerablePaths01 = allVulnerablePaths.get(0);
-		Assert.assertEquals(14, vulnerablePaths01.size());
+		Assert.assertEquals(40, vulnerablePaths01.size());
 	}
 
 }

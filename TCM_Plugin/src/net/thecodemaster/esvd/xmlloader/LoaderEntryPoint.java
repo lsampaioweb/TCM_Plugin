@@ -1,6 +1,5 @@
 package net.thecodemaster.esvd.xmlloader;
 
-import java.util.List;
 import java.util.Map;
 
 import net.thecodemaster.esvd.constant.Constant;
@@ -51,7 +50,7 @@ public class LoaderEntryPoint extends LoaderXML {
 					// Get the method name.
 					String methodName = getTagValueFromElement(element, Constant.XMLLoader.TAG_METHOD_NAME);
 
-					Map<Parameter, List<Integer>> params = Creator.newMap();
+					Map<Parameter, Integer> params = Creator.newMap();
 					// It gets the list of element by the type of "entrypoints".
 					NodeList nodeListParameters = element.getElementsByTagName(Constant.XMLLoader.TAG_PARAMETERS);
 

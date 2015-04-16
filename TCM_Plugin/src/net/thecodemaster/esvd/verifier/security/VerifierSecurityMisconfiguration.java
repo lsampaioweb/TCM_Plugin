@@ -5,6 +5,7 @@ import net.thecodemaster.esvd.context.Context;
 import net.thecodemaster.esvd.graph.VariableBinding;
 import net.thecodemaster.esvd.graph.flow.DataFlow;
 import net.thecodemaster.esvd.graph.flow.Flow;
+import net.thecodemaster.esvd.ui.enumeration.EnumRules;
 import net.thecodemaster.esvd.ui.enumeration.EnumVariableStatus;
 import net.thecodemaster.esvd.ui.l10n.Message;
 import net.thecodemaster.esvd.verifier.Verifier;
@@ -25,7 +26,8 @@ import org.eclipse.jdt.core.dom.StringLiteral;
 public class VerifierSecurityMisconfiguration extends Verifier {
 
 	public VerifierSecurityMisconfiguration() {
-		super(Constant.VERIFIER_ID_SECURITY_MISCONFIGURATION, Message.Plugin.VERIFIER_NAME_SECURITY_MISCONFIGURATION);
+		super(Constant.VERIFIER_ID_SECURITY_MISCONFIGURATION, Message.Plugin.VERIFIER_NAME_SECURITY_MISCONFIGURATION,
+				Constant.VERIFIER_PRIORITY_SECURITY_MISCONFIGURATION);
 	}
 
 	@Override
@@ -56,7 +58,7 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 	@Override
 	protected void inspectInfixExpression(Flow loopControl, Context context, DataFlow dataFlow, InfixExpression expression) {
 		Operator operator = expression.getOperator();
-		if ((null == getRules()) || (operator.equals(InfixExpression.Operator.PLUS))) {
+		if ((-1 == getRules()) || (operator.equals(InfixExpression.Operator.PLUS))) {
 			super.inspectInfixExpression(loopControl, context, dataFlow, expression);
 		} else {
 			super.inspectInfixExpression(loopControl, context, new DataFlow(expression), expression);
@@ -117,7 +119,7 @@ public class VerifierSecurityMisconfiguration extends Verifier {
 	@Override
 	protected void inspectSimpleName(Flow loopControl, Context context, DataFlow dataFlow, SimpleName expression,
 			VariableBinding variableBinding) {
-		if ((null != getRules())
+		if ((EnumRules.ANYTHING_IS_VALID.value() != getRules())
 				&& ((null != variableBinding) && (variableBinding.getStatus().equals(EnumVariableStatus.NOT_VULNERABLE)))) {
 
 			// The SQL Injection verifier also needs to know if the variable has its content from a string concatenation.

@@ -1,6 +1,5 @@
 package net.thecodemaster.esvd.point;
 
-import java.util.List;
 import java.util.Map;
 
 import net.thecodemaster.esvd.graph.Parameter;
@@ -12,19 +11,19 @@ import net.thecodemaster.esvd.verifier.Verifier;
  */
 public class ExitPoint extends AbstractPoint {
 
-	private Map<Parameter, List<Integer>>	parameters;
-	private final Verifier								verifier;
+	private Map<Parameter, Integer>	parameters;
+	private final Verifier					verifier;
 
 	public ExitPoint(Verifier verifier, String qualifiedName, String methodName) {
 		super(qualifiedName, methodName);
 		this.verifier = verifier;
 	}
 
-	public Map<Parameter, List<Integer>> getParameters() {
+	public Map<Parameter, Integer> getParameters() {
 		return parameters;
 	}
 
-	public void setParameters(Map<Parameter, List<Integer>> parameters) {
+	public void setParameters(Map<Parameter, Integer> parameters) {
 		this.parameters = parameters;
 	}
 

@@ -10,7 +10,8 @@ import net.thecodemaster.esvd.verifier.Verifier;
 public class VerifierLogForging extends Verifier {
 
 	public VerifierLogForging() {
-		super(Constant.VERIFIER_ID_LOG_FORGING, Message.Plugin.VERIFIER_NAME_LOG_FORGING);
+		super(Constant.VERIFIER_ID_LOG_FORGING, Message.Plugin.VERIFIER_NAME_LOG_FORGING,
+				Constant.VERIFIER_PRIORITY_LOG_FORGING);
 	}
 
 }

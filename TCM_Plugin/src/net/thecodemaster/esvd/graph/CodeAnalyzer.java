@@ -10,6 +10,7 @@ import net.thecodemaster.esvd.graph.flow.DataFlow;
 import net.thecodemaster.esvd.graph.flow.Flow;
 import net.thecodemaster.esvd.helper.Creator;
 import net.thecodemaster.esvd.helper.HelperCodeAnalyzer;
+import net.thecodemaster.esvd.logger.PluginLogger;
 import net.thecodemaster.esvd.marker.MarkerManager;
 import net.thecodemaster.esvd.point.EntryPointManager;
 import net.thecodemaster.esvd.point.ExitPointManager;
@@ -41,11 +42,11 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	/**
 	 * The current compilation unit that is being analyzed.
 	 */
-	private CompilationUnit									currentCompilationUnit;
+	private CompilationUnit					currentCompilationUnit;
 	/**
 	 * List with all the EntryPoints (shared among other instances of the verifiers).
 	 */
-	private static EntryPointManager				entryPointManager;
+	private static EntryPointManager		entryPointManager;
 	/**
 	 * List with all the Sanitizers (shared among other instances of the verifiers).
 	 */
@@ -53,11 +54,11 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	/**
 	 * List with all the EntryPoints (shared among other instances of the verifiers).
 	 */
-	private static ExitPointManager					exitPointManager;
+	private static ExitPointManager			exitPointManager;
 	/**
 	 * The object that know how and where to report the found vulnerabilities.
 	 */
-	private Reporter												reporter;
+	private Reporter						reporter;
 
 	protected void setCurrentCompilationUnit(CompilationUnit currentCompilationUnit) {
 		this.currentCompilationUnit = currentCompilationUnit;
@@ -96,7 +97,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 
 	protected static ExitPointManager getExitPointManager() {
 		if (null == exitPointManager) {
-			// Loads all the Sanitizers.
+			// Loads all the ExitPoints.
 			exitPointManager = new ExitPointManager();
 		}
 
@@ -126,7 +127,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	 * Notifies that a subtask of the main task is beginning.
 	 * 
 	 * @param taskName
-	 *          The text that will be displayed to the user.
+	 *            The text that will be displayed to the user.
 	 */
 	protected void setSubTask(String taskName) {
 		if (null != getProgressMonitor()) {
@@ -135,7 +136,8 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	}
 
 	protected boolean hasMarkerAtPosition(ASTNode node) {
-		return (null != MarkerManager.hasInvisibleMarkerAtPosition(getCurrentCompilationUnit(), getCurrentResource(), node));
+		return (null != MarkerManager.hasInvisibleMarkerAtPosition(getCurrentCompilationUnit(), getCurrentResource(),
+				node));
 	}
 
 	protected String getMessageEntryPoint(String value) {
@@ -155,6 +157,7 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 	protected void run(Map<IResource, List<MethodDeclaration>> resourcesAndMethodsToProcess) {
 		int numberOfResources = resourcesAndMethodsToProcess.size();
 		int numberOfResourcesProcessed = 0;
+		int numberOfMethodsProcessed = 0;
 
 		// 01 - Iterate over all the resources.
 		for (Entry<IResource, List<MethodDeclaration>> entry : resourcesAndMethodsToProcess.entrySet()) {
@@ -174,11 +177,18 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 
 				// 06 - Process the detection on these methods.
 				run(methodsToProcess);
+
+				// 07 - Get the number of method processed on the current resource.
+				numberOfMethodsProcessed += methodsToProcess.size();
 			} else {
 				// 02 - The user has stopped the process.
 				return;
 			}
 		}
+
+		// 08 - Print some statistical information.
+		PluginLogger.logIfDebugging(String.format("01.2 - Processed resources: %d - Processed methods: %d",
+				numberOfResourcesProcessed, numberOfMethodsProcessed));
 	}
 
 	/**
@@ -236,7 +246,8 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 
 						// 07 - If this method is invoked by a method from another resource
 						// and that resource is not in the list of resources that are going to be processed.
-						if ((null != resourceCaller) && (!resourceCaller.equals(resource)) && (!resources.contains(resourceCaller))) {
+						if ((null != resourceCaller) && (!resourceCaller.equals(resource))
+								&& (!resources.contains(resourceCaller))) {
 
 							// 08 - Add the resource caller to the list of resources that should be processed.
 							iterator.add(resourceCaller);
@@ -333,7 +344,8 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 		MethodDeclaration methodDeclaration = getMethodDeclaration(loopControl, context, methodInvocation);
 
 		// 02 -
-		inspectMethodInvocationWithOrWithOutSourceCode(loopControl, context, dataFlow, methodInvocation, methodDeclaration);
+		inspectMethodInvocationWithOrWithOutSourceCode(loopControl, context, dataFlow, methodInvocation,
+				methodDeclaration);
 
 		// 03 -
 		methodHasBeenProcessed(loopControl, context, dataFlow, methodInvocation, methodDeclaration);
@@ -343,8 +355,8 @@ public abstract class CodeAnalyzer extends CodeVisitor {
 			Expression methodInvocation, MethodDeclaration methodDeclaration) {
 		if (null == methodDeclaration) {
 			// 01 - Get a variable binding if it is an object.
-			VariableBinding variableBinding = HelperCodeAnalyzer.getVariableBindingIfItIsAnObject(getCallGraph(), context,
-					methodInvocation);
+			VariableBinding variableBinding = HelperCodeAnalyzer.getVariableBindingIfItIsAnObject(getCallGraph(),
+					context, methodInvocation);
 
 			methodHasBeenProcessed(loopControl, context, dataFlow, methodInvocation, methodDeclaration, variableBinding);
 		}

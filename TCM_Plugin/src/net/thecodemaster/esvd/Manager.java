@@ -90,18 +90,22 @@ public class Manager {
 		boolean crossSiteScripting = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_CROSS_SITE_SCRIPTING);
 		boolean httpResponseSplitting = store
 				.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_HTTP_RESPONSE_SPLITTING);
+		boolean ldapInjection = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_LDAP_INJECTION);
 		boolean logForging = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_LOG_FORGING);
 		boolean pathTraversal = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_PATH_TRAVERSAL);
 		boolean reflectionInjection = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_REFLECTION_INJECTION);
 		boolean securityMisconfiguration = store
 				.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_SECURITY_MISCONFIGURATION);
 		boolean sqlInjection = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_SQL_INJECTION);
+		boolean xpathInjection = store.getBoolean(Constant.PrefPageSecurityVulnerability.FIELD_XPATH_INJECTION);
 
 		// If at least one was selected, the analyzer is added to the list.
-		if (commandInjection || cookiePoisoning || crossSiteScripting || httpResponseSplitting || logForging
-				|| pathTraversal || reflectionInjection || securityMisconfiguration || sqlInjection) {
+		if (commandInjection || cookiePoisoning || crossSiteScripting || httpResponseSplitting || ldapInjection
+				|| logForging || pathTraversal || reflectionInjection || securityMisconfiguration || sqlInjection
+				|| xpathInjection) {
 			addAnalyzer(new AnalyzerSecurityVulnerability(commandInjection, cookiePoisoning, crossSiteScripting,
-					httpResponseSplitting, logForging, pathTraversal, reflectionInjection, securityMisconfiguration, sqlInjection));
+					httpResponseSplitting, ldapInjection, logForging, pathTraversal, reflectionInjection,
+					securityMisconfiguration, sqlInjection, xpathInjection));
 		}
 	}
 
@@ -149,7 +153,8 @@ public class Manager {
 	}
 
 	public void run(List<IResource> resources, CallGraph callGraph, IProgressMonitor monitor) {
-		// 01 - With the progress monitor, the report is able to let the user know that the plug-in is working on something.
+		// 01 - With the progress monitor, the report is able to let the user know that the plug-in is working on
+		// something.
 		getReporter().setProgressMonitor(monitor);
 
 		// 02 - Any Analyzer or its verifiers can add markers or files, so we first need to clean the old values.

@@ -10,7 +10,8 @@ import net.thecodemaster.esvd.verifier.Verifier;
 public class VerifierCommandInjection extends Verifier {
 
 	public VerifierCommandInjection() {
-		super(Constant.VERIFIER_ID_COMMAND_INJECTION, Message.Plugin.VERIFIER_NAME_COMMAND_INJECTION);
+		super(Constant.VERIFIER_ID_COMMAND_INJECTION, Message.Plugin.VERIFIER_NAME_COMMAND_INJECTION,
+				Constant.VERIFIER_PRIORITY_COMMAND_INJECTION);
 	}
 
 }

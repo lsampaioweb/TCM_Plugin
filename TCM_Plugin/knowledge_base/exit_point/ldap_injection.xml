@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<exitpoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="exit_point_schema.xsd">
+	<!-- ANYTHING_IS_VALID(1), SANITIZED(2), LITERAL(4), STRING_CONCATENATION(8); -->
+
+	<exitpoint id="01">
+		<qualifiedname><![CDATA[javax.naming.directory.InitialDirContext]]></qualifiedname>
+		<methodname>InitialDirContext</methodname>
+		<parameters type="java.lang.Object" rules="6" />
+	</exitpoint>
+	<exitpoint id="02">
+		<qualifiedname><![CDATA[javax.naming.directory.InitialDirContext]]></qualifiedname>
+		<methodname>search</methodname>
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+	</exitpoint>
+	<exitpoint id="03">
+		<qualifiedname><![CDATA[javax.naming.directory.InitialDirContext]]></qualifiedname>
+		<methodname>search</methodname>
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+	</exitpoint>
+	<exitpoint id="04">
+		<qualifiedname><![CDATA[javax.naming.directory.InitialDirContext]]></qualifiedname>
+		<methodname>search</methodname>
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+	</exitpoint>
+	<exitpoint id="05">
+		<qualifiedname><![CDATA[javax.naming.directory.SearchControls]]></qualifiedname>
+		<methodname>setReturningAttributes</methodname>
+		<parameters type="java.lang.Object" rules="6" />
+	</exitpoint>
+	<exitpoint id="06">
+		<qualifiedname><![CDATA[com.novell.ldap.LDAPConnection]]></qualifiedname>
+		<methodname>connect</methodname>
+		<parameters type="java.lang.String" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+	</exitpoint>
+	<exitpoint id="07">
+		<qualifiedname><![CDATA[com.novell.ldap.LDAPConnection]]></qualifiedname>
+		<methodname>search</methodname>
+		<parameters type="java.lang.String" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.String" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+	</exitpoint>
+	<exitpoint id="08">
+		<qualifiedname><![CDATA[com.novell.ldap.LDAPConnection]]></qualifiedname>
+		<methodname>search</methodname>
+		<parameters type="java.lang.String" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.String" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+	</exitpoint>
+</exitpoints>

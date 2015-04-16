@@ -37,11 +37,13 @@ public abstract class Message extends NLS {
 		public static String				LABEL_COOKIE_POISONING;
 		public static String				LABEL_CROSS_SITE_SCRIPTING;
 		public static String				LABEL_HTTP_RESPONSE_SPLITTING;
+		public static String				LABEL_LDAP_INJECTION;
 		public static String				LABEL_LOG_FORGING;
 		public static String				LABEL_PATH_TRAVERSAL;
 		public static String				LABEL_REFLECTION_INJECTION;
 		public static String				LABEL_SECURITY_MISCONFIGURATION;
 		public static String				LABEL_SQL_INJECTION;
+		public static String				LABEL_XPATH_INJECTION;
 
 		public static String				LABEL_MONITORED_PROJECTS;
 
@@ -85,11 +87,13 @@ public abstract class Message extends NLS {
 		public static String				VERIFIER_NAME_COOKIE_POISONING;
 		public static String				VERIFIER_NAME_CROSS_SITE_SCRIPTING;
 		public static String				VERIFIER_NAME_HTTP_RESPONSE_SPLITTING;
+		public static String				VERIFIER_NAME_LDAP_INJECTION;
 		public static String				VERIFIER_NAME_LOG_FORGING;
 		public static String				VERIFIER_NAME_PATH_TRAVERSAL;
 		public static String				VERIFIER_NAME_REFLECTION_INJECTION;
 		public static String				VERIFIER_NAME_SECURITY_MISCONFIGURATION;
 		public static String				VERIFIER_NAME_SQL_INJECTION;
+		public static String				VERIFIER_NAME_XPATH_INJECTION;
 
 		public static String				VISITOR_CALL_GRAPH_SUB_TASK;
 
@@ -106,11 +110,12 @@ public abstract class Message extends NLS {
 		public static String				NULL_LITERAL;
 		public static String				ENTRY_POINT_METHOD;
 		public static String				STRING_CONCATENATION;
+		public static String				INFORMATION_LEAKAGE_MESSAGE;
 
 		public static String				ENTRY_POINT;
-		public static String				UNKNOWN;
 		public static String				SQL_INJECTION_STRING_CONCATENATION;
 		public static String				SECURITY_MISCONFIGURATION_HARD_CODED_CONTENT;
+		public static String				INFORMATION_LEAKAGE;
 
 		static {
 			// Initialize resource bundle.
@@ -139,11 +144,17 @@ public abstract class Message extends NLS {
 	public static abstract class View {
 		private static final String	BUNDLE_NAME	= Constant.Package.L10N_MESSAGES + ".view"; //$NON-NLS-1$
 
+		public static String				PRIORITY;
+		public static String				PRIORITY_LOW;
+		public static String				PRIORITY_MEDIUM;
+		public static String				PRIORITY_HIGH;
+
 		public static String				DESCRIPTION;
 		public static String				VULNERABILITY;
 		public static String				LINE;
 		public static String				RESOURCE;
 		public static String				PATH;
+
 		public static String				SINGLE_VULNERABILITY;
 		public static String				MULTIPLE_VULNERABILITIES;
 		public static String				FALSE_POSITIVE;

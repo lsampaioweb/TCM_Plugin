@@ -18,11 +18,13 @@ import net.thecodemaster.esvd.helper.HelperCodeAnalyzer;
 import net.thecodemaster.esvd.logger.PluginLogger;
 import net.thecodemaster.esvd.point.ExitPoint;
 import net.thecodemaster.esvd.reporter.Reporter;
+import net.thecodemaster.esvd.ui.enumeration.EnumRules;
 import net.thecodemaster.esvd.verifier.Verifier;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ArrayAccess;
+import org.eclipse.jdt.core.dom.ArrayCreation;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.CastExpression;
@@ -155,7 +157,8 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		VariableBinding variableBindingNew = addVariableToCallGraphAndInspectInitializer(loopControl, context, dataFlow,
 				leftHandSide, rightHandSide);
 
-		// 04 - If the variable did not exist before and exists now, it means it is a reference to a global (inheritance)
+		// 04 - If the variable did not exist before and exists now, it means it is a reference to a global
+		// (inheritance)
 		// variable.
 		if ((null == variableBindingOld) && (null != variableBindingNew)) {
 
@@ -203,7 +206,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
 			String message = getMessageEntryPoint(BindingResolver.getFullName(methodInvocation));
 
-			// We found a invocation to a entry point method.
+			// We found an invocation to a entry point method.
 			newDataFlow.hasVulnerablePath(Constant.Vulnerability.ENTRY_POINT, message);
 			return;
 		}
@@ -248,12 +251,12 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 		List<Expression> receivedParameters = BindingResolver.getParameters(method);
 
 		// 02 - Get the expected parameters of the ExitPoint method.
-		Map<Parameter, List<Integer>> expectedParameters = exitPoint.getParameters();
+		Map<Parameter, Integer> expectedParameters = exitPoint.getParameters();
 
 		int index = 0;
-		for (List<Integer> currentRules : expectedParameters.values()) {
-			// If the rules are null, it means the expected parameter can be anything. (We do not care for it).
-			if (null != currentRules) {
+		for (int currentRules : expectedParameters.values()) {
+			// If the rules are -1, it means the expected parameter can be anything. (We do not care for it).
+			if (EnumRules.ANYTHING_IS_VALID.value() != currentRules) {
 				Expression expression = receivedParameters.get(index);
 				DataFlow newDataFlow = new DataFlow(expression);
 
@@ -275,6 +278,7 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
 						// 08 - If the data flow has a vulnerable path, we set the verifier who found it.
 						if (newDataFlow.hasVulnerablePath()) {
+							newDataFlow.setPriority(verifier.getPriority());
 							newDataFlow.setTypeProblem(verifier.getId());
 							newDataFlow.setFullPath(loopControl);
 							allVulnerablePaths.add(newDataFlow);
@@ -389,17 +393,19 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 					// Cases: 07
 					return getCallGraph().newClassContext(context, methodDeclaration, methodInvocation, instance);
 			}
-		} else if (Modifier.isStatic(methodDeclaration.getModifiers())) {
-			// Cases: 06
-			return getCallGraph().newStaticContext(context, methodDeclaration, methodInvocation);
 		} else {
 			if (null != instance) {
-				// Cases: 03, 04, 05
-				// The instance must exist, if it does not, it is probably an assignment or syntax error.
-				// Animal a1 = new Animal() / Animal a2 = a1 / a1.method();
-				instance = findRealInstance(loopControl, context, instance);
+				if (Modifier.isStatic(methodDeclaration.getModifiers())) {
+					// Cases: 06
+					return getCallGraph().newStaticContext(context, methodDeclaration, methodInvocation);
+				} else {
+					// Cases: 03, 04, 05
+					// The instance must exist, if it does not, it is probably an assignment or syntax error.
+					// Animal a1 = new Animal() / Animal a2 = a1 / a1.method();
+					instance = findRealInstance(loopControl, context, instance);
 
-				return getCallGraph().newInstanceContext(context, methodDeclaration, methodInvocation, instance);
+					return getCallGraph().newInstanceContext(context, methodDeclaration, methodInvocation, instance);
+				}
 			} else {
 				// Cases: 01, 02
 				return getCallGraph().newContext(context, methodDeclaration, methodInvocation);
@@ -501,7 +507,8 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 				VariableBinding variableBinding = getCallGraph().addParameter(context, name, initializer);
 
 				// 09 - If there is a vulnerable path, then this variable is vulnerable.
-				// But if this variable is of primitive type, then there is nothing to do because they can not be vulnerable.
+				// But if this variable is of primitive type, then there is nothing to do because they can not be
+				// vulnerable.
 				updateDataBinding(name, newDataFlow, variableBinding);
 			}
 		}
@@ -519,6 +526,9 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 			switch (initializer.getNodeType()) {
 				case ASTNode.ARRAY_ACCESS: // 02
 					addReferenceArrayAccess(loopControl, context, expression, (ArrayAccess) initializer);
+					break;
+				case ASTNode.ARRAY_CREATION: // 03
+					addReferenceArrayCreation(loopControl, context, expression, (ArrayCreation) initializer);
 					break;
 				case ASTNode.ARRAY_INITIALIZER: // 04
 					addReferenceArrayInitializer(loopControl, context, expression, (ArrayInitializer) initializer);
@@ -569,6 +579,15 @@ public class VisitorPointsToAnalysis extends CodeAnalyzer {
 
 	private void addReferenceArrayAccess(Flow loopControl, Context context, ASTNode expression, ArrayAccess initializer) {
 		addReference(context, expression, initializer);
+	}
+
+	private void addReferenceArrayCreation(Flow loopControl, Context context, ASTNode expression,
+			ArrayCreation initializer) {
+		List<Expression> expressions = BindingResolver.getParameters(initializer);
+
+		for (Expression current : expressions) {
+			addReferenceToInitializer(loopControl, context, expression, current);
+		}
 	}
 
 	private void addReferenceArrayInitializer(Flow loopControl, Context context, ASTNode expression,

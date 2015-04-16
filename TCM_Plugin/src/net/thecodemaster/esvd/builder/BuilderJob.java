@@ -137,7 +137,7 @@ public class BuilderJob extends Job {
 					List<IResource> resourcesUpdated = Creator.newList();
 					if (!userCanceledProcess(monitor)) {
 						// 03 - Use the VISITOR pattern to create/populate the call graph.
-						resourcesUpdated = createCallGraph(callGraph, monitor);
+						resourcesUpdated = updateCallGraph(callGraph, monitor);
 					} else {
 						return Status.CANCEL_STATUS;
 					}
@@ -169,7 +169,7 @@ public class BuilderJob extends Job {
 		return Status.OK_STATUS;
 	}
 
-	private List<IResource> createCallGraph(CallGraph callGraph, IProgressMonitor monitor) throws CoreException {
+	private List<IResource> updateCallGraph(CallGraph callGraph, IProgressMonitor monitor) throws CoreException {
 		List<IResource> resourcesUpdated = Creator.newList();
 
 		VisitorCallGraph visitorCallGraph = new VisitorCallGraph(callGraph, monitor);

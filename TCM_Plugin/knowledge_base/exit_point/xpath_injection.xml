@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<exitpoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="exit_point_schema.xsd">
+	<!-- ANYTHING_IS_VALID(1), SANITIZED(2), LITERAL(4), STRING_CONCATENATION(8); -->
+
+	<!-- javax.xml.xpath.XPath -->
+	<exitpoint id="01">
+		<qualifiedname><![CDATA[javax.xml.xpath.XPath]]></qualifiedname>
+		<methodname>compile</methodname>
+		<parameters type="java.lang.String" rules="6" />
+	</exitpoint>
+	<exitpoint id="02">
+		<qualifiedname><![CDATA[javax.xml.xpath.XPath]]></qualifiedname>
+		<methodname>evaluate</methodname>
+		<parameters type="java.lang.String" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+	</exitpoint>
+	<exitpoint id="03">
+		<qualifiedname><![CDATA[javax.xml.xpath.XPath]]></qualifiedname>
+		<methodname>evaluate</methodname>
+		<parameters type="java.lang.String" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+	</exitpoint>
+	<exitpoint id="04">
+		<qualifiedname><![CDATA[javax.xml.xpath.XPathExpression]]></qualifiedname>
+		<methodname>evaluate</methodname>
+		<parameters type="java.lang.Object" rules="6" />
+	</exitpoint>
+	<exitpoint id="05">
+		<qualifiedname><![CDATA[javax.xml.xpath.XPathExpression]]></qualifiedname>
+		<methodname>evaluate</methodname>
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+	</exitpoint>
+	<!-- org.apache.xpath.XPath -->
+	<exitpoint id="04">
+		<qualifiedname><![CDATA[org.apache.xpath.XPath]]></qualifiedname>
+		<methodname>XPath</methodname>
+		<parameters type="java.lang.String" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+	</exitpoint>
+	<exitpoint id="05">
+		<qualifiedname><![CDATA[org.apache.xpath.XPath]]></qualifiedname>
+		<methodname>XPath</methodname>
+		<parameters type="java.lang.String" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+	</exitpoint>
+	<exitpoint id="06">
+		<qualifiedname><![CDATA[org.apache.xpath.XPath]]></qualifiedname>
+		<methodname>XPath</methodname>
+		<parameters type="java.lang.String" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+		<parameters type="java.lang.Object" rules="6" />
+	</exitpoint>
+	<!-- org.apache.commons.jxpath.JXPath -->
+	<exitpoint id="07">
+		<qualifiedname><![CDATA[org.apache.commons.jxpath.JXPath]]></qualifiedname>
+		<methodname>getValue</methodname>
+		<parameters type="java.lang.String" rules="6" />
+	</exitpoint>
+	<!-- org.xmldb.api.modules.XPathQueryService -->
+	<exitpoint id="08">
+		<qualifiedname><![CDATA[org.xmldb.api.modules.XPathQueryService]]></qualifiedname>
+		<methodname>query</methodname>
+		<parameters type="java.lang.String" rules="6" />
+	</exitpoint>
+	<exitpoint id="09">
+		<qualifiedname><![CDATA[org.xmldb.api.modules.XPathQueryService]]></qualifiedname>
+		<methodname>query</methodname>
+		<parameters type="java.lang.String" rules="6" />
+		<parameters type="java.lang.String" rules="6" />
+	</exitpoint>
+	<!-- org.xmldb.api.modules.XMLResource -->
+	<exitpoint id="10">
+		<qualifiedname><![CDATA[org.xmldb.api.modules.XMLResource]]></qualifiedname>
+		<methodname>setContent</methodname>
+		<parameters type="java.lang.String" rules="6" />
+	</exitpoint>
+</exitpoints>

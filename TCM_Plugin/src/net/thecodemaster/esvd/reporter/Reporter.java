@@ -2,7 +2,6 @@ package net.thecodemaster.esvd.reporter;
 
 import java.util.List;
 
-import net.thecodemaster.esvd.Manager;
 import net.thecodemaster.esvd.graph.flow.DataFlow;
 import net.thecodemaster.esvd.helper.Creator;
 import net.thecodemaster.esvd.helper.HelperProjects;
@@ -39,14 +38,14 @@ public class Reporter implements IReporter {
 	}
 
 	/**
-	 * Creates one instance of the Manager class if it was not created before. <br/>
-	 * After that always return the same instance of the Manager class.
+	 * Creates one instance of the Reporter class if it was not created before. <br/>
+	 * After that always return the same instance of the Reporter class.
 	 * 
-	 * @return Return the same instance of the Manager class.
+	 * @return Return the same instance of the Reporter class.
 	 */
 	public static Reporter getInstance() {
 		if (instance == null) {
-			synchronized (Manager.class) {
+			synchronized (Reporter.class) {
 				if (instance == null) {
 					instance = new Reporter();
 				}

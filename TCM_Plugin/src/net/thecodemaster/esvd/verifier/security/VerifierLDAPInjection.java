@@ -7,11 +7,11 @@ import net.thecodemaster.esvd.verifier.Verifier;
 /**
  * @author Luciano Sampaio
  */
-public class VerifierPathTraversal extends Verifier {
+public class VerifierLDAPInjection extends Verifier {
 
-	public VerifierPathTraversal() {
-		super(Constant.VERIFIER_ID_PATH_TRAVERSAL, Message.Plugin.VERIFIER_NAME_PATH_TRAVERSAL,
-				Constant.VERIFIER_PRIORITY_PATH_TRAVERSAL);
+	public VerifierLDAPInjection() {
+		super(Constant.VERIFIER_ID_LDAP_INJECTION, Message.Plugin.VERIFIER_NAME_LDAP_INJECTION,
+				Constant.VERIFIER_PRIORITY_LDAP_INJECTION);
 	}
 
 }

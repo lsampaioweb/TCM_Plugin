@@ -10,7 +10,7 @@ import org.eclipse.core.resources.IResource;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class CookiePoisoning extends AbstractTestVerifier {
+public class TestCookiePoisoning extends AbstractTestVerifier {
 
 	@Override
 	protected List<IResource> getResources() {

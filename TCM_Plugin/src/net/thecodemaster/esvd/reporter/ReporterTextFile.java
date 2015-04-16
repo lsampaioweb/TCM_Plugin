@@ -20,20 +20,14 @@ public class ReporterTextFile implements IReporter {
 
 	@Override
 	public void clearOldProblems(List<IResource> resources) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void clearOldProblems(IResource resource) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void addProblem(IResource resource, List<DataFlow> allVulnerablePaths) {
-		// TODO Auto-generated method stub
-
 	}
 
 }

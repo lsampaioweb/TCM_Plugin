@@ -10,13 +10,13 @@ import org.eclipse.core.resources.IResource;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class SanitizationPoints extends AbstractTestVerifier {
+public class TestSecurityMisconfiguration extends AbstractTestVerifier {
 
 	@Override
 	protected List<IResource> getResources() {
 		Map<String, List<String>> resourceNames = Creator.newMap();
 
-		resourceNames.put(AbstractTestVerifier.PACKAGE_SERVLET, newList("SanitizationPoints.java"));
+		resourceNames.put(AbstractTestVerifier.PACKAGE_SERVLET, newList("SecurityMisconfiguration.java"));
 
 		return getResources(resourceNames);
 	}
@@ -26,7 +26,7 @@ public class SanitizationPoints extends AbstractTestVerifier {
 		Assert.assertEquals(1, allVulnerablePaths.size());
 
 		List<DataFlow> vulnerablePaths01 = allVulnerablePaths.get(0);
-		Assert.assertEquals(2, vulnerablePaths01.size());
+		Assert.assertEquals(32, vulnerablePaths01.size());
 	}
 
 }

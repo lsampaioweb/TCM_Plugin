@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<entrypoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="entry_point_schema.xsd">
+<entrypoints xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="entry_point_schema.xsd">
 	<!-- javax.servlet.ServletRequest -->
 	<entrypoint id="01">
 		<qualifiedname>javax.servlet.ServletRequest</qualifiedname>
@@ -123,169 +124,273 @@
 		<qualifiedname>javax.servlet.http.HttpServletRequest</qualifiedname>
 		<methodname>getServletPath</methodname>
 	</entrypoint>
-	<!-- javax.servlet.http.Cookie -->
 	<entrypoint id="30">
+		<qualifiedname>javax.servlet.http.HttpServletRequest</qualifiedname>
+		<methodname>getUserPrincipal</methodname>
+	</entrypoint>
+	<!-- javax.servlet.http.Cookie -->
+	<entrypoint id="31">
 		<qualifiedname>javax.servlet.http.Cookie</qualifiedname>
 		<methodname>getComment</methodname>
 	</entrypoint>
-	<entrypoint id="31">
+	<entrypoint id="32">
 		<qualifiedname>javax.servlet.http.Cookie</qualifiedname>
 		<methodname>getDomain</methodname>
 	</entrypoint>
-	<entrypoint id="32">
+	<entrypoint id="33">
 		<qualifiedname>javax.servlet.http.Cookie</qualifiedname>
 		<methodname>getPath</methodname>
 	</entrypoint>
-	<entrypoint id="33">
+	<entrypoint id="34">
 		<qualifiedname>javax.servlet.http.Cookie</qualifiedname>
 		<methodname>getName</methodname>
 	</entrypoint>
-	<entrypoint id="34">
+	<entrypoint id="35">
 		<qualifiedname>javax.servlet.http.Cookie</qualifiedname>
 		<methodname>getValue</methodname>
 	</entrypoint>
 	<!-- javax.servlet.ServletConfig -->
-	<entrypoint id="35">
+	<entrypoint id="36">
 		<qualifiedname>javax.servlet.ServletConfig</qualifiedname>
 		<methodname>getInitParameter</methodname>
 		<parameters type="java.lang.String" />
 	</entrypoint>
-	<entrypoint id="36">
+	<entrypoint id="37">
 		<qualifiedname>javax.servlet.ServletConfig</qualifiedname>
 		<methodname>getInitParameterNames</methodname>
 	</entrypoint>
+	<!-- javax.servlet.GenericServlet -->
+	<entrypoint id="38">
+		<qualifiedname>javax.servlet.GenericServlet</qualifiedname>
+		<methodname>getInitParameter</methodname>
+		<parameters type="java.lang.String" />
+	</entrypoint>
+	<entrypoint id="39">
+		<qualifiedname>javax.servlet.GenericServlet</qualifiedname>
+		<methodname>getInitParameterNames</methodname>
+	</entrypoint>
 	<!-- java.sql.ResultSet -->
-	<entrypoint id="37">
+	<entrypoint id="40">
 		<qualifiedname>java.sql.ResultSet</qualifiedname>
 		<methodname>getString</methodname>
 		<parameters type="java.lang.String" />
 	</entrypoint>
-	<entrypoint id="38">
+	<entrypoint id="41">
 		<qualifiedname>java.sql.ResultSet</qualifiedname>
 		<methodname>getString</methodname>
 		<parameters type="java.lang.Integer" />
 	</entrypoint>
+	<entrypoint id="42">
+		<qualifiedname>java.sql.ResultSet</qualifiedname>
+		<methodname>getObject</methodname>
+		<parameters type="java.lang.String" />
+	</entrypoint>
+	<entrypoint id="43">
+		<qualifiedname>java.sql.ResultSet</qualifiedname>
+		<methodname>getObject</methodname>
+		<parameters type="java.lang.Integer" />
+	</entrypoint>
 	<!-- java.awt.TextComponent -->
-	<entrypoint id="39">
+	<entrypoint id="44">
 		<qualifiedname>java.awt.TextComponent</qualifiedname>
 		<methodname>getSelectedText</methodname>
 	</entrypoint>
-	<entrypoint id="40">
+	<entrypoint id="45">
 		<qualifiedname>java.awt.TextComponent</qualifiedname>
 		<methodname>getText</methodname>
 	</entrypoint>
 	<!-- java.io.Console -->
-	<entrypoint id="41">
+	<entrypoint id="46">
 		<qualifiedname>java.io.Console</qualifiedname>
 		<methodname>readLine</methodname>
 	</entrypoint>
-	<entrypoint id="42">
+	<entrypoint id="47">
 		<qualifiedname>java.io.Console</qualifiedname>
 		<methodname>readLine</methodname>
 		<parameters type="java.lang.String" />
 		<parameters type="java.lang.Object" />
 	</entrypoint>
-	<entrypoint id="43">
+	<entrypoint id="48">
 		<qualifiedname>java.io.Console</qualifiedname>
 		<methodname>readPassword</methodname>
 	</entrypoint>
 	<!-- java.io.DataInputStream -->
-	<entrypoint id="44">
+	<entrypoint id="49">
 		<qualifiedname>java.io.DataInputStream</qualifiedname>
 		<methodname>readLine</methodname>
 	</entrypoint>
-	<entrypoint id="45">
+	<entrypoint id="50">
 		<qualifiedname>java.io.DataInputStream</qualifiedname>
 		<methodname>readUTF</methodname>
 	</entrypoint>
-	<entrypoint id="46">
+	<entrypoint id="51">
 		<qualifiedname>java.io.DataInputStream</qualifiedname>
 		<methodname>readUTF</methodname>
 		<parameters type="java.io.DataInput" />
 	</entrypoint>
 	<!-- java.io.LineNumberReader -->
-	<entrypoint id="47">
+	<entrypoint id="52">
 		<qualifiedname>java.io.LineNumberReader</qualifiedname>
 		<methodname>readLine</methodname>
 	</entrypoint>
 	<!-- javax.servlet.http.HttpSession -->
-	<entrypoint id="48">
+	<entrypoint id="53">
 		<qualifiedname>javax.servlet.http.HttpSession</qualifiedname>
 		<methodname>getAttribute</methodname>
 		<parameters type="java.lang.String" />
 	</entrypoint>
-	<entrypoint id="49">
+	<entrypoint id="54">
 		<qualifiedname>javax.servlet.http.HttpSession</qualifiedname>
 		<methodname>getAttributeNames</methodname>
 	</entrypoint>
-	<entrypoint id="50">
+	<entrypoint id="55">
 		<qualifiedname>javax.servlet.http.HttpSession</qualifiedname>
 		<methodname>getValue</methodname>
 		<parameters type="java.lang.String" />
 	</entrypoint>
-	<entrypoint id="51">
+	<entrypoint id="56">
 		<qualifiedname>javax.servlet.http.HttpSession</qualifiedname>
 		<methodname>getValueNames</methodname>
 	</entrypoint>
 	<!-- java.lang.System -->
-	<entrypoint id="52">
+	<entrypoint id="57">
 		<qualifiedname>java.lang.System</qualifiedname>
 		<methodname>getProperty</methodname>
 		<parameters type="java.lang.String" />
 	</entrypoint>
-	<entrypoint id="53">
+	<entrypoint id="58">
 		<qualifiedname>java.lang.System</qualifiedname>
 		<methodname>getProperty</methodname>
 		<parameters type="java.lang.String" />
 		<parameters type="java.lang.String" />
 	</entrypoint>
-	<entrypoint id="54">
+	<entrypoint id="59">
 		<qualifiedname>java.lang.System</qualifiedname>
 		<methodname>getProperties</methodname>
 	</entrypoint>
+	<entrypoint id="60">
+		<qualifiedname>java.lang.System</qualifiedname>
+		<methodname>getenv</methodname>
+	</entrypoint>
+	<entrypoint id="61">
+		<qualifiedname>java.lang.System</qualifiedname>
+		<methodname>getenv</methodname>
+		<parameters type="java.lang.String" />
+	</entrypoint>
 	<!-- javax.servlet.ServletContext -->
-	<entrypoint id="55">
+	<entrypoint id="62">
 		<qualifiedname>javax.servlet.ServletContext</qualifiedname>
 		<methodname>getResourceAsStream</methodname>
 		<parameters type="java.lang.String" />
 	</entrypoint>
-	<entrypoint id="56">
+	<entrypoint id="63">
 		<qualifiedname>javax.servlet.ServletContext</qualifiedname>
 		<methodname>getRealPath</methodname>
 		<parameters type="java.lang.String" />
 	</entrypoint>
-	<entrypoint id="57">
+	<entrypoint id="64">
 		<qualifiedname>javax.servlet.ServletContext</qualifiedname>
 		<methodname>getHeaderNames</methodname>
 	</entrypoint>
+	<entrypoint id="65">
+		<qualifiedname>javax.servlet.ServletContext</qualifiedname>
+		<methodname>getAttribute</methodname>
+		<parameters type="java.lang.String" />
+	</entrypoint>
+	<entrypoint id="66">
+		<qualifiedname>javax.servlet.ServletContext</qualifiedname>
+		<methodname>getAttributeNames</methodname>
+	</entrypoint>
 	<!-- java.util.Properties -->
-	<entrypoint id="58">
+	<entrypoint id="67">
 		<qualifiedname>java.util.Properties</qualifiedname>
 		<methodname>getProperty</methodname>
 		<parameters type="java.lang.String" />
 	</entrypoint>
-	<entrypoint id="59">
+	<entrypoint id="68">
 		<qualifiedname>java.util.Properties</qualifiedname>
 		<methodname>getProperty</methodname>
 		<parameters type="java.lang.String" />
 		<parameters type="java.lang.String" />
 	</entrypoint>
 	<!-- java.lang.Class -->
-	<entrypoint id="60">
+	<entrypoint id="69">
 		<qualifiedname>java.lang.Class</qualifiedname>
 		<methodname>getResource</methodname>
 		<parameters type="java.lang.String" />
 	</entrypoint>
-	<entrypoint id="61">
+	<entrypoint id="70">
 		<qualifiedname>java.lang.Class</qualifiedname>
 		<methodname>getResourceAsStream</methodname>
 		<parameters type="java.lang.String" />
 	</entrypoint>
 	<!-- org.apache.xmlrpc.XmlRpcClient -->
-	<entrypoint id="62">
+	<entrypoint id="71">
 		<qualifiedname>org.apache.xmlrpc.XmlRpcClient</qualifiedname>
 		<methodname>execute</methodname>
 		<parameters type="java.lang.String" />
 		<parameters type="java.lang.Object" />
+	</entrypoint>
+	<!-- javax.naming.directory.InitialDirContext -->
+	<entrypoint id="72">
+		<qualifiedname>javax.naming.directory.InitialDirContext</qualifiedname>
+		<methodname>search</methodname>
+		<parameters type="java.lang.Object" />
+		<parameters type="java.lang.Object" />
+	</entrypoint>
+	<entrypoint id="73">
+		<qualifiedname>javax.naming.directory.InitialDirContext</qualifiedname>
+		<methodname>search</methodname>
+		<parameters type="java.lang.Object" />
+		<parameters type="java.lang.Object" />
+		<parameters type="java.lang.Object" />
+	</entrypoint>
+	<entrypoint id="74">
+		<qualifiedname>javax.naming.directory.InitialDirContext</qualifiedname>
+		<methodname>search</methodname>
+		<parameters type="java.lang.Object" />
+		<parameters type="java.lang.Object" />
+		<parameters type="java.lang.Object" />
+		<parameters type="java.lang.Object" />
+	</entrypoint>
+	<!-- javax.xml.xpath.XPath -->
+	<entrypoint id="75">
+		<qualifiedname>javax.xml.xpath.XPath</qualifiedname>
+		<methodname>evaluate</methodname>
+		<parameters type="java.lang.String" />
+		<parameters type="java.lang.Object" />
+	</entrypoint>
+	<entrypoint id="76">
+		<qualifiedname>javax.xml.xpath.XPath</qualifiedname>
+		<methodname>evaluate</methodname>
+		<parameters type="java.lang.String" />
+		<parameters type="java.lang.Object" />
+		<parameters type="java.lang.Object" />
+	</entrypoint>
+	<entrypoint id="77">
+		<qualifiedname>javax.xml.xpath.XPathExpression</qualifiedname>
+		<methodname>evaluate</methodname>
+		<parameters type="java.lang.Object" />
+	</entrypoint>
+	<entrypoint id="78">
+		<qualifiedname>javax.xml.xpath.XPathExpression</qualifiedname>
+		<methodname>evaluate</methodname>
+		<parameters type="java.lang.Object" />
+		<parameters type="java.lang.Object" />
+	</entrypoint>
+	<!-- org.dom4j.io.SAXReader -->
+	<entrypoint id="79">
+		<qualifiedname>org.dom4j.io.SAXReader</qualifiedname>
+		<methodname>read</methodname>
+		<parameters type="java.lang.Object" />
+	</entrypoint>
+	<!-- java.lang.Throwable -->
+	<entrypoint id="80">
+		<qualifiedname>java.lang.Throwable</qualifiedname>
+		<methodname>getMessage</methodname>
+	</entrypoint>
+	<entrypoint id="81">
+		<qualifiedname>java.lang.Throwable</qualifiedname>
+		<methodname>getLocalizedMessage</methodname>
 	</entrypoint>
 </entrypoints>
