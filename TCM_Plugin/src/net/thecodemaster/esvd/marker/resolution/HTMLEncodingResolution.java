@@ -31,17 +31,13 @@ import org.eclipse.text.edits.TextEdit;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 
-public class EncodingResolution extends AbstractResolution {
+public class HTMLEncodingResolution extends AbstractResolution {
 
-	private final String	encodingType;
-	private final String	esapiEncoderMethodName;
-	final String[]				ENCODING_TYPES	= new String[] { "CSS", "HTML", "HTMLAttribute", "JavaScript" };
+	private final String	esapiEncoderMethodName	= "encodeForHTML";
 
-	public EncodingResolution(int position, IMarker marker, String encodingType) {
+	public HTMLEncodingResolution(int position, IMarker marker) {
 		super(position, marker);
 
-		this.encodingType = encodingType;
-		this.esapiEncoderMethodName = "encodeFor" + encodingType;
 		setLabel(generateLabel());
 		setDescription(generateDescription());
 	}
@@ -135,16 +131,7 @@ public class EncodingResolution extends AbstractResolution {
 	}
 
 	private String generateLabel() {
-		if (encodingType.equals(ENCODING_TYPES[0]))
-			return "CSS Encoder";
-		else if (encodingType.equals(ENCODING_TYPES[1]))
-			return "HTML Encoder";
-		else if (encodingType.equals(ENCODING_TYPES[2]))
-			return "HTML Attribute Encoder";
-		else if (encodingType.equals(ENCODING_TYPES[3]))
-			return "JavaScript Encoder";
-		else
-			return "";
+		return "HTML Encoder";
 	}
 
 	private String generateDescription() {
@@ -152,15 +139,7 @@ public class EncodingResolution extends AbstractResolution {
 		String instruction = "-- Double click selection to auto-generate encoding method --";
 		String description = "";
 
-		if (encodingType.equals(ENCODING_TYPES[0])) {
-			description = "Use CSS Encoding when the data you get from an outside source is to be written directly into your Cascading Style Sheet or your style tag. Doing so will encode malicious characters so an attacker can not easily exploit CSS interpreter vulnerabilities.";
-		} else if (encodingType.equals(ENCODING_TYPES[1])) {
-			description = "Use HTML Encoding when the data you get from an outside source is to be written directly into your HTML body.";
-		} else if (encodingType.equals(ENCODING_TYPES[2])) {
-			description = "Attributes provide information about an element and use a minimal set of characters. Use the HTML Attribute Encoder when attributes you use in your HTML do not come from your HTML page to safeguard from dangerous characters.";
-		} else if (encodingType.equals(ENCODING_TYPES[3])) {
-			description = "Use JavaScript encoder when you are using a script that comes from some source outside of your page or when you obtain input from the user that will be put into the script. The encoder changes potentially dangerous characters into usable safe ones.";
-		}
+		description = "Use HTML Encoding when the data you get from an outside source is to be written directly into your HTML body.";
 
 		buf.append(instruction);
 		buf.append("<p><p>");
