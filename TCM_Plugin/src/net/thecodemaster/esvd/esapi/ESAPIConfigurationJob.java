@@ -35,20 +35,20 @@ import org.eclipse.jdt.launching.AbstractVMInstall;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.osgi.framework.Bundle;
 
-
 public class ESAPIConfigurationJob extends Job {
 
-	private final static String ESAPI_CONFIG_DIR_NAME = "esapi_files";
-	private final static String ASIDE_ESAPI_CONTAINER = "ESAPI Libraries";
-	private final static String PROJECT_LIB_PATH = "WebContent"	+ IPath.SEPARATOR + "WEB-INF" + IPath.SEPARATOR + "lib";
-	private final static String PROJECT_WEBINF_PATH = "src" ;//"WebContent" + IPath.SEPARATOR + "WEB-INF";
-	private final static String ESAPI_VM_ARG = "-Dorg.owasp.esapi.resources";
+	private final static String	ESAPI_CONFIG_DIR_NAME	= "esapi_files";
+	private final static String	ASIDE_ESAPI_CONTAINER	= "ESAPI Libraries";
+	private final static String	PROJECT_LIB_PATH			= "WebContent" + IPath.SEPARATOR + "WEB-INF" + IPath.SEPARATOR
+																												+ "lib";
+	private final static String	PROJECT_WEBINF_PATH		= "src";													// "WebContent" + IPath.SEPARATOR
+																																											// + "WEB-INF";
+	private final static String	ESAPI_VM_ARG					= "-Dorg.owasp.esapi.resources";
 
-	private IProject fProject;
-	private IJavaProject javaProject;
+	private final IProject			fProject;
+	private final IJavaProject	javaProject;
 
-	public ESAPIConfigurationJob(String name, IProject project,
-			IJavaProject javaProject) {
+	public ESAPIConfigurationJob(String name, IProject project, IJavaProject javaProject) {
 		super(name);
 		this.fProject = project;
 		this.javaProject = javaProject;
@@ -56,9 +56,7 @@ public class ESAPIConfigurationJob extends Job {
 
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
-		
-		
-		
+
 		if (monitor == null)
 			monitor = new NullProgressMonitor();
 
@@ -68,8 +66,8 @@ public class ESAPIConfigurationJob extends Job {
 	private IStatus configure(IProgressMonitor monitor) {
 
 		/**
-		 * Apparently, here's the assumption that the target project follows the
-		 * dynamic web project structure defined by Eclipse
+		 * Apparently, here's the assumption that the target project follows the dynamic web project structure defined by
+		 * Eclipse
 		 */
 
 		final IFolder lib = fProject.getFolder(PROJECT_LIB_PATH);
@@ -85,7 +83,7 @@ public class ESAPIConfigurationJob extends Job {
 			System.out.println("cannot locate ESAPI directory");
 			return Status.OK_STATUS;
 		}
-        //System.out.println("FileLocator.find(bundle, path, null)--fileURL=="+fileURL);
+		// System.out.println("FileLocator.find(bundle, path, null)--fileURL=="+fileURL);
 		InputStream is = null;
 		try {
 
@@ -95,23 +93,18 @@ public class ESAPIConfigurationJob extends Job {
 			File file = new File(sourcePath);
 			if (file.exists() && file.isDirectory()) {
 				File[] sourceFiles = file.listFiles();
-				monitor.beginTask("Configuring OWASP ESAPI for Java Project: "
-						+ fProject.getName(), IProgressMonitor.UNKNOWN);
+				monitor.beginTask("Configuring OWASP ESAPI for Java Project: " + fProject.getName(), IProgressMonitor.UNKNOWN);
 				for (int i = 0; i < sourceFiles.length; i++) {
 
 					File target = sourceFiles[i];
 					String fileName = target.getName();
-					monitor.subTask("Checking and Copying ESAPI library: "
-							+ fileName);
+					monitor.subTask("Checking and Copying ESAPI library: " + fileName);
 
 					if (target.isFile()) {
 						if (fileName.endsWith(".jar")) {
-							is = new BufferedInputStream(new FileInputStream(
-									target.getAbsolutePath()));
-							IFile destination = fProject
-									.getFile(IPath.SEPARATOR + PROJECT_LIB_PATH
-											+ IPath.SEPARATOR + fileName);
-							
+							is = new BufferedInputStream(new FileInputStream(target.getAbsolutePath()));
+							IFile destination = fProject.getFile(IPath.SEPARATOR + PROJECT_LIB_PATH + IPath.SEPARATOR + fileName);
+
 							if (!destination.exists()) {
 								try {
 									destination.create(is, false, null);
@@ -119,13 +112,10 @@ public class ESAPIConfigurationJob extends Job {
 									continue;
 								}
 							}
-						}else if(fileName.equals("log4j.properties")){ //copy the log4j.properties file
-							is = new BufferedInputStream(new FileInputStream(
-									target.getAbsolutePath()));
-							IFile destination = fProject
-									.getFile(IPath.SEPARATOR + PROJECT_WEBINF_PATH
-											+ IPath.SEPARATOR + fileName);
-							
+						} else if (fileName.equals("log4j.properties")) { // copy the log4j.properties file
+							is = new BufferedInputStream(new FileInputStream(target.getAbsolutePath()));
+							IFile destination = fProject.getFile(IPath.SEPARATOR + PROJECT_WEBINF_PATH + IPath.SEPARATOR + fileName);
+
 							if (!destination.exists()) {
 								try {
 									destination.create(is, false, null);
@@ -135,16 +125,16 @@ public class ESAPIConfigurationJob extends Job {
 							}
 						}
 					} else if (target.isDirectory()) {
-						if (fileName.equalsIgnoreCase("esapi")
-								|| fileName.equalsIgnoreCase(".esapi")) {
-							//IFolder destination = fProject.getFolder(fileName); // this one may need modification
-							//added Mar. 2
-							//IFolder tmp = fProject.getFolder(fileName);
-							IFolder destination = fProject.getFolder(IPath.SEPARATOR + PROJECT_WEBINF_PATH + IPath.SEPARATOR + fileName);
+						if (fileName.equalsIgnoreCase("esapi") || fileName.equalsIgnoreCase(".esapi")) {
+							// IFolder destination = fProject.getFolder(fileName); // this one may need modification
+							// added Mar. 2
+							// IFolder tmp = fProject.getFolder(fileName);
+							IFolder destination = fProject.getFolder(IPath.SEPARATOR + PROJECT_WEBINF_PATH + IPath.SEPARATOR
+									+ fileName);
 							String tmp = IPath.SEPARATOR + PROJECT_WEBINF_PATH + IPath.SEPARATOR + fileName;
-							//System.out.println("line 126 destination = " + destination + " tmp" + tmp);
-							/////
-							
+							// System.out.println("line 126 destination = " + destination + " tmp" + tmp);
+							// ///
+
 							if (!destination.exists()) {
 								try {
 									destination.create(true, true, null);
@@ -185,15 +175,13 @@ public class ESAPIConfigurationJob extends Job {
 		return Status.OK_STATUS;
 	}
 
-	private void copyDirectory(File sourceDir, String basePath, InputStream is,
-			IProgressMonitor monitor) throws CoreException,
-			FileNotFoundException {
-       // System.out.println("basePath " + basePath);
+	private void copyDirectory(File sourceDir, String basePath, InputStream is, IProgressMonitor monitor)
+			throws CoreException, FileNotFoundException {
+		// System.out.println("basePath " + basePath);
 		File[] subFiles = sourceDir.listFiles();
 		for (File subFile : subFiles) {
 
-			String sub_basePath = basePath + IPath.SEPARATOR
-					+ subFile.getName();
+			String sub_basePath = basePath + IPath.SEPARATOR + subFile.getName();
 			monitor.subTask("Copying file " + sub_basePath);
 			if (subFile.isDirectory()) {
 
@@ -208,8 +196,7 @@ public class ESAPIConfigurationJob extends Job {
 				copyDirectory(subFile, sub_basePath, is, monitor);
 
 			} else if (subFile.isFile()) {
-				is = new BufferedInputStream(new FileInputStream(
-						subFile.getAbsolutePath()));
+				is = new BufferedInputStream(new FileInputStream(subFile.getAbsolutePath()));
 				IFile destination = fProject.getFile(sub_basePath);
 				if (!destination.exists()) {
 					try {
@@ -224,8 +211,7 @@ public class ESAPIConfigurationJob extends Job {
 	}
 
 	private void setESAPIClasspathContainer(final IFolder lib) {
-		final IPath containerPath = new Path(ASIDE_ESAPI_CONTAINER)
-				.append(fProject.getFullPath());
+		final IPath containerPath = new Path(ASIDE_ESAPI_CONTAINER).append(fProject.getFullPath());
 		IClasspathContainer esapiContainer = new IClasspathContainer() {
 
 			@Override
@@ -236,10 +222,8 @@ public class ESAPIConfigurationJob extends Job {
 					for (IResource resource : members) {
 						if (IFile.class.isAssignableFrom(resource.getClass())) {
 							if (resource.getName().endsWith(".jar")) {
-								entryList.add(JavaCore.newLibraryEntry(
-										new Path(resource.getFullPath()
-												.toOSString()), null, new Path(
-												"/")));
+								entryList.add(JavaCore.newLibraryEntry(new Path(resource.getFullPath().toOSString()), null, new Path(
+										"/")));
 							}
 						}
 					}
@@ -247,8 +231,7 @@ public class ESAPIConfigurationJob extends Job {
 					e.printStackTrace();
 				}
 				// convert the list to an array and return it
-				IClasspathEntry[] entryArray = new IClasspathEntry[entryList
-						.size()];
+				IClasspathEntry[] entryArray = new IClasspathEntry[entryList.size()];
 				return entryList.toArray(entryArray);
 			}
 
@@ -274,8 +257,7 @@ public class ESAPIConfigurationJob extends Job {
 		};
 
 		try {
-			JavaCore.setClasspathContainer(containerPath,
-					new IJavaProject[] { javaProject },
+			JavaCore.setClasspathContainer(containerPath, new IJavaProject[] { javaProject },
 					new IClasspathContainer[] { esapiContainer }, null);
 
 			IClasspathEntry[] entries = javaProject.getRawClasspath();
@@ -284,8 +266,7 @@ public class ESAPIConfigurationJob extends Job {
 			boolean hasEsapiContainer = false;
 
 			for (int i = 0; i < entries.length; i++) {
-				if (entries[i].getEntryKind() == IClasspathEntry.CPE_CONTAINER
-						&& entries[i].getPath().equals(containerPath)) {
+				if (entries[i].getEntryKind() == IClasspathEntry.CPE_CONTAINER && entries[i].getPath().equals(containerPath)) {
 					hasEsapiContainer = true;
 				}
 			}
@@ -295,8 +276,7 @@ public class ESAPIConfigurationJob extends Job {
 				System.arraycopy(entries, 0, newEntries, 0, entries.length);
 
 				// add a new entry using the path to the container
-				newEntries[entries.length] = JavaCore
-						.newContainerEntry(esapiContainer.getPath());
+				newEntries[entries.length] = JavaCore.newContainerEntry(esapiContainer.getPath());
 
 				javaProject.setRawClasspath(newEntries, null);
 
@@ -309,40 +289,39 @@ public class ESAPIConfigurationJob extends Job {
 
 	private void setESAPIResourceLocation() {
 		URI locationUri = null;
-		IFolder folder = fProject.getFolder(PROJECT_WEBINF_PATH + IPath.SEPARATOR + "esapi"); //here may need changes
+		IFolder folder = fProject.getFolder(PROJECT_WEBINF_PATH + IPath.SEPARATOR + "esapi"); // here may need changes
 
 		if (folder.exists()) {
-			//System.out.println("setESAPIResourceLocation class--folder.exists()="+locationUri);
+			// System.out.println("setESAPIResourceLocation class--folder.exists()="+locationUri);
 			locationUri = folder.getRawLocationURI();
-			//System.out.println("setESAPIResourceLocation class--older.getRawLocationURI="+locationUri);
+			// System.out.println("setESAPIResourceLocation class--older.getRawLocationURI="+locationUri);
 		} else {
 			folder = fProject.getFolder(".esapi");
 			System.out.println("folder not exist!");
-			
+
 			if (folder.exists()) {
 				locationUri = folder.getRawLocationURI();
-				//System.out.println("setESAPIResourceLocation class-- fProject.getFolder .esapi exist, locationUri="+locationUri);
-				
+				// System.out.println("setESAPIResourceLocation class-- fProject.getFolder .esapi exist, locationUri="+locationUri);
+
 			}
 		}
 
-		if (locationUri == null){
+		if (locationUri == null) {
 			System.out.println("setESAPIResourceLocation class--locationUri= null");
 			return;
 		}
-		//String path = ESAPI_VM_ARG + "=\"" + locationUri.getPath().substring(1) + "\""; just added for test Feb. 28
-		
+		// String path = ESAPI_VM_ARG + "=\"" + locationUri.getPath().substring(1) + "\""; just added for test Feb. 28
+
 		String path = ESAPI_VM_ARG + "=\"" + "/" + locationUri.getPath().substring(1) + "\"";
-		
-        //System.out.println("Line 307 Path = " + path);
+
+		// System.out.println("Line 307 Path = " + path);
 		try {
-			AbstractVMInstall vminstall = (AbstractVMInstall) JavaRuntime
-					.getVMInstall(javaProject);
+			AbstractVMInstall vminstall = (AbstractVMInstall) JavaRuntime.getVMInstall(javaProject);
 			if (vminstall != null) {
 				String[] vmargs = vminstall.getVMArguments();
 				if (vmargs == null) {
 					vminstall.setVMArguments(new String[] { path });
-				    System.out.println("vmargs == null, and it is reseted, Line 315 Path = " + path);
+					System.out.println("vmargs == null, and it is reseted, Line 315 Path = " + path);
 				}
 			}
 		} catch (CoreException e) {

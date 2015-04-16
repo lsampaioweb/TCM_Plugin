@@ -33,10 +33,9 @@ import org.eclipse.ui.IEditorPart;
 
 public class EncodingResolution extends AbstractResolution {
 
-	private String encodingType;
-	private String esapiEncoderMethodName;
-	final String[] ENCODING_TYPES = new String[] { "CSS", "HTML",
-			"HTMLAttribute", "JavaScript" };
+	private final String	encodingType;
+	private final String	esapiEncoderMethodName;
+	final String[]				ENCODING_TYPES	= new String[] { "CSS", "HTML", "HTMLAttribute", "JavaScript" };
 
 	public EncodingResolution(int position, IMarker marker, String encodingType) {
 		super(position, marker);
@@ -53,15 +52,12 @@ public class EncodingResolution extends AbstractResolution {
 			List<ViewDataModel> vdms = getViewDataModelsFromMarker(marker);
 			ViewDataModel vdm = vdms.get(0);
 			Expression expression = vdm.getExpr();
-			CompilationUnit cUnit = BindingResolver
-					.getCompilationUnit(expression);
+			CompilationUnit cUnit = BindingResolver.getCompilationUnit(expression);
 
-			int offset = (int) marker.getAttribute(IMarker.CHAR_START, -1);
-			int length = (int) marker.getAttribute(IMarker.CHAR_END, -1)
-					- offset;
+			int offset = marker.getAttribute(IMarker.CHAR_START, -1);
+			int length = marker.getAttribute(IMarker.CHAR_END, -1) - offset;
 
-			IEditorPart part = JavaUI.openInEditor(cUnit.getJavaElement(),
-					true, true);
+			IEditorPart part = JavaUI.openInEditor(cUnit.getJavaElement(), true, true);
 			if (part == null) {
 				return;
 			}
@@ -69,8 +65,7 @@ public class EncodingResolution extends AbstractResolution {
 			if (input == null) {
 				return;
 			}
-			IDocument document = JavaUI.getDocumentProvider()
-					.getDocument(input);
+			IDocument document = JavaUI.getDocumentProvider().getDocument(input);
 
 			generateEncoding(cUnit, document, offset, length);
 			insertEncodingImports(cUnit, document);
@@ -79,8 +74,7 @@ public class EncodingResolution extends AbstractResolution {
 			IJavaProject javaProject = cUnit.getJavaElement().getJavaProject();
 			IProject project = javaProject.getProject();
 
-			ESAPIConfigurationJob job = new ESAPIConfigurationJob(
-					"ESAPI Configuration", project, javaProject);
+			ESAPIConfigurationJob job = new ESAPIConfigurationJob("ESAPI Configuration", project, javaProject);
 
 			job.scheduleInteractive();
 		} catch (MalformedTreeException | BadLocationException | CoreException e) {
@@ -88,9 +82,8 @@ public class EncodingResolution extends AbstractResolution {
 		}
 	}
 
-	private void generateEncoding(CompilationUnit cUnit, IDocument document,
-			int offset, int length) throws MalformedTreeException,
-			BadLocationException, JavaModelException, IllegalArgumentException {
+	private void generateEncoding(CompilationUnit cUnit, IDocument document, int offset, int length)
+			throws MalformedTreeException, BadLocationException, JavaModelException, IllegalArgumentException {
 		// FIXME REMOVE THIS CONSTANTS FROM HERE
 		final String ESAPI = "ESAPI";
 		final String ESAPI_ENCODER = "encoder";
@@ -100,8 +93,7 @@ public class EncodingResolution extends AbstractResolution {
 			return;
 		}
 
-		MethodDeclaration declaration = BindingResolver
-				.getParentMethodDeclaration(node);
+		MethodDeclaration declaration = BindingResolver.getParentMethodDeclaration(node);
 		if (declaration == null) {
 			return;
 		}
@@ -121,24 +113,21 @@ public class EncodingResolution extends AbstractResolution {
 
 		List<Expression> args = replacement.arguments();
 
-		Expression copyOfCoveredNode = (Expression) astRewrite
-				.createCopyTarget(node);
+		Expression copyOfCoveredNode = (Expression) astRewrite.createCopyTarget(node);
 		args.add(0, copyOfCoveredNode);
 
 		astRewrite.replace(node, replacement, null);
 
 		textEdits = astRewrite.rewriteAST();
 
-		textEdits.apply(document, TextEdit.CREATE_UNDO
-				| TextEdit.UPDATE_REGIONS);
+		textEdits.apply(document, TextEdit.CREATE_UNDO | TextEdit.UPDATE_REGIONS);
 
 		// TODO CHECK IF THIS IS NECESSARY
-		ITrackedNodePosition replacementPositionTracking = astRewrite
-				.track(replacement);
+		ITrackedNodePosition replacementPositionTracking = astRewrite.track(replacement);
 	}
 
-	private void insertEncodingImports(CompilationUnit cUnit, IDocument document)
-			throws MalformedTreeException, BadLocationException, CoreException {
+	private void insertEncodingImports(CompilationUnit cUnit, IDocument document) throws MalformedTreeException,
+			BadLocationException, CoreException {
 		// FIXME REMOVE THIS CONSTANT AND RECEIVE THE IMPORT AS A PARAMETER
 		final String ESAPI_IMPORT = "org.owasp.esapi.ESAPI";
 
@@ -147,8 +136,7 @@ public class EncodingResolution extends AbstractResolution {
 
 		TextEdit importEdits = null;
 		importEdits = fImportRewrite.rewriteImports(null);
-		importEdits.apply(document, TextEdit.CREATE_UNDO
-				| TextEdit.UPDATE_REGIONS);
+		importEdits.apply(document, TextEdit.CREATE_UNDO | TextEdit.UPDATE_REGIONS);
 	}
 
 	private String generateLabel() {
