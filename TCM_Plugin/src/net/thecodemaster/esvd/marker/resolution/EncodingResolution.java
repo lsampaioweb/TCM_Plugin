@@ -22,7 +22,6 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ITrackedNodePosition;
-import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -32,6 +31,11 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 
 public abstract class EncodingResolution extends AbstractResolution {
+
+	// FIXME REMOVE THIS CONSTANTS FROM HERE
+	private static final String	ESAPI_IMPORT	= "org.owasp.esapi.ESAPI";
+	private static final String	ESAPI					= "ESAPI";
+	private static final String	ESAPI_ENCODER	= "encoder";
 
 	public EncodingResolution(int position, IMarker marker) {
 		super(position, marker);
@@ -49,18 +53,12 @@ public abstract class EncodingResolution extends AbstractResolution {
 			int length = marker.getAttribute(IMarker.CHAR_END, -1) - offset;
 
 			IEditorPart part = JavaUI.openInEditor(cUnit.getJavaElement(), true, true);
-			if (part == null) {
-				return;
-			}
 			IEditorInput input = part.getEditorInput();
-			if (input == null) {
-				return;
-			}
 			IDocument document = JavaUI.getDocumentProvider().getDocument(input);
 
 			generateEncoding(cUnit, document, offset, length);
-			insertEncodingImports(cUnit, document);
-			runInsertComment(marker, "//TEST COMMENT");
+			insertImport(cUnit, document, ESAPI_IMPORT);
+			// runInsertComment(marker, "//TEST COMMENT");
 
 			IJavaProject javaProject = cUnit.getJavaElement().getJavaProject();
 			IProject project = javaProject.getProject();
@@ -75,54 +73,33 @@ public abstract class EncodingResolution extends AbstractResolution {
 
 	private void generateEncoding(CompilationUnit cUnit, IDocument document, int offset, int length)
 			throws MalformedTreeException, BadLocationException, JavaModelException, IllegalArgumentException {
-		// FIXME REMOVE THIS CONSTANTS FROM HERE
-		final String ESAPI = "ESAPI";
-		final String ESAPI_ENCODER = "encoder";
 
 		ASTNode node = NodeFinder.perform(cUnit, offset, length);
-		if (!(node instanceof Expression)) {
-			return;
-		}
-
 		MethodDeclaration declaration = BindingResolver.getParentMethodDeclaration(node);
-		if (declaration == null) {
-			return;
-		}
-
 		Block body = declaration.getBody();
 		AST ast = body.getAST();
 
-		ASTRewrite astRewrite = ASTRewrite.create(ast);
-		TextEdit textEdits = null;
-
-		MethodInvocation replacement = ast.newMethodInvocation();
 		MethodInvocation expression = ast.newMethodInvocation();
 		expression.setExpression(ast.newSimpleName(ESAPI));
 		expression.setName(ast.newSimpleName(ESAPI_ENCODER));
+
+		MethodInvocation replacement = ast.newMethodInvocation();
 		replacement.setExpression(expression);
 		replacement.setName(ast.newSimpleName(getEsapiEncoderMethodName()));
 
+		ASTRewrite astRewrite = ASTRewrite.create(ast);
+
+		Expression copyOfCoveredNode = (Expression) astRewrite.createCopyTarget(node);
+		List<Expression> args = replacement.arguments();
+		args.add(0, copyOfCoveredNode);
+
 		astRewrite.replace(node, replacement, null);
 
-		textEdits = astRewrite.rewriteAST();
-
-		textEdits.apply(document, TextEdit.CREATE_UNDO | TextEdit.UPDATE_REGIONS);
+		TextEdit textEdits = astRewrite.rewriteAST();
+		textEdits.apply(document, TextEdit.UPDATE_REGIONS);
 
 		// TODO CHECK IF THIS IS NECESSARY
 		ITrackedNodePosition replacementPositionTracking = astRewrite.track(replacement);
-	}
-
-	private void insertEncodingImports(CompilationUnit cUnit, IDocument document) throws MalformedTreeException,
-			BadLocationException, CoreException {
-		// FIXME REMOVE THIS CONSTANT AND RECEIVE THE IMPORT AS A PARAMETER
-		final String ESAPI_IMPORT = "org.owasp.esapi.ESAPI";
-
-		ImportRewrite fImportRewrite = ImportRewrite.create(cUnit, true);
-		fImportRewrite.addImport(ESAPI_IMPORT);
-
-		TextEdit importEdits = null;
-		importEdits = fImportRewrite.rewriteImports(null);
-		importEdits.apply(document, TextEdit.CREATE_UNDO | TextEdit.UPDATE_REGIONS);
 	}
 
 	protected abstract String getEsapiEncoderMethodName();

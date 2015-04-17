@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
+import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -106,6 +107,17 @@ public abstract class AbstractResolution implements IMarkerResolution2 {
 	protected void insertComment(ASTRewrite rewriter, ListRewrite listRewrite, ASTNode node, String comment) {
 		Statement placeHolder = (Statement) rewriter.createStringPlaceholder(comment, ASTNode.EMPTY_STATEMENT);
 		listRewrite.insertBefore(placeHolder, node, null);
+	}
+
+	protected void insertImport(CompilationUnit cUnit, IDocument document, String qualifiedTypeName)
+			throws MalformedTreeException, BadLocationException, CoreException {
+
+		ImportRewrite fImportRewrite = ImportRewrite.create(cUnit, true);
+		fImportRewrite.addImport(qualifiedTypeName);
+
+		TextEdit importEdits = null;
+		importEdits = fImportRewrite.rewriteImports(null);
+		importEdits.apply(document, TextEdit.CREATE_UNDO | TextEdit.UPDATE_REGIONS);
 	}
 
 	protected void applyChanges(CompilationUnit cUnit, ASTRewrite rewriter) {
