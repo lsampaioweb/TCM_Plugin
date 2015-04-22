@@ -35,7 +35,7 @@ import org.eclipse.jdt.launching.AbstractVMInstall;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.osgi.framework.Bundle;
 
-public class ESAPIConfigurationJob extends Job {
+public class EsapiDependencyConfigurationJob extends Job {
 
 	private final static String	ESAPI_CONFIG_DIR_NAME	= "esapi_files";
 	private final static String	ASIDE_ESAPI_CONTAINER	= "ESAPI Libraries";
@@ -48,7 +48,7 @@ public class ESAPIConfigurationJob extends Job {
 	private final IProject			fProject;
 	private final IJavaProject	javaProject;
 
-	public ESAPIConfigurationJob(String name, IProject project, IJavaProject javaProject) {
+	public EsapiDependencyConfigurationJob(String name, IProject project, IJavaProject javaProject) {
 		super(name);
 		this.fProject = project;
 		this.javaProject = javaProject;

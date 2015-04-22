@@ -2,7 +2,7 @@ package net.thecodemaster.esvd.marker.resolution;
 
 import org.eclipse.core.resources.IMarker;
 
-public class HTMLAttributeEncodingResolution extends EncodingResolution {
+public class HTMLAttributeEncodingResolution extends AbstractEncodingResolution {
 
 	public HTMLAttributeEncodingResolution(int position, IMarker marker) {
 		super(position, marker);

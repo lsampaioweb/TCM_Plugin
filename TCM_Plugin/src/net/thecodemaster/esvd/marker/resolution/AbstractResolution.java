@@ -1,5 +1,6 @@
 package net.thecodemaster.esvd.marker.resolution;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.thecodemaster.esvd.Activator;
@@ -112,12 +113,25 @@ public abstract class AbstractResolution implements IMarkerResolution2 {
 	protected void insertImport(CompilationUnit cUnit, IDocument document, String qualifiedTypeName)
 			throws MalformedTreeException, BadLocationException, CoreException {
 
-		ImportRewrite fImportRewrite = ImportRewrite.create(cUnit, true);
-		fImportRewrite.addImport(qualifiedTypeName);
+		List<String> listImport = new ArrayList<String>();
+		listImport.add(qualifiedTypeName);
+		insertImport(cUnit, document, listImport);
+	}
 
-		TextEdit importEdits = null;
-		importEdits = fImportRewrite.rewriteImports(null);
-		importEdits.apply(document, TextEdit.CREATE_UNDO | TextEdit.UPDATE_REGIONS);
+	protected void insertImport(CompilationUnit cUnit, IDocument document, List<String> listQualifiedTypeName)
+			throws MalformedTreeException, BadLocationException, CoreException {
+
+		if (listQualifiedTypeName != null && !listQualifiedTypeName.isEmpty()) {
+			ImportRewrite fImportRewrite = ImportRewrite.create(cUnit, true);
+
+			for (String qualifiedTypeName : listQualifiedTypeName) {
+				fImportRewrite.addImport(qualifiedTypeName);
+			}
+
+			TextEdit importEdits = null;
+			importEdits = fImportRewrite.rewriteImports(null);
+			importEdits.apply(document, TextEdit.CREATE_UNDO | TextEdit.UPDATE_REGIONS);
+		}
 	}
 
 	protected void applyChanges(CompilationUnit cUnit, ASTRewrite rewriter) {

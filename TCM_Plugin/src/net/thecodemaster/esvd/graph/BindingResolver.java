@@ -9,14 +9,18 @@ import net.thecodemaster.esvd.helper.Creator;
 import net.thecodemaster.esvd.logger.PluginLogger;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.ArrayAccess;
 import org.eclipse.jdt.core.dom.ArrayCreation;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -38,6 +42,7 @@ import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperFieldAccess;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
@@ -52,6 +57,28 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 public class BindingResolver {
 
 	private BindingResolver() {
+	}
+
+	// FIXME THIS METHOD ALREADY EXISTS IN VisitorCallGraph
+	// CHECK IF THIS METHOD SHOULD BE HERE OR THERE
+	public static CompilationUnit parse(ICompilationUnit unit) {
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.setSource(unit);
+		parser.setResolveBindings(true);
+
+		return (CompilationUnit) parser.createAST(null);
+	}
+
+	// FIXME CHECK HOW CHANGE THIS METHOD TO USE findAncestor TO MAKE THE LOOP
+	public static Statement getParentStatement(ASTNode node) {
+		while ((node != null) && (!(node instanceof Statement))) {
+			node = node.getParent();
+			if (node instanceof BodyDeclaration) {
+				return null;
+			}
+		}
+		return (Statement) node;
 	}
 
 	private static ASTNode findAncestor(ASTNode node, int nodeType) {
@@ -133,8 +160,7 @@ public class BindingResolver {
 
 				return getPackageName(className, packageNameToSearch);
 			default:
-				PluginLogger.logError("getPackageName Default Node Type: " + className.getNodeType() + " - "
-						+ className, null);
+				PluginLogger.logError("getPackageName Default Node Type: " + className.getNodeType() + " - " + className, null);
 				return null;
 		}
 	}
@@ -159,8 +185,7 @@ public class BindingResolver {
 		}
 
 		if (null == packageName) {
-			packageName = String
-					.format("%s.%s", cu.getPackage().getName().getFullyQualifiedName(), packageNameToSearch);
+			packageName = String.format("%s.%s", cu.getPackage().getName().getFullyQualifiedName(), packageNameToSearch);
 		}
 		return packageName;
 	}
@@ -367,7 +392,7 @@ public class BindingResolver {
 	 * This method was created because the list returned from the arguments is not generic.
 	 * 
 	 * @param arguments
-	 *            The live ordered list of argument expressions in this method invocation expression.
+	 *          The live ordered list of argument expressions in this method invocation expression.
 	 * @return List<Expression>
 	 */
 	@SuppressWarnings("unchecked")

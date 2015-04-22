@@ -2,7 +2,7 @@ package net.thecodemaster.esvd.marker.resolution;
 
 import java.util.List;
 
-import net.thecodemaster.esvd.esapi.ESAPIConfigurationJob;
+import net.thecodemaster.esvd.esapi.EsapiDependencyConfigurationJob;
 import net.thecodemaster.esvd.graph.BindingResolver;
 import net.thecodemaster.esvd.logger.PluginLogger;
 import net.thecodemaster.esvd.ui.view.ViewDataModel;
@@ -30,14 +30,14 @@ import org.eclipse.text.edits.TextEdit;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 
-public abstract class EncodingResolution extends AbstractResolution {
+public abstract class AbstractEncodingResolution extends AbstractResolution {
 
 	// FIXME REMOVE THIS CONSTANTS FROM HERE
 	private static final String	ESAPI_IMPORT	= "org.owasp.esapi.ESAPI";
 	private static final String	ESAPI					= "ESAPI";
 	private static final String	ESAPI_ENCODER	= "encoder";
 
-	public EncodingResolution(int position, IMarker marker) {
+	public AbstractEncodingResolution(int position, IMarker marker) {
 		super(position, marker);
 	}
 
@@ -58,12 +58,12 @@ public abstract class EncodingResolution extends AbstractResolution {
 
 			generateEncoding(cUnit, document, offset, length);
 			insertImport(cUnit, document, ESAPI_IMPORT);
-			// runInsertComment(marker, "//TEST COMMENT");
 
 			IJavaProject javaProject = cUnit.getJavaElement().getJavaProject();
 			IProject project = javaProject.getProject();
 
-			ESAPIConfigurationJob job = new ESAPIConfigurationJob("ESAPI Configuration", project, javaProject);
+			EsapiDependencyConfigurationJob job = new EsapiDependencyConfigurationJob("ESAPI Configuration", project,
+					javaProject);
 
 			job.scheduleInteractive();
 		} catch (MalformedTreeException | BadLocationException | CoreException e) {
