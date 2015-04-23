@@ -20,7 +20,8 @@ public class HTMLEncodingResolution extends AbstractEncodingResolution {
 		String instruction = "-- Double click selection to auto-generate encoding method --";
 		String description = "";
 
-		description = "Use HTML Encoding when the data you get from an outside source is to be written directly into your HTML body.";
+		// FIXME Improve this description
+		description = "Encode data for use in HTML using HTML entity encoding.";
 
 		buf.append(instruction);
 		buf.append("<p><p>");

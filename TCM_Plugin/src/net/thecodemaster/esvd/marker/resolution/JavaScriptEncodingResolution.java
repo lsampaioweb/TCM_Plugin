@@ -20,7 +20,8 @@ public class JavaScriptEncodingResolution extends AbstractEncodingResolution {
 		String instruction = "-- Double click selection to auto-generate encoding method --";
 		String description = "";
 
-		description = "Use JavaScript encoder when you are using a script that comes from some source outside of your page or when you obtain input from the user that will be put into the script. The encoder changes potentially dangerous characters into usable safe ones.";
+		// FIXME Improve this description
+		description = "Encode data for insertion inside a data value or function argument in JavaScript. Including user data directly inside a script is quite dangerous. Great care must be taken to prevent including user data directly into script code itself, as no amount of encoding will prevent attacks there. Please note there are some JavaScript functions that can never safely receive untrusted data as input – even if the user input is encoded.";
 
 		buf.append(instruction);
 		buf.append("<p><p>");

@@ -20,7 +20,8 @@ public class CSSEncodingResolution extends AbstractEncodingResolution {
 		String instruction = "-- Double click selection to auto-generate encoding method --";
 		String description = "";
 
-		description = "Use CSS Encoding when the data you get from an outside source is to be written directly into your Cascading Style Sheet or your style tag. Doing so will encode malicious characters so an attacker can not easily exploit CSS interpreter vulnerabilities.";
+		// FIXME Improve this description
+		description = "Encode data for use in Cascading Style Sheets (CSS) content.";
 
 		buf.append(instruction);
 		buf.append("<p><p>");

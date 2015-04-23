@@ -2,9 +2,9 @@ package net.thecodemaster.esvd.marker.resolution;
 
 import org.eclipse.core.resources.IMarker;
 
-public class HTMLAttributeEncodingResolution extends AbstractEncodingResolution {
+public class DNEncodingResolution extends AbstractEncodingResolution {
 
-	public HTMLAttributeEncodingResolution(int position, IMarker marker) {
+	public DNEncodingResolution(int position, IMarker marker) {
 		super(position, marker);
 
 		setLabel(generateLabel());
@@ -12,7 +12,7 @@ public class HTMLAttributeEncodingResolution extends AbstractEncodingResolution 
 	}
 
 	private String generateLabel() {
-		return "HTML Attribute Encoder";
+		return "DN Encoder";
 	}
 
 	private String generateDescription() {
@@ -21,7 +21,7 @@ public class HTMLAttributeEncodingResolution extends AbstractEncodingResolution 
 		String description = "";
 
 		// FIXME Improve this description
-		description = "Encode data for use in HTML attributes.";
+		description = "Encode data for use in an LDAP distinguished name.";
 
 		buf.append(instruction);
 		buf.append("<p><p>");
@@ -32,6 +32,6 @@ public class HTMLAttributeEncodingResolution extends AbstractEncodingResolution 
 
 	@Override
 	protected String getEsapiEncoderMethodName() {
-		return "encodeForHTMLAttribute";
+		return "encodeForDN";
 	}
 }
