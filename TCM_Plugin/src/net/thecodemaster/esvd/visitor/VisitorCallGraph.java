@@ -2,6 +2,7 @@ package net.thecodemaster.esvd.visitor;
 
 import java.util.List;
 
+import net.thecodemaster.esvd.graph.BindingResolver;
 import net.thecodemaster.esvd.graph.CallGraph;
 import net.thecodemaster.esvd.helper.Creator;
 import net.thecodemaster.esvd.helper.HelperProjects;
@@ -20,8 +21,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
 /**
@@ -85,20 +84,6 @@ public class VisitorCallGraph implements IResourceVisitor, IResourceDeltaVisitor
 		}
 	}
 
-	/**
-	 * Reads a ICompilationUnit and creates the AST DOM for manipulating the Java source file.
-	 * 
-	 * @param unit
-	 * @return A compilation unit.
-	 */
-	private CompilationUnit parse(ICompilationUnit unit) {
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
-		parser.setKind(ASTParser.K_COMPILATION_UNIT);
-		parser.setSource(unit);
-		parser.setResolveBindings(true);
-		return (CompilationUnit) parser.createAST(null); // Parse.
-	}
-
 	public List<IResource> run(IProject project) throws CoreException {
 		project.accept(this);
 
@@ -145,7 +130,7 @@ public class VisitorCallGraph implements IResourceVisitor, IResourceDeltaVisitor
 						setSubTask(Message.Plugin.VISITOR_CALL_GRAPH_SUB_TASK + resource.getName());
 						// Creates the AST for the ICompilationUnits.
 						// Timer timer = (new Timer("01.1.1 - Parsing: " + resource.getName())).start();
-						CompilationUnit cUnit = parse(cu);
+						CompilationUnit cUnit = BindingResolver.parse(cu);
 						// PluginLogger.logIfDebugging(timer.stop().toString());
 
 						// Visit the compilation unit.

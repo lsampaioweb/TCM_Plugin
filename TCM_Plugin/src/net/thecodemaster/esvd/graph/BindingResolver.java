@@ -20,7 +20,6 @@ import org.eclipse.jdt.core.dom.ArrayCreation;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
-import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -42,7 +41,6 @@ import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
-import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperFieldAccess;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
@@ -59,8 +57,12 @@ public class BindingResolver {
 	private BindingResolver() {
 	}
 
-	// FIXME THIS METHOD ALREADY EXISTS IN VisitorCallGraph
-	// CHECK IF THIS METHOD SHOULD BE HERE OR THERE
+	/**
+	 * Reads a ICompilationUnit and creates the AST DOM for manipulating the Java source file.
+	 * 
+	 * @param unit
+	 * @return A compilation unit.
+	 */
 	public static CompilationUnit parse(ICompilationUnit unit) {
 		ASTParser parser = ASTParser.newParser(AST.JLS8);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
@@ -68,17 +70,6 @@ public class BindingResolver {
 		parser.setResolveBindings(true);
 
 		return (CompilationUnit) parser.createAST(null);
-	}
-
-	// FIXME CHECK HOW CHANGE THIS METHOD TO USE findAncestor TO MAKE THE LOOP
-	public static Statement getParentStatement(ASTNode node) {
-		while ((node != null) && (!(node instanceof Statement))) {
-			node = node.getParent();
-			if (node instanceof BodyDeclaration) {
-				return null;
-			}
-		}
-		return (Statement) node;
 	}
 
 	private static ASTNode findAncestor(ASTNode node, int nodeType) {
