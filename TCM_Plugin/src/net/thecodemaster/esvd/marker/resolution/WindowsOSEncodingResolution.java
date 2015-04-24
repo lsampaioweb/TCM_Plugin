@@ -1,5 +1,6 @@
 package net.thecodemaster.esvd.marker.resolution;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.thecodemaster.esvd.esapi.EsapiDependencyConfigurationJob;
@@ -29,16 +30,44 @@ import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.owasp.esapi.codecs.WindowsCodec;
 
-public abstract class AbstractEncodingResolution extends AbstractResolution {
+public class WindowsOSEncodingResolution extends AbstractEncodingResolution {
 
-	// FIXME REMOVE THIS CONSTANTS FROM HERE
-	private static final String	ESAPI_IMPORT	= "org.owasp.esapi.ESAPI";
-	private static final String	ESAPI					= "ESAPI";
-	private static final String	ESAPI_ENCODER	= "encoder";
+	private static final String	ESAPI_IMPORT					= "org.owasp.esapi.ESAPI";
+	private static final String	WINDOWS_CODEC_IMPORT	= "org.owasp.esapi.codecs.WindowsCodec";
+	private static final String	ESAPI									= "ESAPI";
+	private static final String	ESAPI_ENCODER					= "encoder";
 
-	public AbstractEncodingResolution(int position, IMarker marker) {
+	public WindowsOSEncodingResolution(int position, IMarker marker) {
 		super(position, marker);
+
+		setLabel(generateLabel());
+		setDescription(generateDescription());
+	}
+
+	private String generateLabel() {
+		return "Windows OS Encoder";
+	}
+
+	private String generateDescription() {
+		StringBuffer buf = new StringBuffer();
+		String instruction = "-- Double click selection to auto-generate encoding method --";
+		String description = "";
+
+		// FIXME Improve this description
+		description = "Encode for the Windows operating system command shell.";
+
+		buf.append(instruction);
+		buf.append("<p><p>");
+		buf.append(description);
+
+		return buf.toString();
+	}
+
+	@Override
+	protected String getEsapiEncoderMethodName() {
+		return "encodeForOS";
 	}
 
 	@Override
@@ -57,7 +86,11 @@ public abstract class AbstractEncodingResolution extends AbstractResolution {
 			IDocument document = JavaUI.getDocumentProvider().getDocument(input);
 
 			generateEncoding(cUnit, document, offset, length);
-			insertImport(cUnit, document, ESAPI_IMPORT);
+
+			List<String> listImport = new ArrayList<String>();
+			listImport.add(ESAPI_IMPORT);
+			listImport.add(WINDOWS_CODEC_IMPORT);
+			insertImport(cUnit, document, listImport);
 
 			IJavaProject javaProject = cUnit.getJavaElement().getJavaProject();
 			IProject project = javaProject.getProject();
@@ -71,6 +104,7 @@ public abstract class AbstractEncodingResolution extends AbstractResolution {
 		}
 	}
 
+	@Override
 	protected void generateEncoding(CompilationUnit cUnit, IDocument document, int offset, int length)
 			throws MalformedTreeException, BadLocationException, JavaModelException, IllegalArgumentException {
 
@@ -91,7 +125,8 @@ public abstract class AbstractEncodingResolution extends AbstractResolution {
 
 		Expression copyOfCoveredNode = (Expression) astRewrite.createCopyTarget(node);
 		List<Expression> args = replacement.arguments();
-		args.add(0, copyOfCoveredNode);
+		args.add(0, (Expression) ast.createInstance(WindowsCodec.class));
+		args.add(1, copyOfCoveredNode);
 
 		astRewrite.replace(node, replacement, null);
 
@@ -101,6 +136,4 @@ public abstract class AbstractEncodingResolution extends AbstractResolution {
 		// TODO CHECK IF THIS IS NECESSARY
 		ITrackedNodePosition replacementPositionTracking = astRewrite.track(replacement);
 	}
-
-	protected abstract String getEsapiEncoderMethodName();
 }
