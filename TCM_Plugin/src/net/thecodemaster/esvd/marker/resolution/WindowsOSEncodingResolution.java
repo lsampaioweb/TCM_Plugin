@@ -30,7 +30,6 @@ import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
-import org.owasp.esapi.codecs.WindowsCodec;
 
 public class WindowsOSEncodingResolution extends AbstractEncodingResolution {
 
@@ -125,7 +124,7 @@ public class WindowsOSEncodingResolution extends AbstractEncodingResolution {
 
 		Expression copyOfCoveredNode = (Expression) astRewrite.createCopyTarget(node);
 		List<Expression> args = replacement.arguments();
-		args.add(0, (Expression) ast.createInstance(WindowsCodec.class));
+		args.add(0, (Expression) astRewrite.createStringPlaceholder("new WindowsCodec()", ASTNode.CLASS_INSTANCE_CREATION));
 		args.add(1, copyOfCoveredNode);
 
 		astRewrite.replace(node, replacement, null);
