@@ -4,6 +4,5 @@
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
-	<classpathentry kind="lib" path="C:/Users/igor/Development/runtime-TCM_Plugin/WebDemo/WebContent/WEB-INF/lib/esapi-2.0GA.jar" sourcepath="C:/Users/igor/.sourceattacher/esapi-2.0GA-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
