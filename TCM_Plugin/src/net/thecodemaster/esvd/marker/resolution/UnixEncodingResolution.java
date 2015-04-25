@@ -31,14 +31,15 @@ import org.eclipse.text.edits.TextEdit;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 
-public class WindowsOSEncodingResolution extends AbstractEncodingResolution {
+public class UnixEncodingResolution extends AbstractEncodingResolution {
 
-	private static final String	ESAPI_IMPORT					= "org.owasp.esapi.ESAPI";
-	private static final String	WINDOWS_CODEC_IMPORT	= "org.owasp.esapi.codecs.WindowsCodec";
-	private static final String	ESAPI									= "ESAPI";
-	private static final String	ESAPI_ENCODER					= "encoder";
+	private static final String	ESAPI_IMPORT				= "org.owasp.esapi.ESAPI";
+	private static final String	UNIX_CODEC_IMPORT		= "org.owasp.esapi.codecs.UnixCodec";
+	private static final String	UNIX_CODEC_INSTANCE	= "new UnixCodec()";
+	private static final String	ESAPI								= "ESAPI";
+	private static final String	ESAPI_ENCODER				= "encoder";
 
-	public WindowsOSEncodingResolution(int position, IMarker marker) {
+	public UnixEncodingResolution(int position, IMarker marker) {
 		super(position, marker);
 
 		setLabel(generateLabel());
@@ -46,7 +47,7 @@ public class WindowsOSEncodingResolution extends AbstractEncodingResolution {
 	}
 
 	private String generateLabel() {
-		return "Windows OS Encoder";
+		return "Unix Encoder";
 	}
 
 	private String generateDescription() {
@@ -55,7 +56,7 @@ public class WindowsOSEncodingResolution extends AbstractEncodingResolution {
 		String description = "";
 
 		// FIXME Improve this description
-		description = "Encode for the Windows operating system command shell.";
+		description = "Encode for the Unix operating system command shell.";
 
 		buf.append(instruction);
 		buf.append("<p><p>");
@@ -88,7 +89,7 @@ public class WindowsOSEncodingResolution extends AbstractEncodingResolution {
 
 			List<String> listImport = new ArrayList<String>();
 			listImport.add(ESAPI_IMPORT);
-			listImport.add(WINDOWS_CODEC_IMPORT);
+			listImport.add(UNIX_CODEC_IMPORT);
 			insertImport(cUnit, document, listImport);
 
 			IJavaProject javaProject = cUnit.getJavaElement().getJavaProject();
@@ -124,7 +125,7 @@ public class WindowsOSEncodingResolution extends AbstractEncodingResolution {
 
 		Expression copyOfCoveredNode = (Expression) astRewrite.createCopyTarget(node);
 		List<Expression> args = replacement.arguments();
-		args.add(0, (Expression) astRewrite.createStringPlaceholder("new WindowsCodec()", ASTNode.CLASS_INSTANCE_CREATION));
+		args.add(0, (Expression) astRewrite.createStringPlaceholder(UNIX_CODEC_INSTANCE, ASTNode.CLASS_INSTANCE_CREATION));
 		args.add(1, copyOfCoveredNode);
 
 		astRewrite.replace(node, replacement, null);
