@@ -10,9 +10,9 @@ import org.eclipse.core.resources.IMarker;
 /**
  * @author Luciano Sampaio
  */
-public class ResolutionEntryPointNotSanitized extends AbstractResolution {
+public class EntryPointNotSanitizedResolution extends AbstractResolution {
 
-	public ResolutionEntryPointNotSanitized(int position, ResolutionMessage resolutionMessage, IMarker marker) {
+	public EntryPointNotSanitizedResolution(int position, ResolutionMessage resolutionMessage, IMarker marker) {
 		super(position, marker);
 
 		// 03 - Get the ViewDataModel of this marker.
