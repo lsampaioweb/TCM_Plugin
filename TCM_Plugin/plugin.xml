@@ -216,7 +216,7 @@
          id="TCM_ESVD_MARKER_RESOLUTION"
          point="org.eclipse.ui.ide.markerResolution">
       <markerResolutionGenerator
-            class="net.thecodemaster.esvd.marker.resolution.GeneratorResolutionSecurityVulnerability"
+            class="net.thecodemaster.esvd.marker.resolution.SecurityVulnerabilityResolutionGenerator"
             markerType="tcm.early.vulnerability.detector.TCM_ESVD_MARKER">
       </markerResolutionGenerator>
    </extension>
