@@ -39,8 +39,8 @@ public class OracleEncodingResolution extends AbstractEncodingResolution {
 	private static final String	ESAPI									= "ESAPI";
 	private static final String	ESAPI_ENCODER					= "encoder";
 
-	public OracleEncodingResolution(int position, IMarker marker) {
-		super(position, marker);
+	public OracleEncodingResolution(int position) {
+		super(position);
 
 		setLabel(generateLabel());
 		setDescription(generateDescription());

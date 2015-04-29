@@ -1,11 +1,10 @@
 package net.thecodemaster.esvd.marker.resolution;
 
-import org.eclipse.core.resources.IMarker;
 
 public class VBScriptEncodingResolution extends AbstractEncodingResolution {
 
-	public VBScriptEncodingResolution(int position, IMarker marker) {
-		super(position, marker);
+	public VBScriptEncodingResolution(int position) {
+		super(position);
 
 		setLabel(generateLabel());
 		setDescription(generateDescription());

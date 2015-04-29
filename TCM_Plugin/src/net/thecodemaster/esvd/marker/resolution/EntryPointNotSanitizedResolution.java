@@ -13,7 +13,7 @@ import org.eclipse.core.resources.IMarker;
 public class EntryPointNotSanitizedResolution extends AbstractResolution {
 
 	public EntryPointNotSanitizedResolution(int position, ResolutionMessage resolutionMessage, IMarker marker) {
-		super(position, marker);
+		super(position);
 
 		// 03 - Get the ViewDataModel of this marker.
 		List<ViewDataModel> vdms = getViewDataModelsFromMarker(marker);

@@ -39,8 +39,8 @@ public class WindowsEncodingResolution extends AbstractEncodingResolution {
 	private static final String	ESAPI										= "ESAPI";
 	private static final String	ESAPI_ENCODER						= "encoder";
 
-	public WindowsEncodingResolution(int position, IMarker marker) {
-		super(position, marker);
+	public WindowsEncodingResolution(int position) {
+		super(position);
 
 		setLabel(generateLabel());
 		setDescription(generateDescription());

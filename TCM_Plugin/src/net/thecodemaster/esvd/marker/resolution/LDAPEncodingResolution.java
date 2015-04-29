@@ -1,11 +1,10 @@
 package net.thecodemaster.esvd.marker.resolution;
 
-import org.eclipse.core.resources.IMarker;
 
 public class LDAPEncodingResolution extends AbstractEncodingResolution {
 
-	public LDAPEncodingResolution(int position, IMarker marker) {
-		super(position, marker);
+	public LDAPEncodingResolution(int position) {
+		super(position);
 
 		setLabel(generateLabel());
 		setDescription(generateDescription());

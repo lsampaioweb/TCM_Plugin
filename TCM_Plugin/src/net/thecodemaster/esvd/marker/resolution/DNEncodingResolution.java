@@ -1,11 +1,10 @@
 package net.thecodemaster.esvd.marker.resolution;
 
-import org.eclipse.core.resources.IMarker;
 
 public class DNEncodingResolution extends AbstractEncodingResolution {
 
-	public DNEncodingResolution(int position, IMarker marker) {
-		super(position, marker);
+	public DNEncodingResolution(int position) {
+		super(position);
 
 		setLabel(generateLabel());
 		setDescription(generateDescription());

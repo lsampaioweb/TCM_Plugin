@@ -37,14 +37,12 @@ import org.eclipse.ui.IMarkerResolution2;
 public abstract class AbstractResolution implements IMarkerResolution2 {
 
 	private final int			position;
-	// private final IMarker marker;
 	private String				label;
 	private String				description;
 	private ReporterView	reporter;
 
-	public AbstractResolution(int position, IMarker marker) {
+	public AbstractResolution(int position) {
 		this.position = position;
-		// this.marker = marker;
 	}
 
 	private int getPosition() {

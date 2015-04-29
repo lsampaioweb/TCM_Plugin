@@ -1,11 +1,9 @@
 package net.thecodemaster.esvd.marker.resolution;
 
-import org.eclipse.core.resources.IMarker;
-
 public class XMLAttributeEncodingResolution extends AbstractEncodingResolution {
 
-	public XMLAttributeEncodingResolution(int position, IMarker marker) {
-		super(position, marker);
+	public XMLAttributeEncodingResolution(int position) {
+		super(position);
 
 		setLabel(generateLabel());
 		setDescription(generateDescription());

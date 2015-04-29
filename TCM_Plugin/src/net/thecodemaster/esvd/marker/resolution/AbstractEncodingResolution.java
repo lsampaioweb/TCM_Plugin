@@ -37,8 +37,8 @@ public abstract class AbstractEncodingResolution extends AbstractResolution {
 	private static final String	ESAPI					= "ESAPI";
 	private static final String	ESAPI_ENCODER	= "encoder";
 
-	public AbstractEncodingResolution(int position, IMarker marker) {
-		super(position, marker);
+	public AbstractEncodingResolution(int position) {
+		super(position);
 	}
 
 	@Override

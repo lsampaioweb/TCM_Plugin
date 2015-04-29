@@ -39,8 +39,8 @@ public class UnixEncodingResolution extends AbstractEncodingResolution {
 	private static final String	ESAPI								= "ESAPI";
 	private static final String	ESAPI_ENCODER				= "encoder";
 
-	public UnixEncodingResolution(int position, IMarker marker) {
-		super(position, marker);
+	public UnixEncodingResolution(int position) {
+		super(position);
 
 		setLabel(generateLabel());
 		setDescription(generateDescription());

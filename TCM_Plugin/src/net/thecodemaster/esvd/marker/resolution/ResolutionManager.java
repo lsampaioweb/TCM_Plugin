@@ -1,50 +1,77 @@
 package net.thecodemaster.esvd.marker.resolution;
 
+import java.util.List;
+
+import net.thecodemaster.esvd.helper.Creator;
+
 import org.eclipse.ui.IMarkerResolution;
+import org.eclipse.ui.IMarkerResolution2;
 
 public class ResolutionManager {
 
 	protected IMarkerResolution[] getCommandInjectionResolutions() {
-		return null;
+		List<IMarkerResolution2> resolutions = Creator.newList();
+
+		return resolutions.toArray(new IMarkerResolution[resolutions.size()]);
 	}
 
 	protected IMarkerResolution[] getCookiePoisoningResolutions() {
-		return null;
+		List<IMarkerResolution2> resolutions = Creator.newList();
+
+		return resolutions.toArray(new IMarkerResolution[resolutions.size()]);
 	}
 
 	protected IMarkerResolution[] getCrossSiteScriptingResolutions() {
-		return null;
+		List<IMarkerResolution2> resolutions = Creator.newList();
+
+		return resolutions.toArray(new IMarkerResolution[resolutions.size()]);
 	}
 
 	protected IMarkerResolution[] getHTTPResponseSplittingResolutions() {
-		return null;
+		List<IMarkerResolution2> resolutions = Creator.newList();
+
+		return resolutions.toArray(new IMarkerResolution[resolutions.size()]);
 	}
 
 	protected IMarkerResolution[] getLDAPInjectionResolutions() {
-		return null;
+		List<IMarkerResolution2> resolutions = Creator.newList();
+
+		return resolutions.toArray(new IMarkerResolution[resolutions.size()]);
 	}
 
 	protected IMarkerResolution[] getLogForgingResolutions() {
-		return null;
+		List<IMarkerResolution2> resolutions = Creator.newList();
+
+		return resolutions.toArray(new IMarkerResolution[resolutions.size()]);
 	}
 
 	protected IMarkerResolution[] getPathTraversalResolutions() {
-		return null;
+		List<IMarkerResolution2> resolutions = Creator.newList();
+
+		return resolutions.toArray(new IMarkerResolution[resolutions.size()]);
 	}
 
 	protected IMarkerResolution[] getReflectionInjectionResolutions() {
-		return null;
+		List<IMarkerResolution2> resolutions = Creator.newList();
+
+		return resolutions.toArray(new IMarkerResolution[resolutions.size()]);
 	}
 
 	protected IMarkerResolution[] getSecurityMisconfigurationResolutions() {
-		return null;
+		List<IMarkerResolution2> resolutions = Creator.newList();
+
+		return resolutions.toArray(new IMarkerResolution[resolutions.size()]);
 	}
 
 	protected IMarkerResolution[] getSQLInjectionResolutions() {
-		return null;
+		List<IMarkerResolution2> resolutions = Creator.newList();
+
+		return resolutions.toArray(new IMarkerResolution[resolutions.size()]);
 	}
 
 	protected IMarkerResolution[] getXPathInjectionResolutions() {
-		return null;
+		List<IMarkerResolution2> resolutions = Creator.newList();
+
+		return resolutions.toArray(new IMarkerResolution[resolutions.size()]);
 	}
 }

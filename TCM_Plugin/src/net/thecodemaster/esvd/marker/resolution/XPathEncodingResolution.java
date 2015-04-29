@@ -1,11 +1,10 @@
 package net.thecodemaster.esvd.marker.resolution;
 
-import org.eclipse.core.resources.IMarker;
 
 public class XPathEncodingResolution extends AbstractEncodingResolution {
 
-	public XPathEncodingResolution(int position, IMarker marker) {
-		super(position, marker);
+	public XPathEncodingResolution(int position) {
+		super(position);
 
 		setLabel(generateLabel());
 		setDescription(generateDescription());

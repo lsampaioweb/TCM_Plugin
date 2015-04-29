@@ -39,8 +39,8 @@ public class DB2EncodingResolution extends AbstractEncodingResolution {
 	private static final String	ESAPI								= "ESAPI";
 	private static final String	ESAPI_ENCODER				= "encoder";
 
-	public DB2EncodingResolution(int position, IMarker marker) {
-		super(position, marker);
+	public DB2EncodingResolution(int position) {
+		super(position);
 
 		setLabel(generateLabel());
 		setDescription(generateDescription());

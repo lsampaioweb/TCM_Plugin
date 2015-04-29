@@ -40,8 +40,8 @@ public class MySQLEncodingResolution extends AbstractEncodingResolution {
 	private static final String	ESAPI										= "ESAPI";
 	private static final String	ESAPI_ENCODER						= "encoder";
 
-	public MySQLEncodingResolution(int position, IMarker marker) {
-		super(position, marker);
+	public MySQLEncodingResolution(int position) {
+		super(position);
 
 		setLabel(generateLabel());
 		setDescription(generateDescription());

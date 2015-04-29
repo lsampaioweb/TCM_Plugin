@@ -15,7 +15,7 @@ import org.eclipse.jdt.core.dom.ASTNode;
 public class IgnoreResolution extends AbstractResolution {
 
 	public IgnoreResolution(int position, ResolutionMessage resolutionMessage, IMarker marker) {
-		super(position, marker);
+		super(position);
 
 		// 03 - Get the ViewDataModel of this marker.
 		List<ViewDataModel> vdms = getViewDataModelsFromMarker(marker);

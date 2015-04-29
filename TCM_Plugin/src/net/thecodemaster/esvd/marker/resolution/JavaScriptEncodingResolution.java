@@ -1,11 +1,10 @@
 package net.thecodemaster.esvd.marker.resolution;
 
-import org.eclipse.core.resources.IMarker;
 
 public class JavaScriptEncodingResolution extends AbstractEncodingResolution {
 
-	public JavaScriptEncodingResolution(int position, IMarker marker) {
-		super(position, marker);
+	public JavaScriptEncodingResolution(int position) {
+		super(position);
 
 		setLabel(generateLabel());
 		setDescription(generateDescription());
