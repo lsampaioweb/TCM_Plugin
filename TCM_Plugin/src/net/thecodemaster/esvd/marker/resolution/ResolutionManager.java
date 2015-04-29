@@ -1,18 +1,29 @@
 package net.thecodemaster.esvd.marker.resolution;
 
 import java.util.List;
+import java.util.Map;
 
 import net.thecodemaster.esvd.helper.Creator;
+import net.thecodemaster.esvd.xmlloader.LoaderResolutionMessages;
 
 import org.eclipse.ui.IMarkerResolution;
 import org.eclipse.ui.IMarkerResolution2;
 
 public class ResolutionManager {
 
-	private int	position	= 0;
+	private int																			position	= 0;
+	private static Map<Integer, ResolutionMessage>	resolutionMessages;
 
 	private int getPosition() {
 		return ++position;
+	}
+
+	private Map<Integer, ResolutionMessage> getResolutionMessages() {
+		if (null == resolutionMessages) {
+			resolutionMessages = (new LoaderResolutionMessages()).load();
+		}
+
+		return resolutionMessages;
 	}
 
 	protected IMarkerResolution[] getCommandInjectionResolutions() {
