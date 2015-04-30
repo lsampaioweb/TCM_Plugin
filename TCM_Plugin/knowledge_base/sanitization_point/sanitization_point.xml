@@ -238,6 +238,7 @@
 	<sanitizer id="46">
 		<qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
 		<methodname>encodeForOS</methodname>
+		<parameters type="org.owasp.esapi.codecs.WindowsCodec" />
 		<parameters type="java.lang.String" />
 	</sanitizer>
 	<sanitizer id="47">
