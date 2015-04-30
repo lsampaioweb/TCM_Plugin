@@ -8,14 +8,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
 
 import net.thecodemaster.esvd.Activator;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
@@ -26,10 +24,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.jdt.core.IClasspathContainer;
-import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.launching.AbstractVMInstall;
 import org.eclipse.jdt.launching.JavaRuntime;
@@ -38,7 +33,6 @@ import org.osgi.framework.Bundle;
 public class EsapiDependencyConfigurationJob extends Job {
 
 	private final static String	ESAPI_CONFIG_DIR_NAME	= "esapi_files";
-	private final static String	ASIDE_ESAPI_CONTAINER	= "ESAPI Libraries";
 	private final static String	PROJECT_LIB_PATH			= "WebContent" + IPath.SEPARATOR + "WEB-INF" + IPath.SEPARATOR
 																												+ "lib";
 	private final static String	PROJECT_WEBINF_PATH		= "src";													// "WebContent" + IPath.SEPARATOR
@@ -208,83 +202,6 @@ public class EsapiDependencyConfigurationJob extends Job {
 			}
 			monitor.worked(1);
 		}
-	}
-
-	private void setESAPIClasspathContainer(final IFolder lib) {
-		final IPath containerPath = new Path(ASIDE_ESAPI_CONTAINER).append(fProject.getFullPath());
-		IClasspathContainer esapiContainer = new IClasspathContainer() {
-
-			@Override
-			public IClasspathEntry[] getClasspathEntries() {
-				ArrayList<IClasspathEntry> entryList = new ArrayList<IClasspathEntry>();
-				try {
-					IResource[] members = lib.members();
-					for (IResource resource : members) {
-						if (IFile.class.isAssignableFrom(resource.getClass())) {
-							if (resource.getName().endsWith(".jar")) {
-								entryList.add(JavaCore.newLibraryEntry(new Path(resource.getFullPath().toOSString()), null, new Path(
-										"/")));
-							}
-						}
-					}
-				} catch (CoreException e) {
-					e.printStackTrace();
-				}
-				// convert the list to an array and return it
-				IClasspathEntry[] entryArray = new IClasspathEntry[entryList.size()];
-				return entryList.toArray(entryArray);
-			}
-
-			@Override
-			public String getDescription() {
-				return "ASIDE ESAPI Libraries";
-			}
-
-			@Override
-			public int getKind() {
-				return IClasspathEntry.CPE_CONTAINER;
-			}
-
-			@Override
-			public IPath getPath() {
-				return containerPath;
-			}
-
-			@Override
-			public String toString() {
-				return getDescription();
-			}
-		};
-
-		try {
-			JavaCore.setClasspathContainer(containerPath, new IJavaProject[] { javaProject },
-					new IClasspathContainer[] { esapiContainer }, null);
-
-			IClasspathEntry[] entries = javaProject.getRawClasspath();
-
-			// check if the container is already on the path
-			boolean hasEsapiContainer = false;
-
-			for (int i = 0; i < entries.length; i++) {
-				if (entries[i].getEntryKind() == IClasspathEntry.CPE_CONTAINER && entries[i].getPath().equals(containerPath)) {
-					hasEsapiContainer = true;
-				}
-			}
-			if (!hasEsapiContainer) {
-				IClasspathEntry[] newEntries = new IClasspathEntry[entries.length + 1];
-
-				System.arraycopy(entries, 0, newEntries, 0, entries.length);
-
-				// add a new entry using the path to the container
-				newEntries[entries.length] = JavaCore.newContainerEntry(esapiContainer.getPath());
-
-				javaProject.setRawClasspath(newEntries, null);
-
-			}
-		} catch (JavaModelException e) {
-			e.printStackTrace();
-		}
-
 	}
 
 	private void setESAPIResourceLocation() {
