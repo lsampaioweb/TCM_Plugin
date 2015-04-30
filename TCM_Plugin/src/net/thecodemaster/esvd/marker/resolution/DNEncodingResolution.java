@@ -1,17 +1,9 @@
 package net.thecodemaster.esvd.marker.resolution;
 
-
 public class DNEncodingResolution extends AbstractEncodingResolution {
 
-	public DNEncodingResolution(int position) {
-		super(position);
-
-		setLabel(generateLabel());
+	public DNEncodingResolution() {
 		setDescription(generateDescription());
-	}
-
-	private String generateLabel() {
-		return "DN Encoder";
 	}
 
 	private String generateDescription() {
@@ -27,6 +19,11 @@ public class DNEncodingResolution extends AbstractEncodingResolution {
 		buf.append(description);
 
 		return buf.toString();
+	}
+
+	@Override
+	public String getLabel() {
+		return "DN Encoder";
 	}
 
 	@Override

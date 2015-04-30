@@ -1,17 +1,9 @@
 package net.thecodemaster.esvd.marker.resolution;
 
-
 public class LDAPEncodingResolution extends AbstractEncodingResolution {
 
-	public LDAPEncodingResolution(int position) {
-		super(position);
-
-		setLabel(generateLabel());
+	public LDAPEncodingResolution() {
 		setDescription(generateDescription());
-	}
-
-	private String generateLabel() {
-		return "LDAP Encoder";
 	}
 
 	private String generateDescription() {
@@ -27,6 +19,11 @@ public class LDAPEncodingResolution extends AbstractEncodingResolution {
 		buf.append(description);
 
 		return buf.toString();
+	}
+
+	@Override
+	public String getLabel() {
+		return "LDAP Encoder";
 	}
 
 	@Override

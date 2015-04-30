@@ -1,17 +1,9 @@
 package net.thecodemaster.esvd.marker.resolution;
 
-
 public class VBScriptEncodingResolution extends AbstractEncodingResolution {
 
-	public VBScriptEncodingResolution(int position) {
-		super(position);
-
-		setLabel(generateLabel());
+	public VBScriptEncodingResolution() {
 		setDescription(generateDescription());
-	}
-
-	private String generateLabel() {
-		return "VBScript Encoder";
 	}
 
 	private String generateDescription() {
@@ -27,6 +19,11 @@ public class VBScriptEncodingResolution extends AbstractEncodingResolution {
 		buf.append(description);
 
 		return buf.toString();
+	}
+
+	@Override
+	public String getLabel() {
+		return "VBScript Encoder";
 	}
 
 	@Override

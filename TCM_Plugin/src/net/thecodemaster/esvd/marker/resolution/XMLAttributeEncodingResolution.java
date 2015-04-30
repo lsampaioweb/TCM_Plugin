@@ -2,15 +2,8 @@ package net.thecodemaster.esvd.marker.resolution;
 
 public class XMLAttributeEncodingResolution extends AbstractEncodingResolution {
 
-	public XMLAttributeEncodingResolution(int position) {
-		super(position);
-
-		setLabel(generateLabel());
+	public XMLAttributeEncodingResolution() {
 		setDescription(generateDescription());
-	}
-
-	private String generateLabel() {
-		return "XML Attribute Encoder";
 	}
 
 	private String generateDescription() {
@@ -26,6 +19,11 @@ public class XMLAttributeEncodingResolution extends AbstractEncodingResolution {
 		buf.append(description);
 
 		return buf.toString();
+	}
+
+	@Override
+	public String getLabel() {
+		return "XML Attribute Encoder";
 	}
 
 	@Override

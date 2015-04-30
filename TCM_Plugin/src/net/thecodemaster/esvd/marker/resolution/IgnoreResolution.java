@@ -14,8 +14,10 @@ import org.eclipse.jdt.core.dom.ASTNode;
  */
 public class IgnoreResolution extends AbstractResolution {
 
-	public IgnoreResolution(int position, ResolutionMessage resolutionMessage, IMarker marker) {
-		super(position);
+	private final ResolutionMessage	resolutionMessage;
+
+	public IgnoreResolution(ResolutionMessage resolutionMessage, IMarker marker) {
+		this.resolutionMessage = resolutionMessage;
 
 		// 03 - Get the ViewDataModel of this marker.
 		List<ViewDataModel> vdms = getViewDataModelsFromMarker(marker);
@@ -26,13 +28,14 @@ public class IgnoreResolution extends AbstractResolution {
 		String fullPath = getFullPath(vdm);
 		String description = String.format(resolutionMessage.getDescription(), expression, fullPath);
 
-		setLabel(resolutionMessage.getLabel());
 		setDescription(description);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
+	public String getLabel() {
+		return resolutionMessage.getLabel();
+	}
+
 	@Override
 	public void run(IMarker marker) {
 		try {

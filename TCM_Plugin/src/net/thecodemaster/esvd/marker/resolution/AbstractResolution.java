@@ -36,35 +36,8 @@ import org.eclipse.ui.IMarkerResolution2;
 
 public abstract class AbstractResolution implements IMarkerResolution2 {
 
-	private final int			position;
-	private String				label;
 	private String				description;
 	private ReporterView	reporter;
-
-	public AbstractResolution(int position) {
-		this.position = position;
-	}
-
-	private int getPosition() {
-		return position;
-	}
-
-	private String getStrPosition() {
-		return String.format("%02d - ", getPosition());
-	}
-
-	protected final void setLabel(String label) {
-		this.label = label;
-	}
-
-	private String getLocalLabel() {
-		return label;
-	}
-
-	@Override
-	public String getLabel() {
-		return getStrPosition() + getLocalLabel();
-	}
 
 	@Override
 	public Image getImage() {

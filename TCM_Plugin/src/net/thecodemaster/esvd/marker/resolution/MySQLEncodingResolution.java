@@ -40,15 +40,8 @@ public class MySQLEncodingResolution extends AbstractEncodingResolution {
 	private static final String	ESAPI										= "ESAPI";
 	private static final String	ESAPI_ENCODER						= "encoder";
 
-	public MySQLEncodingResolution(int position) {
-		super(position);
-
-		setLabel(generateLabel());
+	public MySQLEncodingResolution() {
 		setDescription(generateDescription());
-	}
-
-	private String generateLabel() {
-		return "MySQL Encoder";
 	}
 
 	private String generateDescription() {
@@ -64,6 +57,11 @@ public class MySQLEncodingResolution extends AbstractEncodingResolution {
 		buf.append(description);
 
 		return buf.toString();
+	}
+
+	@Override
+	public String getLabel() {
+		return "MySQL Encoder";
 	}
 
 	@Override

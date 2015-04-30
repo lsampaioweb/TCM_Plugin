@@ -12,8 +12,10 @@ import org.eclipse.core.resources.IMarker;
  */
 public class EntryPointNotSanitizedResolution extends AbstractResolution {
 
-	public EntryPointNotSanitizedResolution(int position, ResolutionMessage resolutionMessage, IMarker marker) {
-		super(position);
+	private final ResolutionMessage	resolutionMessage;
+
+	public EntryPointNotSanitizedResolution(ResolutionMessage resolutionMessage, IMarker marker) {
+		this.resolutionMessage = resolutionMessage;
 
 		// 03 - Get the ViewDataModel of this marker.
 		List<ViewDataModel> vdms = getViewDataModelsFromMarker(marker);
@@ -24,13 +26,14 @@ public class EntryPointNotSanitizedResolution extends AbstractResolution {
 		String description = (null != resolutionMessage.getDescription()) ? resolutionMessage.getDescription() : "";
 		String descriptionFormatted = String.format(description, expression, expression);
 
-		setLabel(resolutionMessage.getLabel());
 		setDescription(descriptionFormatted);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
+	public String getLabel() {
+		return resolutionMessage.getLabel();
+	}
+
 	@Override
 	public void run(IMarker marker) {
 		try {

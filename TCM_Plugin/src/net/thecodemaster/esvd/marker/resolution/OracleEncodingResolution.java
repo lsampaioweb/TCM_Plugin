@@ -39,15 +39,8 @@ public class OracleEncodingResolution extends AbstractEncodingResolution {
 	private static final String	ESAPI									= "ESAPI";
 	private static final String	ESAPI_ENCODER					= "encoder";
 
-	public OracleEncodingResolution(int position) {
-		super(position);
-
-		setLabel(generateLabel());
+	public OracleEncodingResolution() {
 		setDescription(generateDescription());
-	}
-
-	private String generateLabel() {
-		return "Oracle Encoder";
 	}
 
 	private String generateDescription() {
@@ -63,6 +56,11 @@ public class OracleEncodingResolution extends AbstractEncodingResolution {
 		buf.append(description);
 
 		return buf.toString();
+	}
+
+	@Override
+	public String getLabel() {
+		return "Oracle Encoder";
 	}
 
 	@Override

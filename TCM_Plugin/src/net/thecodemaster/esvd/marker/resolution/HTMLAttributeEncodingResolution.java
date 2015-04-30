@@ -1,17 +1,9 @@
 package net.thecodemaster.esvd.marker.resolution;
 
-
 public class HTMLAttributeEncodingResolution extends AbstractEncodingResolution {
 
-	public HTMLAttributeEncodingResolution(int position) {
-		super(position);
-
-		setLabel(generateLabel());
+	public HTMLAttributeEncodingResolution() {
 		setDescription(generateDescription());
-	}
-
-	private String generateLabel() {
-		return "HTML Attribute Encoder";
 	}
 
 	private String generateDescription() {
@@ -27,6 +19,11 @@ public class HTMLAttributeEncodingResolution extends AbstractEncodingResolution 
 		buf.append(description);
 
 		return buf.toString();
+	}
+
+	@Override
+	public String getLabel() {
+		return "HTML Attribute Encoder";
 	}
 
 	@Override

@@ -39,15 +39,8 @@ public class DB2EncodingResolution extends AbstractEncodingResolution {
 	private static final String	ESAPI								= "ESAPI";
 	private static final String	ESAPI_ENCODER				= "encoder";
 
-	public DB2EncodingResolution(int position) {
-		super(position);
-
-		setLabel(generateLabel());
+	public DB2EncodingResolution() {
 		setDescription(generateDescription());
-	}
-
-	private String generateLabel() {
-		return "DB2 Encoder";
 	}
 
 	private String generateDescription() {
@@ -63,6 +56,11 @@ public class DB2EncodingResolution extends AbstractEncodingResolution {
 		buf.append(description);
 
 		return buf.toString();
+	}
+
+	@Override
+	public String getLabel() {
+		return "CSS Encoder";
 	}
 
 	@Override

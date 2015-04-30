@@ -1,17 +1,9 @@
 package net.thecodemaster.esvd.marker.resolution;
 
-
 public class CSSEncodingResolution extends AbstractEncodingResolution {
 
-	public CSSEncodingResolution(int position) {
-		super(position);
-
-		setLabel(generateLabel());
+	public CSSEncodingResolution() {
 		setDescription(generateDescription());
-	}
-
-	private String generateLabel() {
-		return "CSS Encoder";
 	}
 
 	private String generateDescription() {
@@ -27,6 +19,11 @@ public class CSSEncodingResolution extends AbstractEncodingResolution {
 		buf.append(description);
 
 		return buf.toString();
+	}
+
+	@Override
+	public String getLabel() {
+		return "CSS Encoder";
 	}
 
 	@Override

@@ -1,107 +1,87 @@
 package net.thecodemaster.esvd.marker.resolution;
 
 import java.util.List;
-import java.util.Map;
 
 import net.thecodemaster.esvd.helper.Creator;
-import net.thecodemaster.esvd.xmlloader.LoaderResolutionMessages;
 
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.ui.IMarkerResolution2;
 
 public class ResolutionManager {
 
-	private int																			position	= 0;
-	private static Map<Integer, ResolutionMessage>	resolutionMessages;
+	private final List<IMarkerResolution2>	resolutions;
 
-	private int getPosition() {
-		return ++position;
+	public ResolutionManager(ResolutionMessage resolutionMessage, IMarker marker) {
+		resolutions = Creator.newList();
+		getDefaultResolutions(resolutionMessage, marker);
 	}
 
-	private Map<Integer, ResolutionMessage> getResolutionMessages() {
-		if (null == resolutionMessages) {
-			resolutionMessages = (new LoaderResolutionMessages()).load();
-		}
+	private List<IMarkerResolution2> getDefaultResolutions(ResolutionMessage resolutionMessage, IMarker marker) {
+		resolutions.add(new IgnoreResolution(resolutionMessage, marker));
 
-		return resolutionMessages;
+		return resolutions;
 	}
 
 	protected List<IMarkerResolution2> getCommandInjectionResolutions() {
-		List<IMarkerResolution2> resolutions = Creator.newList();
-		resolutions.add(new WindowsEncodingResolution(getPosition()));
-		resolutions.add(new UnixEncodingResolution(getPosition()));
+		resolutions.add(new WindowsEncodingResolution());
+		resolutions.add(new UnixEncodingResolution());
 
 		return resolutions;
 	}
 
 	protected List<IMarkerResolution2> getCookiePoisoningResolutions() {
-		List<IMarkerResolution2> resolutions = Creator.newList();
-
 		return resolutions;
 	}
 
 	protected List<IMarkerResolution2> getCrossSiteScriptingResolutions() {
-		List<IMarkerResolution2> resolutions = Creator.newList();
-		resolutions.add(new HTMLEncodingResolution(getPosition()));
-		resolutions.add(new HTMLAttributeEncodingResolution(getPosition()));
-		resolutions.add(new XMLEncodingResolution(getPosition()));
-		resolutions.add(new XMLAttributeEncodingResolution(getPosition()));
-		resolutions.add(new CSSEncodingResolution(getPosition()));
-		resolutions.add(new JavaScriptEncodingResolution(getPosition()));
-		resolutions.add(new VBScriptEncodingResolution(getPosition()));
+		resolutions.add(new HTMLEncodingResolution());
+		resolutions.add(new HTMLAttributeEncodingResolution());
+		resolutions.add(new XMLEncodingResolution());
+		resolutions.add(new XMLAttributeEncodingResolution());
+		resolutions.add(new CSSEncodingResolution());
+		resolutions.add(new JavaScriptEncodingResolution());
+		resolutions.add(new VBScriptEncodingResolution());
 
 		return resolutions;
 	}
 
 	protected List<IMarkerResolution2> getHTTPResponseSplittingResolutions() {
-		List<IMarkerResolution2> resolutions = Creator.newList();
-
 		return resolutions;
 	}
 
 	protected List<IMarkerResolution2> getLDAPInjectionResolutions() {
-		List<IMarkerResolution2> resolutions = Creator.newList();
-		resolutions.add(new LDAPEncodingResolution(getPosition()));
-		resolutions.add(new DNEncodingResolution(getPosition()));
+		resolutions.add(new LDAPEncodingResolution());
+		resolutions.add(new DNEncodingResolution());
 
 		return resolutions;
 	}
 
 	protected List<IMarkerResolution2> getLogForgingResolutions() {
-		List<IMarkerResolution2> resolutions = Creator.newList();
-
 		return resolutions;
 	}
 
 	protected List<IMarkerResolution2> getPathTraversalResolutions() {
-		List<IMarkerResolution2> resolutions = Creator.newList();
-
 		return resolutions;
 	}
 
 	protected List<IMarkerResolution2> getReflectionInjectionResolutions() {
-		List<IMarkerResolution2> resolutions = Creator.newList();
-
 		return resolutions;
 	}
 
 	protected List<IMarkerResolution2> getSecurityMisconfigurationResolutions() {
-		List<IMarkerResolution2> resolutions = Creator.newList();
-
 		return resolutions;
 	}
 
 	protected List<IMarkerResolution2> getSQLInjectionResolutions() {
-		List<IMarkerResolution2> resolutions = Creator.newList();
-		resolutions.add(new MySQLEncodingResolution(getPosition()));
-		resolutions.add(new OracleEncodingResolution(getPosition()));
-		resolutions.add(new DB2EncodingResolution(getPosition()));
+		resolutions.add(new MySQLEncodingResolution());
+		resolutions.add(new OracleEncodingResolution());
+		resolutions.add(new DB2EncodingResolution());
 
 		return resolutions;
 	}
 
 	protected List<IMarkerResolution2> getXPathInjectionResolutions() {
-		List<IMarkerResolution2> resolutions = Creator.newList();
-		resolutions.add(new XPathEncodingResolution(getPosition()));
+		resolutions.add(new XPathEncodingResolution());
 
 		return resolutions;
 	}

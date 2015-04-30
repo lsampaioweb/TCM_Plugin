@@ -1,17 +1,9 @@
 package net.thecodemaster.esvd.marker.resolution;
 
-
 public class JavaScriptEncodingResolution extends AbstractEncodingResolution {
 
-	public JavaScriptEncodingResolution(int position) {
-		super(position);
-
-		setLabel(generateLabel());
+	public JavaScriptEncodingResolution() {
 		setDescription(generateDescription());
-	}
-
-	private String generateLabel() {
-		return "JavaScript Encoder";
 	}
 
 	private String generateDescription() {
@@ -27,6 +19,11 @@ public class JavaScriptEncodingResolution extends AbstractEncodingResolution {
 		buf.append(description);
 
 		return buf.toString();
+	}
+
+	@Override
+	public String getLabel() {
+		return "JavaScript Encoder";
 	}
 
 	@Override

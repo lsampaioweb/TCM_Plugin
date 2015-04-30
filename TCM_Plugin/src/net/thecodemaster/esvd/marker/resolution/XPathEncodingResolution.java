@@ -1,17 +1,9 @@
 package net.thecodemaster.esvd.marker.resolution;
 
-
 public class XPathEncodingResolution extends AbstractEncodingResolution {
 
-	public XPathEncodingResolution(int position) {
-		super(position);
-
-		setLabel(generateLabel());
+	public XPathEncodingResolution() {
 		setDescription(generateDescription());
-	}
-
-	private String generateLabel() {
-		return "XPath Encoder";
 	}
 
 	private String generateDescription() {
@@ -27,6 +19,11 @@ public class XPathEncodingResolution extends AbstractEncodingResolution {
 		buf.append(description);
 
 		return buf.toString();
+	}
+
+	@Override
+	public String getLabel() {
+		return "XPath Encoder";
 	}
 
 	@Override

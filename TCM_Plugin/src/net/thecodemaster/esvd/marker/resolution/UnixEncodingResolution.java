@@ -39,15 +39,8 @@ public class UnixEncodingResolution extends AbstractEncodingResolution {
 	private static final String	ESAPI								= "ESAPI";
 	private static final String	ESAPI_ENCODER				= "encoder";
 
-	public UnixEncodingResolution(int position) {
-		super(position);
-
-		setLabel(generateLabel());
+	public UnixEncodingResolution() {
 		setDescription(generateDescription());
-	}
-
-	private String generateLabel() {
-		return "Unix Encoder";
 	}
 
 	private String generateDescription() {
@@ -63,6 +56,11 @@ public class UnixEncodingResolution extends AbstractEncodingResolution {
 		buf.append(description);
 
 		return buf.toString();
+	}
+
+	@Override
+	public String getLabel() {
+		return "Unix Encoder";
 	}
 
 	@Override

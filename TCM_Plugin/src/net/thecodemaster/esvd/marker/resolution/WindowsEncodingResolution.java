@@ -39,15 +39,8 @@ public class WindowsEncodingResolution extends AbstractEncodingResolution {
 	private static final String	ESAPI										= "ESAPI";
 	private static final String	ESAPI_ENCODER						= "encoder";
 
-	public WindowsEncodingResolution(int position) {
-		super(position);
-
-		setLabel(generateLabel());
+	public WindowsEncodingResolution() {
 		setDescription(generateDescription());
-	}
-
-	private String generateLabel() {
-		return "Windows Encoder";
 	}
 
 	private String generateDescription() {
@@ -63,6 +56,11 @@ public class WindowsEncodingResolution extends AbstractEncodingResolution {
 		buf.append(description);
 
 		return buf.toString();
+	}
+
+	@Override
+	public String getLabel() {
+		return "Windows Encoder";
 	}
 
 	@Override
