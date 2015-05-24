@@ -238,13 +238,13 @@
 	<sanitizer id="46">
 		<qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
 		<methodname>encodeForOS</methodname>
-		<parameters type="org.owasp.esapi.codecs.Codec" />
+		<parameters type="org.owasp.esapi.codecs.WindowsCodec" />
 		<parameters type="java.lang.String" />
 	</sanitizer>
 	<sanitizer id="47">
 		<qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
-		<methodname>encodeForSQL</methodname>
-		<parameters type="org.owasp.esapi.codecs.Codec" />
+		<methodname>encodeForOS</methodname>
+		<parameters type="org.owasp.esapi.codecs.UnixCodec" />
 		<parameters type="java.lang.String" />
 	</sanitizer>
 	<sanitizer id="48">
@@ -272,4 +272,22 @@
 		<methodname>encodeForXPath</methodname>
 		<parameters type="java.lang.String" />
 	</sanitizer>
+	<sanitizer id="53">
+    <qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
+    <methodname>encodeForSQL</methodname>
+    <parameters type="org.owasp.esapi.codecs.MySQLCodec" />
+    <parameters type="java.lang.String" />
+  </sanitizer>
+  <sanitizer id="54">
+    <qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
+    <methodname>encodeForSQL</methodname>
+    <parameters type="org.owasp.esapi.codecs.OracleCodec" />
+    <parameters type="java.lang.String" />
+  </sanitizer>
+  <sanitizer id="55">
+    <qualifiedname>org.owasp.esapi.Encoder</qualifiedname>
+    <methodname>encodeForSQL</methodname>
+    <parameters type="org.owasp.esapi.codecs.DB2Codec" />
+    <parameters type="java.lang.String" />
+  </sanitizer>
 </sanitizers>
