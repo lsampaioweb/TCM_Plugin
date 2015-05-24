@@ -60,7 +60,7 @@ public class DB2EncodingResolution extends AbstractEncodingResolution {
 
 	@Override
 	public String getLabel() {
-		return "CSS Encoder";
+		return "DB2 Encoder";
 	}
 
 	@Override
