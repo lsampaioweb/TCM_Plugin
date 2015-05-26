@@ -2,7 +2,7 @@
 <feature
       id="TCM_ESVD_Feature"
       label="Detector and Security View"
-      version="0.3.9.qualifier"
+      version="0.3.10.qualifier"
       provider-name="thecodemaster.net">
 
    <description>
